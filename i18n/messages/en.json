@@ -2,5 +2,69 @@
   "HomePage": {
     "title": "Home Page",
     "description": "This is homepage"
+  },
+  "Roles": {
+    "shopOwner": "Shop Owner",
+    "designer": "Designer",
+    "contractor": "Contractor",
+    "admin": "Admin"
+  },
+  "Sidebar": {
+    "designer": {
+      "projectInfo": "Project Info",
+      "overview": "Overview",
+      "brief": "Brief",
+      "survey": "Survey",
+      "designWork": "Design Work",
+      "concept": "Concept",
+      "layout2d": "Layout 2D",
+      "3dDesign": "3D Design",
+      "technicalDrawings": "Technical Drawings",
+      "revisions": "Revisions",
+      "collaboration": "Collaboration",
+      "messages": "Messages",
+      "progress": "Progress",
+      "constructionSupport": "Construction Support"
+    },
+    "contractor": {
+      "workspace": "Workspace",
+      "overview": "Overview",
+      "constructionLog": "Construction Log",
+      "dailyReports": "Daily Reports",
+      "issuesAndRFI": "Issues & RFI",
+      "myProjects": "My Projects",
+      "quotations": "Quotations",
+      "activeProjects": "Active Projects",
+      "completedProjects": "Completed Projects",
+      "materialsAndHandover": "Materials & Handover",
+      "materialsTracking": "Materials Tracking",
+      "handover": "Handover"
+    },
+    "shopOwner": {
+      "workspace": "Workspace",
+      "overview": "Overview",
+      "discussion": "Discussion",
+      "projectManagement": "Project Management",
+      "documents": "Documents",
+      "quotations": "Quotations",
+      "approvals": "Approvals",
+      "progress": "Progress",
+      "handover": "Handover",
+      "contracts": "Contracts",
+      "createContract": "Create Contract",
+      "contractHistory": "Contract History"
+    },
+    "admin": {
+      "overview": "Overview",
+      "dashboard": "Dashboard",
+      "systemAlerts": "System Alerts",
+      "management": "Management",
+      "users": "Users",
+      "providers": "Providers",
+      "projects": "Projects",
+      "platform": "Platform",
+      "disputes": "Disputes",
+      "analytics": "Analytics"
+    }
   }
 }

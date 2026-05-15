@@ -2,5 +2,69 @@
   "HomePage": {
     "title": "Trang chủ",
     "description": "Trang chủ nè"
+  },
+  "Roles": {
+    "shopOwner": "Chủ quán",
+    "designer": "Nhà thiết kế",
+    "contractor": "Nhà thầu",
+    "admin": "Quản trị viên"
+  },
+  "Sidebar": {
+    "designer": {
+      "projectInfo": "Thông tin dự án",
+      "overview": "Tổng quan",
+      "brief": "Yêu cầu",
+      "survey": "Khảo sát",
+      "designWork": "Công việc thiết kế",
+      "concept": "Phác thảo ý tưởng",
+      "layout2d": "Bố trí mặt bằng 2D",
+      "3dDesign": "Thiết kế 3D",
+      "technicalDrawings": "Bản vẽ kỹ thuật",
+      "revisions": "Chỉnh sửa",
+      "collaboration": "Cộng tác",
+      "messages": "Tin nhắn",
+      "progress": "Tiến độ",
+      "constructionSupport": "Hỗ trợ thi công"
+    },
+    "contractor": {
+      "workspace": "Không gian làm việc",
+      "overview": "Tổng quan",
+      "constructionLog": "Nhật ký thi công",
+      "dailyReports": "Báo cáo hàng ngày",
+      "issuesAndRFI": "Vấn đề & RFI",
+      "myProjects": "Dự án của tôi",
+      "quotations": "Báo giá",
+      "activeProjects": "Dự án đang thi công",
+      "completedProjects": "Dự án đã hoàn thành",
+      "materialsAndHandover": "Vật tư & Bàn giao",
+      "materialsTracking": "Theo dõi vật tư",
+      "handover": "Bàn giao"
+    },
+    "shopOwner": {
+      "workspace": "Không gian làm việc",
+      "overview": "Tổng quan",
+      "discussion": "Trao đổi",
+      "projectManagement": "Quản lý dự án",
+      "documents": "Tài liệu",
+      "quotations": "Báo giá",
+      "approvals": "Phê duyệt",
+      "progress": "Tiến độ",
+      "handover": "Bàn giao",
+      "contracts": "Hợp đồng",
+      "createContract": "Tạo hợp đồng",
+      "contractHistory": "Lịch sử hợp đồng"
+    },
+    "admin": {
+      "overview": "Tổng quan",
+      "dashboard": "Bảng điều khiển",
+      "systemAlerts": "Cảnh báo hệ thống",
+      "management": "Quản lý",
+      "users": "Người dùng",
+      "providers": "Nhà cung cấp",
+      "projects": "Dự án",
+      "platform": "Nền tảng",
+      "disputes": "Tranh chấp",
+      "analytics": "Phân tích"
+    }
   }
 }
