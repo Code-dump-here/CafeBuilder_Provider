@@ -12,7 +12,8 @@
       "orContinue": "hoặc tiếp tục với",
       "continueWithGoogle": "Đăng nhập với Google",
       "noAccount": "Chưa có tài khoản?",
-      "registerNow": "Đăng ký ngay"
+      "registerNow": "Đăng ký ngay",
+      "logOut": "Đăng xuất"
     },
     "fields": {
       "email": "Email",
@@ -60,6 +61,163 @@
       "terms": "Điều khoản dịch vụ",
       "privacy": "Chính sách bảo mật",
       "support": "Hỗ trợ"
+    }
+  },
+  "Onboarding": {
+    "steps": {
+      "verifyEmail": {
+        "label": "Xác minh email"
+      },
+      "completeProfile": {
+        "label": "Hoàn thiện hồ sơ"
+      }
+    },
+    "verifyEmail": {
+      "title": "Xác minh địa chỉ email của bạn",
+      "subtitle": "Chúng tôi đã gửi mã xác minh đến email của bạn. Nhập mã bên dưới để tiếp tục.",
+      "labels": {
+        "emailSentTo": "Mã xác minh đã gửi đến"
+      },
+      "sendCode": "Gửi mã xác minh",
+      "sending": "Đang gửi...",
+      "resendCode": "Không nhận được mã? Gửi lại",
+      "codeLabel": "Nhập mã 6 chữ số",
+      "codeHint": "Kiểm tra hộp thư đến và thư rác",
+      "verifyCode": "Xác minh & Tiếp tục",
+      "verifying": "Đang xác minh...",
+      "demoLabel": "Demo",
+      "demoHint": "Nhập 123456 để mô phỏng thành công",
+      "instructions": {
+        "title": "Tại sao cần xác minh email?",
+        "description": "Xác minh email giúp bảo vệ tài khoản, cho phép khôi phục mật khẩu và nhận thông báo dự án. Quy trình chỉ mất chưa đầy một phút."
+      },
+      "verified": {
+        "title": "Xác minh email thành công!",
+        "description": "Email của bạn đã được xác nhận. Nhấn Tiếp tục để thiết lập hồ sơ."
+      },
+      "errors": {
+        "wrongCode": "Mã xác minh không chính xác. Vui lòng thử lại."
+      }
+    },
+    "completeProfile": {
+      "title": "Hoàn thiện hồ sơ của bạn",
+      "subtitle": "Chọn vai trò để tiếp tục thiết lập không gian làm việc SmartCafeBuilder",
+      "supportingText": "Nền tảng phục vụ chủ quán cà phê, nhà thiết kế và đơn vị thi công trong cùng một hệ thống"
+    },
+    "accountSummary": {
+      "title": "Tài khoản đã tạo",
+      "completed": "Hoàn tất",
+      "labels": {
+        "fullname": "Họ và tên",
+        "email": "Email",
+        "phonenumber": "Số điện thoại"
+      }
+    },
+    "roleSelection": {
+      "title": "Chọn vai trò của bạn",
+      "subtitle": "Mỗi vai trò có không gian làm việc riêng biệt — bạn có thể thay đổi bất kỳ lúc nào"
+    },
+    "roles": {
+      "shop_owner": {
+        "name": "Chủ quán",
+        "shortDesc": "Quản lý dự án",
+        "detailDesc": "Tạo và quản lý dự án thiết kế, đặt ngân sách, phê duyệt báo giá và theo dõi tiến độ thi công.",
+        "submitLabel": "Chủ quán"
+      },
+      "designer": {
+        "name": "Nhà thiết kế",
+        "shortDesc": "Sáng tạo không gian",
+        "detailDesc": "Xây dựng hồ sơ năng lực, nhận yêu cầu dự án, quản lý bản vẽ 2D/3D và phối hợp với chủ đầu tư.",
+        "submitLabel": "Nhà thiết kế"
+      },
+      "construction_company": {
+        "name": "Đơn vị thi công",
+        "shortDesc": "Thi công chuyên nghiệp",
+        "detailDesc": "Thiết lập hồ sơ công ty, nhận yêu cầu thi công, lập kế hoạch, cập nhật nhật ký và báo cáo tiến độ.",
+        "submitLabel": "Đơn vị thi công"
+      }
+    },
+    "shopOwner": {
+      "fields": {
+        "businessName": "Tên quán / Doanh nghiệp",
+        "businessNamePlaceholder": "VD: The Coffee House Sài Gòn",
+        "city": "Thành phố / Khu vực",
+        "cityPlaceholder": "VD: TP. Hồ Chí Minh",
+        "shopModel": "Mô hình quán",
+        "shopModelPlaceholder": "VD: Café take-away, Quán ngồi, Coworking cafe...",
+        "businessGoal": "Mục tiêu kinh doanh",
+        "businessGoalPlaceholder": "VD: Mở chuỗi 5 quán trong 2 năm tới",
+        "currentStage": "Giai đoạn hiện tại",
+        "currentStagePlaceholder": "VD: Đang lên kế hoạch"
+      },
+      "noFields": {
+        "title": "Bạn là chủ quán cà phê",
+        "description": "Bạn có thể bắt đầu tạo dự án ngay. Thông tin về quán sẽ được thiết lập trong quá trình tạo dự án."
+      }
+    },
+    "designer": {
+      "fields": {
+        "studioName": "Tên studio / Thương hiệu cá nhân",
+        "studioNamePlaceholder": "VD: Studio Thiết Kế Minh Đức",
+        "workingCity": "Thành phố làm việc",
+        "workingCityPlaceholder": "VD: TP. Hồ Chí Minh",
+        "yearsExperience": "Số năm kinh nghiệm",
+        "completedProjects": "Dự án đã hoàn thành",
+        "specialization": "Chuyên môn",
+        "specializationPlaceholder": "VD: Thiết kế nội thất quán cà phê, F&B",
+        "portfolioLink": "Liên kết portfolio",
+        "portfolioLinkPlaceholder": "https://portfolio.example.com"
+      }
+    },
+    "constructionCompany": {
+      "fields": {
+        "companyName": "Tên công ty",
+        "companyNamePlaceholder": "VD: Công Ty TNHH Xây Dựng Nam Phát",
+        "serviceArea": "Khu vực phục vụ",
+        "serviceAreaPlaceholder": "VD: TP. Hồ Chí Minh và các tỉnh lân cận",
+        "yearsOperation": "Số năm hoạt động",
+        "teamSize": "Quy mô đội ngũ",
+        "completedProjects": "Dự án đã hoàn thành",
+        "companyProfileLink": "Liên kết hồ sơ công ty",
+        "companyProfileLinkPlaceholder": "https://company.example.com",
+        "warrantySupport": "Chính sách bảo hành",
+        "warrantySupportPlaceholder": "VD: Bảo hành 12 tháng cho phần thi công"
+      }
+    },
+    "roleFields": {
+      "selectRoleHint": "Vui lòng chọn vai trò ở trên để xem biểu mẫu tương ứng",
+      "sectionHeader": "Thông tin hồ sơ — {role}"
+    },
+    "validation": {
+      "roleRequired": "Vui lòng chọn vai trò của bạn",
+      "businessNameRequired": "Vui lòng nhập tên quán / doanh nghiệp",
+      "cityRequired": "Vui lòng nhập thành phố / khu vực",
+      "shopModelRequired": "Vui lòng nhập mô hình quán",
+      "businessGoalRequired": "Vui lòng nhập mục tiêu kinh doanh",
+      "currentStageRequired": "Vui lòng nhập giai đoạn hiện tại",
+      "studioNameRequired": "Vui lòng nhập tên studio / thương hiệu",
+      "yearsExperienceRequired": "Vui lòng nhập số năm kinh nghiệm",
+      "yearsExperienceInvalid": "Số năm kinh nghiệm phải là số hợp lệ",
+      "specializationRequired": "Vui lòng nhập chuyên môn",
+      "portfolioLinkInvalid": "Liên kết portfolio không hợp lệ",
+      "completedProjectsInvalid": "Số dự án phải là số hợp lệ",
+      "workingCityRequired": "Vui lòng nhập thành phố làm việc",
+      "companyNameRequired": "Vui lòng nhập tên công ty",
+      "serviceAreaRequired": "Vui lòng nhập khu vực phục vụ",
+      "yearsOperationRequired": "Vui lòng nhập số năm hoạt động",
+      "yearsOperationInvalid": "Số năm hoạt động phải là số hợp lệ",
+      "teamSizeRequired": "Vui lòng nhập quy mô đội ngũ",
+      "teamSizeInvalid": "Quy mô đội ngũ phải là số hợp lệ",
+      "completedProjectsCCInvalid": "Số dự án phải là số hợp lệ",
+      "companyProfileLinkInvalid": "Liên kết hồ sơ công ty không hợp lệ",
+      "warrantySupportRequired": "Vui lòng nhập chính sách bảo hành",
+      "urlInvalid": "URL không hợp lệ"
+    },
+    "actions": {
+      "complete": "Hoàn tất",
+      "completeAs": "Hoàn tất với tư cách {role}",
+      "submitting": "Đang xử lý...",
+      "back": "Quay lại"
     }
   },
   "Roles": {

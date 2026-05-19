@@ -12,7 +12,8 @@
       "orContinue": "or continue with",
       "continueWithGoogle": "Continue with Google",
       "noAccount": "Don't have an account?",
-      "registerNow": "Register now"
+      "registerNow": "Register now",
+      "logOut": "Log out"
     },
     "fields": {
       "email": "Email",
@@ -60,6 +61,163 @@
       "terms": "Terms of Service",
       "privacy": "Privacy Policy",
       "support": "Support"
+    }
+  },
+  "Onboarding": {
+    "steps": {
+      "verifyEmail": {
+        "label": "Verify email"
+      },
+      "completeProfile": {
+        "label": "Complete profile"
+      }
+    },
+    "verifyEmail": {
+      "title": "Verify your email",
+      "subtitle": "We've sent a verification code to your email address. Enter it below to continue.",
+      "labels": {
+        "emailSentTo": "Verification code sent to"
+      },
+      "sendCode": "Send verification code",
+      "sending": "Sending...",
+      "resendCode": "Didn't receive the code? Send again",
+      "codeLabel": "Enter 6-digit code",
+      "codeHint": "Check your email inbox and spam folder",
+      "verifyCode": "Verify & continue",
+      "verifying": "Verifying...",
+      "demoLabel": "Demo",
+      "demoHint": "Enter 123456 to simulate success",
+      "instructions": {
+        "title": "Why verify your email?",
+        "description": "Email verification keeps your account secure, enables password recovery, and allows you to receive project notifications. The process takes less than a minute."
+      },
+      "verified": {
+        "title": "Email verified successfully!",
+        "description": "Your email has been confirmed. Click Continue to set up your profile."
+      },
+      "errors": {
+        "wrongCode": "The verification code is incorrect. Please try again."
+      }
+    },
+    "completeProfile": {
+      "title": "Complete your profile",
+      "subtitle": "Choose your role to continue setting up your SmartCafeBuilder workspace",
+      "supportingText": "The platform serves shop owners, designers, and construction companies in one unified system"
+    },
+    "accountSummary": {
+      "title": "Account created",
+      "completed": "Completed",
+      "labels": {
+        "fullname": "Full name",
+        "email": "Email",
+        "phonenumber": "Phone number"
+      }
+    },
+    "roleSelection": {
+      "title": "Choose your role",
+      "subtitle": "Each role has its own dedicated workspace — you can change this anytime"
+    },
+    "roles": {
+      "shop_owner": {
+        "name": "Shop Owner",
+        "shortDesc": "Manage projects",
+        "detailDesc": "Create and manage design projects, set budgets, approve quotations, and track construction progress.",
+        "submitLabel": "Shop Owner"
+      },
+      "designer": {
+        "name": "Designer",
+        "shortDesc": "Create spaces",
+        "detailDesc": "Build your profile and portfolio, receive project requests, manage 2D/3D drawings, and collaborate with clients.",
+        "submitLabel": "Designer"
+      },
+      "construction_company": {
+        "name": "Construction Co.",
+        "shortDesc": "Build professionally",
+        "detailDesc": "Set up your company profile, receive construction requests, plan work, update logs, and report progress.",
+        "submitLabel": "Construction Co."
+      }
+    },
+    "shopOwner": {
+      "fields": {
+        "businessName": "Shop / Business name",
+        "businessNamePlaceholder": "e.g. The Coffee House Saigon",
+        "city": "City / Location",
+        "cityPlaceholder": "e.g. Ho Chi Minh City",
+        "shopModel": "Shop model",
+        "shopModelPlaceholder": "e.g. Café take-away, Sit-down café, Coworking cafe...",
+        "businessGoal": "Business goal",
+        "businessGoalPlaceholder": "e.g. Open 5 locations in the next 2 years",
+        "currentStage": "Current stage",
+        "currentStagePlaceholder": "e.g. Planning phase"
+      },
+      "noFields": {
+        "title": "You're a coffee shop owner",
+        "description": "You can start creating projects right away. Your shop details will be set up during the project creation process."
+      }
+    },
+    "designer": {
+      "fields": {
+        "studioName": "Studio name / Personal brand",
+        "studioNamePlaceholder": "e.g. Minh Duc Design Studio",
+        "workingCity": "Working city",
+        "workingCityPlaceholder": "e.g. Ho Chi Minh City",
+        "yearsExperience": "Years of experience",
+        "completedProjects": "Completed projects",
+        "specialization": "Specialization",
+        "specializationPlaceholder": "e.g. Café & F&B interior design",
+        "portfolioLink": "Portfolio link",
+        "portfolioLinkPlaceholder": "https://portfolio.example.com"
+      }
+    },
+    "constructionCompany": {
+      "fields": {
+        "companyName": "Company name",
+        "companyNamePlaceholder": "e.g. Nam Phat Construction Co., Ltd",
+        "serviceArea": "Service area",
+        "serviceAreaPlaceholder": "e.g. Ho Chi Minh City and surrounding provinces",
+        "yearsOperation": "Years in operation",
+        "teamSize": "Team size",
+        "completedProjects": "Completed projects",
+        "companyProfileLink": "Company profile link",
+        "companyProfileLinkPlaceholder": "https://company.example.com",
+        "warrantySupport": "Warranty policy",
+        "warrantySupportPlaceholder": "e.g. 12-month warranty on construction work"
+      }
+    },
+    "roleFields": {
+      "selectRoleHint": "Please select a role above to see the corresponding form",
+      "sectionHeader": "Profile information — {role}"
+    },
+    "validation": {
+      "roleRequired": "Please select your role",
+      "businessNameRequired": "Please enter your shop / business name",
+      "cityRequired": "Please enter your city / location",
+      "shopModelRequired": "Please enter your shop model",
+      "businessGoalRequired": "Please enter your business goal",
+      "currentStageRequired": "Please enter your current stage",
+      "studioNameRequired": "Please enter your studio name / brand",
+      "yearsExperienceRequired": "Please enter years of experience",
+      "yearsExperienceInvalid": "Years of experience must be a valid number",
+      "specializationRequired": "Please enter your specialization",
+      "portfolioLinkInvalid": "Please enter a valid portfolio URL",
+      "completedProjectsInvalid": "Number of completed projects must be valid",
+      "workingCityRequired": "Please enter your working city",
+      "companyNameRequired": "Please enter your company name",
+      "serviceAreaRequired": "Please enter your service area",
+      "yearsOperationRequired": "Please enter years of operation",
+      "yearsOperationInvalid": "Years of operation must be a valid number",
+      "teamSizeRequired": "Please enter your team size",
+      "teamSizeInvalid": "Team size must be a valid number",
+      "completedProjectsCCInvalid": "Number of completed projects must be valid",
+      "companyProfileLinkInvalid": "Please enter a valid company profile URL",
+      "warrantySupportRequired": "Please enter your warranty policy",
+      "urlInvalid": "Invalid URL"
+    },
+    "actions": {
+      "complete": "Complete",
+      "completeAs": "Complete as {role}",
+      "submitting": "Processing...",
+      "back": "Go back"
     }
   },
   "Roles": {
