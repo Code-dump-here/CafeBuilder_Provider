@@ -3,6 +3,65 @@
     "title": "Home Page",
     "description": "This is homepage"
   },
+  "Auth": {
+    "form": {
+      "title": "Sign in to SmartCafeBuilder",
+      "subtitle": "AI-powered coffee shop design and construction management",
+      "signIn": "Sign in",
+      "signingIn": "Signing in...",
+      "orContinue": "or continue with",
+      "continueWithGoogle": "Continue with Google",
+      "noAccount": "Don't have an account?",
+      "registerNow": "Register now"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Password is required",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "fullnameRequired": "Full name is required",
+      "phonenumberRequired": "Phone number is required",
+      "phonenumberInvalid": "Please enter a valid phone number"
+    },
+    "brand": {
+      "headline": "Design. Plan. Build. All in one place.",
+      "subheadline": "SmartCafeBuilder connects shop owners, designers, and construction teams in a unified AI-powered workflow — from concept to grand opening.",
+      "secureAccess": "Secure access"
+    },
+    "features": {
+      "roleBasedWorkspaces": "Role-based workspaces",
+      "secureAccess": "Secure access",
+      "aiAssistedWorkflow": "AI-assisted workflow"
+    },
+    "register": {
+      "form": {
+        "title": "Create your account",
+        "subtitle": "Start designing your dream coffee shop today",
+        "signUp": "Create account",
+        "signingUp": "Creating account...",
+        "hasAccount": "Already have an account?",
+        "signInNow": "Sign in"
+      },
+      "fields": {
+        "fullname": "Full name",
+        "fullnamePlaceholder": "Enter your full name",
+        "phonenumber": "Phone number",
+        "phonenumberPlaceholder": "Enter your phone number"
+      }
+    },
+    "footer": {
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "support": "Support"
+    }
+  },
   "Roles": {
     "shopOwner": "Shop Owner",
     "designer": "Designer",

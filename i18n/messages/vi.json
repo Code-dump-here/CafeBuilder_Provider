@@ -3,6 +3,65 @@
     "title": "Trang chủ",
     "description": "Trang chủ nè"
   },
+  "Auth": {
+    "form": {
+      "title": "Đăng nhập vào SmartCafeBuilder",
+      "subtitle": "Nền tảng hỗ trợ thiết kế và thi công quán cà phê thông minh",
+      "signIn": "Đăng nhập",
+      "signingIn": "Đang đăng nhập...",
+      "orContinue": "hoặc tiếp tục với",
+      "continueWithGoogle": "Đăng nhập với Google",
+      "noAccount": "Chưa có tài khoản?",
+      "registerNow": "Đăng ký ngay"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Mật khẩu",
+      "passwordPlaceholder": "Nhập mật khẩu của bạn",
+      "rememberMe": "Ghi nhớ đăng nhập",
+      "forgotPassword": "Quên mật khẩu?"
+    },
+    "validation": {
+      "emailRequired": "Vui lòng nhập email",
+      "emailInvalid": "Email không hợp lệ",
+      "passwordRequired": "Vui lòng nhập mật khẩu",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+      "fullnameRequired": "Vui lòng nhập họ và tên",
+      "phonenumberRequired": "Vui lòng nhập số điện thoại",
+      "phonenumberInvalid": "Số điện thoại không hợp lệ"
+    },
+    "brand": {
+      "headline": "Thiết kế. Lập kế hoạch. Thi công. Tất cả trong một.",
+      "subheadline": "SmartCafeBuilder kết nối chủ quán, nhà thiết kế và đơn vị thi công trong một quy trình làm việc tập trung — từ ý tưởng đến ngày khai trương.",
+      "secureAccess": "Truy cập bảo mật"
+    },
+    "features": {
+      "roleBasedWorkspaces": "Không gian theo vai trò",
+      "secureAccess": "Truy cập bảo mật",
+      "aiAssistedWorkflow": "Hỗ trợ bởi AI"
+    },
+    "register": {
+      "form": {
+        "title": "Tạo tài khoản SmartCafeBuilder",
+        "subtitle": "Bắt đầu thiết kế quán cà phê trong mơ ngay hôm nay",
+        "signUp": "Tạo tài khoản",
+        "signingUp": "Đang tạo tài khoản...",
+        "hasAccount": "Đã có tài khoản?",
+        "signInNow": "Đăng nhập ngay"
+      },
+      "fields": {
+        "fullname": "Họ và tên",
+        "fullnamePlaceholder": "Nhập họ và tên của bạn",
+        "phonenumber": "Số điện thoại",
+        "phonenumberPlaceholder": "Nhập số điện thoại"
+      }
+    },
+    "footer": {
+      "terms": "Điều khoản dịch vụ",
+      "privacy": "Chính sách bảo mật",
+      "support": "Hỗ trợ"
+    }
+  },
   "Roles": {
     "shopOwner": "Chủ quán",
     "designer": "Nhà thiết kế",
