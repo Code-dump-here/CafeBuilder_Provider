@@ -63,6 +63,29 @@
       "support": "Support"
     }
   },
+  "Navbar": {
+    "nav": {
+      "features": "Features",
+      "about": "About",
+      "pricing": "Pricing",
+      "contact": "Contact",
+      "projects": "Projects"
+    },
+    "cta": {
+      "signIn": "Sign in",
+      "signUp": "Start free"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "locale": {
+      "label": "Language",
+      "en": "English",
+      "vi": "Tiếng Việt"
+    }
+  },
   "Onboarding": {
     "steps": {
       "verifyEmail": {

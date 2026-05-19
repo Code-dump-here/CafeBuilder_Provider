@@ -63,6 +63,29 @@
       "support": "Hỗ trợ"
     }
   },
+  "Navbar": {
+    "nav": {
+      "features": "Tính năng",
+      "about": "Giới thiệu",
+      "pricing": "Bảng giá",
+      "contact": "Liên hệ",
+      "projects": "Dự án"
+    },
+    "cta": {
+      "signIn": "Đăng nhập",
+      "signUp": "Bắt đầu miễn phí"
+    },
+    "theme": {
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống"
+    },
+    "locale": {
+      "label": "Ngôn ngữ",
+      "en": "English",
+      "vi": "Tiếng Việt"
+    }
+  },
   "Onboarding": {
     "steps": {
       "verifyEmail": {

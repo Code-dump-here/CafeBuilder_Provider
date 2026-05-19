@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { hasLocale } from "next-intl";
@@ -8,16 +8,10 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { I18nProvider } from "@/components/providers/i18n-provider";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -42,10 +36,8 @@ export default async function RootLayout({
       className={cn(
         "h-full",
         "antialiased",
-        geistSans.variable,
-        geistMono.variable,
+        plusJakartaSans.variable,
         "font-sans",
-        inter.variable,
       )}
     >
       <body>
@@ -55,9 +47,9 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-        <I18nProvider locale={locale} messages={messages}>
-          {children}
-        </I18nProvider>
+          <I18nProvider locale={locale} messages={messages}>
+            {children}
+          </I18nProvider>
         </ThemeProvider>
       </body>
     </html>
