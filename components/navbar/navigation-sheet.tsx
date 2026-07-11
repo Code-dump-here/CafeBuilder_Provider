@@ -1,23 +1,20 @@
 "use client";
 
-import Link from "next/link";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Menu } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { LocaleSwitcher } from "@/components/ui/locale-switcher";
 import {
   Sheet,
   SheetContent,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { LocaleSwitcher } from "@/components/ui/locale-switcher";
 import { Logo } from "./logo";
 import { NavMenu } from "./nav-menu";
+import { AuthControls } from "./auth-controls";
 
 export const NavigationSheet = () => {
-  const t = useTranslations("Navbar.cta");
-
   return (
     <Sheet>
       <VisuallyHidden>
@@ -38,14 +35,7 @@ export const NavigationSheet = () => {
         <NavMenu className="[&>div]:h-full" orientation="vertical" />
 
         {/* Mobile auth buttons */}
-        <div className="flex flex-col gap-2.5 pt-2">
-          <Button variant="outline" className="w-full text-base" asChild>
-            <Link href="/login">{t("signIn")}</Link>
-          </Button>
-          <Button className="w-full text-base" asChild>
-            <Link href="/register">{t("signUp")}</Link>
-          </Button>
-        </div>
+        <AuthControls variant="sheet" className="flex flex-col gap-2.5 pt-2" />
       </SheetContent>
     </Sheet>
   );

@@ -2,11 +2,14 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, AlertCircle } from "lucide-react";
+import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { InputControl } from "@/components/ui/input-control";
+import { useLoginMutation } from "@/features/auth/hooks";
+import { AppError } from "@/lib/http/errors";
 
 interface LoginFormData {
   email: string;
@@ -15,26 +18,39 @@ interface LoginFormData {
 
 export function LoginForm() {
   const t = useTranslations("Auth");
+  const router = useRouter();
   const [rememberMe, setRememberMe] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
   });
 
-  async function onSubmit(data: LoginFormData) {
-    setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setIsLoading(false);
-    console.log("Login with:", { ...data, rememberMe });
+  const loginMutation = useLoginMutation();
+
+  const errorMessage = React.useMemo<string | null>(() => {
+    if (!loginMutation.error) return null;
+    const err = loginMutation.error as AppError;
+    if (err.isNetworkError) return t("errors.network");
+    if (err.status === 401) return t("errors.invalidCredentials");
+    if (err.status === 403) return t("errors.forbidden");
+    if (err.status && err.status >= 500) return t("errors.server");
+    return err.message || t("errors.unknown");
+  }, [loginMutation.error, t]);
+
+  function onSubmit(data: LoginFormData) {
+    loginMutation.mutate(data, {
+      onSuccess: () => {
+        toast.success(t("toast.loginSuccess"));
+        router.replace("/");
+      },
+    });
   }
+
+  const isSubmitting = loginMutation.isPending;
 
   return (
     <>
@@ -57,7 +73,14 @@ export function LoginForm() {
           type="email"
           placeholder="email@example.com"
           autoComplete="email"
-          disabled={isLoading}
+          disabled={isSubmitting}
+          rules={{
+            required: t("validation.emailRequired"),
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: t("validation.emailInvalid"),
+            },
+          }}
           error={errors.email?.message}
         />
         <InputControl<LoginFormData>
@@ -67,7 +90,14 @@ export function LoginForm() {
           type="password"
           placeholder={t("fields.passwordPlaceholder")}
           autoComplete="current-password"
-          disabled={isLoading}
+          disabled={isSubmitting}
+          rules={{
+            required: t("validation.passwordRequired"),
+            minLength: {
+              value: 6,
+              message: t("validation.passwordTooShort"),
+            },
+          }}
           error={errors.password?.message}
         />
 
@@ -78,7 +108,7 @@ export function LoginForm() {
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              disabled={isLoading}
+              disabled={isSubmitting}
               className="size-3.5 rounded-sm border-input bg-input/20 accent-primary"
             />
             <span>{t("fields.rememberMe")}</span>
@@ -91,14 +121,25 @@ export function LoginForm() {
           </Link>
         </div>
 
+        {/* Server error banner */}
+        {errorMessage && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+          >
+            <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         {/* Submit */}
         <Button
           type="submit"
           size="xl"
           className="w-full gap-2 font-medium"
-          disabled={isLoading}
+          disabled={isSubmitting}
         >
-          {isLoading ? (
+          {isSubmitting ? (
             <>
               <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               {t("form.signingIn")}
@@ -130,6 +171,7 @@ export function LoginForm() {
         variant="outline"
         size="xl"
         className="relative flex w-full items-center justify-center gap-2 font-medium"
+        disabled={isSubmitting}
       >
         <svg className="size-4" viewBox="0 0 24 24" aria-hidden="true">
           <path

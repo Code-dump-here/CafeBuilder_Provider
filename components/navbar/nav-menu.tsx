@@ -18,7 +18,7 @@ export const NavMenu = (props: ComponentProps<typeof NavigationMenu>) => {
     { label: t("features"), href: "/#features" },
     { label: t("about"), href: "/#about" },
     { label: t("pricing"), href: "/#pricing" },
-    { label: t("projects"), href: "/projects" },
+    { label: t("projects"), href: "/marketplace" },
   ] as const;
 
   return (

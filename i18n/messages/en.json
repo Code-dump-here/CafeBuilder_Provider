@@ -29,7 +29,8 @@
       "passwordTooShort": "Password must be at least 6 characters",
       "fullnameRequired": "Full name is required",
       "phonenumberRequired": "Phone number is required",
-      "phonenumberInvalid": "Please enter a valid phone number"
+      "phonenumberInvalid": "Please enter a valid phone number",
+      "accountTypeRequired": "Please select an account type"
     },
     "brand": {
       "headline": "Design. Plan. Build. All in one place.",
@@ -54,13 +55,32 @@
         "fullname": "Full name",
         "fullnamePlaceholder": "Enter your full name",
         "phonenumber": "Phone number",
-        "phonenumberPlaceholder": "Enter your phone number"
+        "phonenumberPlaceholder": "Enter your phone number",
+        "accountType": "Account type"
       }
+    },
+    "roles": {
+      "owner": "Owner",
+      "providerDesign": "Provider — Design studio",
+      "providerConstruction": "Provider — Construction firm",
+      "admin": "Admin"
     },
     "footer": {
       "terms": "Terms of Service",
       "privacy": "Privacy Policy",
       "support": "Support"
+    },
+    "errors": {
+      "invalidCredentials": "Incorrect email or password. Please try again.",
+      "forbidden": "Your account does not have access to this area.",
+      "emailTaken": "This email is already registered. Try signing in instead.",
+      "invalidInput": "Some fields are invalid. Please review and try again.",
+      "network": "Cannot reach the server. Check your connection and retry.",
+      "server": "The server is having trouble. Please try again in a moment.",
+      "unknown": "Sign-in failed. Please try again."
+    },
+    "toast": {
+      "loginSuccess": "Signed in successfully. Welcome back!"
     }
   },
   "Navbar": {
@@ -74,6 +94,20 @@
     "cta": {
       "signIn": "Sign in",
       "signUp": "Start free"
+    },
+    "userMenu": {
+      "triggerAria": "Open user menu",
+      "signedInAs": "Signed in",
+      "workspace": "Go to workspace",
+      "signOut": "Sign out",
+      "signingOut": "Signing out…",
+      "signOutSuccess": "Signed out.",
+      "role": {
+        "owner": "Shop owner",
+        "provider": "Provider",
+        "admin": "Administrator",
+        "guest": "Guest"
+      }
     },
     "theme": {
       "light": "Light",
@@ -249,6 +283,189 @@
     "contractor": "Contractor",
     "admin": "Admin"
   },
+  "Breadcrumb": {
+    "projectFallback": "Project {id}",
+    "versionFallback": "Version {code}"
+  },
+  "ProjectsOverview": {
+    "title": "Overview",
+    "subtitle": "Snapshot of project fundamentals and recent activity.",
+    "breadcrumb": {
+      "projects": "Projects"
+    },
+    "createdBy": "Created by",
+    "updated": "Updated",
+    "priority": {
+      "urgent": "Urgent",
+      "standard": "Standard",
+      "urgentAria": "Priority: urgent"
+    },
+    "actions": {
+      "label": "Project actions",
+      "save": "Save",
+      "print": "Print",
+      "share": "Share",
+      "downloadPdf": "Download PDF",
+      "contactOwner": "Contact Owner",
+      "saveComingSoon": "Save action is coming soon.",
+      "shareCopied": "Link copied to clipboard.",
+      "downloadPdfStarted": "Generating your PDF…"
+    },
+    "snapshot": {
+      "title": "Project Snapshot"
+    },
+    "identity": {
+      "subtitle": "Identity, narrative, and concept at a glance."
+    },
+    "executiveSummary": {
+      "title": "Executive Summary",
+      "subtitle": "The narrative behind the numbers.",
+      "businessType": "Business Type",
+      "primaryGoal": "Primary Goal",
+      "targetAudience": "Target Audience",
+      "targetOpening": "Target Opening"
+    },
+    "basics": {
+      "title": "Project Basics",
+      "projectName": "Name",
+      "projectType": "Type",
+      "location": "Location",
+      "cafeTypes": "Cafe Types"
+    },
+    "quickFacts": {
+      "title": "Quick Facts",
+      "budget": "Budget",
+      "area": "Area",
+      "location": "Location",
+      "priority": "Priority",
+      "priorityUrgent": "Urgent",
+      "priorityStandard": "Standard",
+      "millionShort": "M VND",
+      "areaUnit": "m²"
+    },
+    "projectHealth": {
+      "title": "Project Health",
+      "subtitle": "How ready is this project to move forward?",
+      "briefComplete": "Brief Complete",
+      "briefCompleteAria": "Brief completion at {percent} percent",
+      "percent": "{percent}%",
+      "checklistCount": "{done} of {total} sections ready",
+      "needsCompletion": "Needs Completion",
+      "noChecklist": "No checklist items yet."
+    },
+    "contactOwner": {
+      "title": "Contact Owner",
+      "role": "Project Owner",
+      "sendMessage": "Send Message",
+      "quickConsult": "Request Quick Consult",
+      "messageComingSoon": "Messaging opens once chat is wired."
+    },
+    "downloads": {
+      "title": "Downloads",
+      "downloadPdf": "Download {title}",
+      "allAttachments": "Download {title}",
+      "comingSoon": "Downloads are coming soon."
+    },
+    "designBrief": {
+      "pageTitle": "Design Brief",
+      "pageSubtitle": "The owner's brief and AI-generated design recommendations.",
+      "detailsCard": {
+        "title": "Brief Inputs",
+        "subtitle": "What the owner told us about the project.",
+        "targetCustomer": "Target Customer",
+        "style": "Style",
+        "mood": "Mood",
+        "seatCount": "Seat Target",
+        "seats": "{count} seats",
+        "timeline": "Timeline",
+        "brandNote": "Brand Note",
+        "businessModel": "Business Model",
+        "businessGoals": "Business Goals",
+        "operationNote": "Operational Note",
+        "lastUpdated": "Last updated"
+      },
+      "ai": {
+        "title": "AI Design Iterations",
+        "subtitle": "{count} generations, sorted by most recent.",
+        "empty": "No AI design iterations yet.",
+        "states": {
+          "queued": "Queued",
+          "running": "Running",
+          "completed": "Completed",
+          "failed": "Failed"
+        },
+        "planSummary": "Plan Summary",
+        "recommendations": "Designer Recommendations",
+        "riskNotes": "Risks & Notes",
+        "customerFlow": "Customer Flow",
+        "image": "Concept Render",
+        "imageMissing": "Render not available yet.",
+        "imagePromptLabel": "Prompt",
+        "cost": "Estimated Cost",
+        "fitout": "Fit-out",
+        "equipment": "Equipment",
+        "contingency": "Contingency",
+        "seatCapacity": "Recommended Seats",
+        "layout": "Layout Grid",
+        "layoutSize": "{width} × {height} {unit}",
+        "noPlan": "Plan data is not ready yet.",
+        "failedTitle": "Generation Failed",
+        "failedHint": "The worker rejected this run. Inspect the error or retry.",
+        "errorCopied": "Error copied to clipboard.",
+        "retry": "Retry generation",
+        "retryComingSoon": "Retry flow is coming soon.",
+        "copyError": "Copy error",
+        "jobId": "Job",
+        "noJobId": "No job id"
+      }
+    },
+    "status": {
+      "active": "Active",
+      "archived": "Archived",
+      "activeAria": "Project is active",
+      "archivedAria": "Project is archived",
+      "idAria": "Project ID {id}",
+      "label": "Project status"
+    },
+    "dates": {
+      "createdAt": "Created",
+      "updatedAt": "Last updated",
+      "deletedAt": "Archived"
+    },
+    "metrics": {
+      "heading": "Key figures",
+      "area": "Area",
+      "budget": "Budget",
+      "bids": "Bid requests",
+      "quotations": "Quotations"
+    },
+    "info": {
+      "title": "Project details",
+      "owner": "Owner",
+      "ownerNotLinked": "Owner not linked",
+      "address": "Address",
+      "addressEmpty": "Not provided",
+      "createdAt": "Created at",
+      "updatedAt": "Updated at"
+    },
+    "counts": {
+      "title": "Related records",
+      "subtitle": "Counts of records linked to this project.",
+      "bidRequests": "Bid requests",
+      "budgetItems": "Budget items",
+      "contracts": "Contracts",
+      "conversations": "Conversations",
+      "inspections": "Inspections",
+      "projectHires": "Project hires",
+      "quotations": "Quotations",
+      "reviews": "Reviews",
+      "designBrief": "Design brief",
+      "handover": "Handover",
+      "boolYes": "Yes",
+      "boolNo": "Not yet"
+    },
+    "notProvided": "—"
+  },
   "Sidebar": {
     "designer": {
       "projectInfo": "Project Info",
@@ -256,6 +473,7 @@
       "brief": "Brief",
       "survey": "Survey",
       "designWork": "Design Work",
+      "designManagement": "Design Management",
       "concept": "Concept",
       "layout2d": "Layout 2D",
       "3dDesign": "3D Design",
@@ -305,6 +523,402 @@
       "platform": "Platform",
       "disputes": "Disputes",
       "analytics": "Analytics"
+    }
+  },
+  "Messages": {
+    "createComingSoon": "Creating new threads will be available soon.",
+    "infoComingSoon": "Thread details will open here when wired.",
+    "list": {
+      "label": "Conversation threads",
+      "heading": "Messages",
+      "title": "Threads",
+      "newMessage": "New message",
+      "searchPlaceholder": "Search threads or people…",
+      "empty": "No threads match the current filter.",
+      "pinned": "Pinned",
+      "unreadBadge": "{count} unread",
+      "tabs": {
+        "all": "All",
+        "direct": "Direct",
+        "rooms": "Rooms"
+      }
+    },
+    "detail": {
+      "empty": "Pick a conversation to start chatting.",
+      "noMessages": "No messages in this thread yet.",
+      "composerPlaceholder": "Message {name}…",
+      "send": "Send",
+      "typing": "{name} is typing…",
+      "lastActive": "Last active {date} · {author}"
+    },
+    "header": {
+      "phone": "Voice call",
+      "video": "Video call",
+      "search": "Search in thread",
+      "info": "Thread info",
+      "more": "More actions"
+    },
+    "rail": {
+      "label": "Thread context",
+      "heading": "Files & members",
+      "files": {
+        "title": "Shared files",
+        "searchPlaceholder": "Search shared files…",
+        "empty": "No files have been shared in this thread yet.",
+        "emptySearch": "No files match the current search."
+      },
+      "members": "Members",
+      "memberOnline": "Online"
+    },
+    "roles": {
+      "designer": "Lead Designer",
+      "juniorDesigner": "Junior Designer",
+      "owner": "Owner",
+      "contractor": "General Contractor",
+      "mep": "MEP Engineer",
+      "procurement": "Procurement",
+      "default": "Team member"
+    }
+  },
+  "DesignManagement": {
+    "pageTitle": "Design Management",
+    "pageSubtitle": "Versioned design drawings — track revisions, publish snapshots.",
+    "actions": {
+      "newVersion": "New Version",
+      "publishRevision": "Publish Revision",
+      "openVersion": "Open version",
+      "openVersionAria": "Open version {code}"
+    },
+    "tabs": {
+      "all": "All",
+      "revision": "Revision",
+      "floorPlan": "Floor Plan",
+      "threeD": "3D",
+      "elevation": "Elevation",
+      "section": "Section",
+      "label": "Drawing type"
+    },
+    "customCategory": {
+      "add": "Add custom category",
+      "added": "Added \"{label}\".",
+      "remove": "Remove category",
+      "removeConfirm": "Remove \"{label}\"? Versions in this tab won't be deleted."
+    },
+    "status": {
+      "draft": "Draft",
+      "working": "Working",
+      "published": "Published"
+    },
+    "table": {
+      "owner": "Owner",
+      "version": "Version",
+      "status": "Status",
+      "drawings": "Drawings",
+      "lastUpdated": "Last Updated",
+      "actions": "Actions",
+      "empty": "No versions yet for this filter.",
+      "drawingsCount": "{count, plural, =0 {No drawings} one {# drawing} other {# drawings}}",
+      "open": "Open"
+    },
+    "comments": {
+      "title": "Comments",
+      "subtitle": "{count, plural, =0 {No comments yet} one {# comment} other {# comments}} · scoped to the selected version",
+      "placeholder": "Write a comment…",
+      "post": "Post",
+      "pinned": "Pinned",
+      "reply": "Reply",
+      "empty": "Be the first to comment.",
+      "selectVersion": "Select a version on the left to view its comments.",
+      "comingSoon": "Comment posting will be available once the backend is wired."
+    },
+    "version": {
+      "drawingsTitle": "Drawings in this version",
+      "drawingsLabel": "Drawings",
+      "drawingsSubtitle": "{count} sheets, sorted by most recently updated.",
+      "drawingsCount": "{count, plural, =0 {No drawings} one {# sheet} other {# sheets}}",
+      "backToList": "Back to all versions",
+      "openFull": "Open full size",
+      "scale": "Scale",
+      "sheet": "Sheet",
+      "updatedBy": "Updated by",
+      "noDrawings": "This version has no drawings yet.",
+      "published": "Published on {date}",
+      "notFound": "Version not found.",
+      "hero": {
+        "published": "Published {date}",
+        "drawings": "{count, plural, one {# drawing} other {# drawings}}",
+        "updated": "Updated",
+        "actionsLabel": "Version actions",
+        "share": "Share",
+        "print": "Print",
+        "download": "Download",
+        "shareCopied": "Link copied to clipboard.",
+        "downloadComingSoon": "Download will be available once the backend is wired."
+      }
+    },
+    "crumbs": {
+      "versions": "Versions"
+    },
+    "tree": {
+      "label": "Drawings file tree",
+      "heading": "Drawings",
+      "searchPlaceholder": "Search by name or code…"
+    },
+    "viewer": {
+      "empty": "Pick a drawing from the left to preview it here.",
+      "unavailable": "Preview unavailable",
+      "shareCopied": "Link copied to clipboard.",
+      "downloadComingSoon": "Download will be available once the backend is wired.",
+      "scale": "Scale",
+      "sheet": "Sheet",
+      "updatedBy": "Updated",
+      "prev": "Previous",
+      "next": "Next",
+      "actions": {
+        "fullscreen": "Fullscreen",
+        "crop": "Crop",
+        "share": "Share",
+        "print": "Print",
+        "download": "Download"
+      }
+    },
+    "history": {
+      "label": "Version history",
+      "heading": "History",
+      "title": "All versions",
+      "subtitle": "{count, plural, one {# version on file} other {# versions on file}}",
+      "active": "Viewing",
+      "footnote": "Click any version to open it in the viewer."
+    },
+    "grid": {
+      "openDrawing": "Open {name}",
+      "noNote": "No revision note for this drawing.",
+      "viewLarger": "View larger",
+      "viewFullDrawing": "View full drawing"
+    },
+    "preview": {
+      "noNote": "No revision note.",
+      "unavailable": "Preview unavailable",
+      "scale": "Scale",
+      "sheet": "Sheet",
+      "updated": "Updated",
+      "updatedBy": "Updated by",
+      "openFull": "Open full size",
+      "openComments": "Open comments",
+      "commentComingSoon": "Comments will be available once the backend is wired."
+    },
+    "dialogs": {
+      "newVersion": {
+        "title": "Start a new version",
+        "description": "Create a new draft version. You can rename it later.",
+        "nameLabel": "Version name",
+        "namePlaceholder": "e.g. Owner Revisions",
+        "codeLabel": "Version code",
+        "codeHint": "Leave empty to auto-generate (V{next}).",
+        "categoryLabel": "Drawing type",
+        "notesLabel": "Notes (optional)",
+        "notesPlaceholder": "What's the goal of this version?",
+        "cancel": "Cancel",
+        "create": "Create version",
+        "created": "Version {code} created.",
+        "createComingSoon": "Version creation will be available once the backend is wired."
+      },
+      "publish": {
+        "title": "Publish revision",
+        "description": "Mark the latest working version as published. Owner and contractor will be notified.",
+        "selectLabel": "Version to publish",
+        "selectPlaceholder": "Pick a working version",
+        "noWorking": "No working versions to publish.",
+        "notesLabel": "Release notes (optional)",
+        "notesPlaceholder": "What changed in this revision?",
+        "cancel": "Cancel",
+        "publish": "Publish",
+        "published": "{code} published.",
+        "publishComingSoon": "Publish flow will be available once the backend is wired."
+      },
+      "addCategory": {
+        "title": "Add custom category",
+        "description": "Create a new tab to group drawings by a category you define (e.g. \"Site Plans\" or \"MEP\").",
+        "label": "Category name",
+        "placeholder": "e.g. Site Plans",
+        "cancel": "Cancel",
+        "add": "Add",
+        "created": "Category \"{label}\" added.",
+        "duplicate": "A category with that name already exists."
+      }
+    }
+  },
+  "TechnicalDrawings": {
+    "pageTitle": "Technical Drawings",
+    "pageSubtitle": "Final, contract-ready drawings — sheets, renders, and review notes.",
+    "actions": {
+      "upload": "Upload Drawing",
+      "download": "Download",
+      "openInNewTab": "Open in new tab"
+    },
+    "tabs": {
+      "label": "Drawing set",
+      "3d": "3D",
+      "2d": "2D",
+      "contract": "Contract"
+    },
+    "viewer": {
+      "fileLabel": "File",
+      "codeLabel": "Sheet",
+      "scaleLabel": "Scale",
+      "updatedLabel": "Updated",
+      "authorLabel": "Author",
+      "placeholder": "PDF preview will be available once the document is loaded.",
+      "tabBadge": "{kind} preview"
+    },
+    "tree": {
+      "title": "Drawings",
+      "empty": "No drawings in this set.",
+      "selectAria": "Select drawing {code}"
+    },
+    "table": {
+      "name": "Drawing",
+      "code": "Code",
+      "scale": "Scale",
+      "kind": "Kind",
+      "updatedAt": "Updated",
+      "author": "Author",
+      "actions": "Actions",
+      "open": "Open",
+      "empty": "No drawings in this set."
+    },
+    "comments": {
+      "title": "Comments",
+      "subtitle": "{count, plural, =0 {No comments yet} one {# comment} other {# comments}} · scoped to the selected drawing",
+      "placeholder": "Write a comment…",
+      "post": "Post",
+      "pinned": "Pinned",
+      "reply": "Reply",
+      "empty": "Be the first to comment.",
+      "viewing": "Viewing thread for {code}",
+      "comingSoon": "Comment posting will be available once the backend is wired."
+    },
+    "canvas": {
+      "viewDrawingType": "View Drawing Type",
+      "addDrawingType": "Add Drawing Type"
+    },
+    "versionHistory": {
+      "title": "Version History",
+      "count": "{count} revisions",
+      "latest": "Latest",
+      "compare": "Compare",
+      "clearCompare": "Clear compare"
+    },
+    "diff": {
+      "title": "Diff",
+      "placeholder": "Visual diff will appear here once the backend is wired."
+    },
+    "review": {
+      "title": "Review",
+      "reviewers": "Reviewers",
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "roles": {
+        "author": "Author",
+        "contractor": "Contractor"
+      },
+      "status": {
+        "open": "In Review",
+        "awaiting": "Awaiting",
+        "approved": "Approved"
+      },
+      "actions": {
+        "sendForReview": "Send for review",
+        "openComments": "Open comments"
+      }
+    }
+  },
+  "Marketplace": {
+    "nav": {
+      "label": "Marketplace",
+      "browse": "Browse marketplace"
+    },
+    "meta": {
+      "title": "Marketplace — Open cafe design & build briefs",
+      "description": "Discover open project briefs from cafe owners across Vietnam. Bid on design, construction, or turnkey projects that match your studio."
+    },
+    "hero": {
+      "eyebrow": "Marketplace",
+      "title": "Open briefs, waiting for your studio.",
+      "subtitle": "Browse active project posts from cafe owners — design-only, construction-only, or full turnkey. Pick the briefs that fit your team and submit your bid.",
+      "stats": {
+        "open": "Open briefs",
+        "designers": "Verified designers",
+        "contractors": "Verified contractors"
+      },
+      "primaryCta": "Post a brief",
+      "secondaryCta": "How it works"
+    },
+    "filters": {
+      "label": "Filter posts",
+      "searchPlaceholder": "Search by title, project, or address…",
+      "serviceKind": {
+        "label": "Service",
+        "all": "All services",
+        "design": "Design only",
+        "construction": "Construction only",
+        "both": "Design & build"
+      },
+      "status": {
+        "label": "Status",
+        "all": "All",
+        "open": "Open",
+        "closed": "Closed",
+        "draft": "Draft"
+      },
+      "sort": {
+        "label": "Sort by",
+        "newest": "Newest first",
+        "deadline": "Deadline (soonest)",
+        "budget_desc": "Budget (high → low)",
+        "budget_asc": "Budget (low → high)"
+      },
+      "reset": "Clear filters"
+    },
+    "grid": {
+      "heading": "Open briefs",
+      "count": "{count, plural, =0 {No posts} one {# post} other {# posts}}",
+      "empty": {
+        "title": "No posts match your filters yet.",
+        "subtitle": "Try widening the service type or clearing the search.",
+        "cta": "Clear all filters"
+      },
+      "error": {
+        "title": "Couldn't load the marketplace.",
+        "subtitle": "Something went wrong reaching the server. Please try again in a moment.",
+        "retry": "Try again"
+      }
+    },
+    "card": {
+      "serviceKind": {
+        "design": "Design only",
+        "construction": "Construction only",
+        "both": "Design & build"
+      },
+      "status": {
+        "open": "Open",
+        "closed": "Closed",
+        "draft": "Draft"
+      },
+      "budget": "Budget",
+      "area": "Area",
+      "deadline": "Bid deadline",
+      "submitted": "Posted",
+      "viewPost": "View brief",
+      "viewPostAria": "View brief {title}"
+    },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {page} of {total}",
+      "first": "First",
+      "last": "Last"
     }
   }
 }

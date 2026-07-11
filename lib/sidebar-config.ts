@@ -33,9 +33,32 @@ export type UserRole = "SHOP_OWNER" | "DESIGNER" | "CONTRACTOR" | "ADMIN";
 
 export interface NavItem {
   titleKey: string;
+  /**
+   * URL relative to the routing root.
+   *
+   * - For `scope: "global"` (default): absolute path, e.g. `"/workspace"`.
+   * - For `scope: "project"`: suffix appended to `/projects/{id}`,
+   *   e.g. `""` → `/projects/{id}`, `"/briefs"` → `/projects/{id}/briefs`.
+   */
   url: string;
   icon: LucideIcon;
   badge?: string | number;
+  /**
+   * Where this item lives in the URL space.
+   *
+   * - `"global"` (default): URL is used as-is.
+   * - `"project"`: URL is appended under the current `/projects/{id}`
+   *   segment so that sidebar links stay inside the active project.
+   */
+  scope?: "global" | "project";
+  /**
+   * How the item is considered "active" against the current pathname.
+   *
+   * - `"prefix"` (default): active when `pathname === href` or starts with `href + "/"`.
+   * - `"exact"`: active only when `pathname === href`. Use for project roots
+   *   (e.g. `/projects/{id}`) so child routes don't double-highlight.
+   */
+  match?: "exact" | "prefix";
 }
 
 export interface NavSection {
@@ -68,50 +91,54 @@ const DESIGNER_PROJECT_INFO: NavSection = {
   items: [
     {
       titleKey: "Sidebar.designer.overview",
-      url: "/workspace/overview",
+      url: "",
       icon: LayoutDashboard,
+      scope: "project",
+      match: "exact",
     },
     {
       titleKey: "Sidebar.designer.brief",
-      url: "/workspace/brief",
+      url: "/briefs",
       icon: StickyNote,
+      scope: "project",
     },
     {
       titleKey: "Sidebar.designer.survey",
-      url: "/workspace/survey",
+      url: "/survey",
       icon: Map,
+      scope: "project",
     },
   ],
 };
+
+/**
+ * Maps a project-scoped URL suffix to the i18n key used both in the sidebar
+ * and in the breadcrumb. Derived from `DESIGNER_PROJECT_INFO` so the two stay
+ * in sync automatically. The overview entry (empty suffix) maps to the
+ * overview key.
+ */
+export const PROJECT_SEGMENT_TITLE_KEY: Record<string, string> =
+  DESIGNER_PROJECT_INFO.items.reduce<Record<string, string>>((acc, item) => {
+    if (item.scope !== "project") return acc;
+    const suffix = item.url; // "" for the project root, "/briefs", "/survey", ...
+    acc[suffix] = item.titleKey;
+    return acc;
+  }, {});
 
 const DESIGNER_DESIGN_WORK: NavSection = {
   labelKey: "Sidebar.designer.designWork",
   items: [
     {
-      titleKey: "Sidebar.designer.concept",
-      url: "/workspace/concept",
+      titleKey: "Sidebar.designer.designManagement",
+      url: "/design-management",
       icon: Pencil,
-    },
-    {
-      titleKey: "Sidebar.designer.layout2d",
-      url: "/workspace/layout-2d",
-      icon: Layers,
-    },
-    {
-      titleKey: "Sidebar.designer.3dDesign",
-      url: "/workspace/3d-design",
-      icon: Camera,
+      scope: "project",
     },
     {
       titleKey: "Sidebar.designer.technicalDrawings",
-      url: "/workspace/technical-drawings",
+      url: "/technical-drawings",
       icon: Ruler,
-    },
-    {
-      titleKey: "Sidebar.designer.revisions",
-      url: "/workspace/revisions",
-      icon: RefreshCw,
-      badge: 2,
+      scope: "project",
     },
   ],
 };

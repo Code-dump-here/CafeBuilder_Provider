@@ -83,10 +83,7 @@ export function AppSidebar({
             <NavProjects projects={config.projects} />
           )}
           {config.secondaryItems.length > 0 && (
-            <NavSecondary
-              items={config.secondaryItems}
-              className="mt-auto"
-            />
+            <NavSecondary items={config.secondaryItems} className="mt-auto" />
           )}
         </SidebarContent>
 

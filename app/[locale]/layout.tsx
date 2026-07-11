@@ -7,6 +7,7 @@ import "../globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { I18nProvider } from "@/components/providers/i18n-provider";
+import Providers from "./providers";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin", "vietnamese"],
@@ -47,9 +48,11 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <I18nProvider locale={locale} messages={messages}>
-            {children}
-          </I18nProvider>
+          <Providers>
+            <I18nProvider locale={locale} messages={messages}>
+              {children}
+            </I18nProvider>
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

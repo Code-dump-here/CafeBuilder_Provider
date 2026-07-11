@@ -2,22 +2,82 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InputControl } from "@/components/ui/input-control";
+import {
+  useRegisterMutation,
+} from "@/features/auth/hooks";
+import {
+  AccountRoleId,
+  type RegisterPayload,
+  type ServiceKind,
+  type UserRole,
+} from "@/features/auth/api";
+import { AppError } from "@/lib/http/errors";
 
 interface RegisterFormData {
   email: string;
   password: string;
   fullname: string;
   phonenumber: string;
+  /** UI-only composite — splits into `role` + `serviceKind` on submit. */
+  accountType: AccountTypeValue;
+}
+
+/**
+ * Composite discriminator for the role select. Encodes both the numeric
+ * role id AND the optional service kind so the form has a single field,
+ * while the submit handler maps it to backend's two-field shape.
+ */
+type AccountTypeValue =
+  | "owner"
+  | "provider_design"
+  | "provider_construction"
+  | "admin";
+
+const ACCOUNT_TYPE_OPTIONS: Array<{
+  value: AccountTypeValue;
+  i18nKey: string;
+}> = [
+  { value: "owner", i18nKey: "roles.owner" },
+  { value: "provider_design", i18nKey: "roles.providerDesign" },
+  { value: "provider_construction", i18nKey: "roles.providerConstruction" },
+  { value: "admin", i18nKey: "roles.admin" },
+];
+
+function splitAccountType(
+  value: AccountTypeValue,
+): Pick<RegisterPayload, "role" | "serviceKind"> {
+  switch (value) {
+    case "owner":
+      return { role: AccountRoleId.Owner };
+    case "provider_design":
+      return { role: AccountRoleId.Provider, serviceKind: "design" satisfies ServiceKind };
+    case "provider_construction":
+      return { role: AccountRoleId.Provider, serviceKind: "construction" satisfies ServiceKind };
+    case "admin":
+      return { role: AccountRoleId.Admin };
+  }
+}
+
+function roleHomePath(role: UserRole): string {
+  // After register the new account's role decides where they land.
+  switch (role) {
+    case "admin":
+      return "/admin";
+    case "owner":
+    case "provider":
+    default:
+      return "/workspace";
+  }
 }
 
 export function RegisterForm() {
   const t = useTranslations("Auth");
-  const [isLoading, setIsLoading] = React.useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -29,15 +89,43 @@ export function RegisterForm() {
       password: "",
       fullname: "",
       phonenumber: "",
+      accountType: "owner",
     },
   });
 
-  async function onSubmit(data: RegisterFormData) {
-    setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setIsLoading(false);
-    console.log("Register with:", data);
+  const registerMutation = useRegisterMutation();
+
+  const errorMessage = React.useMemo<string | null>(() => {
+    if (!registerMutation.error) return null;
+    const err = registerMutation.error as AppError;
+    if (err.isNetworkError) return t("errors.network");
+    if (err.status === 401 || err.status === 403) return t("errors.forbidden");
+    if (err.status === 409) return t("errors.emailTaken");
+    if (err.status === 400) return t("errors.invalidInput");
+    if (err.status && err.status >= 500) return t("errors.server");
+    return err.message || t("errors.unknown");
+  }, [registerMutation.error, t]);
+
+  function onSubmit(data: RegisterFormData) {
+    const { role, serviceKind } = splitAccountType(data.accountType);
+    registerMutation.mutate(
+      {
+        email: data.email,
+        password: data.password,
+        phone: data.phonenumber,
+        role,
+        serviceKind,
+        fullName: data.fullname,
+      },
+      {
+        onSuccess: (session) => {
+          router.replace(roleHomePath(session.role));
+        },
+      },
+    );
   }
+
+  const isSubmitting = registerMutation.isPending;
 
   return (
     <>
@@ -60,7 +148,7 @@ export function RegisterForm() {
           type="text"
           placeholder={t("register.fields.fullnamePlaceholder")}
           autoComplete="name"
-          disabled={isLoading}
+          disabled={isSubmitting}
           error={errors.fullname?.message}
           rules={{ required: t("validation.fullnameRequired") }}
         />
@@ -71,7 +159,7 @@ export function RegisterForm() {
           type="email"
           placeholder="email@example.com"
           autoComplete="email"
-          disabled={isLoading}
+          disabled={isSubmitting}
           error={errors.email?.message}
           rules={{
             required: t("validation.emailRequired"),
@@ -88,9 +176,15 @@ export function RegisterForm() {
           type="tel"
           placeholder={t("register.fields.phonenumberPlaceholder")}
           autoComplete="tel"
-          disabled={isLoading}
+          disabled={isSubmitting}
           error={errors.phonenumber?.message}
-          rules={{ required: t("validation.phonenumberRequired") }}
+          rules={{
+            required: t("validation.phonenumberRequired"),
+            pattern: {
+              value: /^[0-9+\-\s()]{8,15}$/,
+              message: t("validation.phonenumberInvalid"),
+            },
+          }}
         />
         <InputControl<RegisterFormData>
           name="password"
@@ -99,7 +193,7 @@ export function RegisterForm() {
           type="password"
           placeholder={t("fields.passwordPlaceholder")}
           autoComplete="new-password"
-          disabled={isLoading}
+          disabled={isSubmitting}
           error={errors.password?.message}
           rules={{
             required: t("validation.passwordRequired"),
@@ -110,14 +204,54 @@ export function RegisterForm() {
           }}
         />
 
+        {/* Account type / role */}
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="accountType"
+            className="text-xs/relaxed font-medium text-foreground"
+          >
+            {t("register.fields.accountType")}
+          </label>
+          <select
+            id="accountType"
+            disabled={isSubmitting}
+            {...register("accountType", {
+              required: t("validation.accountTypeRequired"),
+            })}
+            className="h-9 w-full rounded-md border border-input bg-input/20 px-3 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30"
+          >
+            {ACCOUNT_TYPE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {t(opt.i18nKey)}
+              </option>
+            ))}
+          </select>
+          {errors.accountType?.message && (
+            <p className="text-xs text-destructive">
+              {errors.accountType.message}
+            </p>
+          )}
+        </div>
+
+        {/* Server error banner */}
+        {errorMessage && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+          >
+            <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         {/* Submit */}
         <Button
           type="submit"
           size="xl"
           className="w-full gap-2 font-medium"
-          disabled={isLoading}
+          disabled={isSubmitting}
         >
-          {isLoading ? (
+          {isSubmitting ? (
             <>
               <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               {t("register.form.signingUp")}
@@ -143,12 +277,13 @@ export function RegisterForm() {
         </div>
       </div>
 
-      {/* Social login */}
+      {/* Social register */}
       <Button
         type="button"
         variant="outline"
         size="xl"
         className="relative flex w-full items-center justify-center gap-2 font-medium"
+        disabled={isSubmitting}
       >
         <svg className="size-4" viewBox="0 0 24 24" aria-hidden="true">
           <path

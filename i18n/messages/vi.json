@@ -29,7 +29,8 @@
       "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
       "fullnameRequired": "Vui lòng nhập họ và tên",
       "phonenumberRequired": "Vui lòng nhập số điện thoại",
-      "phonenumberInvalid": "Số điện thoại không hợp lệ"
+      "phonenumberInvalid": "Số điện thoại không hợp lệ",
+      "accountTypeRequired": "Vui lòng chọn loại tài khoản"
     },
     "brand": {
       "headline": "Thiết kế. Lập kế hoạch. Thi công. Tất cả trong một.",
@@ -54,13 +55,32 @@
         "fullname": "Họ và tên",
         "fullnamePlaceholder": "Nhập họ và tên của bạn",
         "phonenumber": "Số điện thoại",
-        "phonenumberPlaceholder": "Nhập số điện thoại"
+        "phonenumberPlaceholder": "Nhập số điện thoại",
+        "accountType": "Loại tài khoản"
       }
+    },
+    "roles": {
+      "owner": "Chủ quán",
+      "providerDesign": "Nhà cung cấp — Studio thiết kế",
+      "providerConstruction": "Nhà cung cấp — Đơn vị thi công",
+      "admin": "Quản trị viên"
     },
     "footer": {
       "terms": "Điều khoản dịch vụ",
       "privacy": "Chính sách bảo mật",
       "support": "Hỗ trợ"
+    },
+    "errors": {
+      "invalidCredentials": "Email hoặc mật khẩu không đúng. Vui lòng thử lại.",
+      "forbidden": "Tài khoản của bạn không có quyền truy cập khu vực này.",
+      "emailTaken": "Email này đã được đăng ký. Hãy đăng nhập thay vì tạo mới.",
+      "invalidInput": "Một số trường không hợp lệ. Vui lòng kiểm tra và thử lại.",
+      "network": "Không thể kết nối tới máy chủ. Vui lòng kiểm tra mạng và thử lại.",
+      "server": "Máy chủ đang gặp sự cố. Vui lòng thử lại sau ít phút.",
+      "unknown": "Đăng nhập thất bại. Vui lòng thử lại."
+    },
+    "toast": {
+      "loginSuccess": "Đăng nhập thành công. Chào mừng bạn quay lại!"
     }
   },
   "Navbar": {
@@ -74,6 +94,20 @@
     "cta": {
       "signIn": "Đăng nhập",
       "signUp": "Bắt đầu miễn phí"
+    },
+    "userMenu": {
+      "triggerAria": "Mở menu người dùng",
+      "signedInAs": "Đã đăng nhập",
+      "workspace": "Vào workspace",
+      "signOut": "Đăng xuất",
+      "signingOut": "Đang đăng xuất…",
+      "signOutSuccess": "Đã đăng xuất.",
+      "role": {
+        "owner": "Chủ quán",
+        "provider": "Đơn vị cung cấp",
+        "admin": "Quản trị viên",
+        "guest": "Khách"
+      }
     },
     "theme": {
       "light": "Sáng",
@@ -249,6 +283,189 @@
     "contractor": "Nhà thầu",
     "admin": "Quản trị viên"
   },
+  "Breadcrumb": {
+    "projectFallback": "Dự án {id}",
+    "versionFallback": "Phiên bản {code}"
+  },
+  "ProjectsOverview": {
+    "title": "Tổng quan",
+    "subtitle": "Ảnh chụp nhanh các thông tin cơ bản và hoạt động gần đây của dự án.",
+    "breadcrumb": {
+      "projects": "Dự án"
+    },
+    "createdBy": "Người tạo",
+    "updated": "Cập nhật",
+    "priority": {
+      "urgent": "Khẩn cấp",
+      "standard": "Tiêu chuẩn",
+      "urgentAria": "Mức độ ưu tiên: khẩn cấp"
+    },
+    "actions": {
+      "label": "Thao tác với dự án",
+      "save": "Lưu",
+      "print": "In",
+      "share": "Chia sẻ",
+      "downloadPdf": "Tải PDF",
+      "contactOwner": "Liên hệ chủ dự án",
+      "saveComingSoon": "Tính năng lưu sẽ sớm ra mắt.",
+      "shareCopied": "Đã sao chép liên kết vào bộ nhớ tạm.",
+      "downloadPdfStarted": "Đang tạo tệp PDF của bạn…"
+    },
+    "snapshot": {
+      "title": "Tổng quan dự án"
+    },
+    "identity": {
+      "subtitle": "Thông tin, câu chuyện và khái niệm ở một nơi."
+    },
+    "executiveSummary": {
+      "title": "Tóm tắt điều hành",
+      "subtitle": "Câu chuyện đằng sau những con số.",
+      "businessType": "Loại hình kinh doanh",
+      "primaryGoal": "Mục tiêu chính",
+      "targetAudience": "Khách hàng mục tiêu",
+      "targetOpening": "Ngày khai trương dự kiến"
+    },
+    "basics": {
+      "title": "Thông tin cơ bản",
+      "projectName": "Tên dự án",
+      "projectType": "Loại hình",
+      "location": "Vị trí",
+      "cafeTypes": "Phong cách quán"
+    },
+    "quickFacts": {
+      "title": "Thông tin nhanh",
+      "budget": "Ngân sách",
+      "area": "Diện tích",
+      "location": "Vị trí",
+      "priority": "Mức ưu tiên",
+      "priorityUrgent": "Khẩn cấp",
+      "priorityStandard": "Tiêu chuẩn",
+      "millionShort": "triệu VND",
+      "areaUnit": "m²"
+    },
+    "projectHealth": {
+      "title": "Sức khỏe dự án",
+      "subtitle": "Dự án đã sẵn sàng để triển khai đến đâu?",
+      "briefComplete": "Brief đã hoàn thành",
+      "briefCompleteAria": "Brief đã hoàn thành {percent} phần trăm",
+      "percent": "{percent}%",
+      "checklistCount": "Đã xong {done}/{total} phần",
+      "needsCompletion": "Cần bổ sung",
+      "noChecklist": "Chưa có mục kiểm tra nào."
+    },
+    "contactOwner": {
+      "title": "Liên hệ chủ dự án",
+      "role": "Chủ dự án",
+      "sendMessage": "Gửi tin nhắn",
+      "quickConsult": "Yêu cầu tư vấn nhanh",
+      "messageComingSoon": "Tính năng nhắn tin sẽ sớm ra mắt."
+    },
+    "downloads": {
+      "title": "Tải xuống",
+      "downloadPdf": "Tải {title}",
+      "allAttachments": "Tải {title}",
+      "comingSoon": "Tính năng tải xuống sẽ sớm ra mắt."
+    },
+    "designBrief": {
+      "pageTitle": "Bản tóm tắt thiết kế",
+      "pageSubtitle": "Bản brief của chủ dự án và các đề xuất thiết kế do AI tạo.",
+      "detailsCard": {
+        "title": "Thông tin brief",
+        "subtitle": "Những gì chủ dự án đã chia sẻ.",
+        "targetCustomer": "Khách hàng mục tiêu",
+        "style": "Phong cách",
+        "mood": "Cảm xúc",
+        "seatCount": "Mục tiêu chỗ ngồi",
+        "seats": "{count} chỗ",
+        "timeline": "Tiến độ",
+        "brandNote": "Ghi chú thương hiệu",
+        "businessModel": "Mô hình kinh doanh",
+        "businessGoals": "Mục tiêu kinh doanh",
+        "operationNote": "Ghi chú vận hành",
+        "lastUpdated": "Cập nhật lần cuối"
+      },
+      "ai": {
+        "title": "Các phương án AI",
+        "subtitle": "{count} lượt tạo, sắp xếp theo mới nhất.",
+        "empty": "Chưa có phương án AI nào.",
+        "states": {
+          "queued": "Đang chờ",
+          "running": "Đang chạy",
+          "completed": "Hoàn tất",
+          "failed": "Thất bại"
+        },
+        "planSummary": "Tóm tắt phương án",
+        "recommendations": "Đề xuất của nhà thiết kế",
+        "riskNotes": "Rủi ro & ghi chú",
+        "customerFlow": "Luồng khách hàng",
+        "image": "Hình phối cảnh",
+        "imageMissing": "Chưa có hình phối cảnh.",
+        "imagePromptLabel": "Prompt",
+        "cost": "Chi phí ước tính",
+        "fitout": "Thi công nội thất",
+        "equipment": "Thiết bị",
+        "contingency": "Dự phòng",
+        "seatCapacity": "Số chỗ ngồi đề xuất",
+        "layout": "Lưới bố trí",
+        "layoutSize": "{width} × {height} {unit}",
+        "noPlan": "Dữ liệu phương án chưa sẵn sàng.",
+        "failedTitle": "Tạo phương án thất bại",
+        "failedHint": "Hệ thống đã từ chối lượt chạy này. Kiểm tra lỗi hoặc thử lại.",
+        "errorCopied": "Đã sao chép lỗi vào bộ nhớ tạm.",
+        "retry": "Thử lại",
+        "retryComingSoon": "Tính năng thử lại sẽ sớm ra mắt.",
+        "copyError": "Sao chép lỗi",
+        "jobId": "Mã job",
+        "noJobId": "Chưa có mã job"
+      }
+    },
+    "status": {
+      "active": "Đang hoạt động",
+      "archived": "Đã lưu trữ",
+      "activeAria": "Dự án đang hoạt động",
+      "archivedAria": "Dự án đã được lưu trữ",
+      "idAria": "Mã dự án {id}",
+      "label": "Trạng thái dự án"
+    },
+    "dates": {
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Cập nhật lần cuối",
+      "deletedAt": "Đã lưu trữ"
+    },
+    "metrics": {
+      "heading": "Các chỉ số chính",
+      "area": "Diện tích",
+      "budget": "Ngân sách",
+      "bids": "Yêu cầu báo giá",
+      "quotations": "Báo giá"
+    },
+    "info": {
+      "title": "Thông tin dự án",
+      "owner": "Chủ sở hữu",
+      "ownerNotLinked": "Chưa liên kết chủ sở hữu",
+      "address": "Địa chỉ",
+      "addressEmpty": "Chưa cập nhật",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    },
+    "counts": {
+      "title": "Dữ liệu liên quan",
+      "subtitle": "Số lượng bản ghi liên kết với dự án này.",
+      "bidRequests": "Yêu cầu báo giá",
+      "budgetItems": "Hạng mục ngân sách",
+      "contracts": "Hợp đồng",
+      "conversations": "Cuộc hội thoại",
+      "inspections": "Nghiệm thu",
+      "projectHires": "Lần thuê",
+      "quotations": "Báo giá",
+      "reviews": "Đánh giá",
+      "designBrief": "Brief thiết kế",
+      "handover": "Bàn giao",
+      "boolYes": "Đã có",
+      "boolNo": "Chưa có"
+    },
+    "notProvided": "—"
+  },
   "Sidebar": {
     "designer": {
       "projectInfo": "Thông tin dự án",
@@ -256,6 +473,7 @@
       "brief": "Yêu cầu",
       "survey": "Khảo sát",
       "designWork": "Công việc thiết kế",
+      "designManagement": "Quản lý thiết kế",
       "concept": "Phác thảo ý tưởng",
       "layout2d": "Bố trí mặt bằng 2D",
       "3dDesign": "Thiết kế 3D",
@@ -305,6 +523,403 @@
       "platform": "Nền tảng",
       "disputes": "Tranh chấp",
       "analytics": "Phân tích"
+    }
+  },
+  "Messages": {
+    "createComingSoon": "Tính năng tạo thread mới sẽ sớm khả dụng.",
+    "infoComingSoon": "Chi tiết thread sẽ mở ở đây khi được kết nối.",
+    "list": {
+      "label": "Danh sách cuộc trò chuyện",
+      "heading": "Tin nhắn",
+      "title": "Các thread",
+      "newMessage": "Tin nhắn mới",
+      "searchPlaceholder": "Tìm thread hoặc người…",
+      "empty": "Không có thread nào khớp bộ lọc.",
+      "pinned": "Đã ghim",
+      "unreadBadge": "{count} chưa đọc",
+      "tabs": {
+        "all": "Tất cả",
+        "direct": "Trực tiếp",
+        "rooms": "Phòng"
+      }
+    },
+    "detail": {
+      "empty": "Chọn một cuộc trò chuyện để bắt đầu nhắn tin.",
+      "noMessages": "Thread này chưa có tin nhắn nào.",
+      "composerPlaceholder": "Nhắn cho {name}…",
+      "send": "Gửi",
+      "typing": "{name} đang nhập…",
+      "lastActive": "Hoạt động gần nhất {date} · {author}"
+    },
+    "header": {
+      "phone": "Gọi thoại",
+      "video": "Gọi video",
+      "search": "Tìm trong thread",
+      "info": "Thông tin thread",
+      "more": "Thêm"
+    },
+    "rail": {
+      "label": "Ngữ cảnh thread",
+      "heading": "Tệp & thành viên",
+      "files": {
+        "title": "Tệp đã chia sẻ",
+        "searchPlaceholder": "Tìm tệp đã chia sẻ…",
+        "empty": "Thread này chưa có tệp nào được chia sẻ.",
+        "emptySearch": "Không có tệp nào khớp với tìm kiếm."
+      },
+      "members": "Thành viên",
+      "memberOnline": "Trực tuyến"
+    },
+    "roles": {
+      "designer": "Designer chính",
+      "juniorDesigner": "Designer phụ",
+      "owner": "Chủ đầu tư",
+      "contractor": "Nhà thầu",
+      "mep": "Kỹ sư MEP",
+      "procurement": "Mua sắm",
+      "default": "Thành viên nhóm"
+    }
+  },
+  "DesignManagement": {
+    "pageTitle": "Quản lý thiết kế",
+    "pageSubtitle": "Các phiên bản bản vẽ — theo dõi chỉnh sửa, phát hành bản snapshot.",
+    "actions": {
+      "newVersion": "Tạo phiên bản mới",
+      "publishRevision": "Phát hành bản mới",
+      "openVersion": "Mở phiên bản",
+      "openVersionAria": "Mở phiên bản {code}"
+    },
+    "tabs": {
+      "all": "Tất cả",
+      "revision": "Chỉnh sửa",
+      "floorPlan": "Mặt bằng",
+      "threeD": "3D",
+      "elevation": "Mặt đứng",
+      "section": "Mặt cắt",
+      "label": "Loại bản vẽ"
+    },
+    "customCategory": {
+      "add": "Thêm loại tuỳ chỉnh",
+      "added": "Đã thêm \"{label}\".",
+      "remove": "Xoá loại",
+      "removeConfirm": "Xoá \"{label}\"? Các phiên bản trong tab này sẽ không bị xoá."
+    },
+    "status": {
+      "draft": "Nháp",
+      "working": "Đang làm",
+      "published": "Đã phát hành"
+    },
+    "table": {
+      "owner": "Người tạo",
+      "version": "Phiên bản",
+      "status": "Trạng thái",
+      "drawings": "Bản vẽ",
+      "lastUpdated": "Cập nhật lần cuối",
+      "actions": "Thao tác",
+      "empty": "Chưa có phiên bản nào cho bộ lọc này.",
+      "drawingsCount": "{count, plural, =0 {Chưa có bản vẽ} one {# bản vẽ} other {# bản vẽ}}",
+      "open": "Mở"
+    },
+    "comments": {
+      "title": "Bình luận",
+      "subtitle": "{count, plural, =0 {Chưa có bình luận} one {# bình luận} other {# bình luận}} · thuộc phiên bản đang chọn",
+      "placeholder": "Viết bình luận…",
+      "post": "Đăng",
+      "pinned": "Đã ghim",
+      "reply": "Trả lời",
+      "empty": "Hãy là người đầu tiên bình luận.",
+      "selectVersion": "Chọn một phiên bản bên trái để xem bình luận.",
+      "comingSoon": "Tính năng đăng bình luận sẽ hoạt động khi backend sẵn sàng."
+    },
+    "version": {
+      "drawingsTitle": "Bản vẽ trong phiên bản này",
+      "drawingsLabel": "Bản vẽ",
+      "drawingsSubtitle": "{count} bản vẽ, sắp xếp theo mới nhất.",
+      "drawingsCount": "{count, plural, =0 {Không có bản vẽ} one {# bản vẽ} other {# bản vẽ}}",
+      "backToList": "Quay lại danh sách",
+      "openFull": "Mở kích thước đầy đủ",
+      "scale": "Tỉ lệ",
+      "sheet": "Tờ",
+      "updatedBy": "Cập nhật bởi",
+      "noDrawings": "Phiên bản này chưa có bản vẽ nào.",
+      "published": "Phát hành ngày {date}",
+      "notFound": "Không tìm thấy phiên bản.",
+      "latestNoteLabel": "Ghi chú mới nhất",
+      "hero": {
+        "published": "Phát hành ngày {date}",
+        "drawings": "{count, plural, one {# bản vẽ} other {# bản vẽ}}",
+        "updated": "Cập nhật",
+        "actionsLabel": "Thao tác phiên bản",
+        "share": "Chia sẻ",
+        "print": "In",
+        "download": "Tải xuống",
+        "shareCopied": "Đã sao chép liên kết.",
+        "downloadComingSoon": "Tính năng tải xuống sẽ hoạt động khi backend sẵn sàng."
+      }
+    },
+    "crumbs": {
+      "versions": "Phiên bản"
+    },
+    "tree": {
+      "label": "Cây bản vẽ",
+      "heading": "Bản vẽ",
+      "searchPlaceholder": "Tìm theo tên hoặc mã…"
+    },
+    "viewer": {
+      "empty": "Chọn một bản vẽ ở cây bên trái để xem trước.",
+      "unavailable": "Không có bản xem trước",
+      "shareCopied": "Đã sao chép liên kết.",
+      "downloadComingSoon": "Tính năng tải xuống sẽ hoạt động khi backend sẵn sàng.",
+      "scale": "Tỉ lệ",
+      "sheet": "Tờ",
+      "updatedBy": "Cập nhật",
+      "prev": "Trước",
+      "next": "Sau",
+      "actions": {
+        "fullscreen": "Toàn màn hình",
+        "crop": "Cắt",
+        "share": "Chia sẻ",
+        "print": "In",
+        "download": "Tải xuống"
+      }
+    },
+    "history": {
+      "label": "Lịch sử phiên bản",
+      "heading": "Lịch sử",
+      "title": "Tất cả phiên bản",
+      "subtitle": "{count, plural, one {# phiên bản đã lưu} other {# phiên bản đã lưu}}",
+      "active": "Đang xem",
+      "footnote": "Nhấp vào bất kỳ phiên bản nào để mở trong trình xem."
+    },
+    "grid": {
+      "openDrawing": "Mở {name}",
+      "noNote": "Bản vẽ này chưa có ghi chú sửa đổi.",
+      "viewLarger": "Xem lớn hơn",
+      "viewFullDrawing": "Xem bản vẽ đầy đủ"
+    },
+    "preview": {
+      "noNote": "Chưa có ghi chú sửa đổi.",
+      "unavailable": "Không có bản xem trước",
+      "scale": "Tỉ lệ",
+      "sheet": "Tờ",
+      "updated": "Cập nhật",
+      "updatedBy": "Cập nhật bởi",
+      "openFull": "Mở kích thước đầy đủ",
+      "openComments": "Mở bình luận",
+      "commentComingSoon": "Tính năng bình luận sẽ hoạt động khi backend sẵn sàng."
+    },
+    "dialogs": {
+      "newVersion": {
+        "title": "Tạo phiên bản mới",
+        "description": "Tạo bản nháp mới. Bạn có thể đổi tên sau.",
+        "nameLabel": "Tên phiên bản",
+        "namePlaceholder": "VD: Chỉnh sửa theo chủ dự án",
+        "codeLabel": "Mã phiên bản",
+        "codeHint": "Để trống để tự tạo (V{next}).",
+        "categoryLabel": "Loại bản vẽ",
+        "notesLabel": "Ghi chú (tuỳ chọn)",
+        "notesPlaceholder": "Mục tiêu của phiên bản này là gì?",
+        "cancel": "Huỷ",
+        "create": "Tạo phiên bản",
+        "created": "Đã tạo phiên bản {code}.",
+        "createComingSoon": "Tính năng tạo phiên bản sẽ hoạt động khi backend sẵn sàng."
+      },
+      "publish": {
+        "title": "Phát hành bản chỉnh sửa",
+        "description": "Đánh dấu phiên bản đang làm mới nhất là đã phát hành. Chủ dự án và nhà thầu sẽ nhận được thông báo.",
+        "selectLabel": "Phiên bản cần phát hành",
+        "selectPlaceholder": "Chọn một phiên bản đang làm",
+        "noWorking": "Không có phiên bản đang làm nào để phát hành.",
+        "notesLabel": "Ghi chú phát hành (tuỳ chọn)",
+        "notesPlaceholder": "Bản chỉnh sửa này thay đổi gì?",
+        "cancel": "Huỷ",
+        "publish": "Phát hành",
+        "published": "Đã phát hành {code}.",
+        "publishComingSoon": "Tính năng phát hành sẽ hoạt động khi backend sẵn sàng."
+      },
+      "addCategory": {
+        "title": "Thêm loại bản vẽ tuỳ chỉnh",
+        "description": "Tạo tab mới để nhóm các bản vẽ theo một loại bạn tự định nghĩa (ví dụ: \"Mặt bằng tổng\" hoặc \"MEP\").",
+        "label": "Tên loại bản vẽ",
+        "placeholder": "vd: Mặt bằng tổng",
+        "cancel": "Huỷ",
+        "add": "Thêm",
+        "created": "Đã thêm loại \"{label}\".",
+        "duplicate": "Đã tồn tại một loại với tên này."
+      }
+    }
+  },
+  "TechnicalDrawings": {
+    "pageTitle": "Bản vẽ kỹ thuật",
+    "pageSubtitle": "Bản vẽ kỹ thuật cuối cùng, sẵn sàng cho hợp đồng — các tờ, render và ghi chú review.",
+    "actions": {
+      "upload": "Tải bản vẽ lên",
+      "download": "Tải về",
+      "openInNewTab": "Mở trong tab mới"
+    },
+    "tabs": {
+      "label": "Bộ bản vẽ",
+      "3d": "3D",
+      "2d": "2D",
+      "contract": "Hợp đồng"
+    },
+    "viewer": {
+      "fileLabel": "Tệp",
+      "codeLabel": "Tờ",
+      "scaleLabel": "Tỉ lệ",
+      "updatedLabel": "Cập nhật",
+      "authorLabel": "Tác giả",
+      "placeholder": "Bản xem trước PDF sẽ hiển thị khi tài liệu được tải.",
+      "tabBadge": "Xem trước {kind}"
+    },
+    "tree": {
+      "title": "Bản vẽ",
+      "empty": "Chưa có bản vẽ nào trong bộ này.",
+      "selectAria": "Chọn bản vẽ {code}"
+    },
+    "table": {
+      "name": "Bản vẽ",
+      "code": "Mã",
+      "scale": "Tỉ lệ",
+      "kind": "Loại",
+      "updatedAt": "Cập nhật",
+      "author": "Tác giả",
+      "actions": "Thao tác",
+      "open": "Mở",
+      "empty": "Chưa có bản vẽ nào trong bộ này."
+    },
+    "comments": {
+      "title": "Bình luận",
+      "subtitle": "{count, plural, =0 {Chưa có bình luận} one {# bình luận} other {# bình luận}} · thuộc bản vẽ đang chọn",
+      "placeholder": "Viết bình luận…",
+      "post": "Đăng",
+      "pinned": "Đã ghim",
+      "reply": "Trả lời",
+      "empty": "Hãy là người đầu tiên bình luận.",
+      "viewing": "Đang xem thread của {code}",
+      "comingSoon": "Tính năng đăng bình luận sẽ hoạt động khi backend sẵn sàng."
+    },
+    "canvas": {
+      "viewDrawingType": "Xem loại bản vẽ",
+      "addDrawingType": "Thêm loại bản vẽ"
+    },
+    "versionHistory": {
+      "title": "Lịch sử phiên bản",
+      "count": "{count} phiên bản",
+      "latest": "Mới nhất",
+      "compare": "So sánh",
+      "clearCompare": "Bỏ so sánh"
+    },
+    "diff": {
+      "title": "So sánh",
+      "placeholder": "So sánh trực quan sẽ hiển thị khi backend sẵn sàng."
+    },
+    "review": {
+      "title": "Duyệt",
+      "reviewers": "Người duyệt",
+      "createdAt": "Tạo",
+      "updatedAt": "Cập nhật",
+      "roles": {
+        "author": "Tác giả",
+        "contractor": "Nhà thầu"
+      },
+      "status": {
+        "open": "Đang duyệt",
+        "awaiting": "Chờ duyệt",
+        "approved": "Đã duyệt"
+      },
+      "actions": {
+        "sendForReview": "Gửi duyệt",
+        "openComments": "Mở bình luận"
+      }
+    }
+  },
+  "Marketplace": {
+    "nav": {
+      "label": "Marketplace",
+      "browse": "Khám phá marketplace"
+    },
+    "meta": {
+      "title": "Marketplace — Brief thiết kế & thi công quán cà phê đang mở",
+      "description": "Khám phá các brief dự án đang mở từ chủ quán cà phê trên toàn Việt Nam. Đấu thầu thiết kế, thi công hoặc trọn gói phù hợp với studio của bạn."
+    },
+    "hero": {
+      "eyebrow": "Marketplace",
+      "title": "Brief đang mở — chờ studio của bạn.",
+      "subtitle": "Khám phá các bài đăng dự án từ chủ quán — chỉ thiết kế, chỉ thi công, hoặc trọn gói. Chọn brief phù hợp với đội ngũ và gửi báo giá.",
+      "stats": {
+        "open": "Brief đang mở",
+        "designers": "Designer đã xác minh",
+        "contractors": "Nhà thầu đã xác minh"
+      },
+      "primaryCta": "Đăng brief",
+      "secondaryCta": "Cách hoạt động"
+    },
+    "filters": {
+      "label": "Lọc bài đăng",
+      "searchPlaceholder": "Tìm theo tiêu đề, tên dự án hoặc địa chỉ…",
+      "serviceKind": {
+        "label": "Dịch vụ",
+        "all": "Tất cả dịch vụ",
+        "design": "Chỉ thiết kế",
+        "construction": "Chỉ thi công",
+        "both": "Thiết kế & thi công"
+      },
+      "status": {
+        "label": "Trạng thái",
+        "all": "Tất cả",
+        "open": "Đang mở",
+        "closed": "Đã đóng",
+        "draft": "Nháp"
+      },
+      "sort": {
+        "label": "Sắp xếp",
+        "newest": "Mới nhất",
+        "deadline": "Hạn nộp (gần nhất)",
+        "budget_desc": "Ngân sách (cao → thấp)",
+        "budget_asc": "Ngân sách (thấp → cao)"
+      },
+      "reset": "Xóa bộ lọc"
+    },
+    "grid": {
+      "heading": "Brief đang mở",
+      "count": "{count, plural, =0 {Không có bài đăng} other {# bài đăng}}",
+      "empty": {
+        "title": "Chưa có bài đăng nào khớp bộ lọc.",
+        "subtitle": "Thử mở rộng loại dịch vụ hoặc xóa từ khóa tìm kiếm.",
+        "cta": "Xóa tất cả bộ lọc"
+      },
+      "error": {
+        "title": "Không tải được marketplace.",
+        "subtitle": "Đã có lỗi khi kết nối máy chủ. Vui lòng thử lại sau ít phút.",
+        "retry": "Thử lại"
+      }
+    },
+    "card": {
+      "serviceKind": {
+        "design": "Chỉ thiết kế",
+        "construction": "Chỉ thi công",
+        "both": "Thiết kế & thi công"
+      },
+      "status": {
+        "open": "Đang mở",
+        "closed": "Đã đóng",
+        "draft": "Nháp"
+      },
+      "budget": "Ngân sách",
+      "area": "Diện tích",
+      "deadline": "Hạn nộp báo giá",
+      "submitted": "Đã đăng",
+      "viewPost": "Xem brief",
+      "viewPostAria": "Xem brief {title}"
+    },
+    "pagination": {
+      "label": "Phân trang",
+      "previous": "Trước",
+      "next": "Sau",
+      "page": "Trang {page} / {total}",
+      "first": "Đầu",
+      "last": "Cuối"
     }
   }
 }
