@@ -4,13 +4,13 @@ import * as React from "react";
 import { useParams, usePathname } from "next/navigation";
 
 import { ProjectHeroBar } from "@/components/project-overview/project-hero-bar";
-import { useProjectsOverview } from "@/lib/projects/use-projects-overview";
+import { useProjectDetail } from "@/lib/projects/use-project-detail";
 
 /**
  * Per-project shell. Wraps every page under `/projects/{id}` and renders
- * the `ProjectHeroBar` only for the "Project Info" group (overview,
- * briefs, survey) — pages under "Design Work" (design-management,
- * technical-drawings) or "Collaboration" don't show the hero.
+ * the `ProjectHeroBar` only for the project root (`/[locale]/projects/[id]`)
+ * — pages under "Design Work" (design-management, technical-drawings) or
+ * "Collaboration" don't show the hero.
  *
  * Why a layout, not per-page:
  *   - Single source of truth for hero visibility — pages stay focused on
@@ -27,7 +27,7 @@ export default function ProjectLayout({
   const projectIdParam = params?.id ?? "";
   const pathname = usePathname();
 
-  const project = useProjectsOverview(projectIdParam);
+  const { project, isLoading, isError } = useProjectDetail(projectIdParam);
 
   // First URL segment under `/projects/{id}` — `""` for the root,
   // `"/briefs"` for briefs, etc. Co-located with the same map the sidebar
@@ -44,7 +44,6 @@ export default function ProjectLayout({
   // `DESIGNER_PROJECT_INFO` block (the top "Project Info" group).
   const PROJECT_INFO_SEGMENTS: ReadonlySet<string> = new Set([
     "", // overview / project root
-    "/briefs",
     "/survey",
   ]);
 
@@ -52,7 +51,9 @@ export default function ProjectLayout({
 
   return (
     <div className="flex flex-col gap-6">
-      {showHero ? <ProjectHeroBar project={project} /> : null}
+      {showHero && !isError && !isLoading ? (
+        <ProjectHeroBar project={project} />
+      ) : null}
       {children}
     </div>
   );

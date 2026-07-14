@@ -2,12 +2,7 @@
 
 import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import {
-  Banknote,
-  Flame,
-  MapPin,
-  Ruler,
-} from "lucide-react";
+import { Banknote, MapPin, Ruler } from "lucide-react";
 
 import {
   Card,
@@ -18,10 +13,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 import { QuickFactRow } from "./quick-fact-row";
-import type { ProjectSummary } from "@/lib/projects/use-projects-overview";
+import type { ProjectDetail } from "@/lib/projects/project-detail-types";
 
 interface QuickFactsCardProps {
-  project: ProjectSummary;
+  project: ProjectDetail;
 }
 
 function budgetToRange(value: number): { min: number; max: number } {
@@ -74,17 +69,7 @@ export function QuickFactsCard({ project }: QuickFactsCardProps) {
         <QuickFactRow
           icon={<MapPin className="size-4" />}
           label={t("location")}
-          value={project.address}
-        />
-        <Separator className="bg-border/60" />
-        <QuickFactRow
-          icon={<Flame className="size-4" />}
-          label={t("priority")}
-          value={
-            project.priority === "urgent"
-              ? t("priorityUrgent")
-              : t("priorityStandard")
-          }
+          value={project.address || "—"}
         />
       </CardContent>
     </Card>

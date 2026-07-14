@@ -9,10 +9,12 @@ import {
   ClipboardCopy,
   Clock,
   Coins,
+  ExternalLink,
   Grid3x3,
   ImageOff,
   ListOrdered,
   Loader2,
+  Maximize2,
   RefreshCw,
   Sparkles,
   TriangleAlert,
@@ -31,6 +33,12 @@ import type {
 
 interface AiRecommendationCardProps {
   recommendation: AiRecommendation;
+  /**
+   * Open the full detail dialog for this iteration. When omitted, the
+   * card stays visual-only (no affordance shown). The caller (the list)
+   * owns the dialog state so a single keypress closes any open detail.
+   */
+  onOpenDetails?: (rec: AiRecommendation) => void;
 }
 
 type Variant = "queued" | "running" | "completed" | "failed" | "legacy";
@@ -78,7 +86,10 @@ function formatDateTime(
  * (border, padding, header) across states so the timeline reads as a single
  * vertical column even when the inner content density varies wildly.
  */
-export function AiRecommendationCard({ recommendation }: AiRecommendationCardProps) {
+export function AiRecommendationCard({
+  recommendation,
+  onOpenDetails,
+}: AiRecommendationCardProps) {
   const t = useTranslations("ProjectsOverview.designBrief.ai");
   const format = useFormatter();
 
@@ -134,7 +145,20 @@ export function AiRecommendationCard({ recommendation }: AiRecommendationCardPro
             <span className="font-mono">#{recommendation.id}</span>
           </p>
         </div>
-        <StateBadge variant={variant} label={stateLabel} />
+        <div className="flex items-center gap-1.5">
+          {onOpenDetails ? (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t("viewDetails")}
+              onClick={() => onOpenDetails(recommendation)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Maximize2 aria-hidden />
+            </Button>
+          ) : null}
+          <StateBadge variant={variant} label={stateLabel} />
+        </div>
       </header>
 
       {variant === "queued" || variant === "running" ? (

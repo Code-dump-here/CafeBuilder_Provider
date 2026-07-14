@@ -290,85 +290,58 @@
   "ProjectsOverview": {
     "title": "Overview",
     "subtitle": "Snapshot of project fundamentals and recent activity.",
-    "breadcrumb": {
-      "projects": "Projects"
-    },
-    "createdBy": "Created by",
-    "updated": "Updated",
-    "priority": {
-      "urgent": "Urgent",
-      "standard": "Standard",
-      "urgentAria": "Priority: urgent"
-    },
-    "actions": {
-      "label": "Project actions",
-      "save": "Save",
-      "print": "Print",
-      "share": "Share",
-      "downloadPdf": "Download PDF",
-      "contactOwner": "Contact Owner",
-      "saveComingSoon": "Save action is coming soon.",
-      "shareCopied": "Link copied to clipboard.",
-      "downloadPdfStarted": "Generating your PDF…"
-    },
-    "snapshot": {
-      "title": "Project Snapshot"
-    },
-    "identity": {
-      "subtitle": "Identity, narrative, and concept at a glance."
-    },
-    "executiveSummary": {
-      "title": "Executive Summary",
-      "subtitle": "The narrative behind the numbers.",
-      "businessType": "Business Type",
-      "primaryGoal": "Primary Goal",
-      "targetAudience": "Target Audience",
-      "targetOpening": "Target Opening"
-    },
-    "basics": {
-      "title": "Project Basics",
-      "projectName": "Name",
-      "projectType": "Type",
-      "location": "Location",
-      "cafeTypes": "Cafe Types"
-    },
     "quickFacts": {
       "title": "Quick Facts",
       "budget": "Budget",
       "area": "Area",
       "location": "Location",
-      "priority": "Priority",
-      "priorityUrgent": "Urgent",
-      "priorityStandard": "Standard",
       "millionShort": "M VND",
       "areaUnit": "m²"
     },
-    "projectHealth": {
-      "title": "Project Health",
-      "subtitle": "How ready is this project to move forward?",
-      "briefComplete": "Brief Complete",
-      "briefCompleteAria": "Brief completion at {percent} percent",
-      "percent": "{percent}%",
-      "checklistCount": "{done} of {total} sections ready",
-      "needsCompletion": "Needs Completion",
-      "noChecklist": "No checklist items yet."
+    "members": {
+      "title": "Providers",
+      "subtitle": "{count, plural, =0 {No providers attached} =1 {1 provider on this project} other {# providers on this project}}",
+      "empty": "No providers have been attached to this project yet.",
+      "verified": "Verified",
+      "since": "since {date}",
+      "invite": "Invite provider",
+      "inviteComingSoon": "Provider invitations are coming soon.",
+      "capabilities": {
+        "design": "Design",
+        "construction": "Construction",
+        "both": "Design + Build"
+      },
+      "providerStatus": {
+        "requested": "Requested",
+        "active": "Active",
+        "paused": "Paused",
+        "completed": "Completed",
+        "declined": "Declined"
+      }
     },
-    "contactOwner": {
-      "title": "Contact Owner",
-      "role": "Project Owner",
-      "sendMessage": "Send Message",
-      "quickConsult": "Request Quick Consult",
-      "messageComingSoon": "Messaging opens once chat is wired."
+    "owner": {
+      "title": "Owner",
+      "subtitle": "The person who created this project.",
+      "phoneCopied": "Phone number copied.",
+      "copyPhone": "Copy phone number",
+      "phoneAria": "Call {phone}",
+      "message": "Send message",
+      "messageComingSoon": "Direct messages are coming soon."
     },
-    "downloads": {
-      "title": "Downloads",
-      "downloadPdf": "Download {title}",
-      "allAttachments": "Download {title}",
-      "comingSoon": "Downloads are coming soon."
+    "apply": {
+      "title": "Apply to this project",
+      "subtitle": "The owner is collecting bids. Send yours in a few taps.",
+      "lookingFor": "Looking for: {kinds}",
+      "applyBy": "Apply by {date}",
+      "apply": "Apply now",
+      "applyComingSoon": "Project applications are coming soon."
+    },
+    "errors": {
+      "title": "Couldn't load this project",
+      "subtitle": "We hit a snag while fetching the project details. Please try again — the issue is usually temporary.",
+      "retry": "Try again"
     },
     "designBrief": {
-      "pageTitle": "Design Brief",
-      "pageSubtitle": "The owner's brief and AI-generated design recommendations.",
       "detailsCard": {
         "title": "Brief Inputs",
         "subtitle": "What the owner told us about the project.",
@@ -416,55 +389,61 @@
         "retryComingSoon": "Retry flow is coming soon.",
         "copyError": "Copy error",
         "jobId": "Job",
-        "noJobId": "No job id"
+        "noJobId": "No job id",
+        "viewDetails": "View details",
+        "details": {
+          "title": "Iteration details",
+          "concept": "Concept",
+          "conceptMissing": "No concept summary provided.",
+          "image": "Concept Render",
+          "imageMeta": "Image",
+          "imageView": "View",
+          "imageAspect": "Aspect",
+          "imageNegativePrompt": "Negative prompt",
+          "imageRefs": "Reference URLs",
+          "imageRefsEmpty": "No reference URLs.",
+          "plan": "Plan",
+          "planSummary": "Summary",
+          "planConcept": "Concept name",
+          "cost": "Cost estimate",
+          "fitoutRange": "Fit-out",
+          "equipmentRange": "Equipment",
+          "contingency": "Contingency",
+          "designCost": "Design cost",
+          "constructionCost": "Construction cost",
+          "costNotes": "Cost notes",
+          "costNotesEmpty": "No cost notes provided.",
+          "layout": "Layout grid",
+          "layoutSize": "{width} × {height} {unit}",
+          "seatCapacity": "Recommended seats",
+          "seatCapacityEmpty": "No recommendation provided.",
+          "zones": "Zones",
+          "zonesStaffOnly": "Staff only",
+          "zonesEmpty": "No zones returned.",
+          "adjacency": "Adjacency rules",
+          "adjacencyEmpty": "No adjacency rules.",
+          "flow": "Customer flow",
+          "recommendations": "Designer recommendations",
+          "recPriority": "Priority {priority}",
+          "recRationale": "Rationale",
+          "noRationale": "No rationale provided.",
+          "risks": "Risks & notes",
+          "noRecommendations": "No recommendations provided.",
+          "noRisks": "No risk notes provided.",
+          "lifecycle": "Job lifecycle",
+          "attempts": "Attempts",
+          "startedAt": "Started at",
+          "completedAt": "Completed at",
+          "notRecorded": "Not recorded",
+          "rawRequest": "Request payload",
+          "rawRequestHint": "Raw JSON sent to the AI worker — useful for debugging."
+        }
       }
     },
-    "status": {
-      "active": "Active",
-      "archived": "Archived",
-      "activeAria": "Project is active",
-      "archivedAria": "Project is archived",
-      "idAria": "Project ID {id}",
-      "label": "Project status"
-    },
-    "dates": {
-      "createdAt": "Created",
-      "updatedAt": "Last updated",
-      "deletedAt": "Archived"
-    },
-    "metrics": {
-      "heading": "Key figures",
-      "area": "Area",
-      "budget": "Budget",
-      "bids": "Bid requests",
-      "quotations": "Quotations"
-    },
-    "info": {
-      "title": "Project details",
-      "owner": "Owner",
-      "ownerNotLinked": "Owner not linked",
-      "address": "Address",
-      "addressEmpty": "Not provided",
-      "createdAt": "Created at",
-      "updatedAt": "Updated at"
-    },
-    "counts": {
-      "title": "Related records",
-      "subtitle": "Counts of records linked to this project.",
-      "bidRequests": "Bid requests",
-      "budgetItems": "Budget items",
-      "contracts": "Contracts",
-      "conversations": "Conversations",
-      "inspections": "Inspections",
-      "projectHires": "Project hires",
-      "quotations": "Quotations",
-      "reviews": "Reviews",
-      "designBrief": "Design brief",
-      "handover": "Handover",
-      "boolYes": "Yes",
-      "boolNo": "Not yet"
-    },
-    "notProvided": "—"
+    "empty": {
+      "title": "No design brief yet",
+      "subtitle": "Once the owner submits the brief, you'll see it here — including target customers, style, mood, and timeline."
+    }
   },
   "Sidebar": {
     "designer": {

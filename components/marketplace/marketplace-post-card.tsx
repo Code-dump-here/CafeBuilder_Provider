@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import type { MarketplacePost } from "@/lib/projects/marketplace-types";
 
@@ -233,7 +234,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
           </time>
         </span>
 
-        <a
+        <Link
           href={`/projects/${post.projectId}`}
           aria-label={t("viewPostAria", { title: post.title })}
           className={cn(
@@ -243,7 +244,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
         >
           {t("viewPost")}
           <ArrowUpRight className="size-3.5" aria-hidden />
-        </a>
+        </Link>
       </footer>
     </article>
   );

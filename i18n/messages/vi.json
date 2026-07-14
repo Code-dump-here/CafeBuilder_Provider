@@ -290,48 +290,6 @@
   "ProjectsOverview": {
     "title": "Tổng quan",
     "subtitle": "Ảnh chụp nhanh các thông tin cơ bản và hoạt động gần đây của dự án.",
-    "breadcrumb": {
-      "projects": "Dự án"
-    },
-    "createdBy": "Người tạo",
-    "updated": "Cập nhật",
-    "priority": {
-      "urgent": "Khẩn cấp",
-      "standard": "Tiêu chuẩn",
-      "urgentAria": "Mức độ ưu tiên: khẩn cấp"
-    },
-    "actions": {
-      "label": "Thao tác với dự án",
-      "save": "Lưu",
-      "print": "In",
-      "share": "Chia sẻ",
-      "downloadPdf": "Tải PDF",
-      "contactOwner": "Liên hệ chủ dự án",
-      "saveComingSoon": "Tính năng lưu sẽ sớm ra mắt.",
-      "shareCopied": "Đã sao chép liên kết vào bộ nhớ tạm.",
-      "downloadPdfStarted": "Đang tạo tệp PDF của bạn…"
-    },
-    "snapshot": {
-      "title": "Tổng quan dự án"
-    },
-    "identity": {
-      "subtitle": "Thông tin, câu chuyện và khái niệm ở một nơi."
-    },
-    "executiveSummary": {
-      "title": "Tóm tắt điều hành",
-      "subtitle": "Câu chuyện đằng sau những con số.",
-      "businessType": "Loại hình kinh doanh",
-      "primaryGoal": "Mục tiêu chính",
-      "targetAudience": "Khách hàng mục tiêu",
-      "targetOpening": "Ngày khai trương dự kiến"
-    },
-    "basics": {
-      "title": "Thông tin cơ bản",
-      "projectName": "Tên dự án",
-      "projectType": "Loại hình",
-      "location": "Vị trí",
-      "cafeTypes": "Phong cách quán"
-    },
     "quickFacts": {
       "title": "Thông tin nhanh",
       "budget": "Ngân sách",
@@ -343,32 +301,50 @@
       "millionShort": "triệu VND",
       "areaUnit": "m²"
     },
-    "projectHealth": {
-      "title": "Sức khỏe dự án",
-      "subtitle": "Dự án đã sẵn sàng để triển khai đến đâu?",
-      "briefComplete": "Brief đã hoàn thành",
-      "briefCompleteAria": "Brief đã hoàn thành {percent} phần trăm",
-      "percent": "{percent}%",
-      "checklistCount": "Đã xong {done}/{total} phần",
-      "needsCompletion": "Cần bổ sung",
-      "noChecklist": "Chưa có mục kiểm tra nào."
+    "members": {
+      "title": "Nhà cung cấp",
+      "subtitle": "{count, plural, =0 {Chưa có nhà cung cấp nào} =1 {1 nhà cung cấp đang tham gia} other {# nhà cung cấp đang tham gia}}",
+      "empty": "Dự án chưa gắn nhà cung cấp nào.",
+      "verified": "Đã xác minh",
+      "since": "từ {date}",
+      "invite": "Mời nhà cung cấp",
+      "inviteComingSoon": "Tính năng mời nhà cung cấp sắp ra mắt.",
+      "capabilities": {
+        "design": "Thiết kế",
+        "construction": "Thi công",
+        "both": "Thiết kế & Thi công"
+      },
+      "providerStatus": {
+        "requested": "Đã mời",
+        "active": "Đang hợp tác",
+        "paused": "Tạm dừng",
+        "completed": "Hoàn thành",
+        "declined": "Từ chối"
+      }
     },
-    "contactOwner": {
-      "title": "Liên hệ chủ dự án",
-      "role": "Chủ dự án",
-      "sendMessage": "Gửi tin nhắn",
-      "quickConsult": "Yêu cầu tư vấn nhanh",
-      "messageComingSoon": "Tính năng nhắn tin sẽ sớm ra mắt."
+    "owner": {
+      "title": "Chủ dự án",
+      "subtitle": "Người đã tạo dự án này.",
+      "phoneCopied": "Đã sao chép số điện thoại.",
+      "copyPhone": "Sao chép số điện thoại",
+      "phoneAria": "Gọi {phone}",
+      "message": "Nhắn tin",
+      "messageComingSoon": "Tính năng nhắn tin sắp ra mắt."
     },
-    "downloads": {
-      "title": "Tải xuống",
-      "downloadPdf": "Tải {title}",
-      "allAttachments": "Tải {title}",
-      "comingSoon": "Tính năng tải xuống sẽ sớm ra mắt."
+    "apply": {
+      "title": "Ứng tuyển vào dự án này",
+      "subtitle": "Chủ dự án đang nhận đề xuất. Gửi của bạn chỉ với vài thao tác.",
+      "lookingFor": "Đang tìm: {kinds}",
+      "applyBy": "Hạn nộp {date}",
+      "apply": "Ứng tuyển ngay",
+      "applyComingSoon": "Tính năng ứng tuyển vào dự án sắp ra mắt."
+    },
+    "errors": {
+      "title": "Không thể tải dự án này",
+      "subtitle": "Đã xảy ra sự cố khi tải thông tin dự án. Vui lòng thử lại — sự cố thường chỉ diễn ra tạm thời.",
+      "retry": "Thử lại"
     },
     "designBrief": {
-      "pageTitle": "Bản tóm tắt thiết kế",
-      "pageSubtitle": "Bản brief của chủ dự án và các đề xuất thiết kế do AI tạo.",
       "detailsCard": {
         "title": "Thông tin brief",
         "subtitle": "Những gì chủ dự án đã chia sẻ.",
@@ -416,61 +392,66 @@
         "retryComingSoon": "Tính năng thử lại sẽ sớm ra mắt.",
         "copyError": "Sao chép lỗi",
         "jobId": "Mã job",
-        "noJobId": "Chưa có mã job"
+        "noJobId": "Chưa có mã job",
+        "viewDetails": "Xem chi tiết",
+        "details": {
+          "title": "Chi tiết phương án",
+          "concept": "Khái niệm",
+          "conceptMissing": "Chưa có mô tả tổng quan.",
+          "image": "Hình phối cảnh",
+          "imageMeta": "Hình ảnh",
+          "imageView": "Góc nhìn",
+          "imageAspect": "Tỉ lệ",
+          "imageNegativePrompt": "Prompt loại trừ",
+          "imageRefs": "URL tham chiếu",
+          "imageRefsEmpty": "Không có URL tham chiếu.",
+          "plan": "Phương án",
+          "planSummary": "Tóm tắt",
+          "planConcept": "Tên concept",
+          "cost": "Chi phí ước tính",
+          "fitoutRange": "Thi công nội thất",
+          "equipmentRange": "Thiết bị",
+          "contingency": "Dự phòng",
+          "designCost": "Chi phí thiết kế",
+          "constructionCost": "Chi phí thi công",
+          "costNotes": "Ghi chú chi phí",
+          "costNotesEmpty": "Không có ghi chú chi phí.",
+          "layout": "Lưới bố trí",
+          "layoutSize": "{width} × {height} {unit}",
+          "seatCapacity": "Số chỗ đề xuất",
+          "seatCapacityEmpty": "Chưa có đề xuất.",
+          "zones": "Khu vực",
+          "zonesStaffOnly": "Chỉ nhân viên",
+          "zonesEmpty": "Không có khu vực nào.",
+          "adjacency": "Quy tắc liền kề",
+          "adjacencyEmpty": "Không có quy tắc liền kề.",
+          "flow": "Luồng khách hàng",
+          "recommendations": "Đề xuất của nhà thiết kế",
+          "recPriority": "Ưu tiên {priority}",
+          "recRationale": "Lý do",
+          "noRationale": "Chưa có lý do.",
+          "risks": "Rủi ro & ghi chú",
+          "noRecommendations": "Không có đề xuất.",
+          "noRisks": "Không có rủi ro.",
+          "lifecycle": "Vòng đời job",
+          "attempts": "Số lần thử",
+          "startedAt": "Bắt đầu",
+          "completedAt": "Hoàn tất",
+          "notRecorded": "Chưa ghi nhận",
+          "rawRequest": "Payload yêu cầu",
+          "rawRequestHint": "JSON thô gửi tới AI worker — hữu ích khi debug."
+        }
       }
     },
-    "status": {
-      "active": "Đang hoạt động",
-      "archived": "Đã lưu trữ",
-      "activeAria": "Dự án đang hoạt động",
-      "archivedAria": "Dự án đã được lưu trữ",
-      "idAria": "Mã dự án {id}",
-      "label": "Trạng thái dự án"
-    },
-    "dates": {
-      "createdAt": "Ngày tạo",
-      "updatedAt": "Cập nhật lần cuối",
-      "deletedAt": "Đã lưu trữ"
-    },
-    "metrics": {
-      "heading": "Các chỉ số chính",
-      "area": "Diện tích",
-      "budget": "Ngân sách",
-      "bids": "Yêu cầu báo giá",
-      "quotations": "Báo giá"
-    },
-    "info": {
-      "title": "Thông tin dự án",
-      "owner": "Chủ sở hữu",
-      "ownerNotLinked": "Chưa liên kết chủ sở hữu",
-      "address": "Địa chỉ",
-      "addressEmpty": "Chưa cập nhật",
-      "createdAt": "Ngày tạo",
-      "updatedAt": "Ngày cập nhật"
-    },
-    "counts": {
-      "title": "Dữ liệu liên quan",
-      "subtitle": "Số lượng bản ghi liên kết với dự án này.",
-      "bidRequests": "Yêu cầu báo giá",
-      "budgetItems": "Hạng mục ngân sách",
-      "contracts": "Hợp đồng",
-      "conversations": "Cuộc hội thoại",
-      "inspections": "Nghiệm thu",
-      "projectHires": "Lần thuê",
-      "quotations": "Báo giá",
-      "reviews": "Đánh giá",
-      "designBrief": "Brief thiết kế",
-      "handover": "Bàn giao",
-      "boolYes": "Đã có",
-      "boolNo": "Chưa có"
-    },
-    "notProvided": "—"
+    "empty": {
+      "title": "Chưa có brief thiết kế",
+      "subtitle": "Khi chủ dự án gửi brief, bạn sẽ thấy nội dung tại đây — bao gồm khách hàng mục tiêu, phong cách, cảm xúc và tiến độ."
+    }
   },
   "Sidebar": {
     "designer": {
       "projectInfo": "Thông tin dự án",
       "overview": "Tổng quan",
-      "brief": "Yêu cầu",
       "survey": "Khảo sát",
       "designWork": "Công việc thiết kế",
       "designManagement": "Quản lý thiết kế",

@@ -13,7 +13,6 @@ import {
   AlertTriangle,
   FileCheck,
   Construction,
-  StickyNote,
   Layers,
   Camera,
   Pencil,
@@ -95,12 +94,6 @@ const DESIGNER_PROJECT_INFO: NavSection = {
       icon: LayoutDashboard,
       scope: "project",
       match: "exact",
-    },
-    {
-      titleKey: "Sidebar.designer.brief",
-      url: "/briefs",
-      icon: StickyNote,
-      scope: "project",
     },
     {
       titleKey: "Sidebar.designer.survey",
