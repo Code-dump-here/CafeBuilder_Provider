@@ -19,6 +19,7 @@ import { ProjectApplyCard } from "@/components/project-overview/project-apply-ca
 import { ProjectMembersCard } from "@/components/project-overview/project-members-card";
 import { ProjectOwnerCard } from "@/components/project-overview/project-owner-card";
 import { QuickFactsCard } from "@/components/project-overview/quick-facts-card";
+import { ContractorProjectQuickActions } from "@/components/project-overview/contractor-project-quick-actions";
 
 import {
   useAiRecommendations,
@@ -34,7 +35,7 @@ import { useDesignBriefs } from "@/lib/projects/use-design-briefs";
 //
 // Data flow:
 //   1. `useParams` picks up the `[id]` segment.
-//   2. `useProjectDetail(id)` calls `GET /api/projects/{id}` (the axios
+//   2. `useProjectDetail(id)` calls `GET /api/project-shop-owners/{id}` (the axios
 //      interceptor attaches the Bearer access token from `tokenStore`).
 //   3. `useDesignBriefs({ projectId })` calls
 //      `GET /api/design-briefs?projectId={id}&pageNumber=1&pageSize=10`.
@@ -158,6 +159,14 @@ export default function ProjectDetailPage() {
                 Owner so the right rail stays a self-contained
                 "project at a glance" stack. */}
             <ProjectMembersCard project={project} />
+
+            {/* Contractor-style "Construction overview" card. Lives on
+                the project page for every viewer (designer, owner,
+                contractor) while per-role sidebar routing is paused —
+                its four tiles deep-link into the project-scoped sidebar
+                items (construction-log, daily-reports, issues,
+                materials). */}
+            <ContractorProjectQuickActions projectId={projectIdParam} />
           </div>
         </div>
       )}

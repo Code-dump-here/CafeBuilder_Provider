@@ -337,7 +337,38 @@
       "lookingFor": "Đang tìm: {kinds}",
       "applyBy": "Hạn nộp {date}",
       "apply": "Ứng tuyển ngay",
-      "applyComingSoon": "Tính năng ứng tuyển vào dự án sắp ra mắt."
+      "applying": "Đang gửi hồ sơ…",
+      "applyNotReady": "Vui lòng đăng nhập bằng tài khoản nhà cung cấp để ứng tuyển.",
+      "applyComingSoon": "Tính năng ứng tuyển vào dự án sắp ra mắt.",
+      "applied": {
+        "pending": "Đã gửi hồ sơ ứng tuyển",
+        "accepted": "Hồ sơ được chấp nhận",
+        "rejected": "Hồ sơ bị từ chối"
+      },
+      "dialog": {
+        "title": "Ứng tuyển vào \"{project}\"",
+        "description": "Cho chủ dự án biết lý do bạn phù hợp và thời gian dự kiến hoàn thành.",
+        "proposalLabel": "Đề xuất của bạn",
+        "proposalPlaceholder": "Mô tả cách tiếp cận, kinh nghiệm liên quan và lý do bạn phù hợp với dự án này…",
+        "proposalHint": "Tối thiểu {min} ký tự.",
+        "proposalTooShort": "Vui lòng viết ít nhất {min} ký tự.",
+        "durationLabel": "Thời lượng dự kiến",
+        "durationSuffix": "ngày",
+        "durationHint": "Bao nhiêu ngày từ lúc bắt đầu đến khi bàn giao?",
+        "durationInvalid": "Thời lượng phải nằm trong khoảng {min} đến {max} ngày.",
+        "submit": "Gửi hồ sơ",
+        "submitting": "Đang gửi…",
+        "cancel": "Huỷ"
+      }
+    },
+    "contractorQuickActions": {
+      "title": "Tổng quan thi công",
+      "subtitle": "Tình trạng thi công cho công trường này — bấm vào từng mục để xem chi tiết.",
+      "constructionLog": "Tiến độ thi công",
+      "todayTasks": "Việc hôm nay",
+      "openIssues": "Vấn đề mở",
+      "payments": "Cần thanh toán",
+      "progressValue": "{percent}%"
     },
     "errors": {
       "title": "Không thể tải dự án này",
@@ -448,11 +479,391 @@
       "subtitle": "Khi chủ dự án gửi brief, bạn sẽ thấy nội dung tại đây — bao gồm khách hàng mục tiêu, phong cách, cảm xúc và tiến độ."
     }
   },
+  "ConstructionLog": {
+    "title": "Nhật ký thi công",
+    "subtitle": "Cập nhật hàng ngày tại công trường — tiến độ, hình ảnh, nhân lực và các điểm chặn.",
+    "stats": {
+      "title": "Tổng quan công trường",
+      "subtitle": "Trạng thái hiện tại của công trường.",
+      "currentProgress": {
+        "label": "Tiến độ hiện tại",
+        "hint": "Tính trên toàn bộ giai đoạn"
+      },
+      "daysActive": {
+        "label": "Ngày thi công",
+        "hint": "Số lượt đã ghi nhật ký"
+      },
+      "totalPhotos": {
+        "label": "Hình đã đăng",
+        "hint": "Tư liệu tại công trường"
+      },
+      "blockerDays": {
+        "label": "Ngày bị chặn",
+        "hint": "Ngày trễ hoặc bị chặn"
+      }
+    },
+    "toolbar": {
+      "label": "Bộ lọc",
+      "from": "Từ",
+      "to": "Đến",
+      "status": "Trạng thái",
+      "clear": "Xoá lọc",
+      "advanced": "Xem nâng cao",
+      "advancedComingSoon": "Bộ lọc nâng cao sắp ra mắt."
+    },
+    "status": {
+      "all": "Tất cả trạng thái",
+      "onTrack": "Đúng tiến độ",
+      "minorDelay": "Trễ nhẹ",
+      "blocked": "Bị chặn",
+      "completed": "Hoàn thành"
+    },
+    "weather": {
+      "sunny": "Nắng",
+      "cloudy": "Nhiều mây",
+      "rainy": "Mưa",
+      "stormy": "Bão"
+    },
+    "timeline": {
+      "title": "Nhật ký theo ngày",
+      "subtitle": "{count, plural, =0 {Chưa có lượt nào} =1 {1 lượt} other {# lượt}} trong khoảng đang lọc",
+      "empty": "Không có lượt nhật ký nào khớp bộ lọc."
+    },
+    "entry": {
+      "workers": "{count, plural, =0 {Không có công nhân} =1 {1 công nhân} other {# công nhân}} tại công trường",
+      "issues": "{count, plural, =0 {} =1 {1 vấn đề được ghi nhận} other {# vấn đề được ghi nhận}}",
+      "loggedBy": "{name} ghi nhật ký",
+      "photosLabel": "Hình ảnh đăng hôm nay",
+      "progressDelta": "+{value}% hôm nay",
+      "cumulative": "{percent}% tổng"
+    },
+    "addEntry": {
+      "title": "Ghi nhật ký hôm nay",
+      "subtitle": "Vài dòng về công việc hôm nay — nhà thiết kế và chủ dự án sẽ thấy ngay.",
+      "cta": "Ghi hôm nay",
+      "comingSoon": "Tính năng ghi nhật ký sắp ra mắt."
+    }
+  },
+  "Survey": {
+    "title": "Khảo sát công trường",
+    "subtitle": "Ghi nhận điều kiện công trường trước khi bắt đầu thi công.",
+    "noEngagement": {
+      "title": "Không tìm thấy hợp đồng",
+      "description": "Bạn cần có hợp đồng dự án đã được chấp nhận trước khi tạo khảo sát."
+    },
+    "createNew": "Khảo sát mới",
+    "createFirst": "Tạo khảo sát đầu tiên",
+    "previousVersions": "Các phiên bản trước",
+    "previousVersionsCount": "{count, plural, =1 {1 phiên bản trước} other {# phiên bản trước}}",
+    "latest": "Mới nhất",
+    "edit": "Sửa",
+    "viewReport": "Xem báo cáo",
+    "conditionNote": "Điều kiện công trường",
+    "reportFile": "Tệp báo cáo",
+    "versionLabel": "Phiên bản {version}",
+    "createdAt": "Tạo {date} lúc {time}",
+    "refreshing": "Đang làm mới…",
+    "empty": {
+      "title": "Chưa có khảo sát nào",
+      "description": "Tạo khảo sát công trường đầu tiên để ghi nhận điều kiện trước khi bắt đầu thi công."
+    },
+    "dialog": {
+      "titleCreate": "Tạo khảo sát công trường",
+      "titleEdit": "Sửa khảo sát",
+      "descriptionCreate": "Ghi nhận điều kiện công trường hiện tại cho dự án này.",
+      "descriptionEdit": "Cập nhật thông tin khảo sát.",
+      "conditionNoteLabel": "Điều kiện công trường",
+      "conditionNotePlaceholder": "Mô tả điều kiện công trường hiện tại, kết cấu hiện có, lối vào, tiện ích và các quan sát liên quan đến dự án…",
+      "conditionNoteHint": "Tối thiểu 10 ký tự.",
+      "conditionNoteTooShort": "Vui lòng viết ít nhất {min} ký tự.",
+      "reportFileLabel": "Tệp báo cáo (tùy chọn)",
+      "reportFileHint": "Tải lên PDF hoặc hình ảnh của báo cáo khảo sát.",
+      "viewCurrentReport": "Xem báo cáo hiện tại",
+      "removeFile": "Xóa",
+      "uploading": "Đang tải lên…",
+      "uploadFailed": "Tải tệp thất bại. Vui lòng thử lại.",
+      "cancel": "Hủy",
+      "create": "Tạo khảo sát",
+      "saveChanges": "Lưu thay đổi",
+      "submitting": "Đang lưu…"
+    },
+    "errors": {
+      "title": "Không thể tải khảo sát",
+      "subtitle": "Đã xảy ra lỗi khi lấy dữ liệu khảo sát. Vui lòng thử lại.",
+      "retry": "Thử lại"
+    }
+  },
+  "Contracts": {
+    "title": "Hợp đồng",
+    "subtitle": "Quản lý hợp đồng dự án với xác minh OTP.",
+    "noEngagement": {
+      "title": "Không tìm thấy hợp đồng",
+      "description": "Bạn cần có hợp đồng dự án đã được chấp nhận trước khi tạo hợp đồng."
+    },
+    "createNew": "Hợp đồng mới",
+    "createFirst": "Tạo hợp đồng đầu tiên",
+    "sendOtp": "Gửi OTP",
+    "confirm": "Xác nhận",
+    "cancel": "Hủy",
+    "edit": "Sửa",
+    "viewDocument": "Xem tài liệu",
+    "refreshing": "Đang làm mới…",
+    "value": "Giá trị: {value} VND",
+    "termsLabel": "Điều khoản",
+    "createdAt": "Tạo {date} lúc {time}",
+    "otpExpiresAt": "OTP hết hạn: {time}",
+    "confirmedAt": "Đã xác nhận: {time}",
+    "status": {
+      "drafted": "Bản nháp",
+      "pendingOtp": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "cancelled": "Đã hủy"
+    },
+    "confirmedBanner": {
+      "title": "Hợp đồng đã được xác nhận!",
+      "description": "Hợp đồng \"{title}\" đang hoạt động và mở khóa thiết kế & thi công."
+    },
+    "empty": {
+      "title": "Chưa có hợp đồng nào",
+      "description": "Tạo hợp đồng để chính thức hóa thỏa thuận dự án với nhà cung cấp dịch vụ."
+    },
+    "dialog": {
+      "titleCreate": "Tạo hợp đồng",
+      "descriptionCreate": "Tạo hợp đồng mới cho dự án này.",
+      "titleLabel": "Tiêu đề hợp đồng",
+      "titlePlaceholder": "VD: Hợp đồng Thiết kế & Thi công Quán Cà Phê",
+      "valueLabel": "Giá trị thỏa thuận",
+      "valuePlaceholder": "Nhập số tiền",
+      "termsLabel": "Điều khoản & Điều kiện",
+      "termsPlaceholder": "Mô tả điều khoản hợp đồng, phạm vi công việc, lịch thanh toán...",
+      "termsHint": "Khuyến nghị tối thiểu 20 ký tự.",
+      "documentLabel": "Tài liệu hợp đồng (tùy chọn)",
+      "viewCurrentDocument": "Xem tài liệu đã tải lên",
+      "removeFile": "Xóa",
+      "uploading": "Đang tải lên…",
+      "cancel": "Hủy",
+      "create": "Tạo hợp đồng",
+      "creating": "Đang tạo…",
+      "otpTitleSend": "Gửi xác minh OTP",
+      "otpTitleConfirm": "Xác nhận hợp đồng",
+      "otpDescriptionSend": "Gửi mã xác minh đến email của chủ dự án để xác nhận hợp đồng.",
+      "otpDescriptionConfirm": "Nhập mã 6 chữ số đã gửi đến email của chủ dự án.",
+      "otpSendHint": "Chủ dự án sẽ nhận được mã 6 chữ số để xác nhận hợp đồng này.",
+      "sendOtpButton": "Gửi OTP",
+      "sending": "Đang gửi…",
+      "otpCodeLabel": "Mã xác minh",
+      "otpCodePlaceholder": "Nhập mã 6 chữ số",
+      "otpCodeHint": "Kiểm tra email của chủ dự án để lấy mã.",
+      "confirmOtpButton": "Xác nhận hợp đồng",
+      "confirming": "Đang xác nhận…",
+      "close": "Đóng"
+    },
+    "errors": {
+      "title": "Không thể tải hợp đồng",
+      "subtitle": "Đã xảy ra lỗi khi lấy dữ liệu hợp đồng. Vui lòng thử lại.",
+      "retry": "Thử lại"
+    }
+  },
+  "ConstructionOverview": {
+    "title": "Tổng quan thi công",
+    "subtitle": "Tình trạng công trường hiện tại — timeline mốc và lối tắt tới mọi công cụ hàng ngày.",
+    "header": {
+      "currentPhaseLabel": "Giai đoạn hiện tại",
+      "progressLabel": "Tiến độ tổng",
+      "lastUpdated": "Cập nhật {time}",
+      "openLog": "Ghi hôm nay",
+      "openLogComingSoon": "Tính năng ghi nhật ký sắp ra mắt — trang nhật ký sẽ mở ngay.",
+      "viewTasks": "Mở việc hôm nay"
+    },
+    "track": {
+      "title": "Mốc thi công",
+      "subtitle": "Chạm vào một mốc để xem công việc, vướng mắc và hình ảnh bên dưới.",
+      "currentPulse": "Đang chạy"
+    },
+    "status": {
+      "completed": "Hoàn thành",
+      "inProgress": "Đang chạy",
+      "blocked": "Bị chặn",
+      "upcoming": "Sắp tới"
+    },
+    "detail": {
+      "title": "Chi tiết mốc",
+      "subtitle": "Công việc, vướng mắc và hình ảnh của mốc đang chọn.",
+      "lead": "Phụ trách",
+      "target": "Mục tiêu",
+      "progressLabel": "Tiến độ mốc",
+      "tasks": "Công việc",
+      "noTasks": "Chưa có công việc nào được ghi nhận cho mốc này.",
+      "blockers": "{count, plural, =0 {} =1 {1 vướng mắc} other {# vướng mắc}}",
+      "photosLabel": "{count, plural, =0 {Chưa có hình} =1 {1 hình} other {# hình}} đã đăng",
+      "viewPhase": "Mở chi tiết mốc",
+      "viewPhaseComingSoon": "Trang chi tiết theo mốc sắp ra mắt.",
+      "drawer": {
+        "title": "Chi tiết mốc",
+        "close": "Đóng",
+        "openFull": "Mở trang đầy đủ",
+        "kpi": {
+          "progress": "Tiến độ",
+          "lead": "Phụ trách",
+          "target": "Mục tiêu",
+          "tasksDone": "Việc đã xong",
+          "tasksTotal": "/ {total}",
+          "blockers": "Vướng mắc",
+          "photos": "Hình ảnh"
+        },
+        "sections": {
+          "narrative": "Tình hình mốc này",
+          "tasks": "Công việc",
+          "blockers": "Vướng mắc",
+          "photos": "Hình ảnh",
+          "crew": "Công nhân tại công trường"
+        },
+        "noTasks": "Chưa có công việc nào.",
+        "noBlockers": "Chưa ghi nhận vướng mắc — đang thuận lợi.",
+        "noPhotos": "Chưa có hình nào cho mốc này.",
+        "noCrew": "Chưa phân công công nhân.",
+        "taskDone": "Đánh dấu đã xong",
+        "taskUndone": "Đánh dấu chưa xong",
+        "severity": {
+          "low": "Thấp",
+          "medium": "Trung bình",
+          "high": "Cao"
+        },
+        "blockerFiled": "Ghi nhận {date}",
+        "blockerOwner": "Phụ trách: {owner}",
+        "closeCta": "Về tổng quan"
+      }
+    },
+    "actions": {
+      "title": "Lối tắt",
+      "subtitle": "Mở thẳng tab cần dùng, không cần cuộn qua sidebar.",
+      "constructionLog": "Nhật ký",
+      "constructionLogDesc": "Tiến độ + hình theo ngày",
+      "dailyReports": "Báo cáo ngày",
+      "dailyReportsDesc": "Tổng hợp báo cáo PDF",
+      "issuesAndRFI": "Vấn đề & RFI",
+      "issuesAndRFIDesc": "Vướng mắc cần xử lý",
+      "materialsTracking": "Vật tư",
+      "materialsTrackingDesc": "Giao hàng và tồn kho",
+      "payments": "Thanh toán",
+      "paymentsDesc": "Lịch và bill chờ"
+    },
+    "milestoneError": "Không tải được dữ liệu mốc."
+  },
+  "MilestoneManagement": {
+    "title": "Quản lý mốc & công việc",
+    "subtitle": "Sắp xếp lại mốc, sửa công việc và cân chỉnh tiến độ — thay đổi sẽ cập nhật ngay tổng quan thi công.",
+    "toolbar": {
+      "addPhase": "Thêm mốc",
+      "totalPhases": "{count, plural, =0 {Chưa có mốc} =1 {1 mốc} other {# mốc}}",
+      "totalTasks": "{count, plural, =0 {Chưa có việc} =1 {1 việc} other {# việc}}",
+      "doneTasks": "{done}/{total} đã xong",
+      "backToOverview": "Về tổng quan"
+    },
+    "phase": {
+      "rename": "Đổi tên",
+      "renameTitle": "Đổi tên mốc",
+      "renameLabel": "Tên mốc",
+      "delete": "Xoá mốc",
+      "deleteConfirm": "Xoá mốc này và mọi công việc bên trong?",
+      "moveLeft": "Dịch trái",
+      "moveRight": "Dịch phải",
+      "editMeta": "Sửa chi tiết",
+      "editMetaTitle": "Sửa chi tiết mốc",
+      "lead": "Phụ trách",
+      "leadPlaceholder": "vd: Khoi",
+      "targetDate": "Ngày mục tiêu",
+      "startDate": "Ngày bắt đầu",
+      "endDate": "Ngày kết thúc",
+      "progress": "Tiến độ",
+      "setStatus": "Đặt trạng thái",
+      "statusCompleted": "Hoàn thành",
+      "statusInProgress": "Đang chạy",
+      "statusBlocked": "Bị chặn",
+      "statusUpcoming": "Sắp tới",
+      "addTask": "Thêm việc",
+      "addTaskPlaceholder": "Cần làm gì?",
+      "addTaskCta": "Thêm",
+      "noTasks": "Chưa có việc nào — thêm việc đầu tiên.",
+      "tasksDone": "{done}/{total} đã xong"
+    },
+    "task": {
+      "edit": "Sửa việc",
+      "editTitle": "Sửa công việc",
+      "taskLabel": "Công việc",
+      "delete": "Xoá việc",
+      "deleteConfirm": "Xoá công việc này?",
+      "markDone": "Đánh dấu đã xong",
+      "markUndone": "Đánh dấu chưa xong",
+      "noAssignee": "Chưa giao",
+      "detail": {
+        "title": "Chi tiết công việc",
+        "close": "Đóng",
+        "save": "Lưu thay đổi",
+        "deleteCta": "Xoá công việc",
+        "edit": "Sửa công việc",
+        "created": "Tạo ngày {date}",
+        "fields": {
+          "title": "Tiêu đề",
+          "description": "Mô tả",
+          "assignee": "Người phụ trách",
+          "dueDate": "Hạn chót",
+          "status": "Trạng thái",
+          "checklist": "Việc cần làm",
+          "images": "Hình ảnh tham chiếu"
+        },
+        "checklist": {
+          "prepare": "Đọc bản vẽ & chuẩn bị vật tư",
+          "execute": "Thi công trên công trường",
+          "verify": "Nghiệm thu so với spec / giám sát kiểm tra",
+          "log": "Cập nhật tiến độ + ảnh lên feed dự án"
+        },
+        "descriptionPlaceholder": "Cần làm gì ở đây?",
+        "noAssigneeOption": "Chưa giao",
+        "noDueDate": "Không có hạn",
+        "toast": {
+          "saved": "Đã cập nhật công việc.",
+          "deleted": "Đã xoá công việc."
+        }
+      },
+      "addTask": {
+        "title": "Thêm công việc",
+        "subtitle": "Công việc mới thuộc milestone này",
+        "create": "Tạo công việc",
+        "uploadCta": "Tải ảnh lên"
+      }
+    },
+    "addPhase": {
+      "title": "Thêm mốc",
+      "subtitle": "Mốc mới sẽ được thêm vào cuối timeline và trở thành cột cuối.",
+      "label": "Tên mốc",
+      "labelPlaceholder": "vd: Lắp thiết bị",
+      "lead": "Phụ trách",
+      "leadPlaceholder": "vd: Dat",
+      "targetDate": "Ngày mục tiêu",
+      "startDate": "Ngày bắt đầu",
+      "endDate": "Ngày kết thúc",
+      "create": "Tạo mốc",
+      "cancel": "Huỷ"
+    },
+    "common": {
+      "save": "Lưu",
+      "cancel": "Huỷ"
+    },
+    "errorEmpty": "Chưa có mốc nào. Thêm mốc đầu tiên để bắt đầu.",
+    "summaryError": "Không cập nhật được trạng thái mốc."
+  },
   "Sidebar": {
+    "common": {
+      "shortcuts": "Phím tắt",
+      "notifications": "Thông báo",
+      "settings": "Cài đặt"
+    },
     "designer": {
       "projectInfo": "Thông tin dự án",
       "overview": "Tổng quan",
       "survey": "Khảo sát",
+      "contracts": "Hợp đồng",
       "designWork": "Công việc thiết kế",
       "designManagement": "Quản lý thiết kế",
       "concept": "Phác thảo ý tưởng",
@@ -460,21 +871,17 @@
       "3dDesign": "Thiết kế 3D",
       "technicalDrawings": "Bản vẽ kỹ thuật",
       "revisions": "Chỉnh sửa",
-      "collaboration": "Cộng tác",
       "messages": "Tin nhắn",
       "progress": "Tiến độ",
       "constructionSupport": "Hỗ trợ thi công"
     },
     "contractor": {
       "workspace": "Không gian làm việc",
-      "overview": "Tổng quan",
+      "constructionOverview": "Tổng quan thi công",
       "constructionLog": "Nhật ký thi công",
+      "milestones": "Quản lý mốc",
       "dailyReports": "Báo cáo hàng ngày",
       "issuesAndRFI": "Vấn đề & RFI",
-      "myProjects": "Dự án của tôi",
-      "quotations": "Báo giá",
-      "activeProjects": "Dự án đang thi công",
-      "completedProjects": "Dự án đã hoàn thành",
       "materialsAndHandover": "Vật tư & Bàn giao",
       "materialsTracking": "Theo dõi vật tư",
       "handover": "Bàn giao"
@@ -482,7 +889,7 @@
     "shopOwner": {
       "workspace": "Không gian làm việc",
       "overview": "Tổng quan",
-      "discussion": "Trao đổi",
+      "messages": "Tin nhắn",
       "projectManagement": "Quản lý dự án",
       "documents": "Tài liệu",
       "quotations": "Báo giá",
@@ -504,6 +911,16 @@
       "platform": "Nền tảng",
       "disputes": "Tranh chấp",
       "analytics": "Phân tích"
+    },
+    "navUser": {
+      "upgradeToPro": "Nâng cấp Pro",
+      "account": "Tài khoản",
+      "billing": "Thanh toán",
+      "notifications": "Thông báo",
+      "signOut": "Đăng xuất",
+      "signingOut": "Đang đăng xuất…",
+      "signOutSuccess": "Đã đăng xuất.",
+      "signOutError": "Không thể đăng xuất. Vui lòng thử lại."
     }
   },
   "Messages": {

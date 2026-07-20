@@ -67,7 +67,7 @@ interface ProjectMembersCardProps {
  *   - inline rating chip when `avgRating` is set
  *
  * Data source: `project.providers` — populated by the updated
- * `GET /api/projects/{id}` response. If the API hasn't shipped yet or
+ * `GET /api/project-shop-owners/{id}` response. If the API hasn't shipped yet or
  * returns an empty array, the card renders an empty-state with the same
  * Invite CTA so the right rail still feels complete.
  */

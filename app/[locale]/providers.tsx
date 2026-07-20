@@ -16,6 +16,7 @@ import { getQueryClient } from "@/lib/react-query/query-client";
 import "@/lib/http/axios";
 import { authEvents } from "@/lib/auth/auth-events";
 import { tokenStore } from "@/lib/auth/token-store";
+import { UserProvider } from "@/lib/auth/user-context";
 
 export default function Providers({ children }: { children: ReactNode }) {
   const queryClient = getQueryClient();
@@ -49,20 +50,22 @@ export default function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <ToastContainer
-        position="top-right"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme={resolvedTheme === "dark" ? "dark" : "light"}
-        toastClassName="rounded-lg shadow-lg border border-border text-sm font-medium"
-      />
+      <UserProvider>
+        {children}
+        <ToastContainer
+          position="top-right"
+          autoClose={4000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme={resolvedTheme === "dark" ? "dark" : "light"}
+          toastClassName="rounded-lg shadow-lg border border-border text-sm font-medium"
+        />
+      </UserProvider>
     </QueryClientProvider>
   );
 }

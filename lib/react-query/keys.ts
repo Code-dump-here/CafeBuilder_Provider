@@ -7,7 +7,7 @@ export const queryKeys = {
     detail: (id: string) => ["users", "detail", id] as const,
   },
   projects: {
-    /** Single-project GET /api/projects/{id}. `id` is the discriminator. */
+    /** Single-project GET /api/project-shop-owners/{id}. `id` is the discriminator. */
     detail: (id: string) => ["projects", "detail", id] as const,
     /**
      * Paged design briefs for a project: GET /api/design-briefs.

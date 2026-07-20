@@ -15,7 +15,7 @@ export type PostStatus = "open" | "closed" | "draft";
 
 export interface MarketplacePost {
   id: number;
-  projectId: number;
+  projectShopOwnerId: number;
   projectName: string;
   projectAddress: string;
   /** Budget in VND. */
@@ -52,7 +52,7 @@ export interface MarketplaceFilters {
   /** Free-text search over title / address / project name. */
   query: string;
   /** Optional project filter — null means "all projects". */
-  projectId: number | null;
+  projectShopOwnerId: number | null;
   pageNumber: number;
   pageSize: number;
 }
@@ -66,7 +66,7 @@ export const DEFAULT_FILTERS: MarketplaceFilters = {
   status: "all",
   sort: "newest",
   query: "",
-  projectId: null,
+  projectShopOwnerId: null,
   pageNumber: 1,
   pageSize: 10,
 };
@@ -81,7 +81,7 @@ export const DEFAULT_FILTERS: MarketplaceFilters = {
 export interface MarketplaceQueryParams {
   pageNumber: number;
   pageSize: number;
-  projectId?: number;
+  projectShopOwnerId?: number;
   serviceKind?: Exclude<ServiceKind, "all">;
   status?: Exclude<PostStatus, "all">;
   search?: string;
@@ -96,7 +96,7 @@ export function toMarketplaceQueryParams(
     pageNumber: filters.pageNumber,
     pageSize: filters.pageSize,
   };
-  if (filters.projectId != null) params.projectId = filters.projectId;
+  if (filters.projectShopOwnerId != null) params.projectShopOwnerId = filters.projectShopOwnerId;
   if (filters.serviceKind !== "all") {
     params.serviceKind = filters.serviceKind;
   }

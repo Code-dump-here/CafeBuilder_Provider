@@ -16,13 +16,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuthSession, useLogoutMutation } from "@/features/auth/hooks";
+import { useLogoutMutation } from "@/features/auth/hooks";
+import { useCurrentUser } from "@/lib/auth/user-context";
 import type { UserRole } from "@/features/auth/api";
 
 /**
  * Small avatar + dropdown that replaces the "Sign in / Sign up" buttons
  * when the user is already authenticated. Reads auth state via
- * `useAuthSession()` so it auto-updates on login / logout.
+ * `useCurrentUser()` from the UserContext, which fetches user data via
+ * `GET /api/auth/me`, so it auto-updates on login / logout.
  *
  * Layout note: the trigger is rendered as a circular icon button so it
  * fits in the same right-aligned slot as the existing CTA buttons.
@@ -30,7 +32,7 @@ import type { UserRole } from "@/features/auth/api";
 export function UserMenu() {
   const t = useTranslations("Navbar.userMenu");
   const router = useRouter();
-  const { account } = useAuthSession();
+  const { account } = useCurrentUser();
   const logoutMutation = useLogoutMutation();
 
   const fallback = React.useMemo(() => {
@@ -38,6 +40,18 @@ export function UserMenu() {
     const letter = email.trim().charAt(0).toUpperCase();
     return letter || "?";
   }, [account?.email]);
+
+  const displayName = React.useMemo(() => {
+    if (!account) return "";
+    // Get display name based on role
+    if (account.role === "provider" && account.serviceProvider) {
+      return account.serviceProvider.displayName;
+    }
+    if (account.role === "owner" && account.shopOwner) {
+      return account.shopOwner.fullName || account.email;
+    }
+    return account.email ?? "";
+  }, [account]);
 
   const homePath = React.useMemo(
     () => roleHomePath(account?.role),
@@ -73,10 +87,10 @@ export function UserMenu() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col gap-0.5 py-1">
             <p className="text-sm font-medium text-foreground">
-              {account?.email ?? t("signedInAs")}
+              {displayName || t("signedInAs")}
             </p>
             <p className="text-xs text-muted-foreground">
-              {t(`role.${account?.role ?? "guest"}`)}
+              {account?.email ?? ""}
             </p>
           </div>
         </DropdownMenuLabel>

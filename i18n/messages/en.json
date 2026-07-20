@@ -334,7 +334,38 @@
       "lookingFor": "Looking for: {kinds}",
       "applyBy": "Apply by {date}",
       "apply": "Apply now",
-      "applyComingSoon": "Project applications are coming soon."
+      "applying": "Applying…",
+      "applyNotReady": "Please sign in as a provider to apply.",
+      "applyComingSoon": "Project applications are coming soon.",
+      "applied": {
+        "pending": "Application submitted",
+        "accepted": "Application accepted",
+        "rejected": "Application declined"
+      },
+      "dialog": {
+        "title": "Apply to \"{project}\"",
+        "description": "Tell the owner why you're a good fit and when you can deliver.",
+        "proposalLabel": "Your proposal",
+        "proposalPlaceholder": "Describe your approach, relevant experience, and why this project fits you…",
+        "proposalHint": "Minimum {min} characters.",
+        "proposalTooShort": "Please write at least {min} characters.",
+        "durationLabel": "Estimated duration",
+        "durationSuffix": "days",
+        "durationHint": "How many days from kickoff to handover?",
+        "durationInvalid": "Duration must be between {min} and {max} days.",
+        "submit": "Submit application",
+        "submitting": "Submitting…",
+        "cancel": "Cancel"
+      }
+    },
+    "contractorQuickActions": {
+      "title": "Construction overview",
+      "subtitle": "Your build status for this site — open the matching tab to dig in.",
+      "constructionLog": "Build progress",
+      "todayTasks": "Tasks today",
+      "openIssues": "Open issues",
+      "payments": "Payments due",
+      "progressValue": "{percent}%"
     },
     "errors": {
       "title": "Couldn't load this project",
@@ -445,12 +476,392 @@
       "subtitle": "Once the owner submits the brief, you'll see it here — including target customers, style, mood, and timeline."
     }
   },
+  "ConstructionLog": {
+    "title": "Construction log",
+    "subtitle": "Daily on-site updates — progress, photos, manpower, and blockers.",
+    "stats": {
+      "title": "Build snapshot",
+      "subtitle": "Where this site is at a glance.",
+      "currentProgress": {
+        "label": "Current progress",
+        "hint": "Across all phases"
+      },
+      "daysActive": {
+        "label": "Days active",
+        "hint": "Entries logged"
+      },
+      "totalPhotos": {
+        "label": "Photos uploaded",
+        "hint": "On-site documentation"
+      },
+      "blockerDays": {
+        "label": "Blocker days",
+        "hint": "Days delayed or blocked"
+      }
+    },
+    "toolbar": {
+      "label": "Filter",
+      "from": "From",
+      "to": "To",
+      "status": "Status",
+      "clear": "Clear",
+      "advanced": "Advanced view",
+      "advancedComingSoon": "Advanced filtering will be available soon."
+    },
+    "status": {
+      "all": "All statuses",
+      "onTrack": "On track",
+      "minorDelay": "Minor delay",
+      "blocked": "Blocked",
+      "completed": "Completed"
+    },
+    "weather": {
+      "sunny": "Sunny",
+      "cloudy": "Cloudy",
+      "rainy": "Rainy",
+      "stormy": "Stormy"
+    },
+    "timeline": {
+      "title": "Daily log",
+      "subtitle": "{count, plural, =0 {No entries} =1 {1 entry} other {# entries}} in range",
+      "empty": "No log entries match the current filter."
+    },
+    "entry": {
+      "workers": "{count, plural, =0 {No crew on site} =1 {1 worker on site} other {# workers on site}}",
+      "issues": "{count, plural, =0 {} =1 {1 issue filed} other {# issues filed}}",
+      "loggedBy": "Logged by {name}",
+      "photosLabel": "Photos uploaded today",
+      "progressDelta": "+{value}% today",
+      "cumulative": "{percent}% total"
+    },
+    "addEntry": {
+      "title": "Add today's log",
+      "subtitle": "Drop a few lines about today's work — designers and owners will see it immediately.",
+      "cta": "Log today",
+      "comingSoon": "Daily logging will be available soon."
+    }
+  },
+  "Survey": {
+    "title": "Site Survey",
+    "subtitle": "Document site conditions before work begins.",
+    "noEngagement": {
+      "title": "No engagement found",
+      "description": "You need an accepted project engagement before you can create a survey."
+    },
+    "createNew": "New Survey",
+    "createFirst": "Create first survey",
+    "previousVersions": "Previous versions",
+    "previousVersionsCount": "{count, plural, =1 {1 previous version} other {# previous versions}}",
+    "latest": "Latest",
+    "edit": "Edit",
+    "viewReport": "View report",
+    "conditionNote": "Site Conditions",
+    "reportFile": "Report File",
+    "versionLabel": "Version {version}",
+    "createdAt": "Created {date} at {time}",
+    "refreshing": "Refreshing…",
+    "empty": {
+      "title": "No surveys yet",
+      "description": "Create your first site survey to document conditions before starting work."
+    },
+    "dialog": {
+      "titleCreate": "Create Site Survey",
+      "titleEdit": "Edit Survey",
+      "descriptionCreate": "Document the current site conditions for this project.",
+      "descriptionEdit": "Update the survey information.",
+      "conditionNoteLabel": "Site Conditions",
+      "conditionNotePlaceholder": "Describe the current site conditions, existing structures, access points, utilities, and any observations relevant to the project…",
+      "conditionNoteHint": "Minimum 10 characters.",
+      "conditionNoteTooShort": "Please write at least {min} characters.",
+      "reportFileLabel": "Report File (optional)",
+      "reportFileHint": "Upload a PDF or images of the survey report.",
+      "viewCurrentReport": "View current report",
+      "removeFile": "Remove",
+      "uploading": "Uploading…",
+      "uploadFailed": "Failed to upload file. Please try again.",
+      "cancel": "Cancel",
+      "create": "Create Survey",
+      "saveChanges": "Save Changes",
+      "submitting": "Saving…"
+    },
+    "errors": {
+      "title": "Couldn't load surveys",
+      "subtitle": "Something went wrong while fetching survey data. Please try again.",
+      "retry": "Try again"
+    }
+  },
+  "Contracts": {
+    "title": "Contracts",
+    "subtitle": "Manage project contracts with OTP verification.",
+    "noEngagement": {
+      "title": "No engagement found",
+      "description": "You need an accepted project engagement before creating contracts."
+    },
+    "createNew": "New Contract",
+    "createFirst": "Create first contract",
+    "sendOtp": "Send OTP",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "viewDocument": "View document",
+    "refreshing": "Refreshing…",
+    "value": "Value: {value} VND",
+    "termsLabel": "Terms",
+    "createdAt": "Created {date} at {time}",
+    "otpExpiresAt": "OTP expires: {time}",
+    "confirmedAt": "Confirmed: {time}",
+    "status": {
+      "drafted": "Draft",
+      "pendingOtp": "Awaiting confirmation",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled"
+    },
+    "confirmedBanner": {
+      "title": "Contract confirmed!",
+      "description": "Contract \"{title}\" is active and unlocking designs & construction."
+    },
+    "empty": {
+      "title": "No contracts yet",
+      "description": "Create a contract to formalize the project agreement with the service provider."
+    },
+    "dialog": {
+      "titleCreate": "Create Contract",
+      "descriptionCreate": "Create a new contract for this project engagement.",
+      "titleLabel": "Contract Title",
+      "titlePlaceholder": "e.g., Coffee Shop Design & Build Contract",
+      "valueLabel": "Agreed Value",
+      "valuePlaceholder": "Enter amount",
+      "termsLabel": "Terms & Conditions",
+      "termsPlaceholder": "Describe the contract terms, scope of work, payment schedule...",
+      "termsHint": "Minimum 20 characters recommended.",
+      "documentLabel": "Contract Document (optional)",
+      "viewCurrentDocument": "View uploaded document",
+      "removeFile": "Remove",
+      "uploading": "Uploading…",
+      "cancel": "Cancel",
+      "create": "Create Contract",
+      "creating": "Creating…",
+      "otpTitleSend": "Send OTP Confirmation",
+      "otpTitleConfirm": "Confirm Contract",
+      "otpDescriptionSend": "Send a verification code to the owner's email for contract confirmation.",
+      "otpDescriptionConfirm": "Enter the 6-digit code sent to the owner's email.",
+      "otpSendHint": "The owner will receive a 6-digit code to confirm this contract.",
+      "sendOtpButton": "Send OTP",
+      "sending": "Sending…",
+      "otpCodeLabel": "Verification Code",
+      "otpCodePlaceholder": "Enter 6-digit code",
+      "otpCodeHint": "Check the owner's email for the code.",
+      "confirmOtpButton": "Confirm Contract",
+      "confirming": "Confirming…",
+      "close": "Close"
+    },
+    "errors": {
+      "title": "Couldn't load contracts",
+      "subtitle": "Something went wrong while fetching contract data. Please try again.",
+      "retry": "Try again"
+    }
+  },
+  "ConstructionOverview": {
+    "title": "Construction overview",
+    "subtitle": "Where the site stands right now — the milestone track plus shortcuts to every daily tool.",
+    "header": {
+      "currentPhaseLabel": "Current phase",
+      "progressLabel": "Overall progress",
+      "lastUpdated": "Updated {time}",
+      "openLog": "Log today",
+      "openLogComingSoon": "Logging is coming soon — the daily log tab will open shortly.",
+      "viewTasks": "Open today's tasks"
+    },
+    "track": {
+      "title": "Milestone track",
+      "subtitle": "Tap a phase to see its tasks, blockers, and photos below.",
+      "currentPulse": "Active phase"
+    },
+    "status": {
+      "completed": "Completed",
+      "inProgress": "In progress",
+      "blocked": "Blocked",
+      "upcoming": "Upcoming"
+    },
+    "detail": {
+      "title": "Phase details",
+      "subtitle": "Tasks, blockers, and photos for the selected phase.",
+      "lead": "Lead",
+      "target": "Target",
+      "progressLabel": "Phase progress",
+      "tasks": "Tasks",
+      "noTasks": "No tasks tracked for this phase yet.",
+      "blockers": "{count, plural, =0 {} =1 {1 blocker} other {# blockers}}",
+      "photosLabel": "{count, plural, =0 {No photos} =1 {1 photo} other {# photos}} uploaded",
+      "viewPhase": "Open phase detail",
+      "viewPhaseComingSoon": "Per-phase detail page coming soon.",
+      "drawer": {
+        "title": "Phase detail",
+        "close": "Close",
+        "openFull": "Open full page",
+        "kpi": {
+          "progress": "Progress",
+          "lead": "Lead",
+          "target": "Target",
+          "tasksDone": "Tasks done",
+          "tasksTotal": "of {total}",
+          "blockers": "Blockers",
+          "photos": "Photos"
+        },
+        "sections": {
+          "narrative": "Where this phase stands",
+          "tasks": "Tasks",
+          "blockers": "Blockers",
+          "photos": "Photos",
+          "crew": "Crew on site"
+        },
+        "noTasks": "No tasks tracked yet.",
+        "noBlockers": "No blockers filed — clear sailing.",
+        "noPhotos": "No photos uploaded for this phase yet.",
+        "noCrew": "Crew not assigned yet.",
+        "taskDone": "Mark task done",
+        "taskUndone": "Mark task open",
+        "severity": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High"
+        },
+        "blockerFiled": "Filed {date}",
+        "blockerOwner": "Owner: {owner}",
+        "closeCta": "Back to overview"
+      }
+    },
+    "actions": {
+      "title": "Quick actions",
+      "subtitle": "Open the tab you need without scrolling through the sidebar.",
+      "constructionLog": "Daily log",
+      "constructionLogDesc": "Progress + photos per day",
+      "dailyReports": "Daily reports",
+      "dailyReportsDesc": "Aggregate report PDFs",
+      "issuesAndRFI": "Issues & RFI",
+      "issuesAndRFIDesc": "Blockers needing resolution",
+      "materialsTracking": "Materials",
+      "materialsTrackingDesc": "Deliveries and inventory",
+      "payments": "Payments",
+      "paymentsDesc": "Schedule and pending bills"
+    },
+    "milestoneError": "Milestone data unavailable."
+  },
+  "MilestoneManagement": {
+    "title": "Milestone & task management",
+    "subtitle": "Drag phases, edit tasks, and rebalance progress — changes apply to the construction overview immediately.",
+    "toolbar": {
+      "addPhase": "Add phase",
+      "totalPhases": "{count, plural, =0 {No phases} =1 {1 phase} other {# phases}}",
+      "totalTasks": "{count, plural, =0 {No tasks} =1 {1 task} other {# tasks}}",
+      "doneTasks": "{done}/{total} done",
+      "backToOverview": "Back to overview"
+    },
+    "phase": {
+      "rename": "Rename",
+      "renameTitle": "Rename phase",
+      "renameLabel": "Phase name",
+      "delete": "Delete phase",
+      "deleteConfirm": "Delete this phase and all its tasks?",
+      "moveLeft": "Move left",
+      "moveRight": "Move right",
+      "editMeta": "Edit details",
+      "editMetaTitle": "Edit phase details",
+      "lead": "Lead",
+      "leadPlaceholder": "e.g. Khoi",
+      "targetDate": "Target date",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "progress": "Progress",
+      "setStatus": "Set status",
+      "statusCompleted": "Completed",
+      "statusInProgress": "In progress",
+      "statusBlocked": "Blocked",
+      "statusUpcoming": "Upcoming",
+      "addTask": "Add task",
+      "addTaskPlaceholder": "What needs to happen?",
+      "addTaskCta": "Add task",
+      "noTasks": "No tasks yet — add the first one.",
+      "tasksDone": "{done}/{total} done"
+    },
+    "task": {
+      "edit": "Edit task",
+      "editTitle": "Edit task",
+      "taskLabel": "Task",
+      "delete": "Delete task",
+      "deleteConfirm": "Delete this task?",
+      "markDone": "Mark task done",
+      "markUndone": "Mark task open",
+      "noAssignee": "Unassigned",
+      "detail": {
+        "title": "Task detail",
+        "close": "Close",
+        "save": "Save changes",
+        "deleteCta": "Delete task",
+        "edit": "Edit task",
+        "created": "Created {date}",
+        "fields": {
+          "title": "Title",
+          "description": "Description",
+          "assignee": "Assignee",
+          "dueDate": "Due date",
+          "status": "Status",
+          "checklist": "Work to do",
+          "images": "Reference images"
+        },
+        "checklist": {
+          "prepare": "Review drawings & gather materials",
+          "execute": "Execute the work on-site",
+          "verify": "Verify against spec / supervisor check-in",
+          "log": "Log progress + photos in the project feed"
+        },
+        "descriptionPlaceholder": "What needs to happen here?",
+        "noAssigneeOption": "Unassigned",
+        "noDueDate": "No due date",
+        "toast": {
+          "saved": "Task updated.",
+          "deleted": "Task deleted."
+        }
+      },
+      "addTask": {
+        "title": "Add task",
+        "subtitle": "New task under this milestone",
+        "create": "Create task",
+        "uploadCta": "Upload images"
+      }
+    },
+    "addPhase": {
+      "title": "Add a phase",
+      "subtitle": "New phases are appended to the timeline and become the new last column.",
+      "label": "Phase name",
+      "labelPlaceholder": "e.g. Equipment install",
+      "lead": "Lead",
+      "leadPlaceholder": "e.g. Dat",
+      "targetDate": "Target date",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "create": "Create phase",
+      "cancel": "Cancel"
+    },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "errorEmpty": "No phases yet. Add the first one to start tracking.",
+    "summaryError": "Couldn't update milestone state."
+  },
   "Sidebar": {
+    "common": {
+      "shortcuts": "Shortcuts",
+      "notifications": "Notifications",
+      "settings": "Settings"
+    },
     "designer": {
       "projectInfo": "Project Info",
       "overview": "Overview",
       "brief": "Brief",
       "survey": "Survey",
+      "contracts": "Contracts",
       "designWork": "Design Work",
       "designManagement": "Design Management",
       "concept": "Concept",
@@ -458,21 +869,17 @@
       "3dDesign": "3D Design",
       "technicalDrawings": "Technical Drawings",
       "revisions": "Revisions",
-      "collaboration": "Collaboration",
       "messages": "Messages",
       "progress": "Progress",
       "constructionSupport": "Construction Support"
     },
     "contractor": {
       "workspace": "Workspace",
-      "overview": "Overview",
+      "constructionOverview": "Construction Overview",
       "constructionLog": "Construction Log",
+      "milestones": "Milestones",
       "dailyReports": "Daily Reports",
       "issuesAndRFI": "Issues & RFI",
-      "myProjects": "My Projects",
-      "quotations": "Quotations",
-      "activeProjects": "Active Projects",
-      "completedProjects": "Completed Projects",
       "materialsAndHandover": "Materials & Handover",
       "materialsTracking": "Materials Tracking",
       "handover": "Handover"
@@ -480,7 +887,7 @@
     "shopOwner": {
       "workspace": "Workspace",
       "overview": "Overview",
-      "discussion": "Discussion",
+      "messages": "Messages",
       "projectManagement": "Project Management",
       "documents": "Documents",
       "quotations": "Quotations",
@@ -502,6 +909,16 @@
       "platform": "Platform",
       "disputes": "Disputes",
       "analytics": "Analytics"
+    },
+    "navUser": {
+      "upgradeToPro": "Upgrade to Pro",
+      "account": "Account",
+      "billing": "Billing",
+      "notifications": "Notifications",
+      "signOut": "Log out",
+      "signingOut": "Signing out…",
+      "signOutSuccess": "Signed out.",
+      "signOutError": "Could not sign you out. Please try again."
     }
   },
   "Messages": {

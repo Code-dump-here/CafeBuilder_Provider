@@ -58,7 +58,7 @@ export interface UseProjectDetailResult {
 // Hook
 
 /**
- * Load a single project's full detail from `GET /api/projects/{id}`.
+ * Load a single project's full detail from `GET /api/project-shop-owners/{id}`.
  *
  * Behavior:
  *   - Reads the persisted Bearer access token from `tokenStore` (already

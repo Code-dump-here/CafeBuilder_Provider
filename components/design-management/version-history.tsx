@@ -3,13 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
-import {
-  CheckCircle2,
-  Circle,
-  CircleDot,
-  Clock,
-  History,
-} from "lucide-react";
+import { CheckCircle2, Circle, CircleDot, Clock, History } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 

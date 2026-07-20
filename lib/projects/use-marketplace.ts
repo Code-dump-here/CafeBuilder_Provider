@@ -71,7 +71,7 @@ function useAuthHydrated(): boolean {
 /**
  * Load the marketplace post list for the given filters.
  *
- * Wraps the real `GET /api/project-posts` call behind a React Query so the
+ * Wraps the real `GET /api/posts` call behind a React Query so the
  * page gets caching, refetch-on-revalidate, and devtools support for free.
  * `placeholderData: keepPreviousData` keeps the previous page visible
  * while the next request is in flight (snappier feel than a full
@@ -134,7 +134,7 @@ function stableKeyFromFilters(
   filters: MarketplaceFilters,
 ): Record<string, unknown> {
   const flat: Record<string, unknown> = {};
-  if (filters.projectId != null) flat.projectId = filters.projectId;
+  if (filters.projectShopOwnerId != null) flat.projectShopOwnerId = filters.projectShopOwnerId;
   if (filters.serviceKind !== "all") flat.serviceKind = filters.serviceKind;
   if (filters.status !== "all") flat.status = filters.status;
   if (filters.query.trim()) flat.query = filters.query.trim();

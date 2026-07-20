@@ -15,9 +15,7 @@ import {
   useDesignVersions,
 } from "@/lib/projects/use-design-versions";
 
-import type {
-  DesignDrawing,
-} from "@/lib/projects/design-version-types";
+import type { DesignDrawing } from "@/lib/projects/design-version-types";
 
 /**
  * Three-column detail page that mirrors the mockup:
@@ -67,8 +65,7 @@ export default function DesignVersionDetailPage() {
   // Seed the selection once data is available. We only do this when
   // `selectedDrawing` is null AND the version has drawings — never
   // overwrite an explicit user pick on subsequent renders.
-  const effectiveDrawing =
-    selectedDrawing ?? defaultDrawing ?? null;
+  const effectiveDrawing = selectedDrawing ?? defaultDrawing ?? null;
 
   if (!versionId || Number.isNaN(versionId) || !version) {
     return (
@@ -77,9 +74,7 @@ export default function DesignVersionDetailPage() {
           aria-hidden
           className="size-8 text-muted-foreground/50"
         />
-        <p className="text-sm text-muted-foreground">
-          {t("version.notFound")}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("version.notFound")}</p>
         <Button asChild size="sm" variant="outline">
           <Link href={`/projects/${projectIdParam}/design-management`}>
             <ArrowLeft aria-hidden />
@@ -113,9 +108,7 @@ export default function DesignVersionDetailPage() {
           {version.code}
         </Link>
         <ChevronRight aria-hidden className="size-3" />
-        <span className="font-semibold text-foreground">
-          {version.name}
-        </span>
+        <span className="font-semibold text-foreground">{version.name}</span>
         {effectiveDrawing ? (
           <>
             <ChevronRight aria-hidden className="size-3" />

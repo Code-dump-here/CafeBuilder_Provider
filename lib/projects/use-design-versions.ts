@@ -1,9 +1,6 @@
 import * as React from "react";
 
-import type {
-  DesignDrawing,
-  DesignVersion,
-} from "./design-version-types";
+import type { DesignDrawing, DesignVersion, DrawingCategory } from "./design-version-types";
 
 /**
  * Hook returning the design versions (and their drawings) for a project.
@@ -58,8 +55,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Ground Floor Plan",
         code: "A-101",
         category: "FLOOR_PLAN",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-101/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-101/640/420",
         scale: "1:50",
         sheet: "A-101",
         note: "Coordinated HVAC returns with ceiling grid.",
@@ -72,8 +68,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Mezzanine Plan",
         code: "A-102",
         category: "FLOOR_PLAN",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-102/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-102/640/420",
         scale: "1:50",
         sheet: "A-102",
         note: "Stair extension per structural RFI #14.",
@@ -86,8 +81,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Roof Plan",
         code: "A-103",
         category: "FLOOR_PLAN",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-103/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-103/640/420",
         scale: "1:50",
         sheet: "A-103",
         note: null,
@@ -100,8 +94,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Front Elevation",
         code: "A-201",
         category: "ELEVATION",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-201/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-201/640/420",
         scale: "1:50",
         sheet: "A-201",
         note: "Updated glazing mullions to match facade mockup.",
@@ -114,8 +107,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Section A-A",
         code: "A-301",
         category: "SECTION",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-301/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-301/640/420",
         scale: "1:50",
         sheet: "A-301",
         note: null,
@@ -128,8 +120,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Isometric Render",
         code: "R-401",
         category: "3D",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-401/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-401/640/420",
         scale: null,
         sheet: "R-401",
         note: "Presentation-grade isometric, morning light.",
@@ -164,8 +155,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Ground Floor Plan (Rev. C)",
         code: "A-101-R3",
         category: "FLOOR_PLAN",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-r3-101/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-r3-101/640/420",
         scale: "1:50",
         sheet: "A-101",
         note: "Counter extended 600mm toward the entrance.",
@@ -178,8 +168,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Seating Layout (Rev. C)",
         code: "A-104-R3",
         category: "FLOOR_PLAN",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-r3-104/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-r3-104/640/420",
         scale: "1:50",
         sheet: "A-104",
         note: "Banquette softened, additional 2-top added near the window.",
@@ -192,8 +181,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Front Elevation (Rev. C)",
         code: "A-201-R3",
         category: "ELEVATION",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-r3-201/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-r3-201/640/420",
         scale: "1:50",
         sheet: "A-201",
         note: null,
@@ -206,8 +194,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Section A-A (Rev. C)",
         code: "A-301-R3",
         category: "SECTION",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-r3-301/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-r3-301/640/420",
         scale: "1:50",
         sheet: "A-301",
         note: null,
@@ -220,8 +207,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Isometric Render (Rev. C)",
         code: "R-401-R3",
         category: "3D",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-r3-401/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-r3-401/640/420",
         scale: null,
         sheet: "R-401",
         note: "Warmer mood, more greenery.",
@@ -256,8 +242,7 @@ const VERSIONS: DesignVersion[] = [
         name: "MEP Overlay — Ground",
         code: "M-101",
         category: "FLOOR_PLAN",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-mep-101/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-mep-101/640/420",
         scale: "1:50",
         sheet: "M-101",
         note: "Two clashes flagged near the bar.",
@@ -270,8 +255,7 @@ const VERSIONS: DesignVersion[] = [
         name: "MEP Overlay — Mezz",
         code: "M-102",
         category: "FLOOR_PLAN",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-mep-102/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-mep-102/640/420",
         scale: "1:50",
         sheet: "M-102",
         note: null,
@@ -284,8 +268,7 @@ const VERSIONS: DesignVersion[] = [
         name: "RCP — Ground",
         code: "M-201",
         category: "ELEVATION",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-mep-201/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-mep-201/640/420",
         scale: "1:50",
         sheet: "M-201",
         note: null,
@@ -298,8 +281,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Section — MEP",
         code: "M-301",
         category: "SECTION",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-mep-301/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-mep-301/640/420",
         scale: "1:50",
         sheet: "M-301",
         note: null,
@@ -333,8 +315,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Schematic Plan",
         code: "A-101-S1",
         category: "FLOOR_PLAN",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-s1-101/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-s1-101/640/420",
         scale: "1:100",
         sheet: "A-101",
         note: null,
@@ -347,8 +328,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Schematic Sections",
         code: "A-301-S1",
         category: "SECTION",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-s1-301/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-s1-301/640/420",
         scale: "1:100",
         sheet: "A-301",
         note: null,
@@ -361,8 +341,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Schematic 3D",
         code: "R-401-S1",
         category: "3D",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-s1-401/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-s1-401/640/420",
         scale: null,
         sheet: "R-401",
         note: null,
@@ -397,8 +376,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Snapshot Plan",
         code: "A-101-S0",
         category: "FLOOR_PLAN",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-s0-101/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-s0-101/640/420",
         scale: "1:50",
         sheet: "A-101",
         note: null,
@@ -411,8 +389,7 @@ const VERSIONS: DesignVersion[] = [
         name: "Snapshot 3D",
         code: "R-401-S0",
         category: "3D",
-        thumbnailUrl:
-          "https://picsum.photos/seed/ans-s0-401/640/420",
+        thumbnailUrl: "https://picsum.photos/seed/ans-s0-401/640/420",
         scale: null,
         sheet: "R-401",
         note: null,
@@ -438,4 +415,84 @@ export function useDesignVersion(
     const all = (OVERRIDE ?? (() => VERSIONS))(projectId);
     return all.find((v) => v.id === versionId) ?? null;
   }, [projectId, versionId]);
+}
+
+// --- category helpers --------------------------------------------------------
+//
+// The detail pages under `/design-management/[versionId]/...` use the outer
+// dynamic segment as a *category slug* (e.g. "3d", "floor-plan") and the
+// inner one as a numeric version id. These helpers keep that mapping in
+// one place so neither the route shell nor the right rail has to know
+// the slug spelling rules.
+
+/**
+ * URL slug → `DrawingCategory` enum. Returns `null` if the slug
+ * doesn't match a known category. Slug spelling is kebab-case ASCII
+ * mirroring the C# `DesignCategory` values: "3d", "floor-plan",
+ * "elevation", "section", "revision".
+ */
+export function resolveCategorySlug(
+  slug: string | undefined | null,
+): DrawingCategory | null {
+  if (!slug) return null;
+  const normalized = slug.toLowerCase().trim();
+  switch (normalized) {
+    case "3d":
+    case "three-d":
+    case "three_d":
+    case "threed":
+      return "3D";
+    case "floor-plan":
+    case "floor_plan":
+    case "floorplan":
+      return "FLOOR_PLAN";
+    case "elevation":
+    case "elevations":
+      return "ELEVATION";
+    case "section":
+    case "sections":
+      return "SECTION";
+    case "revision":
+    case "revisions":
+      return "REVISION";
+    default:
+      return null;
+  }
+}
+
+/**
+ * All design versions for `projectId` whose `category` matches the
+ * resolved slug. Accepts either a `DrawingCategory` or a raw slug
+ * string (so callers can pass `resolveCategorySlug(slug) ?? ""`
+ * without an extra null check). Versions are returned in
+ * `updatedAt` descending order so the right rail shows the most
+ * recent entry first.
+ */
+export function useDesignCategoryVersions(
+  projectId: string,
+  category: DrawingCategory | string,
+): DesignVersion[] {
+  const resolved = useCategoryFromInput(category);
+  return React.useMemo(() => {
+    const all = (OVERRIDE ?? (() => VERSIONS))(projectId);
+    return all
+      .filter((v) => v.category === resolved)
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+  }, [projectId, resolved]);
+}
+
+function useCategoryFromInput(
+  category: DrawingCategory | string,
+): DrawingCategory | null {
+  if (!category) return null;
+  if (
+    category === "3D" ||
+    category === "FLOOR_PLAN" ||
+    category === "ELEVATION" ||
+    category === "SECTION" ||
+    category === "REVISION"
+  ) {
+    return category;
+  }
+  return resolveCategorySlug(category);
 }

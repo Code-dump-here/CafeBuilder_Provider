@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { useAuthSession } from "@/features/auth/hooks";
+import { useCurrentUser } from "@/lib/auth/user-context";
 
 import { UserMenu } from "./user-menu";
 
@@ -21,13 +21,12 @@ interface AuthControlsProps {
  *   - The `UserMenu` (avatar + dropdown) when the user is authenticated.
  *   - The "Sign in / Start free" button pair otherwise.
  *
- * `useAuthSession()` reads the persisted token at module-load time and
- * subscribes to subsequent login/logout events, so this component
- * auto-flipping between the two states without manual refresh.
+ * `useCurrentUser()` reads from the UserContext which fetches the user
+ * via `GET /api/auth/me`, so this component auto-updates on login / logout.
  */
 export function AuthControls({ variant, className }: AuthControlsProps) {
   const t = useTranslations("Navbar.cta");
-  const { isAuthenticated } = useAuthSession();
+  const { isAuthenticated } = useCurrentUser();
 
   if (variant === "desktop") {
     return (

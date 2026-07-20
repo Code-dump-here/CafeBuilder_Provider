@@ -19,14 +19,14 @@ import { useMessageThreads } from "@/lib/projects/use-message-threads";
  *   └──────────┴─────────────────────────┴───────────┘
  *
  * Routing:
- *   - URL is `/projects/{id}/collaboration` (matches the sidebar
+ *   - URL is `/projects/{id}/messages` (matches the sidebar
  *     "Messages" item — `scope: "project"` resolves to this suffix).
  *   - Active thread is encoded in the `?threadId=` query param so
  *     users can bookmark / share / back-navigate to a specific
  *     conversation. Falls back to "first unread → first pinned →
  *     first room" when the param is absent or stale.
  */
-export default function CollaborationPage() {
+export default function MessagesPage() {
   const params = useParams<{ id: string; locale?: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -64,7 +64,7 @@ export default function CollaborationPage() {
     const next = new URLSearchParams(searchParams?.toString() ?? "");
     next.set("threadId", String(effectiveThreadId));
     router.replace(
-      `/projects/${projectIdParam}/collaboration?${next.toString()}`,
+      `/projects/${projectIdParam}/messages?${next.toString()}`,
       { scroll: false },
     );
   }, [
@@ -82,7 +82,7 @@ export default function CollaborationPage() {
     [threads, effectiveThreadId],
   );
 
-  const basePath = `/projects/${projectIdParam}/collaboration`;
+  const basePath = `/projects/${projectIdParam}/messages`;
 
   const hrefFor = React.useCallback(
     (threadId: number): string => {

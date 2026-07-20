@@ -1,6 +1,6 @@
 /**
  * Domain model for the project-level messages surface
- * (`/projects/{id}/collaboration`). Mirrors the threaded / chat
+ * (`/projects/{id}/messages`). Mirrors the threaded / chat
  * pattern from the design mock — top-level threads, each holding an
  * ordered message log.
  *

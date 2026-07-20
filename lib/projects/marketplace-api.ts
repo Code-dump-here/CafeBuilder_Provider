@@ -19,7 +19,7 @@ import {
 
 interface RawMarketplacePost {
   id: number;
-  projectId: number;
+  projectShopOwnerId: number;
   projectName: string;
   projectAddress: string;
   projectBudget: number;
@@ -46,7 +46,7 @@ type RawPagedResponse = Omit<
 /**
  * Fetch the marketplace post list for the current filter state.
  *
- * Endpoint: `GET /api/project-posts` with query params derived from the
+ * Endpoint: `GET /api/posts` with query params derived from the
  * filter object. Response shape is the raw `PagedResponse` (no envelope).
  */
 export async function fetchMarketplacePosts(
@@ -54,7 +54,7 @@ export async function fetchMarketplacePosts(
   config?: RequestConfig,
 ): Promise<PagedResponse<MarketplacePost>> {
   const params = toMarketplaceQueryParams(filters);
-  const response = await api.get<RawPagedResponse>("/api/project-posts", {
+  const response = await api.get<RawPagedResponse>("/api/posts", {
     ...config,
     params,
   });
@@ -70,7 +70,7 @@ export async function fetchMarketplacePosts(
 export async function fetchOpenMarketplacePostCount(
   config?: RequestConfig,
 ): Promise<number> {
-  const response = await api.get<RawPagedResponse>("/api/project-posts", {
+  const response = await api.get<RawPagedResponse>("/api/posts", {
     ...config,
     params: { pageNumber: 1, pageSize: 1, status: "open" },
   });

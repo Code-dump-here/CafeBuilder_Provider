@@ -101,22 +101,17 @@ const DESIGNER_PROJECT_INFO: NavSection = {
       icon: Map,
       scope: "project",
     },
+    {
+      titleKey: "Sidebar.designer.contracts",
+      url: "/contracts",
+      icon: FileCheck,
+      scope: "project",
+    },
   ],
 };
 
-/**
- * Maps a project-scoped URL suffix to the i18n key used both in the sidebar
- * and in the breadcrumb. Derived from `DESIGNER_PROJECT_INFO` so the two stay
- * in sync automatically. The overview entry (empty suffix) maps to the
- * overview key.
- */
-export const PROJECT_SEGMENT_TITLE_KEY: Record<string, string> =
-  DESIGNER_PROJECT_INFO.items.reduce<Record<string, string>>((acc, item) => {
-    if (item.scope !== "project") return acc;
-    const suffix = item.url; // "" for the project root, "/briefs", "/survey", ...
-    acc[suffix] = item.titleKey;
-    return acc;
-  }, {});
+// (project-segment title-key registry lives at the bottom of the file
+//  so it can read the assembled ROLE_SIDEBAR_CONFIG — see end of file.)
 
 const DESIGNER_DESIGN_WORK: NavSection = {
   labelKey: "Sidebar.designer.designWork",
@@ -136,14 +131,15 @@ const DESIGNER_DESIGN_WORK: NavSection = {
   ],
 };
 
-const DESIGNER_COLLABORATION: NavSection = {
-  labelKey: "Sidebar.designer.collaboration",
+const DESIGNER_MESSAGES: NavSection = {
+  labelKey: "Sidebar.designer.messages",
   items: [
     {
       titleKey: "Sidebar.designer.messages",
-      url: "/collaboration",
+      url: "/messages",
       icon: MessageCircle,
       badge: 3,
+      scope: "project",
     },
     { titleKey: "Sidebar.designer.progress", url: "/progress", icon: BarChart },
     {
@@ -154,68 +150,101 @@ const DESIGNER_COLLABORATION: NavSection = {
   ],
 };
 
-// ─── Contractor Section ───────────────────────────────────────────────────────
+// ─── Construction Work Section (project-scoped) ──────────────────────────────
+//
+// Inlined under the project scope so designers, owners, and contractors
+// share the same sidebar while in `/projects/{id}/*`. Sits between
+// `DESIGNER_DESIGN_WORK` and `DESIGNER_MESSAGES` so the order reads
+// "project facts → design → build → communicate".
 
-const CONTRACTOR_WORKSPACE_SECTION: NavSection = {
+const CONSTRUCTION_WORK_SECTION: NavSection = {
   labelKey: "Sidebar.contractor.workspace",
   items: [
     {
-      titleKey: "Sidebar.contractor.overview",
-      url: "/workspace",
+      titleKey: "Sidebar.contractor.constructionOverview",
+      url: "/construction-overview",
       icon: LayoutDashboard,
+      scope: "project",
     },
     {
       titleKey: "Sidebar.contractor.constructionLog",
-      url: "/workspace/construction-log",
+      url: "/construction-log",
       icon: Construction,
+      scope: "project",
+    },
+    {
+      titleKey: "Sidebar.contractor.milestones",
+      url: "/milestones",
+      icon: ClipboardCheck,
+      scope: "project",
     },
     {
       titleKey: "Sidebar.contractor.dailyReports",
-      url: "/workspace/daily-reports",
+      url: "/daily-reports",
       icon: FileCheck,
+      scope: "project",
     },
     {
       titleKey: "Sidebar.contractor.issuesAndRFI",
-      url: "/workspace/issues",
+      url: "/issues",
       icon: AlertTriangle,
       badge: 3,
+      scope: "project",
     },
-  ],
-};
-
-const CONTRACTOR_PROJECTS_SECTION: NavSection = {
-  labelKey: "Sidebar.contractor.myProjects",
-  items: [
-    {
-      titleKey: "Sidebar.contractor.quotations",
-      url: "/quotation-selection",
-      icon: Receipt,
-    },
-    {
-      titleKey: "Sidebar.contractor.activeProjects",
-      url: "/workspace/active-projects",
-      icon: Building2,
-    },
-    {
-      titleKey: "Sidebar.contractor.completedProjects",
-      url: "/workspace/completed-projects",
-      icon: CheckCircle,
-    },
-  ],
-};
-
-const CONTRACTOR_MATERIALS_SECTION: NavSection = {
-  labelKey: "Sidebar.contractor.materialsAndHandover",
-  items: [
     {
       titleKey: "Sidebar.contractor.materialsTracking",
-      url: "/workspace/materials",
+      url: "/materials",
       icon: Package,
+      scope: "project",
     },
     {
       titleKey: "Sidebar.contractor.handover",
       url: "/handover",
       icon: ClipboardCheck,
+      scope: "project",
+    },
+  ],
+};
+
+// ─── Contractor Section ───────────────────────────────────────────────────────
+//
+// Standalone contractor config kept for completeness — currently unused
+// because role-based sidebar switching is paused, but the data is here
+// when it's wired back in.
+
+const CONTRACTOR_SECTION: NavSection = {
+  labelKey: "Sidebar.contractor.workspace",
+  items: [
+    {
+      titleKey: "Sidebar.contractor.constructionLog",
+      url: "/construction-log",
+      icon: Construction,
+      scope: "project",
+    },
+    {
+      titleKey: "Sidebar.contractor.dailyReports",
+      url: "/daily-reports",
+      icon: FileCheck,
+      scope: "project",
+    },
+    {
+      titleKey: "Sidebar.contractor.issuesAndRFI",
+      url: "/issues",
+      icon: AlertTriangle,
+      badge: 3,
+      scope: "project",
+    },
+    {
+      titleKey: "Sidebar.contractor.materialsTracking",
+      url: "/materials",
+      icon: Package,
+      scope: "project",
+    },
+    {
+      titleKey: "Sidebar.contractor.handover",
+      url: "/handover",
+      icon: ClipboardCheck,
+      scope: "project",
     },
   ],
 };
@@ -230,11 +259,6 @@ const OWNER_WORKSPACE_SECTION: NavSection = {
       url: "/workspace",
       icon: LayoutDashboard,
     },
-    {
-      titleKey: "Sidebar.shopOwner.discussion",
-      url: "/collaboration",
-      icon: MessageSquare,
-    },
   ],
 };
 
@@ -242,9 +266,29 @@ const OWNER_PROJECT_SECTION: NavSection = {
   labelKey: "Sidebar.shopOwner.projectManagement",
   items: [
     {
+      titleKey: "Sidebar.shopOwner.overview",
+      url: "",
+      icon: LayoutDashboard,
+      scope: "project",
+      match: "exact",
+    },
+    {
+      titleKey: "Sidebar.shopOwner.messages",
+      url: "/messages",
+      icon: MessageSquare,
+      scope: "project",
+    },
+    {
+      titleKey: "Sidebar.shopOwner.contracts",
+      url: "/contracts",
+      icon: FileCheck,
+      scope: "project",
+    },
+    {
       titleKey: "Sidebar.shopOwner.documents",
       url: "/documents",
       icon: FileText,
+      scope: "project",
     },
     {
       titleKey: "Sidebar.shopOwner.quotations",
@@ -288,20 +332,25 @@ const OWNER_CONTRACTS_SECTION: NavSection = {
 };
 
 // ─── Admin Section ────────────────────────────────────────────────────────────
+//
+// Admin is global-only (no project-scoped items). These keys feed the
+// legacy nav in the customer/contractor sidebar fallback as well as the
+// AdminSidebar's own nav registry, which lives in
+// `components/admin/admin-sidebar.tsx`.
 
 const ADMIN_OVERVIEW_SECTION: NavSection = {
-  labelKey: "Sidebar.admin.overview",
+  labelKey: "Sidebar.admin.operations",
   items: [
     {
-      titleKey: "Sidebar.admin.dashboard",
+      titleKey: "Sidebar.admin.legacyDashboard",
       url: "/admin",
       icon: LayoutDashboard,
+      match: "exact",
     },
     {
-      titleKey: "Sidebar.admin.systemAlerts",
-      url: "/admin/alerts",
-      icon: AlertTriangle,
-      badge: 2,
+      titleKey: "Sidebar.admin.activity",
+      url: "/admin/activity",
+      icon: BarChart3,
     },
   ],
 };
@@ -309,17 +358,8 @@ const ADMIN_OVERVIEW_SECTION: NavSection = {
 const ADMIN_MANAGEMENT_SECTION: NavSection = {
   labelKey: "Sidebar.admin.management",
   items: [
-    { titleKey: "Sidebar.admin.users", url: "/admin/users", icon: Users },
-    {
-      titleKey: "Sidebar.admin.providers",
-      url: "/admin/providers",
-      icon: Building2,
-    },
-    {
-      titleKey: "Sidebar.admin.projects",
-      url: "/admin/projects",
-      icon: FolderOpen,
-    },
+    { titleKey: "Sidebar.admin.legacyUsers", url: "/admin/accounts", icon: Users },
+    { titleKey: "Sidebar.admin.projects", url: "/admin/projects", icon: FolderOpen },
   ],
 };
 
@@ -327,13 +367,13 @@ const ADMIN_PLATFORM_SECTION: NavSection = {
   labelKey: "Sidebar.admin.platform",
   items: [
     {
-      titleKey: "Sidebar.admin.disputes",
+      titleKey: "Sidebar.admin.legacyDisputes",
       url: "/admin/disputes",
       icon: AlertTriangle,
       badge: 2,
     },
     {
-      titleKey: "Sidebar.admin.analytics",
+      titleKey: "Sidebar.admin.legacyAnalytics",
       url: "/admin/analytics",
       icon: BarChart3,
     },
@@ -358,18 +398,15 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
     sections: [
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
-      DESIGNER_COLLABORATION,
+      CONSTRUCTION_WORK_SECTION,
+      DESIGNER_MESSAGES,
     ],
     projects: [],
     secondaryItems: [],
   },
   CONTRACTOR: {
     brand: { name: "Smart Cafe", labelKey: "Roles.contractor" },
-    sections: [
-      CONTRACTOR_WORKSPACE_SECTION,
-      CONTRACTOR_PROJECTS_SECTION,
-      CONTRACTOR_MATERIALS_SECTION,
-    ],
+    sections: [CONTRACTOR_SECTION],
     projects: [],
     secondaryItems: [],
   },
@@ -384,3 +421,29 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
     secondaryItems: [],
   },
 };
+
+// ─── Project-segment title key registry ──────────────────────────────────────
+//
+// Resolves a URL suffix inside `/projects/{id}/*` to the i18n key used
+// by both the sidebar and the breadcrumb. Built from every
+// `scope: "project"` `<NavItem>` across `ROLE_SIDEBAR_CONFIG`, so adding
+// a new project-sub-page only requires dropping an item into a section
+// — the breadcrumb picks the title up automatically.
+//
+// Lives at the bottom of the file because it reads the assembled
+// `ROLE_SIDEBAR_CONFIG` constant.
+function buildProjectSegmentTitleKey(): Record<string, string> {
+  const acc: Record<string, string> = {};
+  for (const role of Object.values(ROLE_SIDEBAR_CONFIG)) {
+    for (const section of role.sections) {
+      for (const item of section.items) {
+        if (item.scope !== "project") continue;
+        acc[item.url] = item.titleKey;
+      }
+    }
+  }
+  return acc;
+}
+
+export const PROJECT_SEGMENT_TITLE_KEY: Record<string, string> =
+  buildProjectSegmentTitleKey();

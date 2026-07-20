@@ -235,7 +235,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
         </span>
 
         <Link
-          href={`/projects/${post.projectId}`}
+          href={`/projects/${post.projectShopOwnerId}`}
           aria-label={t("viewPostAria", { title: post.title })}
           className={cn(
             "inline-flex items-center gap-1 text-xs font-medium text-primary",

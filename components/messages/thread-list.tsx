@@ -19,7 +19,7 @@ interface ThreadListProps {
   selectedId: number | null;
   /**
    * Build the href for a thread row. Pages pass `({id}) =>
-   * `/projects/${projectId}/collaboration?threadId=${id}`` so the
+   * `/projects/${projectId}/messages?threadId=${id}`` so the
    * address bar reflects the active thread and back/forward
    * works without bespoke routing.
    */
@@ -36,7 +36,7 @@ type FilterTab = "all" | "direct" | "rooms";
  *   - tab strip (All / Direct / Rooms) for coarse filtering
  *   - thread rows as `<Link>` elements — clicking navigates to the
  *     thread URL the page builds (typically a `?threadId=` query param
- *     under `/projects/{id}/collaboration`)
+ *     under `/projects/{id}/messages`)
  *
  * The list is intentionally scrollable independently of the page —
  * long thread histories shouldn't push the action bar off-screen.

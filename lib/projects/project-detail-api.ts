@@ -12,7 +12,7 @@ import {
 /**
  * Fetch a single project by id.
  *
- * Endpoint: `GET /api/projects/{projectId}`.
+ * Endpoint: `GET /api/project-shop-owners/{projectId}`.
  *
  * The shared `api` axios instance already attaches the Bearer access
  * token via the request interceptor (see `lib/http/axios.ts`). No extra
@@ -27,7 +27,7 @@ export async function fetchProjectDetail(
   config?: RequestConfig,
 ): Promise<ProjectDetail> {
   const response = await api.get<RawProjectDetail>(
-    `/api/projects/${encodeURIComponent(String(projectId))}`,
+    `/api/project-shop-owners/${encodeURIComponent(String(projectId))}`,
     config,
   );
   return normalizeProjectDetail(response.data);

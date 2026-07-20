@@ -1,5 +1,8 @@
 "use client";
 
+import * as React from "react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import {
   BadgeCheck,
   Bell,
@@ -8,6 +11,7 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
+import { toast } from "react-toastify";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -26,16 +30,39 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+import { useLogoutMutation } from "@/features/auth/hooks";
+
+/**
+ * User footer pinned to the bottom of the sidebar. Click the avatar to
+ * open the account menu — the "Log out" item calls `useLogoutMutation`,
+ * fires a toast, and routes back to the marketing/landing page.
+ */
 export function NavUser({
   user,
 }: {
   user: {
     name: string;
+    nameVi?: string;
     email: string;
-    avatar: string;
+    avatar?: string;
   };
 }) {
+  const t = useTranslations("Sidebar.navUser");
+  const router = useRouter();
   const { isMobile } = useSidebar();
+  const logoutMutation = useLogoutMutation();
+
+  const handleSignOut = React.useCallback(() => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        toast.success(t("signOutSuccess"));
+        router.replace("/");
+      },
+      onError: () => {
+        toast.error(t("signOutError"));
+      },
+    });
+  }, [logoutMutation, router, t]);
 
   return (
     <SidebarMenu>
@@ -79,28 +106,35 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
-                Upgrade to Pro
+                {t("upgradeToPro")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheck />
-                Account
+                {t("account")}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <CreditCard />
-                Billing
+                {t("billing")}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
-                Notifications
+                {t("notifications")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={(event) => {
+                event.preventDefault();
+                handleSignOut();
+              }}
+              disabled={logoutMutation.isPending}
+            >
               <LogOut />
-              Log out
+              {logoutMutation.isPending ? t("signingOut") : t("signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

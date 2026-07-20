@@ -2,10 +2,13 @@
 
 import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 import {
   CalendarClock,
   Send,
   Sparkles,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 
 import {
@@ -19,7 +22,11 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 import { projectActionToast } from "./project-action-toast";
+import { ApplyDialog } from "./apply-dialog";
 import { useIsProjectOwner } from "@/lib/projects/use-is-project-owner";
+import { useCurrentUser } from "@/lib/auth/user-context";
+import { tokenStore } from "@/lib/auth/token-store";
+import { useProviderApplies } from "@/lib/projects/use-project-applications";
 import {
   type ProjectDetail,
   type ProjectOpenForEntry,
@@ -108,8 +115,8 @@ interface ProjectApplyCardProps {
  *     card compact.
  *   - "Apply by …" deadline line when there's an open post with a future
  *     deadline.
- *   - "Apply now" CTA (placeholder toast — wire to the real flow once
- *     the application endpoint ships).
+ *   - "Apply now" CTA — opens `<ApplyDialog>` so the user can fill in
+ *     the proposal + estimated duration required by the apply API.
  */
 export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   const t = useTranslations("ProjectsOverview.apply");
@@ -120,6 +127,25 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
 
   // Owner can't apply to their own project.
   const isOwner = useIsProjectOwner(project);
+
+  // Current signed-in provider — required for the apply payload.
+  // We use tokenStore to check if user has token (isHydrated equivalent)
+  // and useCurrentUser for the actual account data.
+  const hasToken = tokenStore.hasAccessToken();
+  const { account } = useCurrentUser();
+
+  // Fetch applies to check if provider has already applied to this project
+  const projectId = Number(project.id);
+  const { hasAppliedToPost, getApplyForPost, isLoading: isLoadingApplies } =
+    useProviderApplies({
+      projectShopOwnerId: projectId,
+    });
+
+  // The apply dialog collects `proposal` and `estimatedDurationDays` —
+  // both required by the wire contract (`ApplyToPostPayload`). Keeping
+  // dialog state in the card means the form is reset on close by the
+  // dialog itself (`useEffect` on `open`).
+  const [dialogOpen, setDialogOpen] = React.useState(false);
 
   const openPosts = project.openPosts.filter(isOpenPostOpen);
   const openForKinds = uniqueOpenFor(project.openFor);
@@ -132,71 +158,162 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   ];
   const kinds = uniqueOpenFor(mergedKinds);
 
-  // Hide entirely when nothing to apply to, or when the viewer is the
-  // owner. SSR-safe — `useIsProjectOwner` returns `false` until
-  // hydration so we never briefly expose the CTA to the owner.
-  if (isOwner) return null;
+  // Hide entirely when nothing to apply to. SSR-safe — `useIsProjectOwner`
+  // returns `false` until hydration so we never briefly expose the CTA.
   if (openPosts.length === 0 && openForKinds.length === 0) return null;
 
   const earliest = earliestOpenDeadline(openPosts);
 
   const summaryLabel = kindsLabel(kinds, tCapabilities);
 
+  // Pick the post to apply to: the earliest-deadline open post. Falls
+  // back to the first open post when no deadline is parseable.
+  const targetPost: ProjectOpenPost | null =
+    earliest?.post ?? openPosts[0] ?? null;
+
+  // Check if provider has already applied to the target post
+  const existingApply = targetPost
+    ? getApplyForPost(targetPost.id)
+    : undefined;
+  const hasAlreadyApplied = !!existingApply;
+
+  // Can apply if: has token, has account, target post exists, and hasn't applied yet
+  const canApply =
+    hasToken &&
+    account !== null &&
+    account.id > 0 &&
+    targetPost !== null &&
+    !hasAlreadyApplied;
+
+  // Hide for owners or non-providers. Keep the card visible for providers
+  // who have already applied (to show their application status).
+  const isProvider = account?.role === "provider";
+  if (isOwner || !isProvider) return null;
+
+  const handleApply = () => {
+    if (!targetPost || !account) {
+      projectActionToast(t("applyNotReady"));
+      return;
+    }
+
+    setDialogOpen(true);
+  };
+
+  // Render "Already applied" state when provider has applied
+  const renderAppliedState = () => {
+    if (!hasAlreadyApplied || !existingApply) return null;
+
+    const statusConfig = {
+      pending: {
+        icon: Clock,
+        label: t("applied.pending"),
+        className: "text-muted-foreground",
+      },
+      accepted: {
+        icon: CheckCircle,
+        label: t("applied.accepted"),
+        className: "text-green-600",
+      },
+      rejected: {
+        icon: CheckCircle,
+        label: t("applied.rejected"),
+        className: "text-destructive",
+      },
+      withdrawn: {
+        icon: Clock,
+        label: t("applied.pending"),
+        className: "text-muted-foreground",
+      },
+    };
+
+    const status = existingApply.status as keyof typeof statusConfig;
+    const config = statusConfig[status] ?? statusConfig.pending;
+    const Icon = config.icon;
+
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-2">
+          <Icon className={cn("size-4", config.className)} aria-hidden />
+          <span className={cn("text-sm", config.className)}>
+            {config.label}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <Card
-      size="sm"
-      aria-labelledby="project-apply-title"
-      aria-describedby="project-apply-subtitle"
-      className="border-border/60"
-    >
-      <CardHeader>
-        <CardTitle
-          id="project-apply-title"
-          className="flex items-center gap-2 text-base"
-        >
-          <Sparkles className="size-4 text-primary" aria-hidden />
-          {t("title")}
-        </CardTitle>
-        <CardDescription id="project-apply-subtitle">
-          {t("subtitle")}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3 p-4 pt-0">
-        <p className="text-xs text-muted-foreground">
-          {t("lookingFor", { kinds: summaryLabel })}
-        </p>
+    <>
+      <Card
+        size="sm"
+        aria-labelledby="project-apply-title"
+        aria-describedby="project-apply-subtitle"
+        className="border-border/60"
+      >
+        <CardHeader>
+          <CardTitle
+            id="project-apply-title"
+            className="flex items-center gap-2 text-base"
+          >
+            <Sparkles className="size-4 text-primary" aria-hidden />
+            {t("title")}
+          </CardTitle>
+          <CardDescription id="project-apply-subtitle">
+            {t("subtitle")}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3 p-4 pt-0">
+          <p className="text-xs text-muted-foreground">
+            {t("lookingFor", { kinds: summaryLabel })}
+          </p>
 
-        {earliest ? (
-          <>
-            <Separator className="bg-border/60" />
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <CalendarClock
-                className="size-3.5 shrink-0"
-                aria-hidden
-              />
-              <span>
-                {t("applyBy", {
-                  date: format.dateTime(earliest.date, {
-                    dateStyle: "medium",
-                  }),
-                })}
-              </span>
-            </div>
-          </>
-        ) : null}
+          {earliest ? (
+            <>
+              <Separator className="bg-border/60" />
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CalendarClock
+                  className="size-3.5 shrink-0"
+                  aria-hidden
+                />
+                <span>
+                  {t("applyBy", {
+                    date: format.dateTime(earliest.date, {
+                      dateStyle: "medium",
+                    }),
+                  })}
+                </span>
+              </div>
+            </>
+          ) : null}
 
-        <Button
-          type="button"
-          variant="default"
-          size="sm"
-          className="mt-1 w-full"
-          onClick={() => projectActionToast(t("applyComingSoon"))}
-        >
-          <Send aria-hidden />
-          {t("apply")}
-        </Button>
-      </CardContent>
-    </Card>
+          {hasAlreadyApplied ? (
+            renderAppliedState()
+          ) : (
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              className="mt-1 w-full"
+              onClick={handleApply}
+              disabled={!canApply}
+            >
+              <Send aria-hidden />
+              {t("apply")}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
+      {targetPost && account ? (
+        <ApplyDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          postId={targetPost.id}
+          providerId={account.id}
+          projectName={project.name}
+        />
+      ) : null}
+    </>
   );
 }
 

@@ -1,6 +1,6 @@
 // ─── Raw wire types ──────────────────────────────────────────────────────────
 //
-// Only this file knows about the raw `GET /api/projects/{id}` shape. The
+// Only this file knows about the raw `GET /api/project-shop-owners/{id}` shape. The
 // rest of the app talks in normalized types (`ProjectDetail`).
 
 // ─── App-facing types ───────────────────────────────────────────────────────
@@ -126,7 +126,7 @@ export interface ProjectProvider {
  * App-facing project record — what the page renders. Dates are normalized
  * to `Date` so consumers don't have to think about ISO parsing.
  *
- * Slim by design: every field here is supplied by `GET /api/projects/{id}`.
+ * Slim by design: every field here is supplied by `GET /api/project-shop-owners/{id}`.
  * No mock-only fields.
  */
 export interface ProjectDetail {
@@ -150,7 +150,7 @@ export interface ProjectDetail {
 }
 
 /**
- * Raw response from `GET /api/projects/{id}`. All date fields are ISO
+ * Raw response from `GET /api/project-shop-owners/{id}`. All date fields are ISO
  * strings on the wire; we normalize to `Date` in `normalizeProjectDetail`.
  *
  * `providers`, `openPosts`, `openFor`, and `owner` are all optional on

@@ -1,20 +1,30 @@
-import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { ProjectBreadcrumb } from "@/components/breadcrumb/project-breadcrumb";
 import { ModeToggle } from "@/components/ui/theme-toggle";
 import { LocaleSwitcher } from "@/components/ui/locale-switcher";
 
-interface DesignerLayoutProps {
+interface ProjectsLayoutProps {
   children: React.ReactNode;
   params: Promise<{ locale?: string }>;
 }
 
-export default async function DesignerLayout({
+/**
+ * Shell for every page under `/[locale]/projects/*`. Role is fixed to
+ * `DESIGNER` until per-role gating is wired up — at that point this
+ * layout will read the role from the auth session and switch the
+ * sidebar config dynamically. For now the project-scope sidebar is
+ * shared across viewer types and lists:
+ *   - Project Info
+ *   - Design Work
+ *   - Construction Work (contractor items, scoped to the project)
+ *   - Messages
+ */
+export default async function ProjectsLayout({
   children,
   params,
-}: DesignerLayoutProps) {
+}: ProjectsLayoutProps) {
   const { locale } = await params;
   return (
     <SidebarProvider>

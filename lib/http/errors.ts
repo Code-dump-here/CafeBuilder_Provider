@@ -11,7 +11,7 @@ import type { ApiErrorPayload } from "./types";
  *     "title": "Unauthorized",
  *     "status": 401,
  *     "detail": "IDX10223: Lifetime validation failed. The token is expired.",
- *     "instance": "GET /api/project-posts"
+ *     "instance": "GET /api/posts"
  *   }
  */
 interface ProblemDetailsPayload {

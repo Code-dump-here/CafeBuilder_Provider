@@ -7,10 +7,14 @@ import { ProjectHeroBar } from "@/components/project-overview/project-hero-bar";
 import { useProjectDetail } from "@/lib/projects/use-project-detail";
 
 /**
+ * This version of Next.js is not the one you know — APIs, conventions, and
+ * file structure may differ from your training data. Read the relevant
+ * guide in `node_modules/next/dist/docs/` before writing any code.
+ *
  * Per-project shell. Wraps every page under `/projects/{id}` and renders
  * the `ProjectHeroBar` only for the project root (`/[locale]/projects/[id]`)
  * — pages under "Design Work" (design-management, technical-drawings) or
- * "Collaboration" don't show the hero.
+ * "Messages" don't show the hero.
  *
  * Why a layout, not per-page:
  *   - Single source of truth for hero visibility — pages stay focused on
