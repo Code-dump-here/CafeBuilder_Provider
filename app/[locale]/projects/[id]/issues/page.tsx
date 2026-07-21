@@ -16,19 +16,27 @@ import {
   useDeleteIssueMutation,
 } from "@/lib/projects/use-issues";
 
-import type {
-  Issue,
-  IssueStatus,
-} from "@/lib/projects/issue-types";
+import type { Issue, IssueStatus } from "@/lib/projects/issue-types";
 
-import { AddIssueModal, type AddIssueInput } from "@/components/contractor/issue-management/add-issue-modal";
-import { EditIssueModal, type EditIssueInput } from "@/components/contractor/issue-management/edit-issue-modal";
+import {
+  AddIssueModal,
+  type AddIssueInput,
+} from "@/components/contractor/issue-management/add-issue-modal";
+import {
+  EditIssueModal,
+  type EditIssueInput,
+} from "@/components/contractor/issue-management/edit-issue-modal";
 import { IssueGroup } from "@/components/contractor/issue-management/issue-group";
 import { IssueToolbar } from "@/components/contractor/issue-management/issue-toolbar";
 import { IssueEmptyState } from "@/components/contractor/issue-management/issue-empty-state";
 import { IssueDetailPanel } from "@/components/contractor/issue-management/issue-detail-panel";
 
-const STATUS_ORDER: IssueStatus[] = ["open", "in_progress", "resolved", "closed"];
+const STATUS_ORDER: IssueStatus[] = [
+  "open",
+  "in_progress",
+  "resolved",
+  "closed",
+];
 
 /**
  * Project-scoped issues page (`/[locale]/projects/[id]/issues`).
@@ -52,14 +60,20 @@ export default function IssuesPage() {
 
   const projectIdParam = params?.id ?? "";
 
-  const { project, isLoading: isLoadingProject, isError: isProjectError } = useProjectDetail(projectIdParam);
+  const {
+    project,
+    isLoading: isLoadingProject,
+    isError: isProjectError,
+  } = useProjectDetail(projectIdParam);
 
   const projectWorkingId = React.useMemo(() => {
     const eng = project.providers.find((p) => {
       const cap = String(p.capability ?? "").toLowerCase();
       const stat = String(p.status ?? "").toLowerCase();
-      return (cap === "constructor" || cap === "construction") &&
-        (stat === "accepted" || stat === "requested");
+      return (
+        (cap === "constructor" || cap === "construction") &&
+        (stat === "accepted" || stat === "requested")
+      );
     });
     return eng?.projectWorkingId;
   }, [project.providers]);
@@ -115,8 +129,8 @@ export default function IssuesPage() {
         reason: input.reason,
         solution: input.solution,
         estimateAt: input.estimateAt ?? undefined,
-        issueImage: input.issueImage,
-        confirmImage: input.confirmImage,
+        issueImage: input.issueImage || "",
+        confirmImage: input.confirmImage || "",
       },
     });
   };
@@ -195,7 +209,11 @@ export default function IssuesPage() {
       <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-16 text-center">
         <AlertTriangle className="size-6 text-destructive" />
         <p className="text-sm text-muted-foreground">Failed to load project.</p>
-        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.location.reload()}
+        >
           {t("retry")}
         </Button>
       </div>
@@ -208,7 +226,11 @@ export default function IssuesPage() {
       <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-16 text-center">
         <AlertTriangle className="size-6 text-destructive" />
         <p className="text-sm text-muted-foreground">{message}</p>
-        <Button variant="outline" size="sm" onClick={() => void refetchIssues()}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void refetchIssues()}
+        >
           {t("retry")}
         </Button>
       </div>
