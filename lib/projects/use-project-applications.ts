@@ -94,6 +94,15 @@ export function useApplyToPostMutation(options: ApplyToPostMutationOptions = {})
         exact: false,
       });
 
+      // Refresh the current provider's applies list so anything that
+      // derives `hasAppliedToPost` (e.g. the "Apply" CTA on the project
+      // overview card) flips into the "Application submitted" state
+      // without requiring a full page reload.
+      void queryClient.invalidateQueries({
+        queryKey: ["applies"],
+        exact: false,
+      });
+
       // Toast — configurable per call site.
       if (options.onSuccessMessage !== null) {
         const message =

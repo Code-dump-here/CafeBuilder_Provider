@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 
@@ -79,6 +79,7 @@ function unmapStatus(status: string): ConstructionStatus {
  */
 export default function MilestoneManagementPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const projectIdParam = params?.id ?? "";
   const t = useTranslations("MilestoneManagement");
 
@@ -87,9 +88,12 @@ export default function MilestoneManagementPage() {
 
   // Find the construction provider's projectWorkingId
   const constructionEngagement = React.useMemo(() => {
-    return project.providers.find(
-      (p) => p.capability === "construction" && p.status === "accepted"
-    );
+    return project.providers.find((p) => {
+      const cap = String(p.capability ?? "").toLowerCase();
+      const stat = String(p.status ?? "").toLowerCase();
+      return (cap === "constructor" || cap === "construction") &&
+        (stat === "accepted" || stat === "requested");
+    });
   }, [project.providers]);
 
   const projectWorkingId = constructionEngagement?.projectWorkingId;
@@ -174,7 +178,7 @@ export default function MilestoneManagementPage() {
         status: mapItemStatus(item.status),
         progress,
         targetDate: item.estimateAt ?? "",
-        startDate: "",
+        startDate: item.estimateAt ?? "",
         endDate: item.estimateAt ?? "",
         lead: "",
         tasks: itemTasks.map((t) => t.name),
@@ -256,20 +260,19 @@ export default function MilestoneManagementPage() {
   };
 
   const handleAddTask = async (input: {
-    title: string;
+    name: string;
     description: string;
-    assigneeId: string | null;
-    dueDate: string | null;
-    images: string[];
+    estimateAt: string | null;
+    imageUrl: string | null;
   }) => {
     if (!addTaskTarget || !projectWorkingId) return;
 
     await createTask.mutateAsync({
       constructionItemId: addTaskTarget,
-      name: input.title,
+      name: input.name,
       description: input.description || undefined,
-      estimateAt: input.dueDate ?? undefined,
-      imageUrl: input.images[0] ?? undefined,
+      estimateAt: input.estimateAt ?? undefined,
+      imageUrl: input.imageUrl ?? undefined,
     });
 
     setAddTaskTarget(null);
@@ -339,15 +342,22 @@ export default function MilestoneManagementPage() {
     void refetchItems();
   };
 
-  const handleAddPhase = async (input: { label: string; lead: string; startDate: string; endDate: string; targetDate: string }) => {
-    if (!projectWorkingId) return;
-    await createItem.mutateAsync({
-      projectWorkingId,
-      name: input.label,
-      category: input.label.toLowerCase().replace(/\s+/g, "-"),
-      estimateAt: input.targetDate || undefined,
-    });
-    void refetchItems();
+  const handleAddPhase = async (input: { name: string; category?: string; description?: string; estimateAt?: string }) => {
+    if (!projectWorkingId) {
+      return;
+    }
+    try {
+      const result = await createItem.mutateAsync({
+        projectWorkingId,
+        name: input.name,
+        category: input.category,
+        description: input.description,
+        estimateAt: input.estimateAt,
+      });
+      void refetchItems();
+    } catch (err) {
+      console.error("[MilestonePage] createItem error", err);
+    }
   };
 
   const handleSubmitRename = async (input: { label: string }) => {
@@ -408,7 +418,7 @@ export default function MilestoneManagementPage() {
     );
   }
 
-  if (!projectWorkingId) {
+  if (!constructionEngagement) {
     return (
       <>
         <MilestoneManagementToolbar
@@ -421,6 +431,13 @@ export default function MilestoneManagementPage() {
         <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-sm text-muted-foreground">
           No construction engagement found for this project.
         </p>
+        <AddPhaseDialog
+          open={addPhaseOpen}
+          onOpenChange={setAddPhaseOpen}
+          onSubmit={() => {
+            // Silently do nothing - no engagement
+          }}
+        />
       </>
     );
   }
@@ -535,7 +552,6 @@ export default function MilestoneManagementPage() {
           if (!o) setAddTaskTarget(null);
         }}
         phaseLabel={activeItem?.name}
-        crewOptions={[]}
         onSubmit={handleAddTask}
       />
 
@@ -559,6 +575,9 @@ export default function MilestoneManagementPage() {
         onDelete={() => {
           if (taskDetail.itemId == null || taskDetail.taskIndex == null) return;
           handleDeleteTask(taskDetail.itemId, taskDetail.taskIndex);
+        }}
+        onReportIssue={() => {
+          router.push(`/projects/${projectIdParam}/issues`);
         }}
       />
     </>

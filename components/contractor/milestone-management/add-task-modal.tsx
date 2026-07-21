@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Upload, X } from "lucide-react";
+import { Loader2, Plus, Upload, X } from "lucide-react";
 
 import {
   Dialog,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { uploadImageApi } from "@/lib/http/file-upload-api";
 
 interface CrewOption {
   id: string;
@@ -22,86 +23,111 @@ interface CrewOption {
   initials: string;
 }
 
+// CrewOption kept exported so future assignee selection can reuse the type
+// without re-declaring it.
+export type { CrewOption };
+
 interface AddTaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   phaseLabel?: string;
-  crewOptions: CrewOption[];
   onSubmit: (input: {
-    title: string;
+    name: string;
     description: string;
-    assigneeId: string | null;
-    dueDate: string | null;
-    images: string[];
+    estimateAt: string | null;
+    imageUrl: string | null;
   }) => void;
 }
 
 /**
- * Modal for creating a brand-new task with full metadata — title,
- * description, assignee, due date, and any number of image attachments.
+ * Modal for creating a brand-new task aligned with the
+ * `POST /construction-tasks` contract: `name`, `description`,
+ * `imageUrl`, `estimateAt`. Item id and `createdBy` are supplied
+ * by the page-level mutation.
  *
- * Image upload is mocked (we keep the URL via FileReader). When the
- * backend lands this becomes a presigned upload + asset reference.
+ * Image handling: user picks a file, we POST it to
+ * `POST /api/files/images` and store the returned `url` on the task.
+ * A local `data:` preview is shown while the upload is in flight so
+ * the user gets immediate feedback.
  */
 export function AddTaskModal({
   open,
   onOpenChange,
   phaseLabel,
-  crewOptions,
   onSubmit,
 }: AddTaskModalProps) {
   const t = useTranslations("MilestoneManagement.task.addTask");
   const tFields = useTranslations("MilestoneManagement.task.detail.fields");
   const tCommon = useTranslations("MilestoneManagement.common");
 
-  const [title, setTitle] = React.useState("");
+  const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [assigneeId, setAssigneeId] = React.useState<string>("");
-  const [dueDate, setDueDate] = React.useState<string>("");
-  const [images, setImages] = React.useState<string[]>([]);
+  const [estimateAt, setEstimateAt] = React.useState<string>("");
+  const [imageUrl, setImageUrl] = React.useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [uploadError, setUploadError] = React.useState<string | null>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (!open) {
-      setTitle("");
+      setName("");
       setDescription("");
-      setAssigneeId("");
-      setDueDate("");
-      setImages([]);
+      setEstimateAt("");
+      setImageUrl(null);
+      setPreviewUrl(null);
+      setUploadError(null);
+      setIsUploading(false);
     }
   }, [open]);
 
-  const handleFiles = (files: FileList | null) => {
-    if (!files) return;
-    Array.from(files).forEach((file) => {
-      if (!file.type.startsWith("image/")) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          setImages((prev) => [...prev, reader.result as string]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (!file.type.startsWith("image/")) {
+      setUploadError(t("uploadFailed"));
+      return;
+    }
+
+    // Local preview while the upload runs
+    const localPreview = URL.createObjectURL(file);
+    setPreviewUrl(localPreview);
+    setUploadError(null);
+    setIsUploading(true);
+
+    try {
+      const response = await uploadImageApi(file);
+      setImageUrl(response.url);
+    } catch {
+      setUploadError(t("uploadFailed"));
+      setPreviewUrl(null);
+    } finally {
+      setIsUploading(false);
+      URL.revokeObjectURL(localPreview);
+    }
   };
 
-  const removeImage = (idx: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== idx));
+  const handleRemoveImage = () => {
+    setImageUrl(null);
+    setPreviewUrl(null);
+    setUploadError(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = title.trim();
+    const trimmed = name.trim();
     if (!trimmed) return;
+    if (isUploading) return;
     onSubmit({
-      title: trimmed,
+      name: trimmed,
       description: description.trim(),
-      assigneeId: assigneeId || null,
-      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
-      images,
+      estimateAt: estimateAt || null,
+      imageUrl,
     });
     onOpenChange(false);
   };
+
+  const displayUrl = previewUrl ?? imageUrl;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -114,8 +140,8 @@ export function AddTaskModal({
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <Field label={tFields("title")}>
             <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               autoFocus
               required
             />
@@ -131,37 +157,22 @@ export function AddTaskModal({
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-2">
-            <Field label={tFields("assignee")}>
-              <select
-                value={assigneeId}
-                onChange={(e) => setAssigneeId(e.target.value)}
-                className="border-input bg-transparent flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs outline-none"
-              >
-                <option value="">Unassigned</option>
-                {crewOptions.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label={tFields("dueDate")}>
-              <Input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-              />
-            </Field>
-          </div>
+          <Field label={tFields("dueDate")}>
+            <Input
+              type="date"
+              value={estimateAt}
+              onChange={(e) => setEstimateAt(e.target.value)}
+            />
+          </Field>
 
           <Field label={tFields("images")}>
             <input
               ref={fileRef}
               type="file"
               accept="image/*"
-              multiple
               className="hidden"
               onChange={(e) => {
-                handleFiles(e.target.files);
+                void handleFiles(e.target.files);
                 e.target.value = "";
               }}
             />
@@ -171,26 +182,36 @@ export function AddTaskModal({
                 size="sm"
                 variant="outline"
                 onClick={() => fileRef.current?.click()}
+                disabled={isUploading}
               >
-                <Upload aria-hidden />
-                {t("uploadCta")}
+                {isUploading ? (
+                  <Loader2 aria-hidden className="animate-spin" />
+                ) : (
+                  <Upload aria-hidden />
+                )}
+                {imageUrl ? t("uploadCta") : t("uploadCta")}
               </Button>
-              {images.length > 0 ? (
-                <div className="grid grid-cols-4 gap-2">
-                  {images.map((src, idx) => (
-                    <div key={idx} className="group relative aspect-square overflow-hidden rounded-md border border-border/60">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt="" className="h-full w-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(idx)}
-                        aria-label="Remove"
-                        className="absolute right-0.5 top-0.5 flex size-5 items-center justify-center rounded-full bg-background/80 opacity-0 transition-opacity group-hover:opacity-100"
-                      >
-                        <X className="size-3" aria-hidden />
-                      </button>
+              {uploadError ? (
+                <p className="text-xs text-destructive">{uploadError}</p>
+              ) : null}
+              {displayUrl ? (
+                <div className="relative aspect-square w-32 overflow-hidden rounded-md border border-border/60 bg-muted">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={displayUrl} alt="" className="h-full w-full object-cover" />
+                  {isUploading ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/70">
+                      <Loader2 aria-hidden className="size-5 animate-spin" />
                     </div>
-                  ))}
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      aria-label="Remove"
+                      className="absolute right-0.5 top-0.5 flex size-5 items-center justify-center rounded-full bg-background/80"
+                    >
+                      <X className="size-3" aria-hidden />
+                    </button>
+                  )}
                 </div>
               ) : null}
             </div>
@@ -200,7 +221,11 @@ export function AddTaskModal({
             <DialogClose asChild>
               <Button type="button" variant="ghost" size="sm">{tCommon("cancel")}</Button>
             </DialogClose>
-            <Button type="submit" size="sm" disabled={!title.trim()}>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={!name.trim() || isUploading}
+            >
               <Plus aria-hidden />
               {t("create")}
             </Button>

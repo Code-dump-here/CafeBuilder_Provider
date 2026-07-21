@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { CalendarDays, ClipboardCheck, Clock, User, X, ImageIcon, Trash2, Pencil } from "lucide-react";
+import { CalendarDays, ClipboardCheck, Clock, User, X, ImageIcon, Trash2, Pencil, TriangleAlert } from "lucide-react";
 
 import {
   Dialog,
@@ -29,12 +29,18 @@ interface TaskDetailViewProps {
   crewOptions: CrewMember[];
   onEdit: () => void;
   onDelete: () => void;
+  /**
+   * Opens the issues page filtered to this task's milestone.
+   * Optional — when omitted the "Report issue" button is hidden.
+   */
+  onReportIssue?: () => void;
 }
 
 export function TaskDetailView(props: TaskDetailViewProps) {
-  const { open, onOpenChange, task, phaseLabel, crewOptions, onEdit, onDelete } = props;
+  const { open, onOpenChange, task, phaseLabel, crewOptions, onEdit, onDelete, onReportIssue } = props;
   const t = useTranslations("MilestoneManagement.task.detail");
   const tDeleteConfirm = useTranslations("MilestoneManagement.task");
+  const tIssue = useTranslations("MilestoneManagement.issue");
   const format = useFormatter();
 
   if (!task) return null;
@@ -118,16 +124,30 @@ export function TaskDetailView(props: TaskDetailViewProps) {
 
           {/* Footer actions */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleDelete}
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-            >
-              <Trash2 aria-hidden />
-              {t("deleteCta")}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Trash2 aria-hidden />
+                {t("deleteCta")}
+              </Button>
+              {onReportIssue ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={onReportIssue}
+                  className="text-amber-600 hover:bg-amber-500/10 hover:text-amber-700 dark:text-amber-400"
+                >
+                  <TriangleAlert aria-hidden />
+                  {tIssue("addCta")}
+                </Button>
+              ) : null}
+            </div>
             <div className="flex items-center gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
                 {t("close")}

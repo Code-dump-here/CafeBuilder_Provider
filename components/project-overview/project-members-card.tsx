@@ -180,7 +180,7 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
       </CardHeader>
       <CardContent className="flex flex-col gap-0 p-0">
         <ul className="flex flex-col">
-          {providers.map((provider) => {
+          {providers.map((provider, index) => {
             const subtitle = subtitleFor(provider.providerType, provider.capability);
             const joinedLabel = provider.createdAt.getTime() !== 0
               ? t("since", {
@@ -191,7 +191,7 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
               : null;
             return (
               <li
-                key={provider.projectProviderId}
+                key={provider.projectProviderId ?? `provider-${index}`}
                 className="flex items-start gap-3 px-4 py-2.5"
               >
                 <OwnerAvatar

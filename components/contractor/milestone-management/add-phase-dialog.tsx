@@ -19,17 +19,15 @@ interface AddPhaseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (input: {
-    label: string;
-    lead: string;
-    targetDate: string;
-    startDate: string;
-    endDate: string;
+    name: string;
+    category?: string;
+    description?: string;
+    estimateAt?: string;
   }) => void;
 }
 
 /**
- * Modal for creating a brand-new phase. Lands at the end of the
- * timeline with status `upcoming` and progress 0.
+ * Modal for creating a brand-new phase. Matches ConstructionItem API payload.
  */
 export function AddPhaseDialog({
   open,
@@ -37,35 +35,33 @@ export function AddPhaseDialog({
   onSubmit,
 }: AddPhaseDialogProps) {
   const t = useTranslations("MilestoneManagement.addPhase");
-  const tCommon = useTranslations("MilestoneManagement.common");
 
-  const [label, setLabel] = React.useState("");
-  const [lead, setLead] = React.useState("");
-  const [targetDate, setTargetDate] = React.useState("");
-  const [startDate, setStartDate] = React.useState("");
-  const [endDate, setEndDate] = React.useState("");
+  const [name, setName] = React.useState("");
+  const [category, setCategory] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [estimateAt, setEstimateAt] = React.useState("");
 
   React.useEffect(() => {
     if (!open) {
-      setLabel("");
-      setLead("");
-      setTargetDate("");
-      setStartDate("");
-      setEndDate("");
+      setName("");
+      setCategory("");
+      setDescription("");
+      setEstimateAt("");
     }
   }, [open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!label.trim()) return;
+    console.log("[AddPhaseDialog] handleSubmit called", { name, category, description, estimateAt });
+    if (!name.trim()) {
+      console.log("[AddPhaseDialog] name is empty, aborting");
+      return;
+    }
     onSubmit({
-      label: label.trim(),
-      lead: lead.trim(),
-      targetDate: targetDate
-        ? new Date(targetDate).toISOString()
-        : new Date().toISOString(),
-      startDate: startDate ? new Date(startDate).toISOString() : new Date().toISOString(),
-      endDate: endDate ? new Date(endDate).toISOString() : new Date().toISOString(),
+      name: name.trim(),
+      category: category.trim() || undefined,
+      description: description.trim() || undefined,
+      estimateAt: estimateAt || undefined,
     });
     onOpenChange(false);
   };
@@ -81,41 +77,34 @@ export function AddPhaseDialog({
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <Field label={t("label")}>
             <Input
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder={t("labelPlaceholder")}
               autoFocus
               required
             />
           </Field>
-          <Field label={t("lead")}>
+          <Field label={t("category")}>
             <Input
-              value={lead}
-              onChange={(e) => setLead(e.target.value)}
-              placeholder={t("leadPlaceholder")}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder={t("categoryPlaceholder")}
             />
           </Field>
-          <div className="grid grid-cols-2 gap-2">
-            <Field label={t("startDate")}>
-              <Input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </Field>
-            <Field label={t("endDate")}>
-              <Input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </Field>
-          </div>
+          <Field label={t("description")}>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={t("descriptionPlaceholder")}
+              className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              rows={2}
+            />
+          </Field>
           <Field label={t("targetDate")}>
             <Input
               type="date"
-              value={targetDate}
-              onChange={(e) => setTargetDate(e.target.value)}
+              value={estimateAt}
+              onChange={(e) => setEstimateAt(e.target.value)}
             />
           </Field>
           <DialogFooter className="gap-2">
@@ -127,7 +116,7 @@ export function AddPhaseDialog({
             <Button
               type="submit"
               size="sm"
-              disabled={!label.trim()}
+              disabled={!name.trim()}
             >
               {t("create")}
             </Button>

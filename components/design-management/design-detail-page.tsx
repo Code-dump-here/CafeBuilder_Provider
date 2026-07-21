@@ -430,11 +430,18 @@ function ImageListPanel({
             const isSelected = img.id === selectedId;
             return (
               <li key={img.id}>
-                <button
-                  type="button"
+                <div
+                  role="button"
+                  tabIndex={0}
                   onClick={() => onSelect(img)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelect(img);
+                    }
+                  }}
                   className={cn(
-                    "flex w-full items-center gap-2 rounded-md border px-2 py-1.5 text-left text-xs transition-colors",
+                    "flex w-full cursor-pointer items-center gap-2 rounded-md border px-2 py-1.5 text-left text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                     isSelected
                       ? "border-primary/40 bg-primary/5 text-primary"
                       : "border-transparent hover:bg-muted/60",
@@ -454,7 +461,7 @@ function ImageListPanel({
                   <span className="min-w-0 flex-1 truncate">
                     {img.caption ?? `Image #${img.id}`}
                   </span>
-                  {canDelete && (
+                  {canDelete ? (
                     <button
                       type="button"
                       onClick={(e) => {
@@ -462,12 +469,13 @@ function ImageListPanel({
                         onDelete(img);
                       }}
                       disabled={isDeleting}
+                      aria-label="Delete image"
                       className="shrink-0 rounded p-1 text-muted-foreground hover:bg-red-100 hover:text-red-600 disabled:opacity-50"
                     >
                       <Trash2 aria-hidden className="size-3" />
                     </button>
-                  )}
-                </button>
+                  ) : null}
+                </div>
               </li>
             );
           })}

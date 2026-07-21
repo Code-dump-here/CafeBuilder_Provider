@@ -89,12 +89,16 @@ export function PhaseRowHeader({
             <User className="size-3" aria-hidden />
             <span className="font-medium text-foreground">{phase.lead}</span>
           </span>
-          <span className="opacity-60">·</span>
-          <span>
-            {format.dateTime(new Date(phase.startDate), { month: "short", day: "numeric" })}
-            {" → "}
-            {format.dateTime(new Date(phase.endDate), { month: "short", day: "numeric" })}
-          </span>
+          {phase.startDate && phase.endDate ? (
+            <>
+              <span className="opacity-60">·</span>
+              <span>
+                {format.dateTime(new Date(phase.startDate), { month: "short", day: "numeric" })}
+                {" → "}
+                {format.dateTime(new Date(phase.endDate), { month: "short", day: "numeric" })}
+              </span>
+            </>
+          ) : null}
         </div>
       </div>
     <div className="flex shrink-0 items-center gap-1.5">

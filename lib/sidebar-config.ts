@@ -12,7 +12,6 @@ import {
   BarChart3,
   AlertTriangle,
   FileCheck,
-  Construction,
   Layers,
   Camera,
   Pencil,
@@ -23,7 +22,6 @@ import {
   Map,
   Ruler,
   CheckCircle,
-  Package,
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
@@ -167,21 +165,9 @@ const CONSTRUCTION_WORK_SECTION: NavSection = {
       scope: "project",
     },
     {
-      titleKey: "Sidebar.contractor.constructionLog",
-      url: "/construction-log",
-      icon: Construction,
-      scope: "project",
-    },
-    {
       titleKey: "Sidebar.contractor.milestones",
       url: "/milestones",
       icon: ClipboardCheck,
-      scope: "project",
-    },
-    {
-      titleKey: "Sidebar.contractor.dailyReports",
-      url: "/daily-reports",
-      icon: FileCheck,
       scope: "project",
     },
     {
@@ -189,18 +175,6 @@ const CONSTRUCTION_WORK_SECTION: NavSection = {
       url: "/issues",
       icon: AlertTriangle,
       badge: 3,
-      scope: "project",
-    },
-    {
-      titleKey: "Sidebar.contractor.materialsTracking",
-      url: "/materials",
-      icon: Package,
-      scope: "project",
-    },
-    {
-      titleKey: "Sidebar.contractor.handover",
-      url: "/handover",
-      icon: ClipboardCheck,
       scope: "project",
     },
   ],
@@ -216,34 +190,10 @@ const CONTRACTOR_SECTION: NavSection = {
   labelKey: "Sidebar.contractor.workspace",
   items: [
     {
-      titleKey: "Sidebar.contractor.constructionLog",
-      url: "/construction-log",
-      icon: Construction,
-      scope: "project",
-    },
-    {
-      titleKey: "Sidebar.contractor.dailyReports",
-      url: "/daily-reports",
-      icon: FileCheck,
-      scope: "project",
-    },
-    {
       titleKey: "Sidebar.contractor.issuesAndRFI",
       url: "/issues",
       icon: AlertTriangle,
       badge: 3,
-      scope: "project",
-    },
-    {
-      titleKey: "Sidebar.contractor.materialsTracking",
-      url: "/materials",
-      icon: Package,
-      scope: "project",
-    },
-    {
-      titleKey: "Sidebar.contractor.handover",
-      url: "/handover",
-      icon: ClipboardCheck,
       scope: "project",
     },
   ],
@@ -306,11 +256,6 @@ const OWNER_PROJECT_SECTION: NavSection = {
       titleKey: "Sidebar.shopOwner.progress",
       url: "/progress",
       icon: TrendingUp,
-    },
-    {
-      titleKey: "Sidebar.shopOwner.handover",
-      url: "/handover",
-      icon: ClipboardCheck,
     },
   ],
 };

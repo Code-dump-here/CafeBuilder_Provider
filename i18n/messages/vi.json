@@ -796,6 +796,12 @@
       "doneTasks": "{done}/{total} đã xong",
       "backToOverview": "Về tổng quan"
     },
+    "common": {
+      "close": "Đóng",
+      "cancel": "Huỷ",
+      "save": "Lưu",
+      "delete": "Xoá"
+    },
     "phase": {
       "rename": "Đổi tên",
       "renameTitle": "Đổi tên mốc",
@@ -866,7 +872,121 @@
         "title": "Thêm công việc",
         "subtitle": "Công việc mới thuộc milestone này",
         "create": "Tạo công việc",
-        "uploadCta": "Tải ảnh lên"
+        "uploadCta": "Tải ảnh lên",
+        "uploadFailed": "Tải ảnh thất bại. Vui lòng thử lại."
+      }
+    },
+    "issue": {
+      "pageTitle": "Vấn đề",
+      "count": "{count, plural, =0 {Chưa có vấn đề} one {# vấn đề} other {# vấn đề}}",
+      "addCta": "Báo cáo vấn đề",
+      "empty": "Chưa có vấn đề nào.",
+      "emptyHint": "Nhấn “Báo cáo vấn đề” để ghi nhận vấn đề đầu tiên cho đội thi công.",
+      "emptyFiltered": "Không có vấn đề nào ở trạng thái này.",
+      "emptyFilteredHint": "Bỏ lọc để xem tất cả.",
+      "clearFilter": "Hiện tất cả",
+      "loadingIssues": "Đang tải vấn đề…",
+      "loadingProject": "Đang tải dự án…",
+      "loadingTypes": "Đang tải loại…",
+      "selectType": "Chọn loại",
+      "noCause": "(Chưa có mô tả)",
+      "delete": "Xóa",
+      "deleteConfirm": "Xóa vấn đề này?",
+      "edit": "Sửa",
+      "byId": "Vấn đề #{id}",
+      "advanceStatus": "Chuyển trạng thái",
+      "changeStatus": "Đổi trạng thái",
+      "statusMenu": {
+        "open": {
+          "label": "Mới",
+          "description": "Mới báo cáo, chờ xử lý"
+        },
+        "in_progress": {
+          "label": "Đang xử lý",
+          "description": "Đội thi công đang khắc phục"
+        },
+        "resolved": {
+          "label": "Đã xử lý",
+          "description": "Đã sửa xong, chờ nghiệm thu"
+        },
+        "closed": {
+          "label": "Đã đóng",
+          "description": "Nghiệm thu và lưu trữ"
+        }
+      },
+      "noConstructionEngagement": "Dự án chưa có đơn vị thi công nên không thể báo cáo vấn đề.",
+      "backToProject": "Về dự án",
+      "backToMilestones": "Về milestones",
+      "retry": "Thử lại",
+      "delete": "Xoá vấn đề",
+      "toolbar": {
+        "title": "Vấn đề",
+        "subtitle": "Theo dõi các vấn đề phát sinh trong quá trình thi công. Mỗi dòng là một vấn đề; bấm vào để xem chi tiết hoặc đổi trạng thái.",
+        "total": "{count, plural, =0 {Chưa có vấn đề} one {# vấn đề} other {# vấn đề}}",
+        "open": "{count, plural, =0 {Chưa có vấn đề mở} one {# vấn đề mở} other {# vấn đề mở}}",
+        "resolved": "{count, plural, =0 {Chưa có vấn đề xử lý} one {# vấn đề đã xử lý} other {# vấn đề đã xử lý}}",
+        "backToMilestones": "Về milestones",
+        "reportCta": "Báo cáo vấn đề"
+      },
+      "status": {
+        "open": "Mới",
+        "in_progress": "Đang xử lý",
+        "resolved": "Đã xử lý",
+        "closed": "Đã đóng"
+      },
+      "filters": {
+        "status": "Trạng thái",
+        "all": "Tất cả"
+      },
+      "fields": {
+        "issueType": "Loại vấn đề",
+        "cause": "Nguyên nhân",
+        "reason": "Lý do",
+        "solution": "Giải pháp",
+        "estimateAt": "Ngày xử lý dự kiến",
+        "issueImage": "Ảnh hiện trạng",
+        "confirmImage": "Ảnh sau xử lý",
+        "status": "Trạng thái"
+      },
+      "uploadCta": "Tải ảnh",
+      "replaceImage": "Thay ảnh",
+      "uploadFailed": "Tải ảnh thất bại. Vui lòng thử lại.",
+      "milestone": "Mốc công việc",
+      "add": {
+        "title": "Báo cáo vấn đề",
+        "subtitle": "Mô tả vấn đề để đội thi công xử lý.",
+        "create": "Tạo vấn đề",
+        "selectType": "Chọn loại vấn đề",
+        "loadingTypes": "Đang tải loại vấn đề…",
+        "causePlaceholder": "Vấn đề là gì?",
+        "reasonPlaceholder": "Tại sao xảy ra?",
+        "solutionPlaceholder": "Sẽ xử lý thế nào?"
+      },
+      "edit": {
+        "title": "Sửa vấn đề",
+        "subtitle": "Đang sửa vấn đề #{id}",
+        "save": "Lưu thay đổi"
+      },
+      "detail": {
+        "title": "Chi tiết vấn đề",
+        "subtitle": "Xem và cập nhật vấn đề này.",
+        "selectPromptTitle": "Chưa chọn vấn đề",
+        "selectPromptBody": "Chọn một dòng trong danh sách để xem chi tiết, hình ảnh và cập nhật trạng thái.",
+        "estimateAt": "Dự kiến",
+        "actualAt": "Đã xử lý",
+        "createdBy": "Người tạo",
+        "createdAt": "Tạo lúc",
+        "updatedAt": "Cập nhật",
+        "fields": {
+          "issueType": "Loại vấn đề",
+          "cause": "Nguyên nhân",
+          "reason": "Lý do",
+          "solution": "Giải pháp",
+          "estimateAt": "Ngày xử lý dự kiến",
+          "issueImage": "Ảnh hiện trạng",
+          "confirmImage": "Ảnh sau xử lý",
+          "status": "Trạng thái"
+        }
       }
     },
     "addPhase": {
@@ -874,16 +994,14 @@
       "subtitle": "Mốc mới sẽ được thêm vào cuối timeline và trở thành cột cuối.",
       "label": "Tên mốc",
       "labelPlaceholder": "vd: Lắp thiết bị",
-      "lead": "Phụ trách",
-      "leadPlaceholder": "vd: Dat",
+      "category": "Danh mục",
+      "categoryPlaceholder": "vd: nền móng, điện",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Cần làm gì ở đây?",
       "targetDate": "Ngày mục tiêu",
       "startDate": "Ngày bắt đầu",
       "endDate": "Ngày kết thúc",
       "create": "Tạo mốc",
-      "cancel": "Huỷ"
-    },
-    "common": {
-      "save": "Lưu",
       "cancel": "Huỷ"
     },
     "errorEmpty": "Chưa có mốc nào. Thêm mốc đầu tiên để bắt đầu.",
