@@ -6,8 +6,6 @@
  * and contractType has design.
  */
 
-import type { FileUploadResponse } from "@/lib/http/types";
-
 /**
  * Request body for `POST /surveys`.
  *

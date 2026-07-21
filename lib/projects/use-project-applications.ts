@@ -93,10 +93,6 @@ export function useApplyToPostMutation(options: ApplyToPostMutationOptions = {})
         queryKey: ["marketplace", "post", application.postId],
         exact: false,
       });
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.marketplace.list(application.postId),
-        exact: false,
-      });
 
       // Toast — configurable per call site.
       if (options.onSuccessMessage !== null) {

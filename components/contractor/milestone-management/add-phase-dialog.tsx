@@ -57,15 +57,15 @@ export function AddPhaseDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!label.trim() || !lead.trim() || !startDate || !endDate) return;
+    if (!label.trim()) return;
     onSubmit({
       label: label.trim(),
       lead: lead.trim(),
       targetDate: targetDate
         ? new Date(targetDate).toISOString()
-        : new Date(endDate).toISOString(),
-      startDate: new Date(startDate).toISOString(),
-      endDate: new Date(endDate).toISOString(),
+        : new Date().toISOString(),
+      startDate: startDate ? new Date(startDate).toISOString() : new Date().toISOString(),
+      endDate: endDate ? new Date(endDate).toISOString() : new Date().toISOString(),
     });
     onOpenChange(false);
   };
@@ -93,7 +93,6 @@ export function AddPhaseDialog({
               value={lead}
               onChange={(e) => setLead(e.target.value)}
               placeholder={t("leadPlaceholder")}
-              required
             />
           </Field>
           <div className="grid grid-cols-2 gap-2">
@@ -102,7 +101,6 @@ export function AddPhaseDialog({
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                required
               />
             </Field>
             <Field label={t("endDate")}>
@@ -110,7 +108,6 @@ export function AddPhaseDialog({
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                required
               />
             </Field>
           </div>
@@ -130,7 +127,7 @@ export function AddPhaseDialog({
             <Button
               type="submit"
               size="sm"
-              disabled={!label.trim() || !lead.trim() || !startDate || !endDate}
+              disabled={!label.trim()}
             >
               {t("create")}
             </Button>

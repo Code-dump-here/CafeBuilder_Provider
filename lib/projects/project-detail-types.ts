@@ -111,6 +111,8 @@ export type ProjectOpenForEntry = ProjectOpenPostServiceKind;
  */
 export interface ProjectProvider {
   projectProviderId: number;
+  /** The engagement/projectWorking id for API calls */
+  projectWorkingId: number;
   providerId: number;
   displayName: string;
   providerType: ProjectProviderType;
@@ -179,6 +181,7 @@ export interface RawProjectDetail {
  */
 export interface RawProjectProvider {
   projectProviderId: number;
+  projectWorkingId: number;
   providerId: number;
   displayName: string;
   providerType: string;
@@ -223,7 +226,11 @@ function normalizeProviderType(raw: string): ProjectProviderType {
 function normalizeCapability(
   raw: string,
 ): ProjectProviderCapability {
-  return raw === "design" || raw === "construction" ? raw : "design";
+  // Backend may send "designer" / "constructor" or "design" / "construction".
+  // Normalise to the canonical values.
+  if (raw === "designer" || raw === "design") return "design";
+  if (raw === "constructor" || raw === "construction") return "construction";
+  return "design";
 }
 
 function normalizeProviderStatus(raw: string): ProjectProviderStatus {
@@ -248,6 +255,7 @@ function normalizeServiceKind(raw: string): ProjectOpenPostServiceKind {
 function normalizeProjectProvider(raw: RawProjectProvider): ProjectProvider {
   return {
     projectProviderId: raw.projectProviderId,
+    projectWorkingId: raw.projectWorkingId,
     providerId: raw.providerId,
     displayName: raw.displayName,
     providerType: normalizeProviderType(raw.providerType),

@@ -23,6 +23,7 @@ import type {
   DesignImageUploadFields,
   DesignImageUploadResponse,
   DesignListResponse,
+  DesignType,
   RequestRevisionPayload,
   UpdateDesignPayload,
 } from "./design-types";

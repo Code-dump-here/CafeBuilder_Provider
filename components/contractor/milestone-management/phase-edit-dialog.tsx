@@ -25,8 +25,20 @@ export interface PhaseEditInput {
   endDate: string;
 }
 
+/** Minimal phase data needed by the dialog */
+export interface PhaseEditTarget {
+  id: string;
+  label: string;
+  shortLabel?: string;
+  lead?: string;
+  status?: string;
+  targetDate?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 interface PhaseEditDialogProps {
-  phase: MilestonePhase | null;
+  phase: PhaseEditTarget | null;
   /** Distinguishes the "rename" variant from the "edit meta" variant. */
   mode: "rename" | "editMeta";
   open: boolean;
@@ -64,11 +76,11 @@ export function PhaseEditDialog({
   React.useEffect(() => {
     if (!phase) return;
     setLabel(phase.label);
-    setLead(phase.lead);
+    setLead(phase.lead ?? "");
     // ISO → yyyy-MM-dd for native date input.
-    setTargetDate(toDateInput(phase.targetDate));
-    setStartDate(toDateInput(phase.startDate));
-    setEndDate(toDateInput(phase.endDate));
+    setTargetDate(toDateInput(phase.targetDate ?? ""));
+    setStartDate(toDateInput(phase.startDate ?? ""));
+    setEndDate(toDateInput(phase.endDate ?? ""));
   }, [phase?.id, open]);
 
   if (!phase) return null;
@@ -78,11 +90,11 @@ export function PhaseEditDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
-      label: isRename ? label.trim() : phase.label,
+      label: isRename ? label.trim() : (phase.label || label.trim()),
       lead: lead.trim(),
-      targetDate: targetDate ? new Date(targetDate).toISOString() : phase.targetDate,
-      startDate: startDate ? new Date(startDate).toISOString() : phase.startDate,
-      endDate: endDate ? new Date(endDate).toISOString() : phase.endDate,
+      targetDate: targetDate ? new Date(targetDate).toISOString() : (phase.targetDate ?? ""),
+      startDate: startDate ? new Date(startDate).toISOString() : (phase.startDate ?? ""),
+      endDate: endDate ? new Date(endDate).toISOString() : (phase.endDate ?? ""),
     });
     onOpenChange(false);
   };
@@ -94,7 +106,7 @@ export function PhaseEditDialog({
           <DialogTitle>
             {isRename ? tPhase("renameTitle") : tPhase("editMetaTitle")}
           </DialogTitle>
-          <DialogDescription>{phase.shortLabel}</DialogDescription>
+          <DialogDescription>{phase.shortLabel ?? phase.label}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">

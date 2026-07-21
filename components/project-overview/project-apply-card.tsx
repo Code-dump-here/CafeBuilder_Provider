@@ -76,9 +76,9 @@ function earliestOpenDeadline(
  */
 function uniqueOpenFor(
   entries: ProjectOpenForEntry[],
-): ProjectOpenForServiceKind[] {
-  const seen = new Set<ProjectOpenForServiceKind>();
-  const result: ProjectOpenForServiceKind[] = [];
+): ProjectOpenPostServiceKind[] {
+  const seen = new Set<ProjectOpenPostServiceKind>();
+  const result: ProjectOpenPostServiceKind[] = [];
   for (const entry of entries) {
     if (!seen.has(entry)) {
       seen.add(entry);
@@ -149,12 +149,12 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
 
   const openPosts = project.openPosts.filter(isOpenPostOpen);
   const openForKinds = uniqueOpenFor(project.openFor);
-  const postKinds = new Set<ProjectOpenForServiceKind>(
+  const postKinds = new Set<ProjectOpenPostServiceKind>(
     openPosts.map((p) => p.serviceKind),
   );
-  const mergedKinds: ProjectOpenForServiceKind[] = [
+  const mergedKinds: ProjectOpenPostServiceKind[] = [
     ...openForKinds,
-    ...(Array.from(postKinds) as ProjectOpenForServiceKind[]),
+    ...(Array.from(postKinds) as ProjectOpenPostServiceKind[]),
   ];
   const kinds = uniqueOpenFor(mergedKinds);
 
@@ -327,7 +327,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
  *   - otherwise list the kinds separated by " · "
  */
 function kindsLabel(
-  kinds: ProjectOpenForServiceKind[],
+  kinds: ProjectOpenPostServiceKind[],
   tCapabilities: ReturnType<typeof useTranslations>,
 ): string {
   if (kinds.length === 0) return "";

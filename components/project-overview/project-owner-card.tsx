@@ -121,7 +121,7 @@ export function ProjectOwnerCard({ project }: ProjectOwnerCardProps) {
           <OwnerAvatar
             name={owner.fullName}
             color={ownerAvatarColorFor(owner)}
-            size="lg"
+            size="default"
             className="size-12 text-sm"
           />
           <div className="min-w-0 flex-1">

@@ -248,7 +248,7 @@ export default function ContractsPage() {
 
 interface ContractCardProps {
   contract: Contract;
-  accountRole: "owner" | "provider";
+  accountRole: string;
   onSendOtp: (contract: Contract) => void;
   onEdit: (contract: Contract) => void;
   onCancel: (contract: Contract) => void;

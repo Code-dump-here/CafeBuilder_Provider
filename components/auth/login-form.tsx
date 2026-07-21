@@ -13,6 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   postAuthDestinationToPath,
   resolvePostAuthDestination,
+  type PostAuthDestination,
 } from "@/lib/auth/post-auth-redirect";
 import { AppError } from "@/lib/http/errors";
 
@@ -58,7 +59,7 @@ export function LoginForm() {
         // could survive across logins on the same browser and route us
         // to the wrong page.
         queryClient.removeQueries({ queryKey: ["auth", "me"] });
-        let destination;
+        let destination: PostAuthDestination;
         try {
           destination = await resolvePostAuthDestination();
         } catch (e) {

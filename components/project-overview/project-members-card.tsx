@@ -209,7 +209,6 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
                       <BadgeCheck
                         className="size-3.5 shrink-0 text-sky-500"
                         aria-label={t("verified")}
-                        title={t("verified")}
                       />
                     ) : null}
                   </div>
