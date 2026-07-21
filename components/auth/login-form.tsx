@@ -9,6 +9,11 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { InputControl } from "@/components/ui/input-control";
 import { useLoginMutation } from "@/features/auth/hooks";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  postAuthDestinationToPath,
+  resolvePostAuthDestination,
+} from "@/lib/auth/post-auth-redirect";
 import { AppError } from "@/lib/http/errors";
 
 interface LoginFormData {
@@ -19,6 +24,7 @@ interface LoginFormData {
 export function LoginForm() {
   const t = useTranslations("Auth");
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [rememberMe, setRememberMe] = React.useState(false);
 
   const {
@@ -42,10 +48,29 @@ export function LoginForm() {
   }, [loginMutation.error, t]);
 
   function onSubmit(data: LoginFormData) {
+    console.error("[login-form] onSubmit called");
     loginMutation.mutate(data, {
-      onSuccess: () => {
+      onSuccess: async (response) => {
+        console.error("[login-form] login onSuccess, response role=", response.role);
         toast.success(t("toast.loginSuccess"));
-        router.replace("/");
+        // Wipe any cached `useMe` data from a previous session before
+        // we ask the backend again — otherwise a stale cached profile
+        // could survive across logins on the same browser and route us
+        // to the wrong page.
+        queryClient.removeQueries({ queryKey: ["auth", "me"] });
+        let destination;
+        try {
+          destination = await resolvePostAuthDestination();
+        } catch (e) {
+          console.error("[login-form] resolver threw", e);
+          destination = { kind: "home", role: "owner" };
+        }
+        const path = postAuthDestinationToPath(destination);
+        console.error("[login-form] redirecting to", path, "from", window.location.pathname);
+        router.replace(path);
+      },
+      onError: (err) => {
+        console.error("[login-form] login onError", err);
       },
     });
   }

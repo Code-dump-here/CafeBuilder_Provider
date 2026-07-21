@@ -92,6 +92,7 @@ export default function ContractsPage() {
 
   const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
   const [otpDialogOpen, setOtpDialogOpen] = React.useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
   const [selectedContract, setSelectedContract] = React.useState<Contract | null>(null);
 
   const handleCreateNew = () => {
@@ -109,8 +110,8 @@ export default function ContractsPage() {
   };
 
   const handleCancel = (contract: Contract) => {
-    // TODO: Show confirmation dialog
-    console.log("Cancel contract:", contract.id);
+    setSelectedContract(contract);
+    setCancelDialogOpen(true);
   };
 
   // Loading state
@@ -222,6 +223,18 @@ export default function ContractsPage() {
         contract={selectedContract}
         onSuccess={() => {
           setOtpDialogOpen(false);
+          setSelectedContract(null);
+          void refetch();
+        }}
+      />
+
+      {/* Cancel Contract Dialog */}
+      <CancelContractDialog
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        contract={selectedContract}
+        onSuccess={() => {
+          setCancelDialogOpen(false);
           setSelectedContract(null);
           void refetch();
         }}
@@ -821,6 +834,118 @@ function OtpConfirmDialog({
             onClick={() => onOpenChange(false)}
           >
             {t("close")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Cancel Contract Dialog
+//
+// Confirmation dialog for cancelling a contract. The actual API call goes
+// through `useCancelContractMutation` (which posts to
+// `POST /api/contracts/{id}/cancel`) — only allowed while the contract
+// is in `drafted` or `pending_otp`. Once cancelled the contract cannot
+// be confirmed by the owner; a new draft must be created to retry.
+//
+// Why a confirmation step:
+//   - Cancellation is terminal and irreversible from the UI.
+//   - The provider can lose work in progress (terms, document).
+//   - We surface the side effect ("owner can no longer confirm") before
+//     firing the mutation so the user has one chance to back out.
+//
+// Visual treatment:
+//   - Red `AlertTriangle` icon + a `text-destructive` confirm button so
+//     the destructive action is visually distinct from the create/otp
+//     flows above.
+
+interface CancelContractDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  contract: Contract | null;
+  onSuccess: () => void;
+}
+
+function CancelContractDialog({
+  open,
+  onOpenChange,
+  contract,
+  onSuccess,
+}: CancelContractDialogProps) {
+  const t = useTranslations("Contracts.dialog");
+
+  // We don't need local state to track the OTP step here — cancel is a
+  // single-shot confirm. We still wire the mutation per-page so the
+  // success side-effect (close dialog + refetch list) stays in the page
+  // that knows about `refetch`.
+
+  const cancelMutation = useCancelContractMutation({
+    onSuccessMessage: null,
+    onErrorMessage: null,
+    onSuccessSideEffect: () => {
+      onSuccess();
+    },
+  });
+
+  const isPending = cancelMutation.isPending;
+
+  const handleConfirm = () => {
+    if (!contract) return;
+    cancelMutation.mutate(contract.id);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="flex items-start gap-3">
+            <div className="grid size-10 shrink-0 place-items-center rounded-full bg-destructive/10 text-destructive">
+              <AlertTriangle className="size-5" aria-hidden />
+            </div>
+            <div className="flex flex-col gap-1">
+              <DialogTitle>{t("cancelTitle")}</DialogTitle>
+              <DialogDescription>
+                {t("cancelDescription")}
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        {contract ? (
+          <div className="flex flex-col gap-3 rounded-md border border-border/60 bg-muted/30 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {contract.title}
+              </span>
+              <span className="font-mono text-xs text-muted-foreground">
+                #{contract.id}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("cancelWarning")}
+            </p>
+          </div>
+        ) : null}
+
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
+            {t("cancel")}
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={isPending || !contract}
+            aria-busy={isPending}
+          >
+            {isPending ? t("cancelling") : t("cancelConfirmButton")}
           </Button>
         </DialogFooter>
       </DialogContent>

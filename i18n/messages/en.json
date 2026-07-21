@@ -61,9 +61,7 @@
     },
     "roles": {
       "owner": "Owner",
-      "providerDesign": "Provider — Design studio",
-      "providerConstruction": "Provider — Construction firm",
-      "admin": "Admin"
+      "provider": "Provider"
     },
     "footer": {
       "terms": "Terms of Service",
@@ -158,8 +156,32 @@
     },
     "completeProfile": {
       "title": "Complete your profile",
-      "subtitle": "Choose your role to continue setting up your SmartCafeBuilder workspace",
-      "supportingText": "The platform serves shop owners, designers, and construction companies in one unified system"
+      "subtitle": "Tell us about your business so clients can find and trust you on SmartCafeBuilder.",
+      "supportingText": "Your provider profile is visible to shop owners looking to hire design and construction partners."
+    },
+    "provider": {
+      "fields": {
+        "displayName": "Display name",
+        "displayNamePlaceholder": "e.g. Minh Duc Design Studio",
+        "providerType": "Provider type",
+        "providerTypeHint": "Pick the legal structure that best describes you.",
+        "providerTypeIndividual": "Individual",
+        "providerTypeCompany": "Company",
+        "capability": "Capability",
+        "capabilityHint": "Which phase of the project do you own?",
+        "capabilityDesigner": "Designer",
+        "capabilityConstructor": "Constructor",
+        "capabilityBoth": "Both",
+        "bio": "About you",
+        "bioHint": "A short bio that helps owners understand your strengths.",
+        "bioPlaceholder": "Tell owners about your style, your team, what kinds of projects you love…",
+        "yearsExperience": "Years of experience",
+        "portfolioHeadline": "Portfolio headline",
+        "portfolioHeadlinePlaceholder": "e.g. 50+ café interiors delivered across Vietnam",
+        "companyTaxCode": "Company tax code",
+        "companyTaxCodeHint": "Required for registered businesses — we use this for verification.",
+        "companyTaxCodePlaceholder": "e.g. 0312345678"
+      }
     },
     "accountSummary": {
       "title": "Account created",
@@ -247,6 +269,15 @@
     },
     "validation": {
       "roleRequired": "Please select your role",
+      "displayNameRequired": "Please enter your display name",
+      "displayNameTooLong": "Display name must be 120 characters or fewer",
+      "providerTypeRequired": "Please pick a provider type",
+      "capabilityRequired": "Please pick a capability",
+      "yearsExperienceInvalid": "Years of experience must be between 0 and 80",
+      "bioTooLong": "Bio must be 2000 characters or fewer",
+      "portfolioHeadlineTooLong": "Portfolio headline must be 200 characters or fewer",
+      "companyTaxCodeRequired": "Please enter your company tax code",
+      "companyTaxCodeInvalid": "Tax code must be 8–20 digits (dashes allowed)",
       "businessNameRequired": "Please enter your shop / business name",
       "cityRequired": "Please enter your city / location",
       "shopModelRequired": "Please enter your shop model",
@@ -254,7 +285,6 @@
       "currentStageRequired": "Please enter your current stage",
       "studioNameRequired": "Please enter your studio name / brand",
       "yearsExperienceRequired": "Please enter years of experience",
-      "yearsExperienceInvalid": "Years of experience must be a valid number",
       "specializationRequired": "Please enter your specialization",
       "portfolioLinkInvalid": "Please enter a valid portfolio URL",
       "completedProjectsInvalid": "Number of completed projects must be valid",
@@ -274,6 +304,7 @@
       "complete": "Complete",
       "completeAs": "Complete as {role}",
       "submitting": "Processing...",
+      "submitSuccess": "Profile saved. Welcome to SmartCafeBuilder!",
       "back": "Go back"
     }
   },
@@ -653,7 +684,12 @@
       "otpCodeHint": "Check the owner's email for the code.",
       "confirmOtpButton": "Confirm Contract",
       "confirming": "Confirming…",
-      "close": "Close"
+      "close": "Close",
+      "cancelTitle": "Cancel contract",
+      "cancelDescription": "Are you sure you want to cancel this contract? This action cannot be undone.",
+      "cancelWarning": "Once cancelled, the owner will no longer be able to confirm this contract. A new contract draft must be created if you want to retry.",
+      "cancelConfirmButton": "Yes, cancel contract",
+      "cancelling": "Cancelling…"
     },
     "errors": {
       "title": "Couldn't load contracts",
@@ -983,7 +1019,17 @@
       "newVersion": "New Version",
       "publishRevision": "Publish Revision",
       "openVersion": "Open version",
-      "openVersionAria": "Open version {code}"
+      "openVersionAria": "Open version {code}",
+      "submitForReview": "Submit for Review",
+      "approve": "Approve",
+      "requestRevision": "Request Revision",
+      "requestRevisionPrompt": "Please describe the required changes:",
+      "startRevision": "Start Revision",
+      "alreadyApproved": "This design has been approved.",
+      "awaitingOwnerReview": "Awaiting owner review.",
+      "noActionsAvailable": "No actions available at this time.",
+      "submitSuccess": "Design submitted for review.",
+      "approveSuccess": "Design approved."
     },
     "tabs": {
       "all": "All",
@@ -992,13 +1038,22 @@
       "threeD": "3D",
       "elevation": "Elevation",
       "section": "Section",
-      "label": "Drawing type"
+      "label": "Drawing type",
+      "concept": "Concept",
+      "layout2d": "Layout 2D",
+      "render3d": "Render 3D",
+      "technicalDrawing": "Technical drawing"
     },
     "customCategory": {
       "add": "Add custom category",
       "added": "Added \"{label}\".",
       "remove": "Remove category",
       "removeConfirm": "Remove \"{label}\"? Versions in this tab won't be deleted."
+    },
+    "errorBanner": {
+      "title": "Couldn't load designs",
+      "subtitle": "Something went wrong while fetching the design list. Please try again.",
+      "retry": "Try again"
     },
     "status": {
       "draft": "Draft",
@@ -1038,8 +1093,13 @@
       "sheet": "Sheet",
       "updatedBy": "Updated by",
       "noDrawings": "This version has no drawings yet.",
+      "noImages": "No images uploaded yet.",
       "published": "Published on {date}",
-      "notFound": "Version not found.",
+      "notFound": "Design not found.",
+      "loading": "Loading design…",
+      "uploadedBy": "Uploaded",
+      "revisionReason": "Revision reason",
+      "latestNoteLabel": "Note",
       "hero": {
         "published": "Published {date}",
         "drawings": "{count, plural, one {# drawing} other {# drawings}}",
@@ -1054,6 +1114,13 @@
     },
     "crumbs": {
       "versions": "Versions"
+    },
+    "upload": {
+      "dropOrClick": "Drop file or click to upload",
+      "captionTitle": "Add caption",
+      "captionPlaceholder": "e.g. Ground floor plan",
+      "confirm": "Upload",
+      "cancel": "Cancel"
     },
     "tree": {
       "label": "Drawings file tree",
@@ -1116,8 +1183,11 @@
         "notesPlaceholder": "What's the goal of this version?",
         "cancel": "Cancel",
         "create": "Create version",
+        "creating": "Creating…",
         "created": "Version {code} created.",
-        "createComingSoon": "Version creation will be available once the backend is wired."
+        "createSubmitted": "Sending version {code}…",
+        "createComingSoon": "Version creation will be available once the backend is wired.",
+        "engagementMissing": "Designs can only be created once the engagement has been accepted. Please refresh once the contract is confirmed."
       },
       "publish": {
         "title": "Publish revision",

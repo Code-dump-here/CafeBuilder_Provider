@@ -61,9 +61,7 @@
     },
     "roles": {
       "owner": "Chủ quán",
-      "providerDesign": "Nhà cung cấp — Studio thiết kế",
-      "providerConstruction": "Nhà cung cấp — Đơn vị thi công",
-      "admin": "Quản trị viên"
+      "provider": "Nhà cung cấp"
     },
     "footer": {
       "terms": "Điều khoản dịch vụ",
@@ -158,8 +156,32 @@
     },
     "completeProfile": {
       "title": "Hoàn thiện hồ sơ của bạn",
-      "subtitle": "Chọn vai trò để tiếp tục thiết lập không gian làm việc SmartCafeBuilder",
-      "supportingText": "Nền tảng phục vụ chủ quán cà phê, nhà thiết kế và đơn vị thi công trong cùng một hệ thống"
+      "subtitle": "Cho chúng tôi biết thêm về doanh nghiệp của bạn để chủ quán có thể tìm và tin tưởng bạn trên SmartCafeBuilder.",
+      "supportingText": "Hồ sơ nhà cung cấp của bạn hiển thị cho các chủ dự án đang tìm kiếm đối tác thiết kế và thi công."
+    },
+    "provider": {
+      "fields": {
+        "displayName": "Tên hiển thị",
+        "displayNamePlaceholder": "VD: Studio Thiết Kế Minh Đức",
+        "providerType": "Loại nhà cung cấp",
+        "providerTypeHint": "Chọn hình thức pháp lý phù hợp với bạn nhất.",
+        "providerTypeIndividual": "Cá nhân",
+        "providerTypeCompany": "Doanh nghiệp",
+        "capability": "Năng lực",
+        "capabilityHint": "Bạn phụ trách giai đoạn nào của dự án?",
+        "capabilityDesigner": "Thiết kế",
+        "capabilityConstructor": "Thi công",
+        "capabilityBoth": "Cả hai",
+        "bio": "Giới thiệu về bạn",
+        "bioHint": "Đoạn giới thiệu ngắn giúp chủ dự án hiểu rõ thế mạnh của bạn.",
+        "bioPlaceholder": "Chia sẻ phong cách, đội ngũ, và những dự án bạn yêu thích…",
+        "yearsExperience": "Số năm kinh nghiệm",
+        "portfolioHeadline": "Tiêu đề portfolio",
+        "portfolioHeadlinePlaceholder": "VD: Hơn 50 quán cà phê đã thiết kế trên toàn quốc",
+        "companyTaxCode": "Mã số thuế doanh nghiệp",
+        "companyTaxCodeHint": "Bắt buộc với doanh nghiệp đã đăng ký — dùng để xác minh.",
+        "companyTaxCodePlaceholder": "VD: 0312345678"
+      }
     },
     "accountSummary": {
       "title": "Tài khoản đã tạo",
@@ -247,6 +269,15 @@
     },
     "validation": {
       "roleRequired": "Vui lòng chọn vai trò của bạn",
+      "displayNameRequired": "Vui lòng nhập tên hiển thị",
+      "displayNameTooLong": "Tên hiển thị phải từ 120 ký tự trở xuống",
+      "providerTypeRequired": "Vui lòng chọn loại nhà cung cấp",
+      "capabilityRequired": "Vui lòng chọn năng lực",
+      "yearsExperienceInvalid": "Số năm kinh nghiệm phải nằm trong khoảng 0 đến 80",
+      "bioTooLong": "Phần giới thiệu phải từ 2000 ký tự trở xuống",
+      "portfolioHeadlineTooLong": "Tiêu đề portfolio phải từ 200 ký tự trở xuống",
+      "companyTaxCodeRequired": "Vui lòng nhập mã số thuế doanh nghiệp",
+      "companyTaxCodeInvalid": "Mã số thuế phải gồm 8–20 chữ số (cho phép dấu gạch ngang)",
       "businessNameRequired": "Vui lòng nhập tên quán / doanh nghiệp",
       "cityRequired": "Vui lòng nhập thành phố / khu vực",
       "shopModelRequired": "Vui lòng nhập mô hình quán",
@@ -254,7 +285,6 @@
       "currentStageRequired": "Vui lòng nhập giai đoạn hiện tại",
       "studioNameRequired": "Vui lòng nhập tên studio / thương hiệu",
       "yearsExperienceRequired": "Vui lòng nhập số năm kinh nghiệm",
-      "yearsExperienceInvalid": "Số năm kinh nghiệm phải là số hợp lệ",
       "specializationRequired": "Vui lòng nhập chuyên môn",
       "portfolioLinkInvalid": "Liên kết portfolio không hợp lệ",
       "completedProjectsInvalid": "Số dự án phải là số hợp lệ",
@@ -274,6 +304,7 @@
       "complete": "Hoàn tất",
       "completeAs": "Hoàn tất với tư cách {role}",
       "submitting": "Đang xử lý...",
+      "submitSuccess": "Đã lưu hồ sơ. Chào mừng bạn đến SmartCafeBuilder!",
       "back": "Quay lại"
     }
   },
@@ -656,7 +687,12 @@
       "otpCodeHint": "Kiểm tra email của chủ dự án để lấy mã.",
       "confirmOtpButton": "Xác nhận hợp đồng",
       "confirming": "Đang xác nhận…",
-      "close": "Đóng"
+      "close": "Đóng",
+      "cancelTitle": "Hủy hợp đồng",
+      "cancelDescription": "Bạn có chắc chắn muốn hủy hợp đồng này? Hành động này không thể hoàn tác.",
+      "cancelWarning": "Sau khi hủy, chủ dự án sẽ không thể xác nhận hợp đồng này nữa. Bạn phải tạo bản nháp mới nếu muốn thử lại.",
+      "cancelConfirmButton": "Có, hủy hợp đồng",
+      "cancelling": "Đang hủy…"
     },
     "errors": {
       "title": "Không thể tải hợp đồng",
@@ -985,7 +1021,17 @@
       "newVersion": "Tạo phiên bản mới",
       "publishRevision": "Phát hành bản mới",
       "openVersion": "Mở phiên bản",
-      "openVersionAria": "Mở phiên bản {code}"
+      "openVersionAria": "Mở phiên bản {code}",
+      "submitForReview": "Gửi phê duyệt",
+      "approve": "Phê duyệt",
+      "requestRevision": "Yêu cầu chỉnh sửa",
+      "requestRevisionPrompt": "Mô tả các thay đổi cần thiết:",
+      "startRevision": "Bắt đầu chỉnh sửa",
+      "alreadyApproved": "Thiết kế này đã được phê duyệt.",
+      "awaitingOwnerReview": "Đang chờ chủ dự án phê duyệt.",
+      "noActionsAvailable": "Không có thao tác nào tại thời điểm này.",
+      "submitSuccess": "Đã gửi thiết kế để phê duyệt.",
+      "approveSuccess": "Đã phê duyệt thiết kế."
     },
     "tabs": {
       "all": "Tất cả",
@@ -994,13 +1040,22 @@
       "threeD": "3D",
       "elevation": "Mặt đứng",
       "section": "Mặt cắt",
-      "label": "Loại bản vẽ"
+      "label": "Loại bản vẽ",
+      "concept": "Concept",
+      "layout2d": "Layout 2D",
+      "render3d": "Render 3D",
+      "technicalDrawing": "Bản vẽ kỹ thuật"
     },
     "customCategory": {
       "add": "Thêm loại tuỳ chỉnh",
       "added": "Đã thêm \"{label}\".",
       "remove": "Xoá loại",
       "removeConfirm": "Xoá \"{label}\"? Các phiên bản trong tab này sẽ không bị xoá."
+    },
+    "errorBanner": {
+      "title": "Không thể tải danh sách thiết kế",
+      "subtitle": "Đã xảy ra lỗi khi lấy dữ liệu thiết kế. Vui lòng thử lại.",
+      "retry": "Thử lại"
     },
     "status": {
       "draft": "Nháp",
@@ -1040,8 +1095,12 @@
       "sheet": "Tờ",
       "updatedBy": "Cập nhật bởi",
       "noDrawings": "Phiên bản này chưa có bản vẽ nào.",
+      "noImages": "Chưa có hình ảnh nào được tải lên.",
       "published": "Phát hành ngày {date}",
-      "notFound": "Không tìm thấy phiên bản.",
+      "notFound": "Không tìm thấy thiết kế.",
+      "loading": "Đang tải thiết kế…",
+      "uploadedBy": "Đã tải lên",
+      "revisionReason": "Lý do chỉnh sửa",
       "latestNoteLabel": "Ghi chú mới nhất",
       "hero": {
         "published": "Phát hành ngày {date}",
@@ -1057,6 +1116,13 @@
     },
     "crumbs": {
       "versions": "Phiên bản"
+    },
+    "upload": {
+      "dropOrClick": "Kéo thả hoặc nhấn để tải lên",
+      "captionTitle": "Thêm chú thích",
+      "captionPlaceholder": "VD: Mặt bằng tầng trệt",
+      "confirm": "Tải lên",
+      "cancel": "Huỷ"
     },
     "tree": {
       "label": "Cây bản vẽ",
@@ -1119,8 +1185,11 @@
         "notesPlaceholder": "Mục tiêu của phiên bản này là gì?",
         "cancel": "Huỷ",
         "create": "Tạo phiên bản",
+        "creating": "Đang tạo…",
         "created": "Đã tạo phiên bản {code}.",
-        "createComingSoon": "Tính năng tạo phiên bản sẽ hoạt động khi backend sẵn sàng."
+        "createSubmitted": "Đang gửi phiên bản {code}…",
+        "createComingSoon": "Tính năng tạo phiên bản sẽ hoạt động khi backend sẵn sàng.",
+        "engagementMissing": "Chỉ tạo được thiết kế khi engagement đã được chấp nhận. Vui lòng tải lại sau khi hợp đồng được xác nhận."
       },
       "publish": {
         "title": "Phát hành bản chỉnh sửa",

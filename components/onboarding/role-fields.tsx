@@ -2,251 +2,350 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { UseFormRegister, FieldErrors, UseFormWatch } from "react-hook-form";
+import {
+  UseFormRegister,
+  UseFormSetValue,
+  UseFormWatch,
+  FieldErrors,
+  Control,
+  useWatch,
+} from "react-hook-form";
+import { User, Briefcase, Hammer, Pencil, Building2, UserCircle2 } from "lucide-react";
+
 import { InputControl } from "@/components/ui/input-control";
-import type { Role } from "./role-selector";
+import { TextareaControl } from "@/components/ui/textarea-control";
+import { cn } from "@/lib/utils";
+import type {
+  Capability,
+  ProviderType,
+} from "@/features/service-provider-profiles/api";
 
-// ─── Shared form types ───────────────────────────────────────────────────────
+// ─── Form value shape ────────────────────────────────────────────────────────
+
+/**
+ * Subset of fields the onboarding form collects for a provider account.
+ * This is intentionally NOT a 1:1 mirror of `CreateServiceProviderProfilePayload`:
+ *
+ *   - `accountId` is injected at submit time from the auth context.
+ *   - All values are kept as strings so react-hook-form + the `InputControl`
+ *     wrapper stay simple; numeric coercion happens in the submit handler.
+ */
 export interface OnboardingFormValues {
-  // Account (passed from registration)
-  fullname: string;
-  email: string;
-  phonenumber: string;
-
-  // Role
-  selectedRole: Role | "";
-
-  // ── Designer ─────────────────────────────────────────────────────────────────
-  designer: {
-    studioName: string;
-    yearsExperience: string;
-    specialization: string;
-    portfolioLink: string;
-    completedProjects: string;
-    workingCity: string;
-  };
-
-  // ── Construction Company ─────────────────────────────────────────────────────
-  constructionCompany: {
-    companyName: string;
-    serviceArea: string;
-    yearsOperation: string;
-    teamSize: string;
-    companyProfileLink: string;
-    completedProjects: string;
-    warrantySupport: string;
-  };
+  displayName: string;
+  providerType: ProviderType | "";
+  capability: Capability | "";
+  bio: string;
+  yearsExperience: string;
+  portfolioHeadline: string;
+  companyTaxCode: string;
 }
 
-// ─── Field group base ─────────────────────────────────────────────────────────
-interface FieldGroupProps {
-  register: UseFormRegister<OnboardingFormValues>;
-  errors: FieldErrors<OnboardingFormValues>;
-  watch: UseFormWatch<OnboardingFormValues>;
-  isLoading?: boolean;
+// ─── Segmented control (shared) ──────────────────────────────────────────────
+
+interface Option<TValue extends string> {
+  value: TValue;
+  label: string;
+  description?: string;
+  icon?: React.ComponentType<{ className?: string }>;
 }
 
-// ─── Designer Fields ──────────────────────────────────────────────────────────
-function DesignerFields({ register, errors }: FieldGroupProps) {
-  const t = useTranslations("Onboarding");
+interface SegmentedProps<TValue extends string> {
+  name: "providerType" | "capability";
+  options: Option<TValue>[];
+  value: TValue | "";
+  onChange: (next: TValue) => void;
+  error?: string;
+}
 
+/**
+ * Pill-style segmented control. Used twice — once for `providerType`,
+ * once for `capability` — so we keep a single implementation that
+ * accepts arbitrary string-typed values.
+ */
+function Segmented<TValue extends string>({
+  name,
+  options,
+  value,
+  onChange,
+  error,
+}: SegmentedProps<TValue>) {
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <InputControl<OnboardingFormValues>
-          name="designer.studioName"
-          register={register}
-          label={t("designer.fields.studioName")}
-          placeholder={t("designer.fields.studioNamePlaceholder")}
-          error={errors.designer?.studioName?.message}
-        />
-        <InputControl<OnboardingFormValues>
-          name="designer.workingCity"
-          register={register}
-          label={t("designer.fields.workingCity")}
-          placeholder={t("designer.fields.workingCityPlaceholder")}
-          error={errors.designer?.workingCity?.message}
-        />
+    <div className="space-y-2">
+      <div
+        role="radiogroup"
+        aria-label={name}
+        className="grid gap-2 sm:grid-cols-3"
+      >
+        {options.map((option) => {
+          const isSelected = value === option.value;
+          const Icon = option.icon;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              onClick={() => onChange(option.value)}
+              className={cn(
+                "relative flex flex-col items-start gap-2 rounded-xl border-2 px-4 py-3 text-left transition-all duration-200 cursor-pointer",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2",
+                isSelected
+                  ? "border-primary bg-primary/5 shadow-sm"
+                  : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/30",
+              )}
+            >
+              <div className="flex items-center gap-2">
+                {Icon && (
+                  <span
+                    className={cn(
+                      "flex size-7 items-center justify-center rounded-lg transition-colors",
+                      isSelected
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    <Icon className="size-4" />
+                  </span>
+                )}
+                <span
+                  className={cn(
+                    "text-sm font-semibold",
+                    isSelected ? "text-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  {option.label}
+                </span>
+              </div>
+              {option.description && (
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {option.description}
+                </p>
+              )}
+            </button>
+          );
+        })}
       </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <InputControl<OnboardingFormValues>
-          name="designer.yearsExperience"
-          register={register}
-          label={t("designer.fields.yearsExperience")}
-          type="number"
-          placeholder="0"
-          error={errors.designer?.yearsExperience?.message}
-        />
-        <InputControl<OnboardingFormValues>
-          name="designer.completedProjects"
-          register={register}
-          label={t("designer.fields.completedProjects")}
-          type="number"
-          placeholder="0"
-          error={errors.designer?.completedProjects?.message}
-        />
-      </div>
-
-      <InputControl<OnboardingFormValues>
-        name="designer.specialization"
-        register={register}
-        label={t("designer.fields.specialization")}
-        placeholder={t("designer.fields.specializationPlaceholder")}
-        error={errors.designer?.specialization?.message}
-      />
-
-      <InputControl<OnboardingFormValues>
-        name="designer.portfolioLink"
-        register={register}
-        label={t("designer.fields.portfolioLink")}
-        placeholder="https://portfolio.example.com"
-        error={errors.designer?.portfolioLink?.message}
-        rules={{
-          pattern: {
-            value: /^$|^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/i,
-            message: t("validation.urlInvalid"),
-          },
-        }}
-      />
-    </div>
-  );
-}
-
-// ─── Construction Company Fields ────────────────────────────────────────────
-function ConstructionCompanyFields({ register, errors }: FieldGroupProps) {
-  const t = useTranslations("Onboarding");
-
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <InputControl<OnboardingFormValues>
-          name="constructionCompany.companyName"
-          register={register}
-          label={t("constructionCompany.fields.companyName")}
-          placeholder={t("constructionCompany.fields.companyNamePlaceholder")}
-          error={errors.constructionCompany?.companyName?.message}
-        />
-        <InputControl<OnboardingFormValues>
-          name="constructionCompany.serviceArea"
-          register={register}
-          label={t("constructionCompany.fields.serviceArea")}
-          placeholder={t("constructionCompany.fields.serviceAreaPlaceholder")}
-          error={errors.constructionCompany?.serviceArea?.message}
-        />
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
-        <InputControl<OnboardingFormValues>
-          name="constructionCompany.yearsOperation"
-          register={register}
-          label={t("constructionCompany.fields.yearsOperation")}
-          type="number"
-          placeholder="0"
-          error={errors.constructionCompany?.yearsOperation?.message}
-        />
-        <InputControl<OnboardingFormValues>
-          name="constructionCompany.teamSize"
-          register={register}
-          label={t("constructionCompany.fields.teamSize")}
-          type="number"
-          placeholder="0"
-          error={errors.constructionCompany?.teamSize?.message}
-        />
-        <InputControl<OnboardingFormValues>
-          name="constructionCompany.completedProjects"
-          register={register}
-          label={t("constructionCompany.fields.completedProjects")}
-          type="number"
-          placeholder="0"
-          error={errors.constructionCompany?.completedProjects?.message}
-        />
-      </div>
-
-      <InputControl<OnboardingFormValues>
-        name="constructionCompany.companyProfileLink"
-        register={register}
-        label={t("constructionCompany.fields.companyProfileLink")}
-        placeholder="https://company.example.com"
-        error={errors.constructionCompany?.companyProfileLink?.message}
-        rules={{
-          pattern: {
-            value: /^$|^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/i,
-            message: t("validation.urlInvalid"),
-          },
-        }}
-      />
-
-      <InputControl<OnboardingFormValues>
-        name="constructionCompany.warrantySupport"
-        register={register}
-        label={t("constructionCompany.fields.warrantySupport")}
-        placeholder={t("constructionCompany.fields.warrantySupportPlaceholder")}
-        error={errors.constructionCompany?.warrantySupport?.message}
-      />
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
+
 interface RoleFieldsProps {
-  selectedRole: Role | "";
   register: UseFormRegister<OnboardingFormValues>;
   errors: FieldErrors<OnboardingFormValues>;
   watch: UseFormWatch<OnboardingFormValues>;
+  control: Control<OnboardingFormValues>;
+  setValue: UseFormSetValue<OnboardingFormValues>;
   isLoading?: boolean;
 }
 
-export function RoleFields({ selectedRole, register, errors, watch, isLoading }: RoleFieldsProps) {
+const PROVIDER_TYPE_OPTIONS: Option<ProviderType>[] = [
+  {
+    value: "individual",
+    label: "Individual",
+    description: "Solo designer or contractor working under their own name.",
+    icon: UserCircle2,
+  },
+  {
+    value: "company",
+    label: "Company",
+    description: "Registered business with a tax code and team.",
+    icon: Building2,
+  },
+];
+
+const CAPABILITY_OPTIONS: Option<Capability>[] = [
+  {
+    value: "designer",
+    label: "Designer",
+    description: "Owns the design and concept phase.",
+    icon: Pencil,
+  },
+  {
+    value: "constructor",
+    label: "Constructor",
+    description: "Owns the build and execution phase.",
+    icon: Hammer,
+  },
+  {
+    value: "both",
+    label: "Both",
+    description: "Handles design and build end-to-end.",
+    icon: Briefcase,
+  },
+];
+
+export function RoleFields({
+  register,
+  errors,
+  control,
+  setValue,
+}: RoleFieldsProps) {
   const t = useTranslations("Onboarding");
+  const providerType = useWatch({ control, name: "providerType" });
+  const capability = useWatch({ control, name: "capability" });
 
-  if (!selectedRole) {
-    return (
-      <div className="rounded-xl border border-dashed border-border bg-muted/20 py-12 text-center">
-        <p className="text-sm text-muted-foreground">
-          {t("roleFields.selectRoleHint")}
-        </p>
-      </div>
-    );
-  }
-
-  // Shop Owner — no extra profile fields needed
-  if (selectedRole === "shop_owner") {
-    return (
-      <div className="rounded-xl border border-border bg-card p-6">
-        <div className="flex items-start gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-50">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-              <polyline points="9,22 9,12 15,12 15,22" />
-            </svg>
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-foreground">{t("shopOwner.noFields.title")}</p>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              {t("shopOwner.noFields.description")}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const fieldsProps = { register, errors, watch, isLoading };
+  // The tax-code field only makes sense for companies. We still register
+  // the field so RHF tracks it (otherwise switching back would lose state)
+  // but we hide the input visually and skip required validation by
+  // omitting `rules` when the company flag is off.
+  const isCompany = providerType === "company";
 
   return (
-    <div className="space-y-5">
-      {/* Role section header */}
-      <div className="flex items-center gap-2">
-        <div className="h-px flex-1 bg-border" />
-        <p className="px-3 text-xs font-medium text-muted-foreground">
-          {t("roleFields.sectionHeader", { role: t(`roles.${selectedRole}.name`) })}
-        </p>
-        <div className="h-px flex-1 bg-border" />
+    <div className="space-y-7">
+      {/* ── Display name ─────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <User className="size-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold text-foreground">
+            {t("provider.fields.displayName")}
+          </h2>
+        </div>
+        <InputControl<OnboardingFormValues>
+          name="displayName"
+          register={register}
+          placeholder={t("provider.fields.displayNamePlaceholder")}
+          error={errors.displayName?.message}
+          rules={{
+            required: t("validation.displayNameRequired"),
+            maxLength: {
+              value: 120,
+              message: t("validation.displayNameTooLong"),
+            },
+          }}
+        />
       </div>
 
-      {selectedRole === "designer" && <DesignerFields {...fieldsProps} />}
-      {selectedRole === "construction_company" && <ConstructionCompanyFields {...fieldsProps} />}
+      {/* ── Provider type ────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">
+            {t("provider.fields.providerType")}
+          </h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {t("provider.fields.providerTypeHint")}
+          </p>
+        </div>
+        <Segmented<ProviderType>
+          name="providerType"
+          options={PROVIDER_TYPE_OPTIONS}
+          value={providerType}
+          onChange={(next) =>
+            setValue("providerType", next, { shouldValidate: true })
+          }
+          error={errors.providerType?.message}
+        />
+      </div>
+
+      {/* ── Capability ───────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">
+            {t("provider.fields.capability")}
+          </h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {t("provider.fields.capabilityHint")}
+          </p>
+        </div>
+        <Segmented<Capability>
+          name="capability"
+          options={CAPABILITY_OPTIONS}
+          value={capability}
+          onChange={(next) =>
+            setValue("capability", next, { shouldValidate: true })
+          }
+          error={errors.capability?.message}
+        />
+      </div>
+
+      {/* ── Bio ──────────────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">
+            {t("provider.fields.bio")}
+          </h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {t("provider.fields.bioHint")}
+          </p>
+        </div>
+        <TextareaControl<OnboardingFormValues>
+          name="bio"
+          register={register}
+          placeholder={t("provider.fields.bioPlaceholder")}
+          error={errors.bio?.message}
+          rules={{
+            maxLength: {
+              value: 2000,
+              message: t("validation.bioTooLong"),
+            },
+          }}
+          rows={4}
+        />
+      </div>
+
+      {/* ── Years experience + Portfolio headline (2 col) ─────────────── */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <InputControl<OnboardingFormValues>
+          name="yearsExperience"
+          register={register}
+          label={t("provider.fields.yearsExperience")}
+          type="number"
+          placeholder="0"
+          error={errors.yearsExperience?.message}
+          rules={{
+            min: {
+              value: 0,
+              message: t("validation.yearsExperienceInvalid"),
+            },
+            max: {
+              value: 80,
+              message: t("validation.yearsExperienceInvalid"),
+            },
+          }}
+        />
+        <InputControl<OnboardingFormValues>
+          name="portfolioHeadline"
+          register={register}
+          label={t("provider.fields.portfolioHeadline")}
+          placeholder={t("provider.fields.portfolioHeadlinePlaceholder")}
+          error={errors.portfolioHeadline?.message}
+          rules={{
+            maxLength: {
+              value: 200,
+              message: t("validation.portfolioHeadlineTooLong"),
+            },
+          }}
+        />
+      </div>
+
+      {/* ── Company tax code (conditional) ───────────────────────────── */}
+      {isCompany && (
+        <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">
+              {t("provider.fields.companyTaxCode")}
+            </h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {t("provider.fields.companyTaxCodeHint")}
+            </p>
+          </div>
+          <InputControl<OnboardingFormValues>
+            name="companyTaxCode"
+            register={register}
+            placeholder={t("provider.fields.companyTaxCodePlaceholder")}
+            error={errors.companyTaxCode?.message}
+            rules={{
+              required: t("validation.companyTaxCodeRequired"),
+              pattern: {
+                value: /^[0-9-]{8,20}$/,
+                message: t("validation.companyTaxCodeInvalid"),
+              },
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

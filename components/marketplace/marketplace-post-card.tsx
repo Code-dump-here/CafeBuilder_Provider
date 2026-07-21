@@ -298,16 +298,30 @@ function Fact({ icon: Icon, label, primary, secondary, secondaryTone = "muted" }
 // ---------------------------------------------------------------------------
 // useStableDaysToDeadline
 //
-// Reads `Date.now()` through `useSyncExternalStore` so the call is excluded
-// from the render path (lint-clean) and the server snapshot is stable.
-// Returns `null` on the server / before mount so the card can render a
-// neutral placeholder without a hydration mismatch.
+// Reads `Date.now()` *once* on mount and stores it in state. We can't
+// read it during render (that would trip `react-hooks/purity`) and we
+// can't compute it lazily either (that would diverge between SSR and
+// the first client paint).
+//
+// The earlier implementation wrapped `Date.now()` in
+// `useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)`
+// with a `getSnapshot` that returned a *new* value on every call and a
+// `subscribe` that never fired — React would call `getSnapshot` during
+// render, see a different value than last time, schedule an update, and
+// re-render. The next render hit the same path. The result was a
+// "Maximum update depth exceeded" loop. The state-on-mount approach
+// sidesteps the issue: `now` is sampled once and never changes for the
+// lifetime of the card, so the deadline diff is stable for the user.
+//
+// Returns `null` during SSR / before mount so the card renders a neutral
+// placeholder without a hydration mismatch.
 
 function useStableDaysToDeadline(deadline: Date): number | null {
-  const subscribe = React.useCallback(() => () => {}, []);
-  const getSnapshot = React.useCallback(() => Date.now(), []);
-  const getServerSnapshot = React.useCallback(() => null as number | null, []);
-  const now = React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [now, setNow] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    setNow(Date.now());
+  }, []);
 
   return React.useMemo(() => {
     if (now == null) return null;

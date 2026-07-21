@@ -4,29 +4,16 @@ import type { RequestConfig } from "./types";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 /**
- * Roles returned by the backend. The server uses `AccountRole { owner = 0,
- * provider = 1, admin = 2 }`; the wire format is the lowercase name string.
+ * Roles used everywhere — both for reading (`AuthSession.role`,
+ * `AccountSummary.role`) and for writing (`RegisterPayload.role`). The
+ * backend wire format is the lowercase string name (e.g. `"owner"`).
  */
 export type UserRole = "owner" | "provider" | "admin";
 
 /**
- * Numeric role id used when CREATING accounts (the server accepts `0`/`1`/`2`
- * in the JSON body even though it returns the string form). Wire transport
- * is the number itself; `JSON.stringify` will emit it as `"0"`/`"1"`/`"2"`.
- */
-export const AccountRoleId = {
-  Owner: 0,
-  Provider: 1,
-  Admin: 2,
-} as const;
-
-export type AccountRoleIdValue =
-  (typeof AccountRoleId)[keyof typeof AccountRoleId];
-
-/**
  * Sub-classification for provider accounts. Only meaningful when
- * `AccountRoleId.Provider` is selected — backend uses it to know whether the
- * new account represents a design studio, a construction firm, or both.
+ * `UserRole` is `"provider"` — backend uses it to know whether the new
+ * account represents a design studio, a construction firm, or both.
  */
 export type ServiceKind = "design" | "construction" | "both";
 
@@ -53,16 +40,18 @@ export type RefreshPayload = {
 };
 
 /**
- * POST /api/auth/register body. `role` is the numeric id (0=owner, 1=provider,
- * 2=admin). `serviceKind` is optional — only sent when role is `provider`.
- * `fullName` is optional because backend doesn't echo it in the response
- * shape we have, so callers may not yet need to send it. Phone is mandatory.
+ * POST /api/auth/register body. `role` is the lowercase string name
+ * (`"owner"` / `"provider"` / `"admin"`) — same shape the server returns
+ * in `AuthSession.role`. `serviceKind` is optional — only sent when role
+ * is `"provider"`. `fullName` is optional because backend doesn't echo
+ * it in the response shape we have, so callers may not yet need to send
+ * it. Phone is mandatory.
  */
 export type RegisterPayload = {
   email: string;
   password: string;
   phone: string;
-  role: AccountRoleIdValue;
+  role: UserRole;
   fullName?: string;
   serviceKind?: ServiceKind;
 };

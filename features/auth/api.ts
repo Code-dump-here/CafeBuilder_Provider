@@ -1,10 +1,8 @@
 import {
-  AccountRoleId,
   loginApi as loginApiHttp,
   logoutApi as logoutApiHttp,
   refreshTokenApi as refreshTokenApiHttp,
   registerApi as registerApiHttp,
-  type AccountRoleIdValue,
   type AccountSummary,
   type AuthSession,
   type LoginPayload,
@@ -23,11 +21,8 @@ export type {
   LoginPayload,
   AccountSummary,
   RegisterPayload,
-  AccountRoleIdValue,
   ServiceKind,
 };
-
-export { AccountRoleId };
 
 export type Account = AccountSummary;
 

@@ -26,33 +26,52 @@ import type {
   DrawingCategory,
   DesignVersion,
 } from "@/lib/projects/design-version-types";
+import type { Design, DesignType } from "@/lib/projects/design-types";
+import { useCreateDesignMutation } from "@/lib/projects/use-designs";
 
 // ---------------------------------------------------------------------------
 // NewVersionDialog
+//
+// Creates a new design by hitting `POST /api/designs`. The wire payload
+// is `{ projectWorkingId, title, type, createdBy }` (see API_FLOW_FE.md §6);
+// we map the dialog's local state onto that shape on submit and surface
+// the resulting `Design` via `onCreated` so the parent can refresh its
+// version list.
+//
+// `nextCode` is retained as a UX hint (the user can still override the
+// generated code). Today the backend assigns `version = "0.1"` on
+// create; the FE doesn't ship the custom code to the API.
 
 interface NewVersionDialogProps {
   /** Pre-populated next code, e.g. "V4.0". Used when the user leaves the
    * code field empty. */
   nextCode: string;
-  /** Called with the chosen code when the user confirms. */
-  onCreated: (code: string) => void;
+  /** Engagement id the new design belongs to. When null, the submit
+   *  button stays disabled — the parent hasn't resolved the engagement
+   *  yet. */
+  projectWorkingId: number | null;
+  /** Account id of the caller (creator). Same null-when-unknown rule. */
+  createdBy: number | null;
+  /** Called with the created Design when the API call resolves. */
+  onCreated: (design: Design) => void;
   /** Render-prop for the trigger button so the parent controls styling. */
   renderTrigger: (open: () => void) => React.ReactNode;
 }
 
 const NEW_VERSION_CATEGORIES: Array<{
-  value: DrawingCategory;
-  i18nKey: "revision" | "floorPlan" | "threeD" | "elevation" | "section";
+  value: DesignType;
+  i18nKey: "concept" | "layout2d" | "render3d" | "technicalDrawing";
 }> = [
-  { value: "REVISION", i18nKey: "revision" },
-  { value: "FLOOR_PLAN", i18nKey: "floorPlan" },
-  { value: "3D", i18nKey: "threeD" },
-  { value: "ELEVATION", i18nKey: "elevation" },
-  { value: "SECTION", i18nKey: "section" },
+  { value: "concept", i18nKey: "concept" },
+  { value: "layout_2d", i18nKey: "layout2d" },
+  { value: "render_3d", i18nKey: "render3d" },
+  { value: "technical_drawing", i18nKey: "technicalDrawing" },
 ];
 
 export function NewVersionDialog({
   nextCode,
+  projectWorkingId,
+  createdBy,
   onCreated,
   renderTrigger,
 }: NewVersionDialogProps) {
@@ -60,25 +79,51 @@ export function NewVersionDialog({
   const [open, setOpen] = React.useState(false);
   const [name, setName] = React.useState("");
   const [code, setCode] = React.useState("");
-  const [category, setCategory] = React.useState<DrawingCategory>("REVISION");
+  const [category, setCategory] = React.useState<DesignType>("concept");
   const [notes, setNotes] = React.useState("");
 
   React.useEffect(() => {
     if (!open) {
       setName("");
       setCode("");
-      setCategory("REVISION");
+      setCategory("concept");
       setNotes("");
     }
   }, [open]);
 
+  const createMutation = useCreateDesignMutation({
+    onSuccessMessage: null,
+    onErrorMessage: null,
+    onSuccessSideEffect: (design) => {
+      onCreated(design);
+      setOpen(false);
+    },
+  });
+
+  const isPending = createMutation.isPending;
+  const canSubmit =
+    !isPending &&
+    Boolean(projectWorkingId) &&
+    Boolean(createdBy) &&
+    name.trim().length > 0;
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!name.trim()) return;
-    const finalCode = code.trim() || nextCode;
-    projectActionToast(t("dialogs.newVersion.createComingSoon"));
-    onCreated(finalCode);
-    setOpen(false);
+    if (!canSubmit) return;
+    const finalTitle = name.trim();
+    if (!finalTitle) return;
+
+    createMutation.mutate({
+      projectWorkingId: projectWorkingId as number,
+      title: finalTitle,
+      type: category,
+      createdBy: createdBy as number,
+    });
+
+    // Lightweight UX hint — the real toast/error message is rendered by
+    // the mutation once the API resolves. We still call `onCreated` only
+    // on success so the parent doesn't refetch twice.
+    projectActionToast(t("dialogs.newVersion.createSubmitted", { code: code.trim() || nextCode }));
   };
 
   return (
@@ -99,6 +144,7 @@ export function NewVersionDialog({
               onChange={(e) => setName(e.target.value)}
               placeholder={t("dialogs.newVersion.namePlaceholder")}
               required
+              disabled={isPending}
             />
           </Field>
           <Field
@@ -109,12 +155,14 @@ export function NewVersionDialog({
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder={nextCode}
+              disabled={isPending}
             />
           </Field>
           <Field label={t("dialogs.newVersion.categoryLabel")}>
             <Select
               value={category}
-              onValueChange={(v) => setCategory(v as DrawingCategory)}
+              onValueChange={(v) => setCategory(v as DesignType)}
+              disabled={isPending}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -134,17 +182,25 @@ export function NewVersionDialog({
               onChange={(e) => setNotes(e.target.value)}
               placeholder={t("dialogs.newVersion.notesPlaceholder")}
               rows={3}
-              className="min-h-16 w-full rounded-md border border-input bg-input/20 px-2 py-1.5 text-xs/relaxed text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:outline-none dark:bg-input/30"
+              disabled={isPending}
+              className="min-h-16 w-full rounded-md border border-input bg-input/20 px-2 py-1.5 text-xs/relaxed text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:outline-none disabled:opacity-50 dark:bg-input/30"
             />
           </Field>
+          {!projectWorkingId || !createdBy ? (
+            <p className="rounded-md border border-amber-300/40 bg-amber-50 px-3 py-2 text-[11px] text-amber-700 dark:border-amber-700/40 dark:bg-amber-950/30 dark:text-amber-300">
+              {t("dialogs.newVersion.engagementMissing")}
+            </p>
+          ) : null}
           <DialogFooter className="mt-2">
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outline" disabled={isPending}>
                 {t("dialogs.newVersion.cancel")}
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={!name.trim()}>
-              {t("dialogs.newVersion.create")}
+            <Button type="submit" disabled={!canSubmit}>
+              {isPending
+                ? t("dialogs.newVersion.creating")
+                : t("dialogs.newVersion.create")}
             </Button>
           </DialogFooter>
         </form>
@@ -255,89 +311,6 @@ export function PublishRevisionDialog({
     </Dialog>
   );
 }
-
-// ---------------------------------------------------------------------------
-// AddCategoryDialog
-//
-// Captures a single label for a new custom category and notifies the
-// parent via `onAdd`. The parent owns persistence (today: local React
-// state via CustomCategoriesProvider). Built-in categories cannot be
-// re-created — duplicate labels are silently rejected at the provider
-// level so this dialog just confirms whether the new tab was accepted.
-
-interface AddCategoryDialogProps {
-  onAdd: (label: string) => { id: string; label: string } | null;
-  renderTrigger: (open: () => void) => React.ReactNode;
-}
-
-export function AddCategoryDialog({
-  onAdd,
-  renderTrigger,
-}: AddCategoryDialogProps) {
-  const t = useTranslations("DesignManagement");
-  const [open, setOpen] = React.useState(false);
-  const [label, setLabel] = React.useState("");
-
-  React.useEffect(() => {
-    if (!open) setLabel("");
-  }, [open]);
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const trimmed = label.trim();
-    if (!trimmed) return;
-    const created = onAdd(trimmed);
-    if (!created) {
-      projectActionToast(t("dialogs.addCategory.duplicate"));
-      return;
-    }
-    projectActionToast(
-      t("dialogs.addCategory.created", { label: created.label }),
-    );
-    setOpen(false);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      {renderTrigger(() => setOpen(true))}
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t("dialogs.addCategory.title")}</DialogTitle>
-          <DialogDescription>
-            {t("dialogs.addCategory.description")}
-          </DialogDescription>
-        </DialogHeader>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-3"
-        >
-          <Field label={t("dialogs.addCategory.label")}>
-            <Input
-              value={label}
-              onChange={(event) => setLabel(event.target.value)}
-              placeholder={t("dialogs.addCategory.placeholder")}
-              autoFocus
-              autoComplete="off"
-            />
-          </Field>
-          <DialogFooter className="mt-2">
-            <DialogClose asChild>
-              <Button type="button" variant="outline">
-                {t("dialogs.addCategory.cancel")}
-              </Button>
-            </DialogClose>
-            <Button type="submit" disabled={!label.trim()}>
-              {t("dialogs.addCategory.add")}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Shared form field wrapper
 
 function Field({
   label,

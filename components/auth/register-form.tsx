@@ -10,12 +10,14 @@ import { InputControl } from "@/components/ui/input-control";
 import {
   useRegisterMutation,
 } from "@/features/auth/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import {
-  AccountRoleId,
-  type RegisterPayload,
-  type ServiceKind,
   type UserRole,
 } from "@/features/auth/api";
+import {
+  postAuthDestinationToPath,
+  resolvePostAuthDestination,
+} from "@/lib/auth/post-auth-redirect";
 import { AppError } from "@/lib/http/errors";
 
 interface RegisterFormData {
@@ -23,48 +25,41 @@ interface RegisterFormData {
   password: string;
   fullname: string;
   phonenumber: string;
-  /** UI-only composite — splits into `role` + `serviceKind` on submit. */
+  /** UI-only composite — maps to `RegisterPayload.role` (string) on submit. */
   accountType: AccountTypeValue;
 }
 
 /**
- * Composite discriminator for the role select. Encodes both the numeric
- * role id AND the optional service kind so the form has a single field,
- * while the submit handler maps it to backend's two-field shape.
+ * The two account types exposed at signup. The backend stores every
+ * provider under the same `"provider"` role; the sub-kind (design vs
+ * construction) is captured during onboarding, not here.
  */
-type AccountTypeValue =
-  | "owner"
-  | "provider_design"
-  | "provider_construction"
-  | "admin";
+type AccountTypeValue = "owner" | "provider";
 
 const ACCOUNT_TYPE_OPTIONS: Array<{
   value: AccountTypeValue;
   i18nKey: string;
 }> = [
   { value: "owner", i18nKey: "roles.owner" },
-  { value: "provider_design", i18nKey: "roles.providerDesign" },
-  { value: "provider_construction", i18nKey: "roles.providerConstruction" },
-  { value: "admin", i18nKey: "roles.admin" },
+  { value: "provider", i18nKey: "roles.provider" },
 ];
 
-function splitAccountType(
-  value: AccountTypeValue,
-): Pick<RegisterPayload, "role" | "serviceKind"> {
+function toRole(value: AccountTypeValue): UserRole {
+  // The signup form only offers owner vs provider; if expanded later,
+  // map the new variants through this function so the wire format
+  // stays a single place.
   switch (value) {
     case "owner":
-      return { role: AccountRoleId.Owner };
-    case "provider_design":
-      return { role: AccountRoleId.Provider, serviceKind: "design" satisfies ServiceKind };
-    case "provider_construction":
-      return { role: AccountRoleId.Provider, serviceKind: "construction" satisfies ServiceKind };
-    case "admin":
-      return { role: AccountRoleId.Admin };
+      return "owner";
+    case "provider":
+      return "provider";
   }
 }
 
 function roleHomePath(role: UserRole): string {
-  // After register the new account's role decides where they land.
+  // After register the new account's role decides where they land when
+  // the profile is already complete. Mid-flow onboarding redirects are
+  // handled by `resolvePostAuthDestination` instead.
   switch (role) {
     case "admin":
       return "/admin";
@@ -78,6 +73,7 @@ function roleHomePath(role: UserRole): string {
 export function RegisterForm() {
   const t = useTranslations("Auth");
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -107,19 +103,31 @@ export function RegisterForm() {
   }, [registerMutation.error, t]);
 
   function onSubmit(data: RegisterFormData) {
-    const { role, serviceKind } = splitAccountType(data.accountType);
+    const role = toRole(data.accountType);
     registerMutation.mutate(
       {
         email: data.email,
         password: data.password,
         phone: data.phonenumber,
         role,
-        serviceKind,
         fullName: data.fullname,
+        // Provider sub-kind (design/construction/both) is captured later
+        // in onboarding, not at signup, so we don't send `serviceKind` here.
+        serviceKind: undefined,
       },
       {
-        onSuccess: (session) => {
-          router.replace(roleHomePath(session.role));
+        onSuccess: async (session) => {
+          // Drop any cached `useMe` data from a previous session — for
+          // a brand-new account, the backend profile should always be
+          // null on the first call, but we don't want stale data from
+          // a previous login to mask that.
+          queryClient.removeQueries({ queryKey: ["auth", "me"] });
+          const destination = await resolvePostAuthDestination();
+          const path =
+            destination.kind === "onboarding"
+              ? postAuthDestinationToPath(destination)
+              : roleHomePath(session.role);
+          router.replace(path);
         },
       },
     );
