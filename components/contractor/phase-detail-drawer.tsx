@@ -6,13 +6,10 @@ import { useFormatter, useTranslations } from "next-intl";
 import {
   ArrowUpRight,
   CalendarDays,
-  Camera,
   CheckCircle2,
   Circle,
   FlagTriangleRight,
   TriangleAlert,
-  User,
-  Users,
   X,
 } from "lucide-react";
 
@@ -26,12 +23,12 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useConstructionTasks } from "@/lib/projects/use-construction";
+import { useIssues } from "@/lib/projects/use-issues";
+import type { ConstructionTask } from "@/lib/projects/construction-types";
+import type { Issue } from "@/lib/projects/issue-types";
 
-import {
-  phaseExtras,
-  type BlockerSeverity,
-  type MilestonePhase,
-} from "@/lib/contractor/construction-overview-data";
+import type { MilestonePhase } from "@/lib/contractor/construction-overview-data";
 
 interface PhaseDetailDrawerProps {
   phase: MilestonePhase | null;
@@ -39,24 +36,45 @@ interface PhaseDetailDrawerProps {
   onOpenChange: (open: boolean) => void;
   /** Project id — used by "Open full page" to deep-link into /milestones. */
   projectId?: string;
+  /**
+   * Engagement id — forwarded to `useConstructionTasks` /
+   * `useIssues` so the drawer can fetch real per-milestone records.
+   * Pass `null` when no engagement has been resolved yet — the data
+   * hooks stay disabled and the drawer renders empty sections.
+   */
+  projectWorkingId: number | null;
 }
 
 /**
  * Right-side drawer that opens when the user clicks "Open phase detail"
- * on the construction-overview page. Renders a full read of the
- * selected phase: KPI strip, narrative, tasks (with local done state),
- * blockers (severity-toned), photos grid, and crew avatars.
+ * on the construction-overview page.
  *
- * Why a drawer instead of a subroute:
- *  - Keeps the track + tiles in the parent page accessible.
- *  - Avoids URL churn while the user explores.
- *  - Matches the "context peek, not navigation" intent.
+ * What it renders (post-refactor):
+ *   - Status pill + phase title
+ *   - KPI strip — progress %, tasks done/total, open issues
+ *   - Meta strip — targeted finish date, real `actualAt` when present
+ *   - Sections:
+ *     - Tasks (real `ConstructionTask[]`, fetched per milestone)
+ *     - Open issues (real `Issue[]`, filtered to `open` / `in_progress`)
+ *
+ * What's gone (vs. the mock version):
+ *   - Narrative paragraph — replaced by the phase meta strip.
+ *   - Blocker cards — replaced by the issues section, which uses real
+ *     issue records (cause / solution / status / severity via
+ *     `IssueType.name` since the API doesn't return a severity enum).
+ *   - Photo grid — no API surface; omitted.
+ *   - Crew avatars — no API surface; omitted.
+ *
+ * The "Open full page" button still deep-links to `/milestones#{id}` so
+ * the user can drill into the milestone management surface when they
+ * need the richer authoring tools.
  */
 export function PhaseDetailDrawer({
   phase,
   open,
   onOpenChange,
   projectId,
+  projectWorkingId,
 }: PhaseDetailDrawerProps) {
   const t = useTranslations("ConstructionOverview.detail.drawer");
   const tStatus = useTranslations("ConstructionOverview.status");
@@ -69,22 +87,55 @@ export function PhaseDetailDrawer({
     router.push(`/projects/${projectId}/milestones#${phase.id}`);
   }, [projectId, phase, onOpenChange, router]);
 
+  // Resolve the numeric construction-item id from the phase. The phase
+  // id is a stringified version of the same number (set in
+  // `use-construction-overview.ts`), so this is a safe cast.
+  const constructionItemId = React.useMemo<number | null>(() => {
+    if (!phase) return null;
+    const parsed = Number(phase.id);
+    return Number.isFinite(parsed) ? parsed : null;
+  }, [phase]);
+
+  // Real data fetches — both hooks short-circuit cleanly when their
+  // ids are null (the API endpoints would 404 on bad ids), so we don't
+  // need an extra `enabled` here.
+  const tasksQuery = useConstructionTasks({
+    constructionItemId: constructionItemId ?? undefined,
+    enabled: constructionItemId != null && projectWorkingId != null,
+  });
+  const issuesQuery = useIssues({
+    constructionItemId: constructionItemId ?? undefined,
+    projectWorkingId: projectWorkingId ?? undefined,
+    enabled:
+      constructionItemId != null &&
+      projectWorkingId != null &&
+      projectWorkingId > 0,
+  });
+
+  const tasks = tasksQuery.items;
+  const openIssues = React.useMemo(
+    () =>
+      issuesQuery.items.filter(
+        (i) => i.status === "open" || i.status === "in_progress",
+      ),
+    [issuesQuery.items],
+  );
+
   // Per-drawer-open task completion. Reset every time `phase` changes
-  // so reopening the drawer for a different phase starts fresh.
-  const [doneTasks, setDoneTasks] = React.useState<Record<string, boolean>>(
-    {}
+  // so reopening the drawer for a different phase starts fresh. Local
+  // toggle only — the real mutation lands on the dedicated tasks page.
+  const [doneTaskIds, setDoneTaskIds] = React.useState<Record<number, boolean>>(
+    {},
   );
   React.useEffect(() => {
-    setDoneTasks({});
+    setDoneTaskIds({});
   }, [phase?.id]);
-
-  const extras = phase ? phaseExtras[phase.id] : null;
 
   if (!phase) return null;
 
-  const doneCount = Object.values(doneTasks).filter(Boolean).length;
-  const totalTasks = phase.tasks.length;
-  const blockersCount = phase.blockerCount;
+  const doneCount = Object.values(doneTaskIds).filter(Boolean).length;
+  const totalTasks = tasks.length;
+  const blockersCount = openIssues.length;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -101,7 +152,7 @@ export function PhaseDetailDrawer({
                 STATUS_TONE[phase.status].className
                   .split(" ")
                   .filter((c) => c.startsWith("bg-") || c.startsWith("text-"))
-                  .join(" ")
+                  .join(" "),
               )}
             >
               {phase.status === "inProgress" ? (
@@ -129,7 +180,7 @@ export function PhaseDetailDrawer({
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {/* KPI strip */}
-          <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             <Kpi
               label={t("kpi.progress")}
               value={
@@ -154,26 +205,18 @@ export function PhaseDetailDrawer({
                 <span
                   className={cn(
                     "tabular-nums",
-                    blockersCount > 0 && "text-rose-700 dark:text-rose-300"
+                    blockersCount > 0 &&
+                      "text-rose-700 dark:text-rose-300",
                   )}
                 >
                   {blockersCount}
                 </span>
               }
             />
-            <Kpi
-              label={t("kpi.photos")}
-              value={<span className="tabular-nums">{phase.photoCount}</span>}
-            />
           </dl>
 
-          {/* Meta */}
+          {/* Meta — targeted + actual dates (real data). */}
           <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <User className="size-3" aria-hidden />
-              <span className="font-medium text-foreground">{phase.lead}</span>
-              <span className="opacity-80">· {t("kpi.lead")}</span>
-            </span>
             <span className="inline-flex items-center gap-1">
               <CalendarDays className="size-3" aria-hidden />
               <span className="text-foreground">
@@ -191,190 +234,70 @@ export function PhaseDetailDrawer({
 
           {/* Sections */}
           <div className="mt-5 flex flex-col gap-5">
-            {/* Narrative */}
-            {extras?.narrative ? (
-              <Section title={t("sections.narrative")}>
-                <p className="text-sm leading-relaxed text-foreground/90">
-                  {extras.narrative}
-                </p>
-              </Section>
-            ) : null}
-
             {/* Tasks */}
             <Section
               title={t("sections.tasks")}
               meta={
                 doneCount > 0
                   ? `${doneCount}/${totalTasks}`
-                  : undefined
+                  : totalTasks > 0
+                    ? `${totalTasks}`
+                    : undefined
               }
             >
-              {totalTasks === 0 ? (
+              {tasksQuery.isLoading ? (
+                <Empty>{t("loadingTasks")}</Empty>
+              ) : totalTasks === 0 ? (
                 <Empty>{t("noTasks")}</Empty>
               ) : (
                 <ul className="flex flex-col gap-1">
-                  {phase.tasks.map((task, idx) => {
-                    const id = `${phase.id}-task-${idx}`;
-                    const done = Boolean(doneTasks[id]);
-                    return (
-                      <li key={id}>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setDoneTasks((prev) => ({ ...prev, [id]: !prev[id] }))
-                          }
-                          aria-pressed={done}
-                          aria-label={done ? t("taskUndone") : t("taskDone")}
-                          className={cn(
-                            "group flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                            done && "text-muted-foreground"
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors",
-                              done
-                                ? "border-emerald-500/70 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-                                : "border-border bg-card text-muted-foreground"
-                            )}
-                          >
-                            {done ? (
-                              <CheckCircle2 className="size-3" aria-hidden />
-                            ) : (
-                              <Circle className="size-2.5" aria-hidden />
-                            )}
-                          </span>
-                          <span className={cn(done && "line-through")}>
-                            {task}
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </Section>
-
-            {/* Blockers */}
-            <Section
-              title={t("sections.blockers")}
-              meta={
-                extras?.blockers?.length
-                  ? `${extras.blockers.length}`
-                  : undefined
-              }
-            >
-              {!extras || extras.blockers.length === 0 ? (
-                <Empty>{t("noBlockers")}</Empty>
-              ) : (
-                <ul className="flex flex-col gap-2">
-                  {extras.blockers.map((b) => {
-                    const tone = SEVERITY_TONE[b.severity];
-                    return (
-                      <li
-                        key={b.id}
-                        className={cn(
-                          "rounded-md border px-3 py-2",
-                          tone.boxClass
-                        )}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="text-sm font-medium text-foreground">
-                            {b.title}
-                          </p>
-                          <span
-                            className={cn(
-                              "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
-                              tone.badgeClass
-                            )}
-                          >
-                            {t(`severity.${b.severity}`)}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {b.context}
-                        </p>
-                        <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-                          {t("blockerFiled", {
-                            date: format.dateTime(new Date(b.filedAt), {
-                              month: "short",
-                              day: "numeric",
-                            }),
-                          })}
-                          {" · "}
-                          {t("blockerOwner", { owner: b.ownerLabel })}
-                        </p>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </Section>
-
-            {/* Photos */}
-            <Section title={t("sections.photos")}>
-              {!extras || extras.photos.length === 0 ? (
-                <Empty>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Camera className="size-3.5" aria-hidden />
-                    {t("noPhotos")}
-                  </span>
-                </Empty>
-              ) : (
-                <ul className="grid grid-cols-3 gap-2">
-                  {extras.photos.map((p) => (
-                    <li
-                      key={p.id}
-                      className="flex flex-col gap-1"
-                    >
-                      <div
-                        className={cn(
-                          "aspect-square w-full rounded-md border border-border/40",
-                          PHOTO_TONE[p.tone]
-                        )}
-                        aria-label={p.caption}
-                        role="img"
-                      />
-                      <span className="line-clamp-1 text-[10px] text-muted-foreground">
-                        {p.caption}
-                      </span>
-                    </li>
+                  {tasks.map((task) => (
+                    <TaskRow
+                      key={task.id}
+                      task={task}
+                      done={Boolean(doneTaskIds[task.id])}
+                      onToggle={() =>
+                        setDoneTaskIds((prev) => ({
+                          ...prev,
+                          [task.id]: !prev[task.id],
+                        }))
+                      }
+                      tDone={t("taskDone")}
+                      tUndone={t("taskUndone")}
+                    />
                   ))}
                 </ul>
               )}
             </Section>
 
-            {/* Crew */}
-            <Section title={t("sections.crew")}>
-              {!extras || extras.crew.length === 0 ? (
-                <Empty>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Users className="size-3.5" aria-hidden />
-                    {t("noCrew")}
-                  </span>
-                </Empty>
+            {/* Open issues */}
+            <Section
+              title={t("sections.issues")}
+              meta={
+                blockersCount > 0 ? `${blockersCount}` : undefined
+              }
+            >
+              {issuesQuery.isLoading ? (
+                <Empty>{t("loadingIssues")}</Empty>
+              ) : openIssues.length === 0 ? (
+                <Empty>{t("noIssues")}</Empty>
               ) : (
-                <ul className="flex flex-wrap gap-2">
-                  {extras.crew.map((member) => (
-                    <li
-                      key={member.id}
-                      className="flex items-center gap-2 rounded-full border border-border/60 bg-card px-2 py-1 text-xs"
-                    >
-                      <span
-                        aria-hidden
-                        className="flex size-6 items-center justify-center rounded-full bg-primary/15 text-[10px] font-semibold uppercase text-primary"
-                      >
-                        {member.initials}
-                      </span>
-                      <span className="flex flex-col leading-tight">
-                        <span className="font-medium text-foreground">
-                          {member.name}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">
-                          {member.role}
-                        </span>
-                      </span>
-                    </li>
+                <ul className="flex flex-col gap-2">
+                  {openIssues.map((issue) => (
+                    <IssueRow
+                      key={issue.id}
+                      issue={issue}
+                      format={format}
+                      targetLabel={t("issueTarget", {
+                        date: issue.estimateAt
+                          ? format.dateTime(new Date(issue.estimateAt), {
+                              month: "short",
+                              day: "numeric",
+                            })
+                          : t("issueTargetNone"),
+                      })}
+                      statusLabel={tStatus(issue.status)}
+                    />
                   ))}
                 </ul>
               )}
@@ -386,7 +309,7 @@ export function PhaseDetailDrawer({
         <div className="flex items-center justify-between gap-2 border-t border-border/60 px-5 py-3">
           <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
             <TriangleAlert className="size-3" aria-hidden />
-            {blockersCount > 0 ? tStatus("blocked") : tStatus("inProgress")}
+            {blockersCount > 0 ? tStatus("blocked") : tStatus(phase.status)}
           </span>
           <div className="flex items-center gap-2">
             <Button
@@ -395,11 +318,7 @@ export function PhaseDetailDrawer({
               variant="ghost"
               onClick={handleOpenFull}
               disabled={!projectId}
-              title={
-                projectId
-                  ? t("openFull")
-                  : undefined
-              }
+              title={projectId ? t("openFull") : undefined}
             >
               <ArrowUpRight aria-hidden />
               {t("openFull")}
@@ -481,6 +400,108 @@ function ProgressBar({ percent }: { percent: number }) {
   );
 }
 
+function TaskRow({
+  task,
+  done,
+  onToggle,
+  tDone,
+  tUndone,
+}: {
+  task: ConstructionTask;
+  done: boolean;
+  onToggle: () => void;
+  tDone: string;
+  tUndone: string;
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-pressed={done}
+        aria-label={done ? tUndone : tDone}
+        className={cn(
+          "group flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          done && "text-muted-foreground",
+        )}
+      >
+        <span
+          className={cn(
+            "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors",
+            done
+              ? "border-emerald-500/70 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+              : "border-border bg-card text-muted-foreground",
+          )}
+        >
+          {done ? (
+            <CheckCircle2 className="size-3" aria-hidden />
+          ) : (
+            <Circle className="size-2.5" aria-hidden />
+          )}
+        </span>
+        <span className={cn("flex-1", done && "line-through")}>
+          {task.name}
+        </span>
+        {task.reason ? (
+          <span
+            title={task.reason}
+            className="ml-2 line-clamp-1 max-w-[40%] text-[10px] text-muted-foreground"
+          >
+            {task.reason}
+          </span>
+        ) : null}
+      </button>
+    </li>
+  );
+}
+
+function IssueRow({
+  issue,
+  format,
+  targetLabel,
+  statusLabel,
+}: {
+  issue: Issue;
+  format: ReturnType<typeof useFormatter>;
+  targetLabel: string;
+  statusLabel: string;
+}) {
+  const tone = ISSUE_TONE[issue.status];
+  return (
+    <li
+      className={cn(
+        "rounded-md border px-3 py-2",
+        tone.boxClass,
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm font-medium text-foreground">
+          {issue.issueTypeName}
+        </p>
+        <span
+          className={cn(
+            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+            tone.badgeClass,
+          )}
+        >
+          {statusLabel}
+        </span>
+      </div>
+      {issue.cause ? (
+        <p className="mt-1 text-xs text-muted-foreground">{issue.cause}</p>
+      ) : null}
+      <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+        {targetLabel}
+        {" · "}
+        {format.dateTime(new Date(issue.createdAt), {
+          month: "short",
+          day: "numeric",
+        })}
+      </p>
+    </li>
+  );
+}
+
 // ─── Tones (kept locally so the drawer is self-contained) ─────────────────────
 
 const STATUS_TONE: Record<
@@ -501,30 +522,26 @@ const STATUS_TONE: Record<
   },
 };
 
-const SEVERITY_TONE: Record<
-  BlockerSeverity,
+const ISSUE_TONE: Record<
+  Issue["status"],
   { boxClass: string; badgeClass: string }
 > = {
-  low: {
-    boxClass: "border-border/60 bg-card",
-    badgeClass: "bg-muted text-muted-foreground",
-  },
-  medium: {
-    boxClass: "border-amber-500/40 bg-amber-500/5",
-    badgeClass: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-  },
-  high: {
+  open: {
     boxClass: "border-rose-500/40 bg-rose-500/5",
     badgeClass: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
   },
-};
-
-const PHOTO_TONE: Record<string, string> = {
-  amber: "bg-gradient-to-br from-amber-300/60 via-amber-200/40 to-amber-100/20",
-  rose: "bg-gradient-to-br from-rose-300/60 via-rose-200/40 to-rose-100/20",
-  emerald:
-    "bg-gradient-to-br from-emerald-300/60 via-emerald-200/40 to-emerald-100/20",
-  sky: "bg-gradient-to-br from-sky-300/60 via-sky-200/40 to-sky-100/20",
-  violet:
-    "bg-gradient-to-br from-violet-300/60 via-violet-200/40 to-violet-100/20",
+  in_progress: {
+    boxClass: "border-amber-500/40 bg-amber-500/5",
+    badgeClass:
+      "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  },
+  resolved: {
+    boxClass: "border-emerald-500/40 bg-emerald-500/5",
+    badgeClass:
+      "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  },
+  closed: {
+    boxClass: "border-border/60 bg-card",
+    badgeClass: "bg-muted text-muted-foreground",
+  },
 };

@@ -47,6 +47,19 @@ import type { Contract } from "@/lib/projects/contract-types";
 
 const TERMS_MIN_LENGTH = 20;
 
+/**
+ * Resolve the URL we should hand to `<a href>` when opening a contract
+ * document. The backend exposes a fully-qualified, public `documentViewUrl`
+ * (typically a signed/Cloud Storage link); `documentUrl` is just the
+ * storage-relative key. We always prefer the view URL and fall back to
+ * the relative path only as a safety net for older rows.
+ */
+function resolveDocumentHref(
+  contract: Pick<Contract, "documentUrl" | "documentViewUrl">,
+): string | null {
+  return contract.documentViewUrl ?? contract.documentUrl ?? null;
+}
+
 // ---------------------------------------------------------------------------
 // Page component
 
@@ -382,20 +395,26 @@ function ContractCard({
           </div>
         )}
 
-        {/* Document Link */}
-        {contract.documentUrl && (
-          <div className="flex items-center gap-2">
-            <FileText className="size-4 text-muted-foreground" aria-hidden />
-            <a
-              href={contract.documentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline"
-            >
-              {t("viewDocument")}
-            </a>
-          </div>
-        )}
+        {/* Document Link — prefer the public `documentViewUrl`; falls back
+            to the relative `documentUrl` only for older rows that don't
+            carry a view URL yet. */}
+        {(() => {
+          const href = resolveDocumentHref(contract);
+          if (!href) return null;
+          return (
+            <div className="flex items-center gap-2">
+              <FileText className="size-4 text-muted-foreground" aria-hidden />
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-primary hover:underline"
+              >
+                {t("viewDocument")}
+              </a>
+            </div>
+          );
+        })()}
 
         {/* OTP Expires Info */}
         {contract.otpExpiresAt && contract.status === "pending_otp" && (
@@ -444,16 +463,20 @@ function ConfirmedContractBanner({ contract }: ConfirmedContractBannerProps) {
           {t("confirmedBanner.description", { title: contract.title })}
         </p>
       </div>
-      {contract.documentUrl && (
-        <a
-          href={contract.documentUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="shrink-0 rounded-md bg-green-200 px-3 py-1.5 text-xs font-medium text-green-800 hover:bg-green-300 dark:bg-green-900 dark:text-green-300"
-        >
-          {t("viewDocument")}
-        </a>
-      )}
+      {(() => {
+        const href = resolveDocumentHref(contract);
+        if (!href) return null;
+        return (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded-md bg-green-200 px-3 py-1.5 text-xs font-medium text-green-800 hover:bg-green-300 dark:bg-green-900 dark:text-green-300"
+          >
+            {t("viewDocument")}
+          </a>
+        );
+      })()}
     </div>
   );
 }

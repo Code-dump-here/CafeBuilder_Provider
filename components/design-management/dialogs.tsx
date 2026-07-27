@@ -224,24 +224,31 @@ export function PublishRevisionDialog({
   renderTrigger,
 }: PublishRevisionDialogProps) {
   const t = useTranslations("DesignManagement");
-  const working = React.useMemo(
-    () => versions.filter((v) => v.status === "WORKING"),
+  // Same gating as the trigger button: skip `submitted` (still awaiting
+  // review) and `approved` (locked). See `version-list-table` for the
+  // matching `publishableCount` derivation.
+  const publishable = React.useMemo(
+    () =>
+      versions.filter(
+        (v) => v.status === "in_progress" || v.status === "revision",
+      ),
     [versions],
   );
   const [open, setOpen] = React.useState(false);
   const [versionId, setVersionId] = React.useState<string | null>(
-    working[0]?.id.toString() ?? null,
+    publishable[0]?.id.toString() ?? null,
   );
   const [notes, setNotes] = React.useState("");
 
   React.useEffect(() => {
     if (!open) {
-      setVersionId(working[0]?.id.toString() ?? null);
+      setVersionId(publishable[0]?.id.toString() ?? null);
       setNotes("");
     }
-  }, [open, working]);
+  }, [open, publishable]);
 
-  const selected = working.find((v) => v.id.toString() === versionId) ?? null;
+  const selected =
+    publishable.find((v) => v.id.toString() === versionId) ?? null;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -261,7 +268,7 @@ export function PublishRevisionDialog({
             {t("dialogs.publish.description")}
           </DialogDescription>
         </DialogHeader>
-        {working.length === 0 ? (
+        {publishable.length === 0 ? (
           <p className="rounded-md border border-dashed border-border/60 bg-muted/30 px-3 py-4 text-center text-xs text-muted-foreground">
             {t("dialogs.publish.noWorking")}
           </p>
@@ -278,7 +285,7 @@ export function PublishRevisionDialog({
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  {working.map((v) => (
+                  {publishable.map((v) => (
                     <SelectItem key={v.id} value={v.id.toString()}>
                       {v.code} — {v.name}
                     </SelectItem>

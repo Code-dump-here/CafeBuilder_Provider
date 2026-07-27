@@ -24,8 +24,10 @@ const T = (iso: string) => new Date(iso);
 
 // --- mock data -------------------------------------------------------------
 //
-// Five versions: one PUBLISHED, one WORKING (current), three in various
-// draft / revision states. Each version carries 4-6 drawings with mock
+// Five versions: one approved (Construction Set), one revision
+// (V2.3 — Owner Revisions), one in-progress draft (V2.2 — MEP), one
+// submitted (V2.1 — Schematic Update), one submitted (V2.0 — Owner
+// Review Snapshot). Each version carries 4-6 drawings with mock
 // `picsum.photos` thumbnails so the grid renders without a real backend.
 
 const VERSIONS: DesignVersion[] = [
@@ -36,7 +38,7 @@ const VERSIONS: DesignVersion[] = [
     name: "Construction Set",
     description:
       "Final drawings issued to the contractor. All sheets stamped for permit submission.",
-    status: "PUBLISHED",
+    status: "approved",
     category: "FLOOR_PLAN",
     owner: {
       id: 7,
@@ -136,7 +138,7 @@ const VERSIONS: DesignVersion[] = [
     name: "Owner Revisions",
     description:
       "Working set incorporating the owner's comments from the 2026-06-28 review.",
-    status: "WORKING",
+    status: "revision",
     category: "REVISION",
     owner: {
       id: 7,
@@ -223,7 +225,7 @@ const VERSIONS: DesignVersion[] = [
     name: "MEP Coordination",
     description:
       "MEP coordination overlay — clashes flagged on the ground floor.",
-    status: "DRAFT",
+    status: "in_progress",
     category: "FLOOR_PLAN",
     owner: {
       id: 8,
@@ -296,7 +298,7 @@ const VERSIONS: DesignVersion[] = [
     code: "V2.1",
     name: "Schematic Update",
     description: "Earlier schematic pass — superseded by V2.2.",
-    status: "DRAFT",
+    status: "submitted",
     category: "FLOOR_PLAN",
     owner: {
       id: 8,
@@ -357,7 +359,7 @@ const VERSIONS: DesignVersion[] = [
     name: "Owner Review Snapshot",
     description:
       "Snapshot sent to the owner ahead of the 2026-06-28 review meeting.",
-    status: "DRAFT",
+    status: "submitted",
     category: "REVISION",
     owner: {
       id: 7,

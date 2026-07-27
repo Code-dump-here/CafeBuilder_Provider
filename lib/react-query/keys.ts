@@ -6,6 +6,59 @@ export const queryKeys = {
   users: {
     detail: (id: string) => ["users", "detail", id] as const,
   },
+  serviceProviderProfiles: {
+    /**
+     * Single service-provider profile by id:
+     * `GET /api/service-provider-profiles/{id}`.
+     * Used by the public provider detail page and any screen that
+     * needs the canonical profile record outside of `auth.me`.
+     */
+    detail: (id: number) => ["serviceProviderProfiles", "detail", id] as const,
+  },
+  payments: {
+    /**
+     * Catalogue of plans: `GET /api/payments/plans`.
+     * No parameters — the server returns the full list and pagination
+     * isn't part of the contract today. The discriminator is the
+     * `targetRole` filter applied by `selectPaymentPlansForRole`,
+     * which the UI uses to slice the cached result for the current
+     * viewer without re-issuing the request.
+     */
+    plans: () => ["payments", "plans"] as const,
+  },
+  notifications: {
+    /**
+     * Paged list of the current user's notifications:
+     *   `GET /api/notifications?accountId={id}&pageNumber={n}&pageSize={n}&isRead={bool}`.
+     * `accountId` is the primary discriminator — two viewers never
+     * share this cache. `pageNumber` / `pageSize` are part of the key
+     * so pagination state doesn't bleed across page sizes; `isRead`
+     * is included so an "unread" tab doesn't render data from an
+     * "all" query (or vice-versa).
+     */
+    list: (params: {
+      accountId: number;
+      pageNumber: number;
+      pageSize: number;
+      isRead?: boolean;
+    }) =>
+      [
+        "notifications",
+        "list",
+        params.accountId,
+        params.pageNumber,
+        params.pageSize,
+        params.isRead ?? "any",
+      ] as const,
+    /**
+     * Unread count for the bell badge:
+     *   `GET /api/notifications/unread-count?accountId={id}`.
+     * One cached entry per account. Invalidated whenever a
+     * "mark as read" mutation succeeds.
+     */
+    unreadCount: (accountId: number) =>
+      ["notifications", "unreadCount", accountId] as const,
+  },
   projects: {
     /** Single-project GET /api/project-shop-owners/{id}. `id` is the discriminator. */
     detail: (id: string) => ["projects", "detail", id] as const,
@@ -39,5 +92,26 @@ export const queryKeys = {
       ["marketplace", "list", filters] as const,
     /** Open-brief count surfaced in the marketplace hero. */
     openCount: () => ["marketplace", "openCount"] as const,
+  },
+  myProjects: {
+    /**
+     * Provider-facing list of their own project-workings:
+     *   `GET /api/project-workings?serviceProviderProfileId={id}`.
+     * `serviceProviderProfileId` is the discriminator — two providers
+     * never share this cache. `pageNumber` / `pageSize` go into the
+     * key so pagination state doesn't bleed across filters.
+     */
+    list: (params: {
+      serviceProviderProfileId: number;
+      pageNumber: number;
+      pageSize: number;
+    }) =>
+      [
+        "myProjects",
+        "list",
+        params.serviceProviderProfileId,
+        params.pageNumber,
+        params.pageSize,
+      ] as const,
   },
 };

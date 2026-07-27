@@ -38,6 +38,25 @@ export interface CreateServiceProviderProfilePayload {
 }
 
 /**
+ * PUT /api/service-provider-profiles/{id} body.
+ *
+ * Mirrors `CreateServiceProviderProfilePayload` minus `accountId` (the
+ * path already identifies the target profile) and plus `isVerified`
+ * (admin-only in practice, included for type completeness). Every field
+ * is optional so the form can ship a partial update.
+ */
+export interface UpdateServiceProviderProfilePayload {
+  displayName?: string;
+  providerType?: ProviderType;
+  capability?: Capability;
+  bio?: string;
+  companyTaxCode?: string;
+  yearsExperience?: number;
+  portfolioHeadline?: string;
+  isVerified?: boolean;
+}
+
+/**
  * Shape returned by `POST /api/service-provider-profiles`. Mirrors the
  * `GET /api/auth/me` payload's `serviceProvider` block so the two are
  * interchangeable on the client side.
@@ -77,6 +96,30 @@ export async function createServiceProviderProfileApi(
 ): Promise<ServiceProviderProfileCreated> {
   const response = await api.post<ApiSuccessResponse<ServiceProviderProfileCreated>>(
     "/api/service-provider-profiles",
+    payload,
+    config,
+  );
+  return response.data.data;
+}
+
+/**
+ * PUT /api/service-provider-profiles/{id} — update an existing profile.
+ *
+ * The API doc specifies the same fields as the create payload, all optional
+ * (the backend merges partial updates), plus `isVerified` (admin-only on
+ * the wire but accepted here so the type mirrors `POST`).
+ *
+ * The auth interceptor attaches the Bearer token automatically; the
+ * backend's authorization layer is responsible for rejecting edits from
+ * accounts that aren't the profile owner (or an admin).
+ */
+export async function updateServiceProviderProfileApi(
+  id: number,
+  payload: UpdateServiceProviderProfilePayload,
+  config?: RequestConfig,
+): Promise<ServiceProviderProfileCreated> {
+  const response = await api.put<ApiSuccessResponse<ServiceProviderProfileCreated>>(
+    `/api/service-provider-profiles/${id}`,
     payload,
     config,
   );

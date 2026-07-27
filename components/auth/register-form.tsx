@@ -66,7 +66,7 @@ function roleHomePath(role: UserRole): string {
     case "owner":
     case "provider":
     default:
-      return "/workspace";
+      return "/";
   }
 }
 

@@ -63,7 +63,7 @@ export async function resolvePostAuthDestination(): Promise<PostAuthDestination>
  * Note: shop-owner accounts (role === "owner") no longer require an
  * onboarding detour. Their profile (`shopOwner`) is filled in lazily
  * during the project creation flow, so we send them straight to the
- * workspace instead of `/onboarding`.
+ * homepage instead of `/workspace`.
  */
 export function resolvePostAuthDestinationFromAccount(
   account: NormalizedAccount,
@@ -87,6 +87,6 @@ export function postAuthDestinationToPath(
     case "owner":
     case "provider":
     default:
-      return "/workspace";
+      return "/";
   }
 }

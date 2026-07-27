@@ -1,7 +1,94 @@
 {
   "HomePage": {
-    "title": "Trang chủ",
-    "description": "Trang chủ nè"
+    "meta": {
+      "title": "AI Smart Cafe Builder",
+      "description": "Lên kế hoạch, thiết kế và thi công quán cafe trong cùng một không gian làm việc. Kết nối với đội ngũ thiết kế và nhà thầu, theo dõi từng mốc."
+    },
+    "hero": {
+      "eyebrow": "Dành cho chủ quán, designer và đội thi công",
+      "headline": "Mở quán cafe mới mà không phải đánh vật với file Excel cả tuần.",
+      "headlineAccent": "đánh vật với file Excel",
+      "sub": "Đăng brief, ghép designer, sắp nhà thầu. Một workspace từ bản phác đầu tiên đến ngày khai trương.",
+      "primaryCta": "Tạo dự án",
+      "secondaryCta": "Xem marketplace",
+      "hint": "Miễn phí lên kế hoạch, chỉ trả khi chốt bid."
+    },
+    "howItWorks": {
+      "title": "Một dự án đi tới đâu",
+      "steps": [
+        {
+          "label": "Đăng",
+          "title": "Đăng brief",
+          "body": "Mét vuông, phong cách, ngân sách và khách hàng mục tiêu. AI chuyển thành bản mô tả chia sẻ được trong chưa đầy một phút."
+        },
+        {
+          "label": "Ghép",
+          "title": "Chọn đội của bạn",
+          "body": "Designer và nhà thầu nộp hồ sơ kèm portfolio thật. So bid cạnh nhau, duyệt đúng người phù hợp."
+        },
+        {
+          "label": "Thi công",
+          "title": "Bàn giao quán",
+          "body": "Design, bản vẽ, mốc, nhật ký công trường, vấn đề và thanh toán nằm chung một mốc thời gian, chia sẻ được cho cả đội."
+        }
+      ]
+    },
+    "why": {
+      "title": "Sao chủ quán chọn cái này thay vì nhóm chat",
+      "subtitle": "Workspace xoay quanh các câu hỏi đội thi công cafe thực sự hỏi, không phải project tracker đại trà.",
+      "tiles": [
+        {
+          "title": "Brief AI trong 60 giây",
+          "body": "Trả lời vài câu về concept. Hệ thống tự viết brief, gợi ý phong cách và ghép studio phù hợp.",
+          "tone": "amber"
+        },
+        {
+          "title": "Design có phiên bản",
+          "body": "Nộp, duyệt, yêu cầu chỉnh, thông qua. Mỗi vòng đều có timestamp và người chịu trách nhiệm, không còn Final_v7_FINAL.jpg.",
+          "tone": "ink"
+        },
+        {
+          "title": "Bản vẽ đáng tin",
+          "body": "Bản vẽ kỹ thuật nằm cạnh design mà nó mô tả. Thầu phụ lấy số đo trực tiếp, không lấy screenshot.",
+          "tone": "stone"
+        },
+        {
+          "title": "Mốc tự tổng hợp",
+          "body": "Ảnh công trường, nhật ký ngày, vật tư giao, thanh toán đối soát. Mỗi trang mốc tự dựng báo cáo.",
+          "tone": "moss"
+        }
+      ]
+    },
+    "roles": {
+      "title": "Một workspace, ba vai trò",
+      "subtitle": "Mỗi bên có mặt làm việc riêng. Mọi người cùng đọc một tiến độ.",
+      "items": [
+        {
+          "role": "Chủ quán",
+          "blurb": "Bạn đăng brief, duyệt bid và xem mọi mốc từ ngày kickoff đến cắt băng khai trương.",
+          "bullets": ["Đăng brief", "So sánh bid", "Duyệt design", "Theo dõi mốc"]
+        },
+        {
+          "role": "Designer",
+          "blurb": "Ứng tuyển brief, version hoá design, bàn giao bộ bản vẽ sạch cho đội thi công.",
+          "bullets": ["Duyệt brief đang mở", "Nộp design", "Phản hồi yêu cầu chỉnh", "Chia sẻ bản vẽ"]
+        },
+        {
+          "role": "Nhà thầu",
+          "blurb": "Báo giá, lên lịch mốc, ghi nhật ký ngày, báo vấn đề trước khi thành trễ tiến độ.",
+          "bullets": ["Báo giá công việc", "Lên lịch mốc", "Đăng nhật ký ngày", "Xử lý vấn đề"]
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Quán cafe kế tiếp của bạn bắt đầu bằng một trang brief.",
+      "body": "Bỏ qua vòng qua lại. Tạo dự án, xem ai ứng tuyển, chọn đội phù hợp.",
+      "primaryCta": "Bắt đầu miễn phí",
+      "secondaryCta": "Nói chuyện với founder"
+    },
+    "footer": {
+      "line": "Làm cho đội ngũ cafe tại HCM, Hà Nội và nhiều nơi khác."
+    }
   },
   "Auth": {
     "form": {
@@ -87,7 +174,8 @@
       "about": "Giới thiệu",
       "pricing": "Bảng giá",
       "contact": "Liên hệ",
-      "projects": "Dự án"
+      "projects": "Dự án",
+      "myProjects": "Dự án của tôi"
     },
     "cta": {
       "signIn": "Đăng nhập",
@@ -97,6 +185,8 @@
       "triggerAria": "Mở menu người dùng",
       "signedInAs": "Đã đăng nhập",
       "workspace": "Vào workspace",
+      "myProjects": "Dự án của tôi",
+      "profile": "Hồ sơ của tôi",
       "signOut": "Đăng xuất",
       "signingOut": "Đang đăng xuất…",
       "signOutSuccess": "Đã đăng xuất.",
@@ -703,6 +793,8 @@
   "ConstructionOverview": {
     "title": "Tổng quan thi công",
     "subtitle": "Tình trạng công trường hiện tại — timeline mốc và lối tắt tới mọi công cụ hàng ngày.",
+    "loading": "Đang tải dữ liệu thi công…",
+    "retry": "Thử lại",
     "header": {
       "currentPhaseLabel": "Giai đoạn hiện tại",
       "progressLabel": "Tiến độ tổng",
@@ -713,18 +805,22 @@
     },
     "track": {
       "title": "Mốc thi công",
-      "subtitle": "Chạm vào một mốc để xem công việc, vướng mắc và hình ảnh bên dưới.",
+      "subtitle": "Chạm vào một mốc để xem công việc và vấn đề đang mở bên dưới.",
       "currentPulse": "Đang chạy"
     },
     "status": {
       "completed": "Hoàn thành",
       "inProgress": "Đang chạy",
       "blocked": "Bị chặn",
-      "upcoming": "Sắp tới"
+      "upcoming": "Sắp tới",
+      "open": "Mở",
+      "in_progress": "Đang xử lý",
+      "resolved": "Đã giải quyết",
+      "closed": "Đã đóng"
     },
     "detail": {
       "title": "Chi tiết mốc",
-      "subtitle": "Công việc, vướng mắc và hình ảnh của mốc đang chọn.",
+      "subtitle": "Công việc và vấn đề đang mở của mốc đang chọn.",
       "lead": "Phụ trách",
       "target": "Mục tiêu",
       "progressLabel": "Tiến độ mốc",
@@ -744,17 +840,23 @@
           "target": "Mục tiêu",
           "tasksDone": "Việc đã xong",
           "tasksTotal": "/ {total}",
-          "blockers": "Vướng mắc",
+          "blockers": "Vấn đề mở",
           "photos": "Hình ảnh"
         },
         "sections": {
           "narrative": "Tình hình mốc này",
           "tasks": "Công việc",
+          "issues": "Vấn đề đang mở",
           "blockers": "Vướng mắc",
           "photos": "Hình ảnh",
           "crew": "Công nhân tại công trường"
         },
         "noTasks": "Chưa có công việc nào.",
+        "noIssues": "Không có vấn đề đang mở — đang thuận lợi.",
+        "loadingTasks": "Đang tải công việc…",
+        "loadingIssues": "Đang tải vấn đề…",
+        "issueTarget": "Mục tiêu {date}",
+        "issueTargetNone": "Chưa có ngày mục tiêu",
         "noBlockers": "Chưa ghi nhận vướng mắc — đang thuận lợi.",
         "noPhotos": "Chưa có hình nào cho mốc này.",
         "noCrew": "Chưa phân công công nhân.",
@@ -784,7 +886,13 @@
       "payments": "Thanh toán",
       "paymentsDesc": "Lịch và bill chờ"
     },
-    "milestoneError": "Không tải được dữ liệu mốc."
+    "milestoneError": "Không tải được dữ liệu mốc.",
+    "emptyTitle": "Chưa có mốc nào",
+    "emptyDesc": "Dự án này chưa có giai đoạn thi công nào. Thêm mốc đầu tiên để bắt đầu theo dõi tiến độ.",
+    "emptyCta": "Mở trang quản lý mốc",
+    "emptyNoEngagement": "Chưa có hợp đồng được chấp nhận",
+    "emptyNoEngagementDesc": "Dự án này chưa có hợp đồng nào được chấp nhận. Khi chủ dự án duyệt nhà thầu, theo dõi mốc sẽ khả dụng tại đây.",
+    "emptyNoEngagementCta": "Xem hợp đồng"
   },
   "MilestoneManagement": {
     "title": "Quản lý mốc & công việc",
@@ -1135,6 +1243,9 @@
   "DesignManagement": {
     "pageTitle": "Quản lý thiết kế",
     "pageSubtitle": "Các phiên bản bản vẽ — theo dõi chỉnh sửa, phát hành bản snapshot.",
+    "readOnlyTitle": "Bản vẽ đã duyệt",
+    "readOnlySubtitle": "Bản vẽ mà chủ dự án đã xác nhận — bộ tài liệu tham chiếu chỉ đọc cho thi công.",
+    "readOnlyTitleEmpty": "Chưa có bản vẽ nào được duyệt cho engagement này.",
     "actions": {
       "newVersion": "Tạo phiên bản mới",
       "publishRevision": "Phát hành bản mới",
@@ -1175,6 +1286,8 @@
       "subtitle": "Đã xảy ra lỗi khi lấy dữ liệu thiết kế. Vui lòng thử lại.",
       "retry": "Thử lại"
     },
+    "refreshing": "Đang làm mới…",
+    "readOnlyFooter": "Bộ tài liệu chỉ đọc — đây là các bản vẽ mà chủ dự án đã xác nhận cho engagement này.",
     "status": {
       "draft": "Nháp",
       "working": "Đang làm",
@@ -1251,7 +1364,9 @@
       "empty": "Chọn một bản vẽ ở cây bên trái để xem trước.",
       "unavailable": "Không có bản xem trước",
       "shareCopied": "Đã sao chép liên kết.",
-      "downloadComingSoon": "Tính năng tải xuống sẽ hoạt động khi backend sẵn sàng.",
+      "download": "Tải về",
+      "downloadSuccess": "Đã bắt đầu tải về.",
+      "downloadError": "Không thể tải về — đang mở trong tab mới.",
       "scale": "Tỉ lệ",
       "sheet": "Tờ",
       "updatedBy": "Cập nhật",
@@ -1395,6 +1510,18 @@
       "compare": "So sánh",
       "clearCompare": "Bỏ so sánh"
     },
+    "approved": {
+      "version": "v",
+      "empty": "Chưa có bản vẽ nào được duyệt cho engagement này.",
+      "footer": "Bộ tài liệu chỉ đọc — đây là các bản vẽ mà chủ dự án đã xác nhận cho engagement này.",
+      "refreshing": "Đang làm mới…",
+      "open": "Mở"
+    },
+    "errorBanner": {
+      "title": "Không thể tải danh sách bản vẽ đã duyệt",
+      "subtitle": "Đã xảy ra lỗi khi tải các bản vẽ đã duyệt. Vui lòng thử lại.",
+      "retry": "Thử lại"
+    },
     "diff": {
       "title": "So sánh",
       "placeholder": "So sánh trực quan sẽ hiển thị khi backend sẵn sàng."
@@ -1505,6 +1632,227 @@
       "page": "Trang {page} / {total}",
       "first": "Đầu",
       "last": "Cuối"
+    }
+  },
+  "MyProjects": {
+    "title": "Dự án của tôi",
+    "subtitle": "Mọi dự án quán cà phê mà studio của bạn đang tham gia — tổng quan các engagement hiện tại.",
+    "nav": {
+      "label": "Dự án của tôi"
+    },
+    "meta": {
+      "title": "Dự án của tôi — Engagement đang chạy",
+      "description": "Theo dõi mọi dự án quán cà phê mà studio của bạn đang hỗ trợ — đang chạy, tạm dừng hoặc vừa hoàn tất."
+    },
+    "grid": {
+      "heading": "Engagement",
+      "count": "{count, plural, =0 {Chưa có dự án} other {# dự án}}",
+      "empty": {
+        "title": "Chưa có dự án nào.",
+        "subtitle": "Khi một chủ quán mời bạn tham gia dự án, dự án sẽ xuất hiện tại đây."
+      },
+      "error": {
+        "title": "Không tải được danh sách dự án.",
+        "subtitle": "Đã có lỗi khi kết nối máy chủ. Vui lòng thử lại sau ít phút.",
+        "retry": "Thử lại"
+      }
+    },
+    "card": {
+      "unnamedProject": "(Dự án chưa đặt tên)",
+      "viewAria": "Mở dự án {name}",
+      "contractType": {
+        "design": "Thiết kế",
+        "construction": "Thi công"
+      },
+      "status": {
+        "requested": "Đã mời",
+        "accepted": "Đang chạy",
+        "completed": "Hoàn tất"
+      },
+      "invitedLabel": "Mời",
+      "startedLabel": "Bắt đầu"
+    },
+    "pagination": {
+      "label": "Phân trang",
+      "previous": "Trước",
+      "next": "Sau",
+      "page": "Trang {page} / {total}",
+      "first": "Đầu",
+      "last": "Cuối"
+    }
+  },
+  "Profile": {
+    "meta": {
+      "title": "Hồ sơ của tôi",
+      "description": "Quản lý hồ sơ nhà cung cấp công khai, thông tin liên hệ và những thông tin chủ quán thấy khi bạn ứng tuyển một dự án."
+    },
+    "nav": {
+      "label": "Hồ sơ của tôi"
+    },
+    "header": {
+      "eyebrow": "Hồ sơ",
+      "title": "Hồ sơ của tôi",
+      "subtitle": "Cập nhật thông tin để chủ quán thấy được điều bạn mang đến cho dự án."
+    },
+    "sections": {
+      "basics": {
+        "title": "Thông tin cơ bản",
+        "description": "Cách bạn xuất hiện trên marketplace và với những chủ quán mời bạn vào dự án."
+      },
+      "about": {
+        "title": "Giới thiệu",
+        "description": "Một đoạn giới thiệu ngắn và tiêu đề nổi bật mà chủ quán thấy trên thẻ của bạn."
+      },
+      "credentials": {
+        "title": "Thông tin doanh nghiệp",
+        "description": "Với doanh nghiệp đã đăng ký, các thông tin này giúp chủ quán xác minh công ty của bạn."
+      }
+    },
+    "fields": {
+      "emailLabel": "Email tài khoản",
+      "emailHelp": "Email gắn liền với tài khoản của bạn. Liên hệ hỗ trợ nếu cần thay đổi.",
+      "displayName": "Tên hiển thị",
+      "displayNameHelp": "Tên chủ quán thấy trên thẻ và trang dự án của bạn.",
+      "providerType": "Loại nhà cung cấp",
+      "providerTypeHelp": "Chọn cơ cấu pháp lý phù hợp nhất với bạn.",
+      "providerTypeIndividual": "Cá nhân",
+      "providerTypeCompany": "Doanh nghiệp",
+      "capability": "Năng lực",
+      "capabilityHelp": "Bạn phụ trách giai đoạn nào của dự án?",
+      "capabilityDesigner": "Thiết kế",
+      "capabilityConstructor": "Thi công",
+      "capabilityBoth": "Cả hai",
+      "bio": "Giới thiệu",
+      "bioHelp": "Đoạn giới thiệu ngắn giúp chủ quán hiểu điểm mạnh của bạn.",
+      "bioPlaceholder": "Chia sẻ phong cách, đội ngũ, và những dự án bạn yêu thích…",
+      "yearsExperience": "Số năm kinh nghiệm",
+      "portfolioHeadline": "Tiêu đề portfolio",
+      "portfolioHeadlinePlaceholder": "VD: Đã hoàn thiện hơn 50 nội thất quán cafe trên toàn quốc",
+      "companyTaxCode": "Mã số thuế doanh nghiệp",
+      "companyTaxCodeHelp": "Bắt buộc với doanh nghiệp đã đăng ký — chúng tôi dùng để xác minh.",
+      "companyTaxCodePlaceholder": "VD: 0312345678",
+      "isVerifiedLabel": "Trạng thái xác minh",
+      "isVerifiedTrue": "Đã xác minh",
+      "isVerifiedFalse": "Chưa xác minh"
+    },
+    "actions": {
+      "save": "Lưu thay đổi",
+      "saving": "Đang lưu…",
+      "saved": "Đã cập nhật hồ sơ.",
+      "reset": "Huỷ thay đổi",
+      "signOut": "Đăng xuất"
+    },
+    "states": {
+      "loading": "Đang tải hồ sơ…",
+      "loadErrorTitle": "Không tải được hồ sơ.",
+      "loadErrorSubtitle": "Đã có lỗi khi kết nối tới máy chủ. Bạn vui lòng thử lại sau ít phút.",
+      "loadErrorRetry": "Thử lại",
+      "missingProviderTitle": "Bạn chưa có hồ sơ nhà cung cấp.",
+      "missingProviderSubtitle": "Hoàn tất onboarding để bắt đầu ứng tuyển brief và quản lý dự án.",
+      "missingProviderCta": "Hoàn tất onboarding",
+      "notAuthorizedTitle": "Đăng nhập để quản lý hồ sơ.",
+      "notAuthorizedSubtitle": "Chỉ nhà cung cấp đã đăng nhập mới có thể chỉnh sửa hồ sơ.",
+      "notAuthorizedCta": "Đến trang đăng nhập"
+    },
+    "unsaved": {
+      "title": "Chưa lưu thay đổi",
+      "message": "Bạn có thay đổi chưa lưu. Rời trang và mất hết chỉnh sửa?"
+    }
+  },
+  "Payments": {
+    "meta": {
+      "title": "Bảng giá — SmartCafeBuilder",
+      "description": "Chọn gói đăng ký phù hợp với tần suất nhận dự án quán cafe của bạn."
+    },
+    "nav": {
+      "label": "Bảng giá"
+    },
+    "header": {
+      "eyebrow": "Đăng ký",
+      "title": "Chọn gói phù hợp với studio của bạn",
+      "subtitle": "Đăng ký để mở khóa marketplace, nộp thiết kế và vận hành không giới hạn dự án trong suốt thời gian bạn chọn."
+    },
+    "billing": {
+      "perMonth": "/tháng",
+      "perYear": "/năm",
+      "duration": {
+        "days": "{count} ngày",
+        "months": "{count} tháng",
+        "year": "1 năm"
+      },
+      "savings": "Tiết kiệm {percent}% so với gói tháng",
+      "approx": "Khoảng {amount}/ngày"
+    },
+    "perks": {
+      "title": "Bạn nhận được",
+      "items": {
+        "marketplace": "Ứng tuyển các brief đang mở trên marketplace",
+        "applications": "Không giới hạn số lượt gửi yêu cầu trực tiếp tới chủ quán",
+        "support": "Hỗ trợ ưu tiên trong giờ hành chính",
+        "badge": "Huy hiệu đã xác minh trên hồ sơ nhà cung cấp"
+      }
+    },
+    "cta": {
+      "subscribe": "Đăng ký",
+      "subscribing": "Đang đăng ký…",
+      "subscribeSuccess": "Đã bắt đầu đăng ký. Hoá đơn sẽ được gửi qua email.",
+      "subscribeError": "Không thể bắt đầu đăng ký.",
+      "subscribeNote": "Bạn sẽ được chuyển tới trang thanh toán bảo mật để hoàn tất."
+    },
+    "states": {
+      "loading": "Đang tải các gói…",
+      "loadErrorTitle": "Không tải được danh sách gói.",
+      "loadErrorSubtitle": "Vui lòng thử lại sau ít phút — danh sách được cập nhật phía máy chủ.",
+      "loadErrorRetry": "Thử lại",
+      "emptyTitle": "Hiện chưa có gói nào.",
+      "emptySubtitle": "Khi đội ngũ đăng các gói mới, chúng sẽ hiện ở đây.",
+      "wrongRoleTitle": "Bảng giá hiện chỉ mở cho nhà cung cấp dịch vụ.",
+      "wrongRoleSubtitle": "Chuyển sang tài khoản nhà cung cấp (hoặc hoàn tất onboarding) để xem các gói."
+    }
+  },
+  "Notifications": {
+    "meta": {
+      "title": "Thông báo — SmartCafeBuilder",
+      "description": "Cập nhật đề xuất, hợp đồng và hoạt động dự án."
+    },
+    "header": {
+      "eyebrow": "Hộp thư",
+      "title": "Thông báo",
+      "subtitle": "Brief dự án, cập nhật hợp đồng và hoạt động marketplace — tất cả ở một nơi."
+    },
+    "title": "Thông báo",
+    "tabs": {
+      "all": "Tất cả",
+      "unread": "Chưa đọc",
+      "read": "Đã đọc"
+    },
+    "preview": {
+      "total": "{count, plural, =0 {Không có thông báo} other {# thông báo}}",
+      "emptyTitle": "Bạn đã xem hết",
+      "emptySubtitle": "Hoạt động mới sẽ hiện ở đây.",
+      "viewAll": "Xem tất cả thông báo"
+    },
+    "empty": {
+      "title": "Không có {filter}",
+      "subtitle": "Khi có thông báo mới, nó sẽ xuất hiện ở đây.",
+      "all": "thông báo nào",
+      "unread": "thông báo chưa đọc",
+      "read": "thông báo đã đọc"
+    },
+    "item": {
+      "markRead": "Đánh dấu đã đọc"
+    },
+    "markAll": "Đánh dấu tất cả đã đọc",
+    "resultsCount": "{count, plural, =0 {Không có thông báo} other {# thông báo}}",
+    "pagination": {
+      "prev": "Trước",
+      "next": "Sau",
+      "page": "Trang {current} / {total}"
+    },
+    "states": {
+      "loadErrorTitle": "Không tải được thông báo.",
+      "loadErrorSubtitle": "Vui lòng thử lại sau ít phút.",
+      "loadErrorRetry": "Thử lại"
     }
   }
 }

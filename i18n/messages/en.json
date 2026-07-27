@@ -1,7 +1,94 @@
 {
   "HomePage": {
-    "title": "Home Page",
-    "description": "This is homepage"
+    "meta": {
+      "title": "AI Smart Cafe Builder",
+      "description": "Plan, design and build your cafe with one workspace. Match with designers and contractors, track every milestone."
+    },
+    "hero": {
+      "eyebrow": "For cafe owners, designers and builders",
+      "headline": "Open your next cafe without losing a weekend to spreadsheets.",
+      "headlineAccent": "without losing a weekend",
+      "sub": "Post your brief, match a designer, line up a contractor. One workspace from first sketch to grand opening.",
+      "primaryCta": "Start a project",
+      "secondaryCta": "Browse marketplace",
+      "hint": "Free to plan, pay only when you accept a bid."
+    },
+    "howItWorks": {
+      "title": "How a project moves through",
+      "steps": [
+        {
+          "label": "Post",
+          "title": "Post the brief",
+          "body": "Square meters, style, budget and target customers. AI turns it into a shareable spec in under a minute."
+        },
+        {
+          "label": "Match",
+          "title": "Pick your team",
+          "body": "Designers and contractors apply with real portfolios. Compare bids side by side and accept the ones that fit."
+        },
+        {
+          "label": "Build",
+          "title": "Ship the cafe",
+          "body": "Designs, drawings, milestones, daily logs, issues and payments live in one timeline you can share with your crew."
+        }
+      ]
+    },
+    "why": {
+      "title": "Why cafe owners pick this over a WhatsApp group",
+      "subtitle": "A workspace built around the questions cafe teams actually ask, not a generic project tracker.",
+      "tiles": [
+        {
+          "title": "AI brief in 60 seconds",
+          "body": "Drop a few answers about your concept. The platform drafts the brief, suggests styles, and surfaces studios that match.",
+          "tone": "amber"
+        },
+        {
+          "title": "Designs with versions",
+          "body": "Submit, review, request a revision, approve. Every round is timestamped and attributed, no more Final_v7_FINAL.jpg.",
+          "tone": "ink"
+        },
+        {
+          "title": "Drawings you can trust",
+          "body": "Technical drawings live next to the designs they describe. Subcontractors pull measurements, not screenshots.",
+          "tone": "stone"
+        },
+        {
+          "title": "Milestones that report themselves",
+          "body": "Site photos, daily logs, materials delivered, payments cleared. Each milestone page assembles the proof automatically.",
+          "tone": "moss"
+        }
+      ]
+    },
+    "roles": {
+      "title": "One workspace, three roles",
+      "subtitle": "Each side gets the surface they need. Everyone agrees on the timeline.",
+      "items": [
+        {
+          "role": "Owner",
+          "blurb": "You post the brief, accept bids, and see every milestone from kickoff to ribbon cutting.",
+          "bullets": ["Post a brief", "Compare bids", "Sign off designs", "Track milestones"]
+        },
+        {
+          "role": "Designer",
+          "blurb": "Apply for briefs, version your designs, hand off a clean drawing set to the contractor.",
+          "bullets": ["Browse open briefs", "Submit designs", "Respond to revisions", "Share drawings"]
+        },
+        {
+          "role": "Contractor",
+          "blurb": "Quote the job, schedule phases, log daily progress, flag issues before they become delays.",
+          "bullets": ["Quote the work", "Schedule milestones", "Post daily logs", "Resolve issues"]
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Your next cafe starts as a one-page brief.",
+      "body": "Skip the back-and-forth. Spin up a project, see who applies, and pick the team that fits.",
+      "primaryCta": "Start free",
+      "secondaryCta": "Talk to a founder"
+    },
+    "footer": {
+      "line": "Built for cafe teams in HCMC, Hanoi and beyond."
+    }
   },
   "Auth": {
     "form": {
@@ -87,7 +174,8 @@
       "about": "About",
       "pricing": "Pricing",
       "contact": "Contact",
-      "projects": "Projects"
+      "projects": "Projects",
+      "myProjects": "My Projects"
     },
     "cta": {
       "signIn": "Sign in",
@@ -97,6 +185,8 @@
       "triggerAria": "Open user menu",
       "signedInAs": "Signed in",
       "workspace": "Go to workspace",
+      "myProjects": "My Projects",
+      "profile": "My profile",
       "signOut": "Sign out",
       "signingOut": "Signing out…",
       "signOutSuccess": "Signed out.",
@@ -700,6 +790,8 @@
   "ConstructionOverview": {
     "title": "Construction overview",
     "subtitle": "Where the site stands right now — the milestone track plus shortcuts to every daily tool.",
+    "loading": "Loading construction data…",
+    "retry": "Retry",
     "header": {
       "currentPhaseLabel": "Current phase",
       "progressLabel": "Overall progress",
@@ -710,18 +802,22 @@
     },
     "track": {
       "title": "Milestone track",
-      "subtitle": "Tap a phase to see its tasks, blockers, and photos below.",
+      "subtitle": "Tap a phase to see its tasks and open issues below.",
       "currentPulse": "Active phase"
     },
     "status": {
       "completed": "Completed",
       "inProgress": "In progress",
       "blocked": "Blocked",
-      "upcoming": "Upcoming"
+      "upcoming": "Upcoming",
+      "open": "Open",
+      "in_progress": "In progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
     },
     "detail": {
       "title": "Phase details",
-      "subtitle": "Tasks, blockers, and photos for the selected phase.",
+      "subtitle": "Tasks and open issues for the selected phase.",
       "lead": "Lead",
       "target": "Target",
       "progressLabel": "Phase progress",
@@ -741,17 +837,23 @@
           "target": "Target",
           "tasksDone": "Tasks done",
           "tasksTotal": "of {total}",
-          "blockers": "Blockers",
+          "blockers": "Open issues",
           "photos": "Photos"
         },
         "sections": {
           "narrative": "Where this phase stands",
           "tasks": "Tasks",
+          "issues": "Open issues",
           "blockers": "Blockers",
           "photos": "Photos",
           "crew": "Crew on site"
         },
         "noTasks": "No tasks tracked yet.",
+        "noIssues": "No open issues — work is clear.",
+        "loadingTasks": "Loading tasks…",
+        "loadingIssues": "Loading issues…",
+        "issueTarget": "Target {date}",
+        "issueTargetNone": "No target date",
         "noBlockers": "No blockers filed — clear sailing.",
         "noPhotos": "No photos uploaded for this phase yet.",
         "noCrew": "Crew not assigned yet.",
@@ -781,7 +883,13 @@
       "payments": "Payments",
       "paymentsDesc": "Schedule and pending bills"
     },
-    "milestoneError": "Milestone data unavailable."
+    "milestoneError": "Milestone data unavailable.",
+    "emptyTitle": "No milestones yet",
+    "emptyDesc": "This project doesn't have any construction phases yet. Add the first one to start tracking progress.",
+    "emptyCta": "Open milestone planner",
+    "emptyNoEngagement": "No accepted engagement",
+    "emptyNoEngagementDesc": "This project doesn't have an accepted engagement yet. Once the owner accepts a contractor, milestone tracking becomes available here.",
+    "emptyNoEngagementCta": "View engagements"
   },
   "MilestoneManagement": {
     "title": "Milestone & task management",
@@ -1134,6 +1242,9 @@
   "DesignManagement": {
     "pageTitle": "Design Management",
     "pageSubtitle": "Versioned design drawings — track revisions, publish snapshots.",
+    "readOnlyTitle": "Approved drawings",
+    "readOnlySubtitle": "Drawings the owner has signed off — read-only reference set for the build.",
+    "readOnlyTitleEmpty": "No approved drawings yet for this engagement.",
     "actions": {
       "newVersion": "New Version",
       "publishRevision": "Publish Revision",
@@ -1174,6 +1285,8 @@
       "subtitle": "Something went wrong while fetching the design list. Please try again.",
       "retry": "Try again"
     },
+    "refreshing": "Refreshing…",
+    "readOnlyFooter": "Read-only set — these are the drawings the owner has signed off for this engagement.",
     "status": {
       "draft": "Draft",
       "working": "Working",
@@ -1250,7 +1363,9 @@
       "empty": "Pick a drawing from the left to preview it here.",
       "unavailable": "Preview unavailable",
       "shareCopied": "Link copied to clipboard.",
-      "downloadComingSoon": "Download will be available once the backend is wired.",
+      "download": "Download",
+      "downloadSuccess": "Download started.",
+      "downloadError": "Could not download file — opening in a new tab instead.",
       "scale": "Scale",
       "sheet": "Sheet",
       "updatedBy": "Updated",
@@ -1394,6 +1509,18 @@
       "compare": "Compare",
       "clearCompare": "Clear compare"
     },
+    "approved": {
+      "version": "v",
+      "empty": "No approved drawings yet for this engagement.",
+      "footer": "Read-only set — these are the drawings the owner has signed off for this engagement.",
+      "refreshing": "Refreshing…",
+      "open": "Open"
+    },
+    "errorBanner": {
+      "title": "Could not load approved drawings",
+      "subtitle": "Something went wrong while fetching the approved drawings. Please try again.",
+      "retry": "Try again"
+    },
     "diff": {
       "title": "Diff",
       "placeholder": "Visual diff will appear here once the backend is wired."
@@ -1504,6 +1631,227 @@
       "page": "Page {page} of {total}",
       "first": "First",
       "last": "Last"
+    }
+  },
+  "MyProjects": {
+    "title": "My Projects",
+    "subtitle": "Every cafe project your studio is working on — current engagements at a glance.",
+    "nav": {
+      "label": "My Projects"
+    },
+    "meta": {
+      "title": "My Projects — Active engagements",
+      "description": "Track every cafe project your studio currently supports — active, paused, or recently completed."
+    },
+    "grid": {
+      "heading": "Engagements",
+      "count": "{count, plural, =0 {No projects} one {# project} other {# projects}}",
+      "empty": {
+        "title": "No projects yet.",
+        "subtitle": "Once a cafe owner engages you on a project, it'll appear here."
+      },
+      "error": {
+        "title": "Couldn't load your projects.",
+        "subtitle": "Something went wrong reaching the server. Please try again in a moment.",
+        "retry": "Try again"
+      }
+    },
+    "card": {
+      "unnamedProject": "(Untitled project)",
+      "viewAria": "Open project {name}",
+      "contractType": {
+        "design": "Design",
+        "construction": "Construction"
+      },
+      "status": {
+        "requested": "Invited",
+        "accepted": "Active",
+        "completed": "Completed"
+      },
+      "invitedLabel": "Invited",
+      "startedLabel": "Started"
+    },
+    "pagination": {
+      "label": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page} of {total}",
+    "first": "First",
+    "last": "Last"
+    }
+  },
+  "Profile": {
+    "meta": {
+      "title": "My profile",
+      "description": "Manage your public provider profile, contact details, and the credentials clients see when you apply for a brief."
+    },
+    "nav": {
+      "label": "My profile"
+    },
+    "header": {
+      "eyebrow": "Profile",
+      "title": "My profile",
+      "subtitle": "Keep your details up to date so cafe owners can see what you bring to a project."
+    },
+    "sections": {
+      "basics": {
+        "title": "Basics",
+        "description": "How you appear on the marketplace and to the owners who invite you to projects."
+      },
+      "about": {
+        "title": "About you",
+        "description": "A short bio and the headline owners see on your card."
+      },
+      "credentials": {
+        "title": "Business credentials",
+        "description": "For registered businesses, these details help owners verify your company."
+      }
+    },
+    "fields": {
+      "emailLabel": "Account email",
+      "emailHelp": "Email is locked to your account. Contact support if you need to change it.",
+      "displayName": "Display name",
+      "displayNameHelp": "The name owners see on your cards and project pages.",
+      "providerType": "Provider type",
+      "providerTypeHelp": "Pick the legal structure that best describes you.",
+      "providerTypeIndividual": "Individual",
+      "providerTypeCompany": "Company",
+      "capability": "Capability",
+      "capabilityHelp": "Which phase of the project do you own?",
+      "capabilityDesigner": "Designer",
+      "capabilityConstructor": "Constructor",
+      "capabilityBoth": "Both",
+      "bio": "About you",
+      "bioHelp": "A short bio that helps owners understand your strengths.",
+      "bioPlaceholder": "Tell owners about your style, your team, what kinds of projects you love…",
+      "yearsExperience": "Years of experience",
+      "portfolioHeadline": "Portfolio headline",
+      "portfolioHeadlinePlaceholder": "e.g. 50+ café interiors delivered across Vietnam",
+      "companyTaxCode": "Company tax code",
+      "companyTaxCodeHelp": "Required for registered businesses — we use this for verification.",
+      "companyTaxCodePlaceholder": "e.g. 0312345678",
+      "isVerifiedLabel": "Verification status",
+      "isVerifiedTrue": "Verified",
+      "isVerifiedFalse": "Not verified yet"
+    },
+    "actions": {
+      "save": "Save changes",
+      "saving": "Saving…",
+      "saved": "Profile updated.",
+      "reset": "Discard changes",
+      "signOut": "Log out"
+    },
+    "states": {
+      "loading": "Loading your profile…",
+      "loadErrorTitle": "Couldn't load your profile.",
+      "loadErrorSubtitle": "Something went wrong reaching the server. Please try again in a moment.",
+      "loadErrorRetry": "Try again",
+      "missingProviderTitle": "You don't have a provider profile yet.",
+      "missingProviderSubtitle": "Finish onboarding to start applying to briefs and tracking your projects.",
+      "missingProviderCta": "Finish onboarding",
+      "notAuthorizedTitle": "Sign in to manage your profile.",
+      "notAuthorizedSubtitle": "Profile editing is only available to signed-in providers.",
+      "notAuthorizedCta": "Go to sign in"
+    },
+    "unsaved": {
+      "title": "Unsaved changes",
+      "message": "You have unsaved edits. Leave anyway and lose them?"
+    }
+  },
+  "Payments": {
+    "meta": {
+      "title": "Pricing — SmartCafeBuilder",
+      "description": "Pick a subscription plan that fits how often you take on new cafe projects."
+    },
+    "nav": {
+      "label": "Pricing"
+    },
+    "header": {
+      "eyebrow": "Subscriptions",
+      "title": "Pick a plan that grows with your studio",
+      "subtitle": "Subscribe to unlock the marketplace, submit designs, and run unlimited projects for the duration you choose."
+    },
+    "billing": {
+      "perMonth": "/month",
+      "perYear": "/year",
+      "duration": {
+        "days": "{count} days",
+        "months": "{count} months",
+        "year": "1 year"
+      },
+      "savings": "Save {percent}% vs monthly",
+      "approx": "About {amount}/day"
+    },
+    "perks": {
+      "title": "What you get",
+      "items": {
+        "marketplace": "Apply to open briefs on the marketplace",
+        "applications": "Unlimited direct requests to owners",
+        "support": "Priority support during business hours",
+        "badge": "Verified badge on your provider profile"
+      }
+    },
+    "cta": {
+      "subscribe": "Subscribe",
+      "subscribing": "Subscribing…",
+      "subscribeSuccess": "Subscription started. We'll email the receipt shortly.",
+      "subscribeError": "Couldn't start your subscription.",
+      "subscribeNote": "You'll be redirected to a secure checkout to complete payment."
+    },
+    "states": {
+      "loading": "Loading plans…",
+      "loadErrorTitle": "Couldn't load the plan catalogue.",
+      "loadErrorSubtitle": "Please try again in a moment — the catalogue is updated server-side.",
+      "loadErrorRetry": "Try again",
+      "emptyTitle": "No plans are available right now.",
+      "emptySubtitle": "Once the team publishes new plans they'll show up here.",
+      "wrongRoleTitle": "Pricing is currently only enabled for service providers.",
+      "wrongRoleSubtitle": "Switch to a provider account (or finish onboarding) to view plans."
+    }
+  },
+  "Notifications": {
+    "meta": {
+      "title": "Notifications — SmartCafeBuilder",
+      "description": "Catch up on proposals, contract updates, and project activity."
+    },
+    "header": {
+      "eyebrow": "Inbox",
+      "title": "Notifications",
+      "subtitle": "Project briefs, contract updates, and marketplace activity — all in one place."
+    },
+    "title": "Notifications",
+    "tabs": {
+      "all": "All",
+      "unread": "Unread",
+      "read": "Read"
+    },
+    "preview": {
+      "total": "{count, plural, =0 {No notifications} one {# notification} other {# notifications}}",
+      "emptyTitle": "You're all caught up",
+      "emptySubtitle": "New activity will show up here.",
+      "viewAll": "View all notifications"
+    },
+    "empty": {
+      "title": "No {filter} notifications",
+      "subtitle": "When something lands in this tab it'll show up here.",
+      "all": "notifications",
+      "unread": "unread notifications",
+      "read": "read notifications"
+    },
+    "item": {
+      "markRead": "Mark as read"
+    },
+    "markAll": "Mark all as read",
+    "resultsCount": "{count, plural, =0 {No notifications} one {# notification} other {# notifications}}",
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}"
+    },
+    "states": {
+      "loadErrorTitle": "Couldn't load notifications.",
+      "loadErrorSubtitle": "Please try again in a moment.",
+      "loadErrorRetry": "Try again"
     }
   }
 }

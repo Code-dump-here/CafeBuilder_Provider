@@ -20,6 +20,14 @@ export type ContractStatus =
 
 /**
  * Contract response from the API.
+ *
+ * `documentUrl` is the storage-relative key (e.g.
+ * `provider/4/2026/07/abc.pdf`) used by the backend to locate the file —
+ * it is **not** a public link. The fully-qualified, public link is
+ * `documentViewUrl`, which is what the UI should hand to `<a href>`.
+ *
+ * Always render with `documentViewUrl` when present; fall back to
+ * `documentUrl` only if the backend omits the public link (older rows).
  */
 export interface Contract {
   id: number;
@@ -29,6 +37,7 @@ export interface Contract {
   terms: string | null;
   agreedValue: number;
   documentUrl: string | null;
+  documentViewUrl: string | null;
   otpExpiresAt: string | null;
   confirmedAt: string | null;
   confirmedBy: number | null;

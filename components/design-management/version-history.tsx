@@ -22,15 +22,17 @@ const STATUS_ICON: Record<
   VersionStatus,
   React.ComponentType<{ className?: string }>
 > = {
-  DRAFT: Circle,
-  WORKING: CircleDot,
-  PUBLISHED: CheckCircle2,
+  in_progress: Circle,
+  submitted: Clock,
+  revision: CircleDot,
+  approved: CheckCircle2,
 };
 
 const STATUS_COLOR: Record<VersionStatus, string> = {
-  DRAFT: "text-stone-500",
-  WORKING: "text-amber-500",
-  PUBLISHED: "text-emerald-500",
+  in_progress: "text-stone-500",
+  submitted: "text-amber-500",
+  revision: "text-red-500",
+  approved: "text-emerald-500",
 };
 
 /**

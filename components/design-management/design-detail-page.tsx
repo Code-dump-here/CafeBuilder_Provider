@@ -79,15 +79,23 @@ function designToVersion(d: Design): DesignVersion {
 function mapDesignStatus(
   s: Design["status"],
 ): DesignVersion["status"] {
+  // Wire enum and UI status are 1:1 — see `statusToVersionStatus` in
+  // `use-designs.ts`. We mirror the mapping here so the detail page
+  // doesn't depend on the `Design → DesignVersion` adapter just to
+  // render its `StatusDot`.
   switch (s) {
-    case "approved":
-      return "PUBLISHED";
-    case "submitted":
     case "in_progress":
+      return "in_progress";
+    case "submitted":
+      return "submitted";
+    case "approved":
+      return "approved";
     case "revision":
-      return "WORKING";
-    default:
-      return "DRAFT";
+      return "revision";
+    default: {
+      const _exhaustive: never = s;
+      return _exhaustive;
+    }
   }
 }
 
@@ -105,6 +113,44 @@ function imageToDrawing(img: DesignImage, d: Design): DesignDrawing {
     updatedAt: new Date(img.createdAt),
     updatedBy: String(img.uploadedBy),
   };
+}
+
+// ─── Download filename helper ──────────────────────────────────────────────
+//
+// Pick a sensible name for the file the user is about to save. We prefer
+// the drawing's own caption (what the designer typed when uploading),
+// and fall back to a composite that combines the design title, version
+// code and image id so concurrent downloads never collide on disk.
+
+const FILE_EXT_HINTS: ReadonlyArray<[RegExp, string]> = [
+  [/content-type=image\/png/i, ".png"],
+  [/content-type=image\/jpeg/i, ".jpg"],
+  [/content-type=image\/webp/i, ".webp"],
+  [/content-type=image\/svg\+xml/i, ".svg"],
+  [/content-type=application\/pdf/i, ".pdf"],
+  [/\.png(\?|$)/i, ".png"],
+  [/\.jpe?g(\?|$)/i, ".jpg"],
+  [/\.webp(\?|$)/i, ".webp"],
+  [/\.svg(\?|$)/i, ".svg"],
+  [/\.pdf(\?|$)/i, ".pdf"],
+];
+
+function buildDownloadFilename(
+  image: DesignDrawing,
+  version: DesignVersion,
+): string {
+  const safe = (s: string) =>
+    s
+      .replace(/[\\/:*?"<>|]+/g, "_")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 80) || "drawing";
+  const base = image.note?.trim()
+    ? safe(image.note)
+    : `${safe(version.name)}_${version.code}_IMG-${image.id}`;
+  const ext =
+    FILE_EXT_HINTS.find(([pattern]) => pattern.test(image.thumbnailUrl ?? ""))?.[1] ?? "";
+  return `${base}${ext}`;
 }
 
 // ─── Status badge config ──────────────────────────────────────────────────
@@ -270,9 +316,13 @@ export function DesignDetailPage({
             onDelete={(img) => deleteImageMutation.mutate(img.id)}
             isDeleting={deleteImageMutation.isPending}
             canUpload={canUpload}
-            onUpload={async (file) => {
+            onUpload={async ({ file, caption }) => {
               if (!currentUserId) return;
-              uploadMutation.mutate({ file, caption: "", uploadedBy: currentUserId });
+              uploadMutation.mutate({
+                file,
+                caption,
+                uploadedBy: currentUserId,
+              });
             }}
             isUploading={uploadMutation.isPending}
           />
@@ -335,7 +385,7 @@ interface ImageListPanelProps {
   onDelete: (img: DesignImage) => void;
   isDeleting: boolean;
   canUpload: boolean;
-  onUpload: (file: File) => void;
+  onUpload: (payload: { file: File; caption: string }) => void;
   isUploading: boolean;
 }
 
@@ -352,19 +402,21 @@ function ImageListPanel({
 }: ImageListPanelProps) {
   const t = useTranslations("DesignManagement");
   const [dragOver, setDragOver] = React.useState(false);
-  const [captionDialog, setCaptionDialog] = React.useState<{ file: File; preview: string } | null>(null);
+  const [captionDialog, setCaptionDialog] = React.useState<
+    { file: File; preview: string; caption: string } | null
+  >(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
     const preview = URL.createObjectURL(file);
-    setCaptionDialog({ file, preview });
+    setCaptionDialog({ file, preview, caption: "" });
   };
 
   const handleUploadConfirm = () => {
     if (!captionDialog) return;
-    onUpload(captionDialog.file);
+    onUpload({ file: captionDialog.file, caption: captionDialog.caption.trim() });
     URL.revokeObjectURL(captionDialog.preview);
     setCaptionDialog(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -507,6 +559,12 @@ function ImageListPanel({
               <Input
                 placeholder={t("upload.captionPlaceholder")}
                 autoFocus
+                value={captionDialog.caption}
+                onChange={(e) =>
+                  setCaptionDialog((prev) =>
+                    prev ? { ...prev, caption: e.target.value } : prev,
+                  )
+                }
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleUploadConfirm();
                 }}
@@ -542,12 +600,57 @@ function DesignImageViewer({ image, images, version, onSelect }: DesignImageView
   const t = useTranslations("DesignManagement");
   const format = useFormatter();
   const [imgError, setImgError] = React.useState(false);
+  const [isDownloading, setIsDownloading] = React.useState(false);
 
   React.useEffect(() => { setImgError(false); }, [image?.id]);
 
   const currentIndex = image ? images.findIndex((d) => d.id === image.id) : -1;
   const prevImage = currentIndex > 0 ? images[currentIndex - 1] : null;
   const nextImage = currentIndex >= 0 && currentIndex < images.length - 1 ? images[currentIndex + 1] : null;
+
+  // Pull the original `DesignImage` view URL off the design so the
+  // download can stream the full-resolution blob rather than the
+  // thumbnail-shaped URL the viewer uses to render <img>. We expose a
+  // stable key on the drawing for this lookup (the adapter stores the
+  // `viewUrl` on `thumbnailUrl`, so for download we re-use the same URL —
+  // GCS signed URLs are equivalent for viewing and downloading).
+  const handleDownload = React.useCallback(async () => {
+    if (!image || !image.thumbnailUrl || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const response = await fetch(image.thumbnailUrl, { mode: "cors" });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const filename = buildDownloadFilename(image, version);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = filename;
+      // Detached from the DOM tree — we just need a programmatic click.
+      anchor.rel = "noopener";
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      // Revoke after the browser has had time to start the download.
+      // 0ms is usually enough, but a short delay covers slow disks.
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      projectActionToast({
+        title: t("viewer.downloadSuccess"),
+      });
+    } catch (err) {
+      // CORS or network failure — fall back to opening the URL in a
+      // new tab so the user can still save the file manually.
+      projectActionToast({
+        title: t("viewer.downloadError"),
+        description: err instanceof Error ? err.message : undefined,
+      });
+      window.open(image.thumbnailUrl, "_blank", "noopener,noreferrer");
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [image, isDownloading, t, version]);
 
   if (!image) {
     return (
@@ -595,6 +698,14 @@ function DesignImageViewer({ image, images, version, onSelect }: DesignImageView
         </div>
 
         <div className="flex items-center gap-1.5">
+          <Button size="sm" variant="outline" disabled={!image?.thumbnailUrl || isDownloading} onClick={handleDownload} aria-label={t("viewer.download")}>
+            {isDownloading ? (
+              <Loader2 aria-hidden className="size-4 animate-spin" />
+            ) : (
+              <Download aria-hidden className="size-4" />
+            )}
+            {t("viewer.download")}
+          </Button>
           <Button size="sm" variant="outline" disabled={!prevImage} onClick={() => prevImage && onSelect(prevImage)}>
             <ChevronLeft aria-hidden />
             {t("viewer.prev")}

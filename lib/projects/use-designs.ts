@@ -132,17 +132,23 @@ function deterministicAvatarColor(seed: number): string {
 function statusToVersionStatus(
   status: Design["status"],
 ): DesignVersion["status"] {
-  // The mock enum is `DRAFT | WORKING | PUBLISHED`. Map the API statuses
-  // into the closest visual equivalent so the StatusDot stays useful.
+  // Wire enum and UI status are now 1:1 — keep the switch explicit so a
+  // future BE enum value shows up here as a TypeScript exhaustiveness
+  // check instead of silently collapsing into a generic bucket.
   switch (status) {
-    case "approved":
-      return "PUBLISHED";
-    case "submitted":
     case "in_progress":
+      return "in_progress";
+    case "submitted":
+      return "submitted";
+    case "approved":
+      return "approved";
     case "revision":
-      return "WORKING";
-    default:
-      return "DRAFT";
+      return "revision";
+    default: {
+      // Exhaustiveness guard.
+      const _exhaustive: never = status;
+      return _exhaustive;
+    }
   }
 }
 

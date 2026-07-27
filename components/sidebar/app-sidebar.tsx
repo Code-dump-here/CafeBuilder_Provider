@@ -43,9 +43,12 @@ import Link from "next/link";
 import { RoleSidebarNav, useActiveProjectId } from "@/components/sidebar/role-sidebar-nav";
 import {
   ROLE_SIDEBAR_CONFIG,
+  filterSectionsByProjectMembership,
   type UserRole,
 } from "@/lib/sidebar-config";
 import { useCurrentUser } from "@/lib/auth/user-context";
+import { useActiveProjectMembership } from "@/hooks/use-active-project-membership";
+import { useUnreadCountQuery } from "@/lib/notifications/hooks";
 
 import { NavProjects } from "@/components/sidebar/nav-projects";
 import { NavUser } from "@/components/sidebar/nav-user";
@@ -98,12 +101,23 @@ export function AppSidebar({
   const locale = localeOverride ?? (params?.locale as string | undefined);
   const t = useTranslations();
   const { account, isLoading } = useCurrentUser();
+  const { count: unreadCount } = useUnreadCountQuery();
 
   const role: UserRole = (account?.role ?? "owner") as UserRole;
   // Map API role format to sidebar config format
   const mappedRole = mapRoleToConfigRole(role);
   const config = ROLE_SIDEBAR_CONFIG[mappedRole];
   const activeProjectId = useActiveProjectId();
+  const { membership } = useActiveProjectMembership(activeProjectId);
+
+  // Project-scoped sections are filtered through `membership` so users
+  // who aren't part of the project — or whose engagement is over — see
+  // an empty project nav (the footer stays). Capability gating on
+  // `design` vs `construction` vs `both` lives inside the helper.
+  const visibleSections = React.useMemo(
+    () => filterSectionsByProjectMembership(config.sections, membership),
+    [config.sections, membership],
+  );
 
   // Build user object from account data
   const resolvedUser = React.useMemo(() => {
@@ -132,7 +146,15 @@ export function AppSidebar({
 
   const secondaryItems = [
     { title: t("Sidebar.common.shortcuts"), url: "/shortcuts", icon: Keyboard },
-    { title: t("Sidebar.common.notifications"), url: "/notifications", icon: Bell, badge: 3 },
+    {
+      title: t("Sidebar.common.notifications"),
+      url: "/notifications",
+      icon: Bell,
+      // Live unread count — sidebar polls via the same
+      // unread-count query that powers the navbar bell so the two
+      // stay in sync without an extra request.
+      badge: unreadCount > 0 ? (unreadCount > 99 ? "99+" : unreadCount) : undefined,
+    },
     { title: t("Sidebar.common.settings"), url: "/settings", icon: Settings },
   ];
 
@@ -160,7 +182,7 @@ export function AppSidebar({
         </SidebarHeader>
 
         <SidebarContent>
-          <RoleSidebarNav sections={config.sections} activeProjectId={activeProjectId} />
+          <RoleSidebarNav sections={visibleSections} activeProjectId={activeProjectId} />
           {config.projects.length > 0 ? (
             <NavProjects projects={config.projects} />
           ) : null}

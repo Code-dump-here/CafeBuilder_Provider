@@ -10,21 +10,31 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { useCurrentUser } from "@/lib/auth/user-context";
 
 export const NavMenu = (props: ComponentProps<typeof NavigationMenu>) => {
   const t = useTranslations("Navbar.nav");
+  const { isAuthenticated } = useCurrentUser();
 
-  const navItems = [
+  // Public items — visible to everyone (signed in or not).
+  const publicItems = [
     { label: t("features"), href: "/#features" },
     { label: t("about"), href: "/#about" },
-    { label: t("pricing"), href: "/#pricing" },
+    { label: t("pricing"), href: "/pricing" },
     { label: t("projects"), href: "/marketplace" },
   ] as const;
+
+  // Authenticated-only item — shows the user's own project-workings.
+  // Rendered as a sibling list item so the highlight state matches the
+  // other nav items.
+  const authItems = isAuthenticated
+    ? [{ label: t("myProjects"), href: "/my-projects" }]
+    : [];
 
   return (
     <NavigationMenu {...props}>
       <NavigationMenuList className="data-[orientation=vertical]:-ms-2 data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-start data-[orientation=vertical]:justify-start">
-        {navItems.map((item) => (
+        {[...publicItems, ...authItems].map((item) => (
           <NavigationMenuItem key={item.href}>
             <NavigationMenuLink
               asChild

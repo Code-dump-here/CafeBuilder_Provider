@@ -45,6 +45,15 @@ interface VersionListTableProps {
   /** Render the right-hand action buttons (New Version, Publish Revision). */
   showActions?: boolean;
   /**
+   * i18n key under `DesignManagement.*` for the page header. Pass
+   * `"readOnlyTitle"` / `"readOnlySubtitle"` when the page is being
+   * rendered for a viewer who can only browse approved designs (e.g.
+   * a contractor using the page as their approved-drawings index).
+   * Defaults to the designer-facing `"pageTitle"` / `"pageSubtitle"`.
+   */
+  titleKey?: "pageTitle" | "readOnlyTitle";
+  subtitleKey?: "pageSubtitle" | "readOnlySubtitle";
+  /**
    * Optional base path for the per-version detail page. If provided,
    * the eye icon on each row links here; row click still drives
    * in-page selection. Defaults to `/projects/{id}/design-management`.
@@ -111,6 +120,8 @@ export function VersionListTable({
   createdBy,
   versions,
   showActions = true,
+  titleKey = "pageTitle",
+  subtitleKey = "pageSubtitle",
   detailBasePath,
   isLoading = false,
   isFetching = false,
@@ -124,6 +135,8 @@ export function VersionListTable({
       createdBy={createdBy}
       versions={versions}
       showActions={showActions}
+      titleKey={titleKey}
+      subtitleKey={subtitleKey}
       detailBasePath={detailBasePath}
       isLoading={isLoading}
       isFetching={isFetching}
@@ -139,6 +152,8 @@ function VersionListTableInner({
   createdBy,
   versions,
   showActions = true,
+  titleKey = "pageTitle",
+  subtitleKey = "pageSubtitle",
   detailBasePath,
   isLoading = false,
   isFetching = false,
@@ -187,8 +202,16 @@ function VersionListTableInner({
     return versions.filter((v) => v.category === targetCategory);
   }, [versions, activeTab]);
 
-  const workingCount = React.useMemo(
-    () => versions.filter((v) => v.status === "WORKING").length,
+  // `Publish Revision` applies to drafts that are either still being
+  // worked on (`in_progress`) or were sent back by the owner for a
+  // revision (`revision`). Designs waiting for owner review (`submitted`)
+  // and approved/locked designs (`approved`) are excluded so we don't
+  // start a new revision on top of a still-pending review.
+  const publishableCount = React.useMemo(
+    () =>
+      versions.filter(
+        (v) => v.status === "in_progress" || v.status === "revision",
+      ).length,
     [versions],
   );
 
@@ -217,10 +240,10 @@ function VersionListTableInner({
       <header className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
           <h2 className="text-base font-semibold text-foreground">
-            {t("pageTitle")}
+            {t(titleKey)}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {t("pageSubtitle")}
+            {t(subtitleKey)}
           </p>
         </div>
         {showActions ? (
@@ -261,7 +284,7 @@ function VersionListTableInner({
                 <Button
                   size="default"
                   onClick={open}
-                  disabled={workingCount === 0}
+                  disabled={publishableCount === 0}
                   aria-label={t("actions.publishRevision")}
                 >
                   <Send aria-hidden />

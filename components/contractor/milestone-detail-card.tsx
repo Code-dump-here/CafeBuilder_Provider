@@ -3,10 +3,8 @@
 import { useFormatter, useTranslations } from "next-intl";
 import {
   CalendarDays,
-  Camera,
   FlagTriangleRight,
   TriangleAlert,
-  User,
 } from "lucide-react";
 
 import {
@@ -17,7 +15,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { projectActionToast } from "@/components/project-overview/project-action-toast";
 
 import type {
   MilestonePhase,
@@ -26,16 +23,22 @@ import type {
 
 interface MilestoneDetailCardProps {
   phase: MilestonePhase;
-  /** Drives "Open phase detail" CTA (placeholder). */
+  /** Drives "Open phase detail" CTA. */
   onOpenDetail: () => void;
 }
 
 /**
  * Detail card for the phase the user selected on the track. Carries:
- *   - phase meta (lead, target date, status pill, progress %)
- *   - bullet list of top tasks
- *   - blocker + photo counters
- *   - shortcut button to the eventual per-phase deep page
+ *   - phase meta (status pill, target date, progress %)
+ *   - open-issue counter (driven by `phase.blockerCount`, real data)
+ *   - tasks preview (kept as an empty-state slot — full task list lives
+ *     inside the phase-detail drawer now that we render real
+ *     `ConstructionTask[]` data there)
+ *   - shortcut button to open the per-phase drawer
+ *
+ * Fields dropped from the mock-data version:
+ *   - `lead` — no API surface; the contact-pill is moved to the drawer.
+ *   - `photoCount` — no API surface; photo strip lives in the drawer.
  */
 export function MilestoneDetailCard({
   phase,
@@ -82,13 +85,8 @@ export function MilestoneDetailCard({
           </Button>
         </div>
 
-        {/* Meta strip */}
+        {/* Meta strip — kept narrow: just the targeted finish date. */}
         <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <User className="size-3" aria-hidden />
-            <span className="font-medium text-foreground">{phase.lead}</span>
-            <span className="opacity-80">· {t("lead")}</span>
-          </span>
           <span className="inline-flex items-center gap-1">
             <CalendarDays className="size-3" aria-hidden />
             <span className="text-foreground">
@@ -99,12 +97,6 @@ export function MilestoneDetailCard({
             </span>
             <span className="opacity-80">· {t("target")}</span>
           </span>
-          {phase.photoCount > 0 ? (
-            <span className="inline-flex items-center gap-1">
-              <Camera className="size-3" aria-hidden />
-              {t("photosLabel", { count: phase.photoCount })}
-            </span>
-          ) : null}
         </div>
 
         {/* Progress bar */}
@@ -115,23 +107,9 @@ export function MilestoneDetailCard({
         <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {t("tasks")}
         </h3>
-        {phase.tasks.length === 0 ? (
-          <p className="mt-2 rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-            {t("noTasks")}
-          </p>
-        ) : (
-          <ul className="mt-2 flex flex-col gap-1 text-sm text-foreground">
-            {phase.tasks.map((task, idx) => (
-              <li key={idx} className="flex gap-2">
-                <span
-                  aria-hidden
-                  className="mt-1.5 size-1 shrink-0 rounded-full bg-muted-foreground/60"
-                />
-                <span>{task}</span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <p className="mt-2 rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+          {t("noTasks")}
+        </p>
       </CardContent>
     </Card>
   );

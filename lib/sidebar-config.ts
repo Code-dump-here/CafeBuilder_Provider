@@ -56,11 +56,46 @@ export interface NavItem {
    *   (e.g. `/projects/{id}`) so child routes don't double-highlight.
    */
   match?: "exact" | "prefix";
+  /**
+   * Hide this item once the user's engagement on the project has ended
+   * (Engagement status === "completed"). Defaults to `true` so the
+   * "completed" sidebar shrinks to just `collaboration` items (overview
+   * + messages); set to `false` on items that should remain available
+   * after completion (e.g. messages, archived contracts). Owner-visible
+   * items that we want to keep post-completion tag themselves with
+   * `keepOnCompletion: true`.
+   */
+  keepOnCompletion?: boolean;
 }
 
 export interface NavSection {
   labelKey: string;
   items: NavItem[];
+  /**
+   * Visibility tag — drives the project-scoped membership filter in
+   * `AppSidebar`. A section tagged with a category is rendered only when
+   * the current user has an engagement on the active project whose
+   * `contractType` covers that category.
+   *
+   *   - `undefined` (default): always visible. Use for project info
+   *     (every project member needs it) and for global sections.
+   *   - `"design"`: render only for users whose engagement contractType
+   *     is `design` or `both`.
+   *   - `"construction"`: render only for `construction` or `both`.
+   *   - `"member"`: render only when the user has an active engagement
+   *     on the current project (any contractType, status !== completed
+   *     / terminated / declined) OR is the project owner. Drop-in
+   *     shorthand for project-only sections that don't depend on
+   *     capability.
+   *
+   * Stacked tags are OR-combined: a section with `["design", "member"]`
+   * is visible to design-capable members OR any active member.
+   */
+  projectScope?:
+    | "design"
+    | "construction"
+    | "member"
+    | Array<"design" | "construction" | "member">;
 }
 
 export interface SidebarProject {
@@ -85,6 +120,7 @@ export interface RoleSidebarConfig {
 
 const DESIGNER_PROJECT_INFO: NavSection = {
   labelKey: "Sidebar.designer.projectInfo",
+  projectScope: "member",
   items: [
     {
       titleKey: "Sidebar.designer.overview",
@@ -92,6 +128,7 @@ const DESIGNER_PROJECT_INFO: NavSection = {
       icon: LayoutDashboard,
       scope: "project",
       match: "exact",
+      keepOnCompletion: true,
     },
     {
       titleKey: "Sidebar.designer.survey",
@@ -113,6 +150,7 @@ const DESIGNER_PROJECT_INFO: NavSection = {
 
 const DESIGNER_DESIGN_WORK: NavSection = {
   labelKey: "Sidebar.designer.designWork",
+  projectScope: ["design", "construction"],
   items: [
     {
       titleKey: "Sidebar.designer.designManagement",
@@ -131,6 +169,7 @@ const DESIGNER_DESIGN_WORK: NavSection = {
 
 const DESIGNER_MESSAGES: NavSection = {
   labelKey: "Sidebar.designer.messages",
+  projectScope: "member",
   items: [
     {
       titleKey: "Sidebar.designer.messages",
@@ -138,6 +177,7 @@ const DESIGNER_MESSAGES: NavSection = {
       icon: MessageCircle,
       badge: 3,
       scope: "project",
+      keepOnCompletion: true,
     },
     { titleKey: "Sidebar.designer.progress", url: "/progress", icon: BarChart },
     {
@@ -157,6 +197,7 @@ const DESIGNER_MESSAGES: NavSection = {
 
 const CONSTRUCTION_WORK_SECTION: NavSection = {
   labelKey: "Sidebar.contractor.workspace",
+  projectScope: ["design", "construction"],
   items: [
     {
       titleKey: "Sidebar.contractor.constructionOverview",
@@ -214,6 +255,7 @@ const OWNER_WORKSPACE_SECTION: NavSection = {
 
 const OWNER_PROJECT_SECTION: NavSection = {
   labelKey: "Sidebar.shopOwner.projectManagement",
+  projectScope: "member",
   items: [
     {
       titleKey: "Sidebar.shopOwner.overview",
@@ -221,12 +263,14 @@ const OWNER_PROJECT_SECTION: NavSection = {
       icon: LayoutDashboard,
       scope: "project",
       match: "exact",
+      keepOnCompletion: true,
     },
     {
       titleKey: "Sidebar.shopOwner.messages",
       url: "/messages",
       icon: MessageSquare,
       scope: "project",
+      keepOnCompletion: true,
     },
     {
       titleKey: "Sidebar.shopOwner.contracts",
@@ -351,7 +395,15 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
   },
   CONTRACTOR: {
     brand: { name: "Smart Cafe", labelKey: "Roles.contractor" },
-    sections: [CONTRACTOR_SECTION],
+    // Mirrors DESIGNER today: constructor-only providers see both the
+    // design work and construction workspace. The capability-aware
+    // behavior is handled inside each section via `projectScope`.
+    sections: [
+      DESIGNER_PROJECT_INFO,
+      DESIGNER_DESIGN_WORK,
+      CONSTRUCTION_WORK_SECTION,
+      DESIGNER_MESSAGES,
+    ],
     projects: [],
     secondaryItems: [],
   },
@@ -366,6 +418,128 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
     secondaryItems: [],
   },
 };
+
+// ─── Project-scoped section filter ──────────────────────────────────────────
+//
+// `AppSidebar` calls `filterSectionsByProjectMembership` with the current
+// user's project membership and the section list it just looked up. The
+// helper hides sections whose `projectScope` requires a capability or
+// membership the viewer doesn't have.
+//
+// The rules:
+//   1. `projectScope` undefined → always visible.
+//   2. `"design"` → visible when membership.contractType ∈ {design, both}.
+//   3. `"construction"` → visible when contractType ∈ {construction, both}.
+//   4. `"member"` → visible when `membership.isActive === true`
+//      (i.e. the user owns the project, or has an engagement whose
+//      status is not completed/terminated/declined/rejected).
+//   5. When `projectScope` is an array, the section is visible if ANY
+//      of its tags passes (OR semantics). Use this to let a section
+//      accept either "design-capable" or "any member".
+//
+// On global pages (no `projectShopOwnerId`), pass `membership: null`
+// and only sections without a `projectScope` will be visible — exactly
+// what we want when the user hasn't picked a project yet.
+
+export type ProjectMembership = {
+  /** True when user is owner of the project, or has an engagement on it. */
+  isMember: boolean;
+  /**
+   * True when the membership is "live" — owner of an open project, or a
+   * provider whose engagement status is requested/accepted/active.
+   * Drives the `member` gate (hides sections when engagement is over).
+   */
+  isActive: boolean;
+  /**
+   * True when the engagement has been marked completed. Distinct from
+   * `!isActive` because "completed" keeps collaboration items visible
+   * (overview + messages) while terminal-but-not-completed states
+   * (rejected / terminated) collapse everything.
+   */
+  isCompleted: boolean;
+  /** Engagement contractType when applicable, else null. */
+  contractType: "design" | "construction" | "both" | null;
+} | null;
+
+export function filterSectionsByProjectMembership(
+  sections: NavSection[],
+  membership: ProjectMembership,
+): NavSection[] {
+  if (membership == null) {
+    // No project picked yet — hide every project-scoped section.
+    return sections.filter((s) => s.projectScope == null);
+  }
+
+  return sections
+    .map((section) => filterSection(section, membership))
+    .filter((section): section is NavSection => section != null);
+}
+
+/**
+ * Apply the project-scope gates to a single section.
+ *
+ * Returns `null` when the section should be hidden entirely. Otherwise
+ * returns a (possibly shrunken) copy of the section with non-collaborative
+ * items stripped when the engagement is completed.
+ */
+function filterSection(
+  section: NavSection,
+  membership: NonNullable<ProjectMembership>,
+): NavSection | null {
+  const scopes = normalizeScopes(section.projectScope);
+  if (scopes.length > 0) {
+    // Engagement completed: the sidebar collapses to collaboration-only
+    // (overview + messages). Every non-`member` project-scoped section
+    // is dropped here so designers/constructors don't see their build
+    // tools after the work is done.
+    if (membership.isCompleted) {
+      const hasMemberTag = scopes.includes("member");
+      if (!hasMemberTag) return null;
+    }
+
+    const visibleByScope = scopes.some((scope) => {
+      switch (scope) {
+        case "design":
+          return (
+            membership.contractType === "design" ||
+            membership.contractType === "both"
+          );
+        case "construction":
+          return (
+            membership.contractType === "construction" ||
+            membership.contractType === "both"
+          );
+        case "member":
+          return membership.isActive || membership.isCompleted;
+        default: {
+          const _exhaustive: never = scope;
+          return _exhaustive;
+        }
+      }
+    });
+    if (!visibleByScope) return null;
+  }
+
+  // When the engagement is completed, keep only items explicitly tagged
+  // `keepOnCompletion: true` (overview + messages). For an active or
+  // pre-completed engagement we render every item as configured.
+  const items = membership.isCompleted
+    ? section.items.filter((item) => item.keepOnCompletion === true)
+    : section.items;
+
+  // If filtering empties the section out, drop it so we don't render
+  // an empty group label.
+  if (items.length === 0) return null;
+
+  return { ...section, items };
+}
+
+function normalizeScopes(
+  scope: NavSection["projectScope"],
+): Array<"design" | "construction" | "member"> {
+  if (scope == null) return [];
+  return Array.isArray(scope) ? scope : [scope];
+}
 
 // ─── Project-segment title key registry ──────────────────────────────────────
 //

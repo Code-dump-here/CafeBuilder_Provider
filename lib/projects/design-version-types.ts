@@ -14,7 +14,25 @@ export type DrawingCategory =
   | "ELEVATION"
   | "SECTION";
 
-export type VersionStatus = "DRAFT" | "WORKING" | "PUBLISHED";
+/**
+ * Mirrors the wire `DesignStatus` enum from `api/designs`:
+ *   - `in_progress`  — initial create state, only the owner (creator) can edit.
+ *   - `submitted`    — provider uploaded at least one file and submitted for review.
+ *   - `approved`     — owner approved. Locked — no further edits/files.
+ *   - `revision`     — owner asked for a revision with a `reason`. Provider
+ *                      restarts the cycle via `POST /designs/{id}/start-revision`.
+ *
+ * This used to be a 3-value mock enum (`DRAFT | WORKING | PUBLISHED`) which
+ * collapsed three distinct wire states into one. That hid important lifecycle
+ * signals from the UI (e.g. a design waiting for owner review looked
+ * identical to one in active drafting). Keep the wire enum 1:1 so the
+ * StatusDot and gating logic stay aligned with the backend.
+ */
+export type VersionStatus =
+  | "in_progress"
+  | "submitted"
+  | "approved"
+  | "revision";
 
 export interface DesignVersionOwner {
   id: number;

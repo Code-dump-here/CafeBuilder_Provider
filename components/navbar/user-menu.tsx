@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
-import { LogOut, LayoutDashboard } from "lucide-react";
+import { Link, useRouter } from "@/i18n/navigation";
+import { LogOut, LayoutDashboard, Briefcase, IdCard } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -96,11 +96,25 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <a href={homePath}>
+          <Link href={homePath}>
             <LayoutDashboard className="size-3.5" />
             {t("workspace")}
-          </a>
+          </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/my-projects">
+            <Briefcase className="size-3.5" />
+            {t("myProjects")}
+          </Link>
+        </DropdownMenuItem>
+        {account?.role === "provider" && account.serviceProvider ? (
+          <DropdownMenuItem asChild>
+            <Link href="/profile">
+              <IdCard className="size-3.5" />
+              {t("profile")}
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
@@ -131,6 +145,6 @@ function roleHomePath(role: UserRole | undefined): string {
     case "owner":
     case "provider":
     default:
-      return "/workspace";
+      return "/";
   }
 }
