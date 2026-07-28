@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { AppError } from "@/lib/http/errors";
 import { useLogoutMutation } from "@/features/auth/hooks";
 import { useUpdateServiceProviderProfileMutation } from "@/features/service-provider-profiles/hooks";
-import type { Capability } from "@/features/service-provider-profiles/api";
+import type { Capability, UpdateServiceProviderProfilePayload } from "@/features/service-provider-profiles/api";
 import type { NormalizedAccount, ProviderCapability } from "@/lib/auth/auth-me-types";
 
 import {
@@ -115,20 +115,21 @@ export function ProviderProfileEditor({ account }: ProviderProfileEditorProps) {
       ? Number.parseInt(values.yearsExperience, 10)
       : null;
 
-    const payload = {
+    const payload: UpdateServiceProviderProfilePayload = {
       displayName: values.displayName.trim(),
       providerType: values.providerType,
       capability: values.capability,
-      bio: trimmedBio.length > 0 ? trimmedBio : null,
-      portfolioHeadline: trimmedHeadline.length > 0 ? trimmedHeadline : null,
+      bio: trimmedBio.length > 0 ? trimmedBio : undefined,
+      portfolioHeadline:
+        trimmedHeadline.length > 0 ? trimmedHeadline : undefined,
       yearsExperience:
         yearsExperience !== null && Number.isFinite(yearsExperience)
           ? yearsExperience
-          : null,
+          : undefined,
       companyTaxCode:
         values.providerType === "company" && trimmedTaxCode.length > 0
           ? trimmedTaxCode
-          : null,
+          : undefined,
     };
 
     try {
@@ -138,11 +139,11 @@ export function ProviderProfileEditor({ account }: ProviderProfileEditorProps) {
       // a baseline reset so the save button greys out.
       reset({
         ...values,
-        bio: payload.bio ?? "",
-        portfolioHeadline: payload.portfolioHeadline ?? "",
-        companyTaxCode: payload.companyTaxCode ?? "",
+        bio: values.bio,
+        portfolioHeadline: values.portfolioHeadline,
+        companyTaxCode: values.companyTaxCode,
         yearsExperience:
-          payload.yearsExperience !== null
+          payload.yearsExperience !== undefined
             ? String(payload.yearsExperience)
             : "",
       });
