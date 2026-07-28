@@ -17,7 +17,7 @@ import {
   useUnreadCountQuery,
 } from "@/lib/notifications/hooks";
 
-import { NotificationListItem } from "./notification-bell";
+import { NotificationListItem } from "./notification-list-item";
 
 // ─── Filter tabs ────────────────────────────────────────────────────────────
 

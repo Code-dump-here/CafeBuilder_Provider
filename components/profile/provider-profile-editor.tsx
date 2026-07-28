@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { AppError } from "@/lib/http/errors";
 import { useLogoutMutation } from "@/features/auth/hooks";
 import { useUpdateServiceProviderProfileMutation } from "@/features/service-provider-profiles/hooks";
-import type { NormalizedAccount } from "@/lib/auth/auth-me-types";
+import type { Capability } from "@/features/service-provider-profiles/api";
+import type { NormalizedAccount, ProviderCapability } from "@/lib/auth/auth-me-types";
 
 import {
   EMPTY_PROFILE_VALUES,
@@ -20,6 +21,22 @@ import {
 import type { ProviderProfileFormValues } from "./provider-profile-form";
 
 // ─── Defaults ────────────────────────────────────────────────────────────────
+
+/**
+ * `auth-me-types` uses a domain vocabulary for the user's own capability
+ * ("design" / "construction"), while the service-provider profile API
+ * (and the marketplace) uses a role-oriented vocabulary ("designer" /
+ * "constructor"). The editor renders the marketplace options and submits
+ * against the API contract, so we translate when reading from `auth.me`.
+ */
+const PROVIDER_CAPABILITY_TO_API: Record<
+  ProviderCapability,
+  Capability
+> = {
+  design: "designer",
+  construction: "constructor",
+  both: "both",
+};
 
 /**
  * Translate the API-shaped profile into the form's string-based default
@@ -40,7 +57,7 @@ function deriveDefaults(
   return {
     displayName: sp.displayName,
     providerType: sp.providerType,
-    capability: sp.capability,
+    capability: PROVIDER_CAPABILITY_TO_API[sp.capability],
     bio: sp.bio ?? "",
     yearsExperience,
     portfolioHeadline: sp.portfolioHeadline ?? "",

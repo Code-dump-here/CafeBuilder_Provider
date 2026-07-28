@@ -636,16 +636,12 @@ function DesignImageViewer({ image, images, version, onSelect }: DesignImageView
       // Revoke after the browser has had time to start the download.
       // 0ms is usually enough, but a short delay covers slow disks.
       window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-      projectActionToast({
-        title: t("viewer.downloadSuccess"),
-      });
+      projectActionToast(t("viewer.downloadSuccess"));
     } catch (err) {
       // CORS or network failure — fall back to opening the URL in a
       // new tab so the user can still save the file manually.
-      projectActionToast({
-        title: t("viewer.downloadError"),
-        description: err instanceof Error ? err.message : undefined,
-      });
+      const reason = err instanceof Error ? err.message : "Unknown error";
+      projectActionToast(t("viewer.downloadError", { reason }));
       window.open(image.thumbnailUrl, "_blank", "noopener,noreferrer");
     } finally {
       setIsDownloading(false);

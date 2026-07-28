@@ -1365,7 +1365,7 @@
       "shareCopied": "Link copied to clipboard.",
       "download": "Download",
       "downloadSuccess": "Download started.",
-      "downloadError": "Could not download file — opening in a new tab instead.",
+      "downloadError": "Could not download file — opening in a new tab instead. ({reason})",
       "scale": "Scale",
       "sheet": "Sheet",
       "updatedBy": "Updated",

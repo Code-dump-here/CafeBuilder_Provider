@@ -1366,7 +1366,7 @@
       "shareCopied": "Đã sao chép liên kết.",
       "download": "Tải về",
       "downloadSuccess": "Đã bắt đầu tải về.",
-      "downloadError": "Không thể tải về — đang mở trong tab mới.",
+      "downloadError": "Không thể tải về — đang mở trong tab mới. ({reason})",
       "scale": "Tỉ lệ",
       "sheet": "Tờ",
       "updatedBy": "Cập nhật",
