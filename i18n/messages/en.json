@@ -434,6 +434,7 @@
       },
       "providerStatus": {
         "requested": "Requested",
+        "accepted": "Accepted",
         "active": "Active",
         "paused": "Paused",
         "completed": "Completed",
@@ -1187,6 +1188,15 @@
   "Messages": {
     "createComingSoon": "Creating new threads will be available soon.",
     "infoComingSoon": "Thread details will open here when wired.",
+    "createThread": {
+      "title": "New Thread",
+      "description": "Enter a topic or question for your new thread. You can also leave it empty and the system will generate a name.",
+      "topicPlaceholder": "e.g., Discussing the kitchen layout…",
+      "hint": "Press Enter to create or click the button below.",
+      "cancel": "Cancel",
+      "create": "Create Thread",
+      "creating": "Creating…"
+    },
     "list": {
       "label": "Conversation threads",
       "heading": "Messages",
@@ -1227,7 +1237,7 @@
         "emptySearch": "No files match the current search."
       },
       "members": "Members",
-      "memberOnline": "Online"
+      "membersEmpty": "No participants in this thread yet."
     },
     "roles": {
       "designer": "Lead Designer",

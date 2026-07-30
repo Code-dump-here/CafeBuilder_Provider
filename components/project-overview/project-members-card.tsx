@@ -135,6 +135,8 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
     switch (status) {
       case "requested":
         return tStatuses("requested");
+      case "accepted":
+        return tStatuses("accepted");
       case "active":
         return tStatuses("active");
       case "paused":
@@ -298,6 +300,8 @@ function StatusBadge({
 /** Tone class per status — survives dark mode via paired CSS vars. */
 const STATUS_TONE: Record<ProjectProviderStatus, string> = {
   active:
+    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+  accepted:
     "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
   requested:
     "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30",

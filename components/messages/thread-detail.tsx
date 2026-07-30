@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
+import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import {
   Info,
   MessageSquare,
@@ -11,13 +12,13 @@ import {
   Search,
   Send,
   Smile,
+  Trash2,
   Video,
 } from "lucide-react";
 
 import { Avatar, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { OwnerAvatar } from "@/components/data-table";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +31,14 @@ import type {
 interface ThreadDetailProps {
   thread: MessageThread | null;
   onOpenInfo: () => void;
+  /** Called when the user submits the composer form. */
+  onSend?: (body: string, files?: File[]) => Promise<void>;
+  /** Called when the user clicks delete on a message. */
+  onDeleteMessage?: (messageId: number) => void;
+  /** The current user's account id — used to show delete affordances. */
+  currentAccountId?: number | null;
+  /** Disable the composer while a send is in flight (no optimistic bubble). */
+  isSending?: boolean;
 }
 
 const ROLE_BY_AUTHOR: Record<number, string> = {
@@ -49,12 +58,13 @@ const ROLE_BY_AUTHOR: Record<number, string> = {
  *   - typing indicator using the most recent `pending` message
  *   - composer pinned at the bottom
  */
-export function ThreadDetail({ thread, onOpenInfo }: ThreadDetailProps) {
+export function ThreadDetail({ thread, onOpenInfo, onSend, onDeleteMessage, currentAccountId, isSending }: ThreadDetailProps) {
   const t = useTranslations("Messages");
   const format = useFormatter();
   const [draft, setDraft] = React.useState("");
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
   const endRef = React.useRef<HTMLDivElement | null>(null);
+  const viewportRef = React.useRef<HTMLDivElement | null>(null);
 
   // Reset composer state when switching threads — otherwise the
   // pending draft + reply target leak between contexts.
@@ -63,11 +73,32 @@ export function ThreadDetail({ thread, onOpenInfo }: ThreadDetailProps) {
   }, [thread?.id]);
 
   // Auto-scroll to bottom whenever the message log grows.
+  // We pin to the bottom on every message change (incl. optimistic ones)
+  // and also force-scroll on initial mount / thread switch via `instant`.
+  // Using `scrollTop = scrollHeight` instead of `scrollIntoView` because
+  // the latter is a no-op when the target element is already inside the
+  // viewport, which caused the "message stuck on top until F5" bug.
+  const lastMessageId = thread?.messages.at(-1)?.id;
+  const messageCount = thread?.messages.length ?? 0;
   React.useEffect(() => {
-    const node = endRef.current;
-    if (!node) return;
-    node.scrollIntoView({ block: "end" });
-  }, [thread?.messages.length, thread?.messages.at(-1)?.id]);
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    // Defer to the next frame so the browser has finished laying out the
+    // newly appended bubble (and recomputed scrollHeight). Without this
+    // rAF, scrollTop is set to the OLD scrollHeight and the new bubble
+    // stays below the viewport — the user sees the old tail and the new
+    // message effectively "hidden off-screen" until F5 re-measures.
+    const raf = requestAnimationFrame(() => {
+      // Double-RAF: ensures layout has committed after the first paint
+      // with the new DOM nodes.
+      requestAnimationFrame(() => {
+        if (viewportRef.current) {
+          viewportRef.current.scrollTop = viewportRef.current.scrollHeight;
+        }
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [messageCount, lastMessageId, thread?.id]);
 
   if (!thread) {
     return (
@@ -80,12 +111,12 @@ export function ThreadDetail({ thread, onOpenInfo }: ThreadDetailProps) {
 
   const groups = groupByDate(thread.messages);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!draft.trim()) return;
-    // Real wiring: emit the message into a message-sending API.
-    // For now, locally echo the draft into the bubble so the
-    // composer feels responsive.
+    if (onSend) {
+      await onSend(draft);
+    }
     setDraft("");
   };
 
@@ -93,51 +124,67 @@ export function ThreadDetail({ thread, onOpenInfo }: ThreadDetailProps) {
     <article className="flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card">
       <ThreadHeader thread={thread} onOpenInfo={onOpenInfo} />
 
-      <ScrollArea className="flex-1 bg-stone-50 dark:bg-stone-950/40">
-        <div ref={scrollRef} className="flex flex-col gap-3 px-4 pt-4 pb-3">
-          {thread.messages.length === 0 ? (
-            <p className="mx-auto mt-12 text-center text-xs text-muted-foreground">
-              {t("detail.noMessages")}
-            </p>
-          ) : null}
+      <ScrollAreaPrimitive.Root
+        className="flex-1 overflow-hidden bg-stone-50 dark:bg-stone-950/40"
+      >
+        <ScrollAreaPrimitive.Viewport
+          ref={viewportRef}
+          className="size-full"
+        >
+          <div ref={scrollRef} className="flex flex-col gap-3 px-4 pt-4 pb-3">
+            {thread.messages.length === 0 ? (
+              <p className="mx-auto mt-12 text-center text-xs text-muted-foreground">
+                {t("detail.noMessages")}
+              </p>
+            ) : null}
 
-          {groups.map(({ dateKey, bursts }) => {
-            const dateLabel = format.dateTime(new Date(dateKey), {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            });
-            return (
-              <section
-                key={dateKey}
-                aria-label={dateLabel}
-                className="flex flex-col gap-2"
-              >
-                <DateSeparator label={dateLabel} />
-                {bursts.map((burst) => (
-                  <MessageBurst
-                    key={burst.first.id}
-                    burst={burst}
-                    roleLabel={t(`roles.${roleKey(burst.first.author.id)}`, {
-                      defaultValue: ROLE_BY_AUTHOR[burst.first.author.id],
-                    })}
-                  />
-                ))}
-              </section>
-            );
-          })}
+            {groups.map(({ dateKey, bursts }) => {
+              const dateLabel = format.dateTime(new Date(dateKey), {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              });
+              return (
+                <section
+                  key={dateKey}
+                  aria-label={dateLabel}
+                  className="flex flex-col gap-2"
+                >
+                  <DateSeparator label={dateLabel} />
+                  {bursts.map((burst) => (
+                    <MessageBurst
+                      key={burst.first.id}
+                      burst={burst}
+                      roleLabel={t(`roles.${roleKey(burst.first.author.id)}`, {
+                        defaultValue: ROLE_BY_AUTHOR[burst.first.author.id],
+                      })}
+                      currentAccountId={currentAccountId}
+                      onDeleteMessage={onDeleteMessage}
+                    />
+                  ))}
+                </section>
+              );
+            })}
 
-          <TypingIndicator
-            name={
-              thread.messages.at(-1)?.pending
-                ? (thread.messages.at(-1)?.author.fullName ?? "")
-                : ""
-            }
-          />
+            <TypingIndicator
+              name={
+                thread.messages.at(-1)?.pending
+                  ? (thread.messages.at(-1)?.author.fullName ?? "")
+                  : ""
+              }
+            />
 
-          <div ref={endRef} aria-hidden />
-        </div>
-      </ScrollArea>
+            <div ref={endRef} aria-hidden />
+          </div>
+        </ScrollAreaPrimitive.Viewport>
+        <ScrollAreaPrimitive.Scrollbar
+          orientation="vertical"
+          className="flex touch-none p-px transition-colors select-none h-full w-2.5 border-l border-l-transparent"
+        >
+          <ScrollAreaPrimitive.Thumb className="relative flex-1 rounded-full bg-border" />
+        </ScrollAreaPrimitive.Scrollbar>
+        <ScrollAreaPrimitive.Corner />
+      </ScrollAreaPrimitive.Root>
 
       <Composer
         value={draft}
@@ -147,6 +194,7 @@ export function ThreadDetail({ thread, onOpenInfo }: ThreadDetailProps) {
           name: thread.title,
         })}
         sendLabel={t("detail.send")}
+        disabled={isSending}
       />
     </article>
   );
@@ -274,9 +322,13 @@ interface Burst {
 function MessageBurst({
   burst,
   roleLabel,
+  currentAccountId,
+  onDeleteMessage,
 }: {
   burst: Burst;
   roleLabel: string;
+  currentAccountId?: number | null;
+  onDeleteMessage?: (messageId: number) => void;
 }) {
   const t = useTranslations("Messages");
   const format = useFormatter();
@@ -285,28 +337,69 @@ function MessageBurst({
     minute: "2-digit",
   });
 
+  const isMine =
+    currentAccountId != null && burst.author.id === currentAccountId;
+
   return (
-    <div className="flex items-start gap-2.5">
-      <OwnerAvatar
-        name={burst.author.fullName}
-        color={burst.author.avatarColor}
-        size="default"
-        className="size-8 text-xs"
-      />
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <header className="flex flex-wrap items-baseline gap-2 text-[11px] text-muted-foreground">
-          <span className="font-semibold text-foreground">
-            {burst.author.fullName}
-          </span>
-          <span>{roleLabel}</span>
-          <span aria-hidden>·</span>
-          <span>{firstAt}</span>
-        </header>
+    <div
+      className={cn(
+        "flex items-start gap-2.5",
+        isMine && "flex-row-reverse",
+      )}
+    >
+      {isMine ? (
+        <div aria-hidden className="size-8 shrink-0" />
+      ) : (
+        <OwnerAvatar
+          name={burst.author.fullName}
+          color={burst.author.avatarColor}
+          size="default"
+          className="size-8 text-xs"
+        />
+      )}
+      <div
+        className={cn(
+          "flex min-w-0 flex-1 flex-col gap-1",
+          isMine && "items-end",
+        )}
+      >
+        {!isMine ? (
+          <header className="flex flex-wrap items-baseline gap-2 text-[11px] text-muted-foreground">
+            <span className="font-semibold text-foreground">
+              {burst.author.fullName}
+            </span>
+            <span>{roleLabel}</span>
+            <span aria-hidden>·</span>
+            <span>{firstAt}</span>
+          </header>
+        ) : (
+          <header className="flex flex-wrap items-baseline justify-end gap-2 text-[11px] text-muted-foreground">
+            <span aria-hidden>·</span>
+            <span>{firstAt}</span>
+          </header>
+        )}
         {[burst.first, ...burst.rest].map((message) => (
-          <article key={message.id} className="flex flex-col gap-1.5">
-            <Bubble body={message.body} />
+          <article
+            key={message.id}
+            className={cn(
+              "group relative flex flex-col gap-1.5",
+              isMine && "items-end",
+            )}
+          >
+            <Bubble
+              body={message.body}
+              isMine={isMine}
+              pending={message.pending}
+              canDelete={isMine}
+              onDelete={onDeleteMessage ? () => onDeleteMessage(message.id) : undefined}
+            />
             {message.attachments.length > 0 ? (
-              <ul className="flex flex-wrap gap-1.5 pl-1">
+              <ul
+                className={cn(
+                  "flex flex-wrap gap-1.5 pl-1",
+                  isMine && "justify-end pl-0 pr-1",
+                )}
+              >
                 {message.attachments.map((attachment) => (
                   <AttachmentChip
                     key={attachment.id}
@@ -322,15 +415,49 @@ function MessageBurst({
   );
 }
 
-function Bubble({ body }: { body: string }) {
+function Bubble({
+  body,
+  isMine,
+  canDelete,
+  onDelete,
+  pending,
+}: {
+  body: string;
+  isMine?: boolean;
+  canDelete?: boolean;
+  onDelete?: () => void;
+  pending?: boolean;
+}) {
   return (
     <div
       className={cn(
-        "max-w-prose rounded-2xl rounded-tl-sm bg-card px-3 py-2 text-sm text-foreground shadow-xs ring-1 ring-border/40",
+        "max-w-prose rounded-2xl px-3 py-2 text-sm shadow-xs ring-1",
         "wrap-break-word",
+        isMine
+          ? "rounded-tr-sm bg-blue-600 text-white ring-blue-600 dark:bg-blue-500 dark:ring-blue-500"
+          : "rounded-tl-sm bg-card text-foreground ring-border/40",
+        canDelete && "group-hover:ring-destructive/40",
+        pending && "opacity-70",
       )}
     >
-      {body}
+      <span className="flex items-start justify-between gap-2">
+        <span>{body}</span>
+        {canDelete && onDelete && (
+          <button
+            type="button"
+            onClick={onDelete}
+            aria-label="Delete message"
+            className={cn(
+              "mt-0.5 shrink-0 rounded p-0.5 opacity-0 transition-opacity group-hover:opacity-100",
+              isMine
+                ? "text-white/70 hover:text-white"
+                : "text-muted-foreground hover:text-destructive",
+            )}
+          >
+            <Trash2 aria-hidden className="size-3.5" />
+          </button>
+        )}
+      </span>
     </div>
   );
 }
@@ -383,12 +510,14 @@ function Composer({
   onSubmit,
   placeholder,
   sendLabel,
+  disabled,
 }: {
   value: string;
   onChange: (next: string) => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   placeholder: string;
   sendLabel: string;
+  disabled?: boolean;
 }) {
   return (
     <form
@@ -400,6 +529,7 @@ function Composer({
         size="icon-sm"
         variant="ghost"
         aria-label="Attach file"
+        disabled={disabled}
       >
         <Paperclip aria-hidden />
       </Button>
@@ -408,6 +538,7 @@ function Composer({
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
+        disabled={disabled}
         className="h-9 text-sm"
       />
       <Button
@@ -415,6 +546,7 @@ function Composer({
         size="icon-sm"
         variant="ghost"
         aria-label="Emoji"
+        disabled={disabled}
       >
         <Smile aria-hidden />
       </Button>
@@ -422,7 +554,7 @@ function Composer({
         type="submit"
         size="icon-sm"
         aria-label={sendLabel}
-        disabled={!value.trim()}
+        disabled={!value.trim() || disabled}
       >
         <Send aria-hidden />
       </Button>

@@ -213,8 +213,17 @@ export function useConstructionTasks(
   const query = useQuery<ConstructionTaskListResponse, Error>({
     queryKey: ["construction-tasks", { constructionItemId, status }],
     queryFn: async ({ signal }) =>
-      getConstructionTasksApi({ constructionItemId: constructionItemId ? Number(constructionItemId) : undefined, status }, { signal }),
-    enabled: enabled && Boolean(constructionItemId),
+      getConstructionTasksApi(
+        {
+          constructionItemId: constructionItemId
+            ? Number(constructionItemId)
+            : undefined,
+          status,
+        },
+        { signal },
+      ),
+    // Only gate on `enabled` — `constructionItemId` is optional (null/undefined = fetch all tasks).
+    enabled,
     staleTime: 30 * 1000,
   });
 

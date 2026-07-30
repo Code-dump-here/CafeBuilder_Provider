@@ -40,6 +40,15 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
   const t = useTranslations("Messages");
   const [search, setSearch] = React.useState("");
 
+  const filteredFiles = React.useMemo(() => {
+    if (!thread) return [];
+    const q = search.trim().toLowerCase();
+    if (!q) return thread.attachments;
+    return thread.attachments.filter((a) =>
+      a.title.toLowerCase().includes(q),
+    );
+  }, [thread, search]);
+
   if (!thread) {
     return (
       <aside className="hidden h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card lg:flex">
@@ -49,14 +58,6 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
       </aside>
     );
   }
-
-  const filteredFiles = React.useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return thread.attachments;
-    return thread.attachments.filter((a) =>
-      a.title.toLowerCase().includes(q),
-    );
-  }, [thread.attachments, search]);
 
   return (
     <aside
@@ -113,33 +114,30 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
               <Users aria-hidden className="size-3" />
               {t("rail.members")}
             </h4>
-            <ul className="flex flex-col gap-1.5">
-              {thread.members.map((member) => (
-                <li
-                  key={member.id}
-                  className="flex items-center gap-2.5 rounded-md border border-border/40 bg-card/60 px-2 py-1.5"
-                >
-                  <OwnerAvatar
-                    name={member.fullName}
-                    color={member.avatarColor}
-                    size="default"
-                    className="size-7 text-[11px]"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="line-clamp-1 text-xs font-medium text-foreground">
+            {thread.members.length === 0 ? (
+              <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-xs text-muted-foreground">
+                {t("rail.membersEmpty")}
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-1.5">
+                {thread.members.map((member) => (
+                  <li
+                    key={member.id}
+                    className="flex items-center gap-2.5 rounded-md border border-border/40 bg-card/60 px-2 py-1.5"
+                  >
+                    <OwnerAvatar
+                      name={member.fullName}
+                      color={member.avatarColor}
+                      size="default"
+                      className="size-7 text-[11px]"
+                    />
+                    <p className="line-clamp-1 flex-1 text-xs font-medium text-foreground">
                       {member.fullName}
                     </p>
-                    <p className="line-clamp-1 text-[10px] text-muted-foreground">
-                      {t("rail.memberOnline")}
-                    </p>
-                  </div>
-                  <span
-                    className="size-1.5 rounded-full bg-emerald-500"
-                    aria-hidden
-                  />
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         </div>
       </ScrollArea>

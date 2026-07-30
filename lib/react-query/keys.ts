@@ -114,4 +114,41 @@ export const queryKeys = {
         params.pageSize,
       ] as const,
   },
+  chat: {
+    /**
+     * Paginated thread list for a single engagement:
+     *   `GET /api/chat/conversations?projectWorkingId=&pageNumber=&pageSize=`.
+     * Discriminators are `projectWorkingId`, `pageNumber`, `pageSize`.
+     * Invalidation target after create/delete conversation mutations.
+     */
+    conversations: (
+      projectWorkingId: number,
+      pageNumber: number,
+      pageSize: number,
+    ) =>
+      [
+        "chat",
+        "conversations",
+        projectWorkingId,
+        pageNumber,
+        pageSize,
+      ] as const,
+    /**
+     * Single conversation detail (first page of messages):
+     *   `GET /api/chat/conversations/{id}?pageNumber=&pageSize=`.
+     * Discriminators are `conversationId`, `pageNumber`, `pageSize`.
+     */
+    conversation: (
+      conversationId: number,
+      pageNumber: number,
+      pageSize: number,
+    ) =>
+      [
+        "chat",
+        "conversation",
+        conversationId,
+        pageNumber,
+        pageSize,
+      ] as const,
+  },
 };

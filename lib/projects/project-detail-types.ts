@@ -28,6 +28,7 @@ export type ProjectProviderCapability = "design" | "construction";
 /**
  * Lifecycle of a project's relationship with a provider:
  *   - `requested` — owner invited the provider, no response yet.
+ *   - `accepted`  — provider accepted the invitation.
  *   - `active`    — provider is engaged and working.
  *   - `paused`    — work is temporarily on hold.
  *   - `completed` — engagement is finished (e.g. construction done).
@@ -35,6 +36,7 @@ export type ProjectProviderCapability = "design" | "construction";
  */
 export type ProjectProviderStatus =
   | "requested"
+  | "accepted"
   | "active"
   | "paused"
   | "completed"
@@ -182,7 +184,10 @@ export interface RawProjectDetail {
 export interface RawProjectProvider {
   projectProviderId: number;
   projectWorkingId: number;
-  providerId: number;
+  /** API field: `serviceProviderProfileId` */
+  serviceProviderProfileId: number;
+  /** Fallback alias for compatibility */
+  providerId?: number;
   displayName: string;
   providerType: string;
   capability: string;
@@ -236,6 +241,7 @@ function normalizeCapability(
 function normalizeProviderStatus(raw: string): ProjectProviderStatus {
   switch (raw) {
     case "requested":
+    case "accepted":
     case "active":
     case "paused":
     case "completed":
@@ -256,7 +262,8 @@ function normalizeProjectProvider(raw: RawProjectProvider): ProjectProvider {
   return {
     projectProviderId: raw.projectProviderId,
     projectWorkingId: raw.projectWorkingId,
-    providerId: raw.providerId,
+    // API uses `serviceProviderProfileId`, with `providerId` as fallback alias
+    providerId: raw.serviceProviderProfileId ?? (raw.providerId ?? 0),
     displayName: raw.displayName,
     providerType: normalizeProviderType(raw.providerType),
     capability: normalizeCapability(raw.capability),

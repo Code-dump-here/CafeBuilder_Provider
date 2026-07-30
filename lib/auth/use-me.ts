@@ -37,7 +37,7 @@ export interface UseMeResult {
  * Returns `null` for `data` while loading, allowing consumers to distinguish
  * loading from unauthenticated states (where the query returns `null`).
  *
- * The query is `enabled: hydrated && hasAccessToken` so it only fires when
+ * The query is `enabled: hydrated && hasToken` so it only fires when
  * a valid token is present. We subscribe to tokenStore to re-evaluate
  * when tokens change (login/logout).
  */
@@ -51,6 +51,18 @@ export function useMe(): UseMeResult {
     () => tokenStore.hasAccessToken(),
     () => false, // SSR: assume no token
   );
+
+  // Force re-render when token changes so `enabled` re-evaluates
+  // and the query fires after login/logout.
+  const [, setTokenVersion] = React.useState(0);
+  React.useEffect(() => {
+    const unsubscribe = tokenStore.subscribe(() => {
+      setTokenVersion((v) => v + 1);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const query = useQuery<NormalizedAccount, Error>({
     queryKey: ["auth", "me"],

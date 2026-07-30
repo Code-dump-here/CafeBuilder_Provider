@@ -437,6 +437,7 @@
       },
       "providerStatus": {
         "requested": "Đã mời",
+        "accepted": "Đã chấp nhận",
         "active": "Đang hợp tác",
         "paused": "Tạm dừng",
         "completed": "Hoàn thành",
@@ -1188,6 +1189,15 @@
   "Messages": {
     "createComingSoon": "Tính năng tạo thread mới sẽ sớm khả dụng.",
     "infoComingSoon": "Chi tiết thread sẽ mở ở đây khi được kết nối.",
+    "createThread": {
+      "title": "Tạo Thread Mới",
+      "description": "Nhập chủ đề hoặc câu hỏi cho thread mới. Bạn cũng có thể để trống và hệ thống sẽ tự tạo tên.",
+      "topicPlaceholder": "VD: Thảo luận về bố trí nhà bếp…",
+      "hint": "Nhấn Enter để tạo hoặc nhấn nút bên dưới.",
+      "cancel": "Hủy",
+      "create": "Tạo Thread",
+      "creating": "Đang tạo…"
+    },
     "list": {
       "label": "Danh sách cuộc trò chuyện",
       "heading": "Tin nhắn",
@@ -1228,7 +1238,7 @@
         "emptySearch": "Không có tệp nào khớp với tìm kiếm."
       },
       "members": "Thành viên",
-      "memberOnline": "Trực tuyến"
+      "membersEmpty": "Thread này chưa có người tham gia."
     },
     "roles": {
       "designer": "Designer chính",

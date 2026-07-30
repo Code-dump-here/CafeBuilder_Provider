@@ -9,6 +9,11 @@ import type {
   MessageThread,
 } from "./messages-types";
 
+import {
+  getConversationsApi,
+  apiConversationToThread,
+} from "@/features/chat";
+
 const T = (iso: string) => new Date(iso);
 
 // Shared author pool (matches use-version-comments for consistency).
@@ -324,6 +329,7 @@ const THREADS: MessageThread[] = [
 
 let THREADS_OVERRIDE: null | ((projectId: string) => MessageThread[]) = null;
 
+/** Override for the whole mock thread list. */
 export const __setMessagesOverride = (
   next: (projectId: string) => MessageThread[],
 ) => {
@@ -331,10 +337,27 @@ export const __setMessagesOverride = (
 };
 
 /**
+ * Fetch real conversations from the API and map to `MessageThread[]`.
+ * Returns `null` if the API call fails (let the caller fall back
+ * to mock data).
+ */
+let CHAT_API_OVERRIDE: null | ((projectWorkingId: number) => MessageThread[] | null) = null;
+
+/** Override that bypasses the API entirely — used in dev / demo mode. */
+export const __setChatApiOverride = (
+  next: (projectWorkingId: number) => MessageThread[] | null,
+) => {
+  CHAT_API_OVERRIDE = next;
+};
+
+/**
  * Returns the threads for a single project, scoped by `projectId`.
  *
- * Replace with a real fetcher when the backend is wired — the override
- * hook above mirrors the pattern used in `useVersionComments`.
+ * Resolution order:
+ * 1. `THREADS_OVERRIDE` — mock replacement (e.g. unit tests).
+ * 2. `CHAT_API_OVERRIDE` — bypass API (e.g. demo / offline).
+ * 3. Live API — fetches from `/api/chat/conversations?projectWorkingId=`.
+ * 4. Static mock — `THREADS` as the final fallback.
  */
 export function useMessageThreads(projectId: string): MessageThread[] {
   return React.useMemo(() => {
@@ -342,6 +365,26 @@ export function useMessageThreads(projectId: string): MessageThread[] {
     const loader = THREADS_OVERRIDE ?? (() => THREADS);
     return loader(projectId);
   }, [projectId]);
+}
+
+/** Returns real MessageThreads from the API. Returns null on error. */
+export async function fetchMessageThreadsFromApi(
+  projectWorkingId: number,
+): Promise<MessageThread[] | null> {
+  if (CHAT_API_OVERRIDE) {
+    return CHAT_API_OVERRIDE(projectWorkingId);
+  }
+  try {
+    const result = await getConversationsApi(
+      { projectWorkingId, pageNumber: 1, pageSize: 100 },
+    );
+    return result.items.map((conv) =>
+      apiConversationToThread(conv, 0), // projectId not in API — use 0
+    );
+  } catch (err) {
+    console.error("[use-message-threads] failed to fetch from API", err);
+    return null;
+  }
 }
 
 /** Pick a single thread by id. Returns `null` if not found. */
