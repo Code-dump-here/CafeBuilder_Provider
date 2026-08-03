@@ -16,7 +16,7 @@ import { AddPhaseDialog } from "@/components/contractor/milestone-management/add
 import { TaskDetailView } from "@/components/contractor/milestone-management/task-detail-view";
 import { AddTaskModal } from "@/components/contractor/milestone-management/add-task-modal";
 
-import { useProjectDetail } from "@/lib/projects/use-project-detail";
+import { useProjectDetail } from "@/features/projects/use-project-detail";
 import {
   useConstructionItems,
   useCreateConstructionItemMutation,
@@ -28,12 +28,12 @@ import {
   useUpdateConstructionTaskMutation,
   useSetConstructionTaskStatusMutation,
   useDeleteConstructionTaskMutation,
-} from "@/lib/projects/use-construction";
+} from "@/features/projects/use-construction";
 import type {
   ConstructionItem,
   ConstructionTask,
   ConstructionStatus,
-} from "@/lib/projects/construction-types";
+} from "@/features/projects/construction-types";
 
 // ─── Map API types to component types ────────────────────────────────────────
 

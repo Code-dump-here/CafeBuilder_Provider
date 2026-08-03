@@ -7,7 +7,7 @@ import { ChevronRight } from "lucide-react";
 import { CodeBadge } from "@/components/data-table";
 import { cn } from "@/lib/utils";
 
-import type { TechnicalDrawing } from "@/lib/projects/technical-drawing-types";
+import type { TechnicalDrawing } from "@/features/projects/technical-drawing-types";
 
 interface DrawingTreeProps {
   drawings: TechnicalDrawing[];

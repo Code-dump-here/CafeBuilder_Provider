@@ -4,9 +4,9 @@ import * as React from "react";
 import { useParams } from "next/navigation";
 
 import { VersionListTable } from "@/components/design-management/version-list-table";
-import { useCurrentUser } from "@/lib/auth/user-context";
-import { useEngagements } from "@/lib/projects/use-engagements";
-import { useDesigns } from "@/lib/projects/use-designs";
+import { useCurrentUser } from "@/features/auth/user-context";
+import { useEngagements } from "@/features/projects/use-engagements";
+import { useDesigns } from "@/features/projects/use-designs";
 
 /**
  * Design management landing page.

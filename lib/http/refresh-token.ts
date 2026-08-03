@@ -1,5 +1,5 @@
 import { refreshTokenApi } from "./auth";
-import { tokenStore } from "@/lib/auth/token-store";
+import { tokenStore } from "@/features/auth/token-store";
 
 let refreshPromise: Promise<string | null> | null = null;
 

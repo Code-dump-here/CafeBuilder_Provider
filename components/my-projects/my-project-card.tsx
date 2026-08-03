@@ -18,7 +18,7 @@ import type {
   MyProjectContractType,
   MyProjectStatus,
   MyProjectWorking,
-} from "@/lib/projects/my-projects-types";
+} from "@/features/projects/my-projects-types";
 
 // ─── Locale-aware formatters (kept inline — single use site) ────────────────
 

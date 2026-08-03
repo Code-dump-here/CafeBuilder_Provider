@@ -26,14 +26,14 @@ import { DataTable } from "@/components/data-table/data-table";
 
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
 import { VersionCommentsPanel } from "@/components/design-management/version-comments-panel";
-import { useVersionComments } from "@/lib/projects/use-version-comments";
+import { useVersionComments } from "@/features/projects/use-version-comments";
 import {
   NewVersionDialog,
   PublishRevisionDialog,
 } from "./dialogs";
-import type { DesignVersion } from "@/lib/projects/design-version-types";
-import type { DesignType } from "@/lib/projects/design-types";
-import { mapDesignTypeToCategory } from "@/lib/projects/use-designs";
+import type { DesignVersion } from "@/features/projects/design-version-types";
+import type { DesignType } from "@/features/projects/design-types";
+import { mapDesignTypeToCategory } from "@/features/projects/use-designs";
 
 interface VersionListTableProps {
   projectId: string;

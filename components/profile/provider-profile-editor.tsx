@@ -12,7 +12,7 @@ import { AppError } from "@/lib/http/errors";
 import { useLogoutMutation } from "@/features/auth/hooks";
 import { useUpdateServiceProviderProfileMutation } from "@/features/service-provider-profiles/hooks";
 import type { Capability, UpdateServiceProviderProfilePayload } from "@/features/service-provider-profiles/api";
-import type { NormalizedAccount, ProviderCapability } from "@/lib/auth/auth-me-types";
+import type { NormalizedAccount, ProviderCapability } from "@/features/auth/auth-me-types";
 
 import {
   EMPTY_PROFILE_VALUES,

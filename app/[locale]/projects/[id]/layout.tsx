@@ -4,7 +4,7 @@ import * as React from "react";
 import { useParams, usePathname } from "next/navigation";
 
 import { ProjectHeroBar } from "@/components/project-overview/project-hero-bar";
-import { useProjectDetail } from "@/lib/projects/use-project-detail";
+import { useProjectDetail } from "@/features/projects/use-project-detail";
 
 /**
  * This version of Next.js is not the one you know — APIs, conventions, and

@@ -4,7 +4,7 @@ import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { queryKeys } from "@/lib/react-query/keys";
-import { tokenStore } from "@/lib/auth/token-store";
+import { tokenStore } from "@/features/auth/token-store";
 
 import {
   createSubscriptionApi,

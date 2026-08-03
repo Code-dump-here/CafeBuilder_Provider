@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import type {
   DesignVersion,
   DesignVersionComment,
-} from "@/lib/projects/design-version-types";
+} from "@/features/projects/design-version-types";
 
 interface VersionCommentsPanelProps {
   version: DesignVersion | null;

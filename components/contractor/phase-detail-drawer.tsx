@@ -23,10 +23,10 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useConstructionTasks } from "@/lib/projects/use-construction";
-import { useIssues } from "@/lib/projects/use-issues";
-import type { ConstructionTask } from "@/lib/projects/construction-types";
-import type { Issue } from "@/lib/projects/issue-types";
+import { useConstructionTasks } from "@/features/projects/use-construction";
+import { useIssues } from "@/features/projects/use-issues";
+import type { ConstructionTask } from "@/features/projects/construction-types";
+import type { Issue } from "@/features/projects/issue-types";
 
 import type { MilestonePhase } from "@/lib/contractor/construction-overview-data";
 

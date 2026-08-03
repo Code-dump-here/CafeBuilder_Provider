@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import type {
   DrawingGroup,
   TechnicalDrawing,
-} from "@/lib/projects/technical-drawing-types";
+} from "@/features/projects/technical-drawing-types";
 
 interface DrawingTreeGroupsProps {
   groups: DrawingGroup[];

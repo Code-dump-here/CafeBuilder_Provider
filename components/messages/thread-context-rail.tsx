@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { OwnerAvatar } from "@/components/data-table";
 import { cn } from "@/lib/utils";
 
-import type { MessageAttachment, MessageThread } from "@/lib/projects/messages-types";
+import type { MessageAttachment, MessageThread } from "@/features/projects/messages-types";
 
 interface ThreadContextRailProps {
   thread: MessageThread | null;

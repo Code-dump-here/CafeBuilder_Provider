@@ -7,7 +7,7 @@ import { ChevronRight, Loader2, Ruler } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import type { EngagementDesignSummary } from "@/lib/projects/engagement-types";
+import type { EngagementDesignSummary } from "@/features/projects/engagement-types";
 
 /**
  * Read-only approved-drawings view.

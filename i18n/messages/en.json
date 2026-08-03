@@ -439,6 +439,35 @@
         "paused": "Paused",
         "completed": "Completed",
         "declined": "Declined"
+      },
+      "providerActions": {
+        "loading": "Loading…",
+        "requestCompletion": "Request completion",
+        "awaitingAcceptance": "Awaiting acceptance",
+        "terminate": "Terminate",
+        "requestCompletionSuccess": "Completion requested. Waiting for the owner to accept.",
+        "terminateSuccess": "Collaboration terminated.",
+        "errors": {
+          "requestCompletion": "Could not request completion.",
+          "terminate": "Could not terminate this collaboration."
+        }
+      }
+    },
+    "invitationBanner": {
+      "badge": "Invitation",
+      "title": "You've been invited to this project",
+      "subtitle": "The owner wants to collaborate with you on \"{name}\". Review the brief before deciding.",
+      "capability": "Role",
+      "ownerLabel": "Owner",
+      "messageLabel": "Invitation note",
+      "messageEmpty": "(The owner didn't leave a note.)",
+      "accept": "Accept",
+      "reject": "Decline",
+      "actionsAria": "Respond to invitation for {name}",
+      "acceptSuccess": "You accepted the invitation for \"{name}\".",
+      "rejectSuccess": "You declined the invitation for \"{name}\".",
+      "errors": {
+        "generic": "Could not respond to the invitation. Please try again."
       }
     },
     "owner": {
@@ -1165,14 +1194,24 @@
     "admin": {
       "overview": "Overview",
       "dashboard": "Dashboard",
-      "systemAlerts": "System Alerts",
+      "operations": "Operations",
       "management": "Management",
+      "platform": "Platform",
+      "systemAlerts": "System Alerts",
       "users": "Users",
       "providers": "Providers",
       "projects": "Projects",
-      "platform": "Platform",
       "disputes": "Disputes",
-      "analytics": "Analytics"
+      "analytics": "Analytics",
+      "accounts": "Accounts",
+      "activity": "Activity",
+      "billing": "Billing",
+      "settings": "Settings",
+      "revenue": "Revenue",
+      "legacyDashboard": "Dashboard",
+      "legacyUsers": "Users",
+      "legacyDisputes": "Disputes",
+      "legacyAnalytics": "Analytics"
     },
     "navUser": {
       "upgradeToPro": "Upgrade to Pro",
@@ -1688,6 +1727,27 @@
     "page": "Page {page} of {total}",
     "first": "First",
     "last": "Last"
+    },
+    "refreshing": "Refreshing…",
+    "filters": {
+      "label": "Filter engagements",
+      "tabs": {
+        "all": "All",
+        "invitations": "Invitations",
+        "active": "Active",
+        "completed": "Completed"
+      }
+    },
+    "invitations": {
+      "badge": "Invitation",
+      "accept": "Accept",
+      "reject": "Decline",
+      "acceptSuccess": "You accepted the invitation for \"{name}\".",
+      "rejectSuccess": "You declined the invitation for \"{name}\".",
+      "actionsAria": "Respond to invitation for {name}",
+      "errors": {
+        "generic": "Could not respond to the invitation. Please try again."
+      }
     }
   },
   "Profile": {
@@ -1702,6 +1762,11 @@
       "eyebrow": "Profile",
       "title": "My profile",
       "subtitle": "Keep your details up to date so cafe owners can see what you bring to a project."
+    },
+    "tabs": {
+      "posts": "Posts",
+      "projects": "Projects",
+      "reviews": "Reviews"
     },
     "sections": {
       "basics": {
@@ -1749,7 +1814,11 @@
       "saving": "Saving…",
       "saved": "Profile updated.",
       "reset": "Discard changes",
-      "signOut": "Log out"
+      "signOut": "Log out",
+      "editProfile": "Edit profile",
+      "settings": "Settings",
+      "changeCover": "Change cover",
+      "cancel": "Cancel"
     },
     "states": {
       "loading": "Loading your profile…",
@@ -1851,6 +1920,13 @@
     "item": {
       "markRead": "Mark as read"
     },
+    "types": {
+      "engagement_completion_requested": "Provider requested completion",
+      "engagement_completed": "Engagement accepted",
+      "engagement_terminated": "Engagement terminated",
+      "project_completed": "Project closed",
+      "project_cancelled": "Project cancelled"
+    },
     "markAll": "Mark all as read",
     "resultsCount": "{count, plural, =0 {No notifications} one {# notification} other {# notifications}}",
     "pagination": {
@@ -1862,6 +1938,116 @@
       "loadErrorTitle": "Couldn't load notifications.",
       "loadErrorSubtitle": "Please try again in a moment.",
       "loadErrorRetry": "Try again"
+    }
+  },
+  "Admin": {
+    "meta": {
+      "title": "Admin Console",
+      "description": "Platform administration and management"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Platform overview and key metrics",
+      "lastUpdated": "Last updated",
+      "accountStatus": "Account Status",
+      "transactionStatus": "Transaction Status",
+      "accounts": "Accounts",
+      "projects": "Projects",
+      "contracts": "Contracts",
+      "applications": "Applications",
+      "quickActions": "Quick Actions"
+    },
+    "stats": {
+      "accounts": "Total Accounts",
+      "projects": "Total Projects",
+      "posts": "Total Posts",
+      "applications": "Total Applications",
+      "engagements": "Engagements",
+      "contracts": "Contracts",
+      "subscriptions": "Subscriptions",
+      "revenue": "Revenue",
+      "thisMonth": "This month",
+      "activeSubscriptions": "Active subscriptions",
+      "activeEngagements": "Active: {count}",
+      "newThisMonth": "new this month"
+    },
+    "revenue": {
+      "title": "Revenue",
+      "subtitle": "Revenue reports and transaction history",
+      "chart": "Revenue Over Time",
+      "byPurpose": "By Purpose",
+      "totalRevenue": "Total Revenue",
+      "transactions": "transactions",
+      "subscription": "Subscription",
+      "postBoost": "Post Boost",
+      "timeRange": "Time Range",
+      "daily": "Daily",
+      "monthly": "Monthly"
+    },
+    "transactions": {
+      "title": "Transactions",
+      "orderCode": "Order Code",
+      "purpose": "Purpose",
+      "amount": "Amount",
+      "status": "Status",
+      "platform": "Platform",
+      "date": "Date"
+    },
+    "accounts": {
+      "title": "Accounts",
+      "subtitle": "Manage platform users and providers",
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "emailStatus": "Email",
+      "joined": "Joined",
+      "actions": "Actions",
+      "details": "Account Details",
+      "verified": "Verified",
+      "pending": "Pending",
+      "emailNotVerified": "Email not verified",
+      "verifiedOn": "Verified on {date}",
+      "approve": "Approve",
+      "unban": "Unban",
+      "allRoles": "All Roles",
+      "allStatuses": "All Statuses",
+      "roleOwner": "Owner",
+      "roleProvider": "Provider",
+      "roleAdmin": "Admin",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "statusPending": "Pending",
+      "statusBanned": "Banned",
+      "searchPlaceholder": "Search by email or phone...",
+      "noResults": "No accounts found",
+      "noResultsDesc": "Try adjusting your search or filters",
+      "viewDetails": "View details",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "ban": "Ban account",
+      "delete": "Delete account",
+      "statusUpdated": "Account status updated",
+      "deleted": "Account deleted",
+      "deleteConfirm": "Are you sure you want to delete {email}? This cannot be undone.",
+      "shopOwner": "Shop Owner",
+      "provider": "Provider",
+      "providerType": "Provider Type",
+      "capability": "Capability",
+      "rating": "Rating",
+      "createdAt": "Created",
+      "updatedAt": "Updated"
+    },
+    "actions": {
+      "viewAll": "View all",
+      "refresh": "Refresh",
+      "export": "Export",
+      "filter": "Filter",
+      "retry": "Try again"
+    },
+    "errors": {
+      "loadFailed": "Failed to load data",
+      "noData": "No data available",
+      "tryAgain": "Please try again"
     }
   }
 }

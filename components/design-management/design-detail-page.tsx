@@ -31,7 +31,7 @@ import { Input } from "@/components/ui/input";
 import { OwnerAvatar } from "@/components/data-table";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
 import { cn } from "@/lib/utils";
-import { useCurrentUser } from "@/lib/auth/user-context";
+import { useCurrentUser } from "@/features/auth/user-context";
 import {
   useApproveDesignMutation,
   useDeleteDesignImageMutation,
@@ -41,9 +41,9 @@ import {
   useSubmitDesignMutation,
   useUploadDesignImageMutation,
   mapDesignTypeToCategory,
-} from "@/lib/projects/use-designs";
-import type { Design, DesignImage } from "@/lib/projects/design-types";
-import type { DesignDrawing, DesignVersion } from "@/lib/projects/design-version-types";
+} from "@/features/projects/use-designs";
+import type { Design, DesignImage } from "@/features/projects/design-types";
+import type { DesignDrawing, DesignVersion } from "@/features/projects/design-version-types";
 
 // ─── Adapter: Design → DesignVersion ──────────────────────────────────────
 //

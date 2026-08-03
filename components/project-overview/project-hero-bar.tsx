@@ -7,7 +7,7 @@ import { Printer, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { projectActionToast } from "./project-action-toast";
-import type { ProjectDetail } from "@/lib/projects/project-detail-types";
+import type { ProjectDetail } from "@/features/projects/project-detail-types";
 
 interface ProjectHeroBarProps {
   project: ProjectDetail;

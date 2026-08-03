@@ -2,22 +2,22 @@ import axios, { AxiosHeaders, type AxiosError, type AxiosResponse } from "axios"
 import { env } from "../env";
 
 // Trigger the token-store hydrate side-effect as soon as `axios.ts` is
-// imported. `lib/auth/token-store.ts` reads the persisted access + refresh
+// imported. `features/auth/token-store.ts` reads the persisted access + refresh
 // tokens from `localStorage` at module evaluation time, populating the
 // in-memory cache BEFORE the first React render commits. This is what
 // guarantees the first request after a page reload ships with a Bearer
 // header (no 401 false-positives on cold load).
-import "@/lib/auth/token-store";
+import "@/features/auth/token-store";
 
 // We deliberately do NOT import `./interceptors` here — that would create
 // a circular import (`interceptors.ts` imports `api` from `./axios`).
 // Instead, see `attachApiInterceptors(api)` below: the same setup logic is
 // called synchronously after `api` is created.
-import { tokenStore } from "@/lib/auth/token-store";
-import { authEvents } from "@/lib/auth/auth-events";
+import { tokenStore } from "@/features/auth/token-store";
+import { authEvents } from "@/features/auth/auth-events";
 import { normalizeAxiosError } from "./errors";
 import { refreshAccessToken } from "./refresh-token";
-import { isJwtExpiredOrExpiring } from "@/lib/auth/jwt";
+import { isJwtExpiredOrExpiring } from "@/features/auth/jwt";
 import type { ApiErrorPayload, RetryableAxiosRequestConfig } from "./types";
 
 export const api = axios.create({

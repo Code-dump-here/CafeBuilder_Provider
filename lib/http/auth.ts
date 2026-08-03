@@ -140,3 +140,34 @@ export async function registerApi(
   );
   return response.data;
 }
+
+// ─── OTP ─────────────────────────────────────────────────────────────────────
+
+export type SendOtpPayload = {
+  email: string;
+};
+
+export async function sendOtpApi(
+  payload: SendOtpPayload,
+  config?: RequestConfig,
+): Promise<void> {
+  await api.post<void>("/api/otp/send", payload, {
+    skipAuth: true,
+    ...config,
+  });
+}
+
+export type VerifyOtpPayload = {
+  email: string;
+  code: string;
+};
+
+export async function verifyOtpApi(
+  payload: VerifyOtpPayload,
+  config?: RequestConfig,
+): Promise<void> {
+  await api.post<void>("/api/otp/verify", payload, {
+    skipAuth: true,
+    ...config,
+  });
+}

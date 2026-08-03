@@ -36,11 +36,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { useCurrentUser } from "@/lib/auth/user-context";
+import { useCurrentUser } from "@/features/auth/user-context";
 import { uploadFileApi } from "@/lib/http/file-upload-api";
-import { useContracts, useCreateContractMutation, useUpdateContractMutation, useSendContractOtpMutation, useConfirmContractOtpMutation, useCancelContractMutation } from "@/lib/projects/use-contracts";
-import { useEngagements } from "@/lib/projects/use-engagements";
-import type { Contract } from "@/lib/projects/contract-types";
+import { useContracts, useCreateContractMutation, useUpdateContractMutation, useSendContractOtpMutation, useConfirmContractOtpMutation, useCancelContractMutation } from "@/features/projects/use-contracts";
+import { useEngagements } from "@/features/projects/use-engagements";
+import type { Contract } from "@/features/projects/contract-types";
 
 // ---------------------------------------------------------------------------
 // Constants

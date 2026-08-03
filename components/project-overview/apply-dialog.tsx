@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
-import { useApplyToPostMutation } from "@/lib/projects/use-project-applications";
+import { useApplyToPostMutation } from "@/features/projects/use-project-applications";
 
 /**
  * Bounds for the apply form. Mirrors typical backend column limits

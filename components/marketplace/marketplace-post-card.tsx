@@ -16,7 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import type { MarketplacePost } from "@/lib/projects/marketplace-types";
+import type { MarketplacePost } from "@/features/projects/marketplace-types";
 
 // ---------------------------------------------------------------------------
 // Locale-aware formatters (kept inline — no separate util file for one-off).

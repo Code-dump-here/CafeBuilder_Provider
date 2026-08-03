@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import type {
   DesignDrawing,
   DrawingCategory,
-} from "@/lib/projects/design-version-types";
+} from "@/features/projects/design-version-types";
 
 interface DrawingTreeProps {
   drawings: DesignDrawing[];

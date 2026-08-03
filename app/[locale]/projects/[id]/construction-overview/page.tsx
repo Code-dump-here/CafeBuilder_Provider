@@ -12,8 +12,8 @@ import { MilestoneDetailCard } from "@/components/contractor/milestone-detail-ca
 import { ContractorActionTiles } from "@/components/contractor/contractor-action-tiles";
 import { PhaseDetailDrawer } from "@/components/contractor/phase-detail-drawer";
 import { Button } from "@/components/ui/button";
-import { useEngagements } from "@/lib/projects/use-engagements";
-import { useProjectDetail } from "@/lib/projects/use-project-detail";
+import { useEngagements } from "@/features/projects/use-engagements";
+import { useProjectDetail } from "@/features/projects/use-project-detail";
 import { useConstructionOverview } from "@/lib/contractor/use-construction-overview";
 
 /**

@@ -17,7 +17,7 @@ import type {
   ServiceKind,
   SortOption,
   PostStatus,
-} from "@/lib/projects/marketplace-types";
+} from "@/features/projects/marketplace-types";
 
 interface MarketplaceFilterBarProps {
   filters: MarketplaceFilters;

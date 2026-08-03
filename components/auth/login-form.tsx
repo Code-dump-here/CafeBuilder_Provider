@@ -14,7 +14,7 @@ import {
   postAuthDestinationToPath,
   resolvePostAuthDestination,
   type PostAuthDestination,
-} from "@/lib/auth/post-auth-redirect";
+} from "@/features/auth/post-auth-redirect";
 import { AppError } from "@/lib/http/errors";
 
 interface LoginFormData {
@@ -49,26 +49,33 @@ export function LoginForm() {
   }, [loginMutation.error, t]);
 
   function onSubmit(data: LoginFormData) {
-    console.error("[login-form] onSubmit called");
     loginMutation.mutate(data, {
       onSuccess: async (response) => {
-        console.error("[login-form] login onSuccess, response role=", response.role);
         toast.success(t("toast.loginSuccess"));
         // Wipe any cached `useMe` data from a previous session before
         // we ask the backend again — otherwise a stale cached profile
         // could survive across logins on the same browser and route us
         // to the wrong page.
         queryClient.removeQueries({ queryKey: ["auth", "me"] });
-        let destination: PostAuthDestination;
-        try {
-          destination = await resolvePostAuthDestination();
-        } catch (e) {
-          console.error("[login-form] resolver threw", e);
-          destination = { kind: "home", role: "owner" };
+
+        // Direct redirect based on login response role - faster and more reliable
+        let redirectPath = "/";
+        if (response.role === "admin") {
+          redirectPath = "/admin";
+        } else {
+          // For non-admin roles, try to resolve via post-auth logic
+          let destination: PostAuthDestination;
+          try {
+            destination = await resolvePostAuthDestination();
+            redirectPath = postAuthDestinationToPath(destination);
+          } catch (e) {
+            console.error("[login-form] resolver threw", e);
+            // Default to home page for non-admin
+            redirectPath = "/";
+          }
         }
-        const path = postAuthDestinationToPath(destination);
-        console.error("[login-form] redirecting to", path, "from", window.location.pathname);
-        router.replace(path);
+
+        router.replace(redirectPath);
       },
       onError: (err) => {
         console.error("[login-form] login onError", err);

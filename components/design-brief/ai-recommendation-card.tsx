@@ -29,7 +29,7 @@ import type {
   AiRecommendation,
   AiRecommendationState,
   RiskNote,
-} from "@/lib/projects/design-brief-types";
+} from "@/features/projects/design-brief-types";
 
 interface AiRecommendationCardProps {
   recommendation: AiRecommendation;

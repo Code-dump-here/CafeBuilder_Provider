@@ -14,9 +14,9 @@ import { getQueryClient } from "@/lib/react-query/query-client";
 //   - module-load token-store hydration from localStorage.
 // See `lib/http/axios.ts` for the rationale.
 import "@/lib/http/axios";
-import { authEvents } from "@/lib/auth/auth-events";
-import { tokenStore } from "@/lib/auth/token-store";
-import { UserProvider } from "@/lib/auth/user-context";
+import { authEvents } from "@/features/auth/auth-events";
+import { tokenStore } from "@/features/auth/token-store";
+import { UserProvider } from "@/features/auth/user-context";
 
 export default function Providers({ children }: { children: ReactNode }) {
   const queryClient = getQueryClient();

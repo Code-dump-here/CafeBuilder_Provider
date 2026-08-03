@@ -11,7 +11,7 @@ import {
 import {
   useEngagementOverview,
   useEngagements,
-} from "@/lib/projects/use-engagements";
+} from "@/features/projects/use-engagements";
 
 /**
  * `/projects/[id]/technical-drawings` — read-only index of approved

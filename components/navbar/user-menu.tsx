@@ -17,8 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLogoutMutation } from "@/features/auth/hooks";
-import { useCurrentUser } from "@/lib/auth/user-context";
-import type { UserRole } from "@/features/auth/api";
+import { useCurrentUser } from "@/features/auth/user-context";
+import type { UserRole } from "@/features/auth/auth-me-types";
 
 /**
  * Small avatar + dropdown that replaces the "Sign in / Sign up" buttons

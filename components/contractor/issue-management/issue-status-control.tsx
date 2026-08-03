@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { IssueStatusPill } from "./issue-status-pill";
-import { ISSUE_STATUSES, type IssueStatus } from "@/lib/projects/issue-types";
+import { ISSUE_STATUSES, type IssueStatus } from "@/features/projects/issue-types";
 
 interface IssueStatusControlProps {
   status: IssueStatus;

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "@/i18n/navigation";
-import { useCurrentUser } from "@/lib/auth/user-context";
+import { useCurrentUser } from "@/features/auth/user-context";
 
 /**
  * Client-side guard for protected pages. Inspects the current account

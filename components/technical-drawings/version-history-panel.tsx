@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CodeBadge, OwnerAvatar } from "@/components/data-table";
 import { cn } from "@/lib/utils";
 
-import type { DrawingVersion } from "@/lib/projects/technical-drawing-types";
+import type { DrawingVersion } from "@/features/projects/technical-drawing-types";
 
 interface VersionHistoryPanelProps {
   versions: DrawingVersion[];

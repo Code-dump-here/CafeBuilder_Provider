@@ -7,7 +7,10 @@ import { useFormatter, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { NotificationItem } from "@/lib/notifications/api";
+import {
+  deriveNotificationHref,
+  type NotificationItem,
+} from "@/features/notifications/api";
 
 // ─── Relative time ──────────────────────────────────────────────────────────
 
@@ -33,12 +36,38 @@ function useRelativeTime(): (iso: string) => string {
   );
 }
 
+// ─── Type icons ─────────────────────────────────────────────────────────────
+
+/**
+ * `react-notifications` doesn't ship per-type icons. For the five
+ * lifecycle types introduced by `a.md` §6 we surface a coloured dot so
+ * the bell preview and inbox at least groups them visually until the
+ * design system grows per-type icons.
+ */
+function typeAccent(type: NotificationItem["type"]): string {
+  switch (type) {
+    case "engagement_completion_requested":
+      return "bg-sky-500";
+    case "engagement_completed":
+      return "bg-emerald-500";
+    case "engagement_terminated":
+      return "bg-rose-500";
+    case "project_completed":
+      return "bg-emerald-500";
+    case "project_cancelled":
+      return "bg-destructive";
+    default:
+      return "bg-muted-foreground/30";
+  }
+}
+
 // ─── List item ──────────────────────────────────────────────────────────────
 
 export interface NotificationListItemProps {
   item: NotificationItem;
   /**
-   * When `page` the row deep-links via `item.actionUrl` (when set).
+   * When `page` the row deep-links via `item.actionUrl` (when set) or
+   * the `referenceType`/`referenceId` pair (see `deriveNotificationHref`).
    * When `preview` it renders as a static row — used by the dropdown
    * preview where the mark-as-read action is fired directly.
    */
@@ -56,13 +85,15 @@ export function NotificationListItem({
   const t = useTranslations("Notifications.item");
   const relative = useRelativeTime();
 
+  const accentClass = typeAccent(item.type);
+
   const content = (
     <div className="flex w-full items-start gap-3 py-2.5">
       <span
         aria-hidden
         className={cn(
           "mt-1.5 size-2 shrink-0 rounded-full",
-          item.isRead ? "bg-muted-foreground/30" : "bg-primary",
+          item.isRead ? "bg-muted-foreground/30" : accentClass,
         )}
       />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -105,10 +136,10 @@ export function NotificationListItem({
     </div>
   );
 
-  if (variant === "page" && item.actionUrl) {
+  if (variant === "page") {
     return (
       <Link
-        href={item.actionUrl}
+        href={deriveNotificationHref(item)}
         className="block rounded-md px-2 transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
       >
         {content}

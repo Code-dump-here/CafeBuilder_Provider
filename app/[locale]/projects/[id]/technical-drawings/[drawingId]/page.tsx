@@ -16,8 +16,8 @@ import {
   useDrawingGroups,
   useTechnicalDrawing,
   useTechnicalDrawings,
-} from "@/lib/projects/use-technical-drawings";
-import type { DrawingVersion } from "@/lib/projects/technical-drawing-types";
+} from "@/features/projects/use-technical-drawings";
+import type { DrawingVersion } from "@/features/projects/technical-drawing-types";
 
 export default function TechnicalDrawingDetailPage() {
   const params = useParams<{ id: string; drawingId: string }>();

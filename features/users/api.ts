@@ -1,5 +1,5 @@
 import { api } from "@/lib/http/axios";
-import type { AccountSummary, UserRole } from "@/features/auth/api";
+import type { Account, UserRole } from "@/features/auth/api";
 import type { ApiSuccessResponse, RequestConfig } from "@/lib/http/types";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -9,7 +9,7 @@ import type { ApiSuccessResponse, RequestConfig } from "@/lib/http/types";
  * `AccountSummary` from the auth feature — kept here so callers that only
  * care about user-profile concerns don't need to import from auth.
  */
-export type Account = AccountSummary;
+export type { Account };
 
 /**
  * Shape returned by `GET /api/auth/me`. Backend uses the `{ data, message?, meta? }`

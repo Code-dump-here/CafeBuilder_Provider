@@ -15,7 +15,7 @@ import {
   useMarkNotificationReadMutation,
   useNotificationsQuery,
   useUnreadCountQuery,
-} from "@/lib/notifications/hooks";
+} from "@/features/notifications/hooks";
 
 import { NotificationListItem } from "./notification-list-item";
 

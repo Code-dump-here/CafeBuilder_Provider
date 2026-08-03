@@ -13,7 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 import { QuickFactRow } from "./quick-fact-row";
-import type { ProjectDetail } from "@/lib/projects/project-detail-types";
+import type { ProjectDetail } from "@/features/projects/project-detail-types";
 
 interface QuickFactsCardProps {
   project: ProjectDetail;

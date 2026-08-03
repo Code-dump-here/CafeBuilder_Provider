@@ -25,11 +25,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { useCurrentUser } from "@/lib/auth/user-context";
+import { useCurrentUser } from "@/features/auth/user-context";
 import { uploadFileApi } from "@/lib/http/file-upload-api";
-import { useSurveys, useCreateSurveyMutation, useUpdateSurveyMutation } from "@/lib/projects/use-surveys";
-import { useEngagements } from "@/lib/projects/use-engagements";
-import type { Survey } from "@/lib/projects/survey-types";
+import { useSurveys, useCreateSurveyMutation, useUpdateSurveyMutation } from "@/features/projects/use-surveys";
+import { useEngagements } from "@/features/projects/use-engagements";
+import type { Survey } from "@/features/projects/survey-types";
 
 // ---------------------------------------------------------------------------
 // Constants

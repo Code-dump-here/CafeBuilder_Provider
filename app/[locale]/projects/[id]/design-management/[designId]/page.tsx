@@ -4,8 +4,8 @@ import * as React from "react";
 import { useParams } from "next/navigation";
 
 import { DesignDetailPage } from "@/components/design-management/design-detail-page";
-import { useCurrentUser } from "@/lib/auth/user-context";
-import { useEngagements } from "@/lib/projects/use-engagements";
+import { useCurrentUser } from "@/features/auth/user-context";
+import { useEngagements } from "@/features/projects/use-engagements";
 
 /**
  * Design detail page — renders a single design's images + lifecycle actions.

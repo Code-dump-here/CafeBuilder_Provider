@@ -46,9 +46,9 @@ import {
   filterSectionsByProjectMembership,
   type UserRole,
 } from "@/lib/sidebar-config";
-import { useCurrentUser } from "@/lib/auth/user-context";
+import { useCurrentUser } from "@/features/auth/user-context";
 import { useActiveProjectMembership } from "@/hooks/use-active-project-membership";
-import { useUnreadCountQuery } from "@/lib/notifications/hooks";
+import { useUnreadCountQuery } from "@/features/notifications/hooks";
 
 import { NavProjects } from "@/components/sidebar/nav-projects";
 import { NavUser } from "@/components/sidebar/nav-user";

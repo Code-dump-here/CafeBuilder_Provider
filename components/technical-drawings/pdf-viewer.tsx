@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import type {
   TechnicalDrawing,
   TechnicalDrawingKind,
-} from "@/lib/projects/technical-drawing-types";
+} from "@/features/projects/technical-drawing-types";
 
 interface PdfViewerProps {
   drawing: TechnicalDrawing | null;

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { IssueStatusPill } from "./issue-status-pill";
-import type { Issue } from "@/lib/projects/issue-types";
+import type { Issue } from "@/features/projects/issue-types";
 
 interface IssueCardProps {
   issue: Issue;

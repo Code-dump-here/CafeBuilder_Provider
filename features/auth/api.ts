@@ -1,38 +1,33 @@
-import {
-  loginApi as loginApiHttp,
-  logoutApi as logoutApiHttp,
-  refreshTokenApi as refreshTokenApiHttp,
-  registerApi as registerApiHttp,
-  type AccountSummary,
-  type AuthSession,
-  type LoginPayload,
-  type RegisterPayload,
-  type ServiceKind,
-  type UserRole,
-} from "@/lib/http/auth";
-import type { RequestConfig } from "@/lib/http/types";
-import { tokenStore } from "@/lib/auth/token-store";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
+// Re-export types from http/auth for convenience
 export type {
   UserRole,
+  ServiceKind,
+  AuthTokens,
   AuthSession,
   LoginPayload,
-  AccountSummary,
   RegisterPayload,
-  ServiceKind,
-};
+  RefreshPayload,
+  SendOtpPayload,
+  VerifyOtpPayload,
+} from "@/lib/http/auth";
 
-export type Account = AccountSummary;
+// Alias AccountSummary as Account (lightweight account info without tokens)
+// AccountSummary has: { accountId, email, role }
+export type { AccountSummary as Account } from "@/lib/http/auth";
+
+// Auth API functions
+export {
+  loginApi,
+  registerApi,
+  sendOtpApi,
+  verifyOtpApi,
+} from "@/lib/http/auth";
+
+import { tokenStore } from "./token-store";
+import type { RequestConfig } from "@/lib/http/types";
+import type { AuthSession } from "@/lib/http/auth";
 
 export type LoginResponse = AuthSession;
-
-// ─── Auth API ────────────────────────────────────────────────────────────────
-
-export const loginApi = loginApiHttp;
-
-export const registerApi = registerApiHttp;
 
 /**
  * Outbound wrapper that pulls `refreshToken` from local storage before
@@ -44,7 +39,8 @@ export async function refreshSession(
 ): Promise<AuthSession | null> {
   const refreshToken = tokenStore.getRefreshToken();
   if (!refreshToken) return null;
-  return refreshTokenApiHttp(refreshToken, config);
+  const { refreshTokenApi } = await import("@/lib/http/auth");
+  return refreshTokenApi(refreshToken, config);
 }
 
 export type LogoutOptions = {
@@ -70,7 +66,8 @@ export async function logoutApi(
     return;
   }
   try {
-    await logoutApiHttp(refreshToken ?? "", config);
+    const { logoutApi: httpLogoutApi } = await import("@/lib/http/auth");
+    await httpLogoutApi(refreshToken ?? "", config);
   } finally {
     tokenStore.clear();
   }

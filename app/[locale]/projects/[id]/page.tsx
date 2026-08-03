@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AiRecommendationsList } from "@/components/design-brief/ai-recommendations-list";
 import { BriefDetailsCard } from "@/components/design-brief/brief-details-card";
 import { ProjectApplyCard } from "@/components/project-overview/project-apply-card";
+import { ProjectInvitationBanner } from "@/components/project-overview/project-invitation-banner";
 import { ProjectMembersCard } from "@/components/project-overview/project-members-card";
 import { ProjectOwnerCard } from "@/components/project-overview/project-owner-card";
 import { QuickFactsCard } from "@/components/project-overview/quick-facts-card";
@@ -23,9 +24,9 @@ import { ContractorProjectQuickActions } from "@/components/project-overview/con
 
 import {
   useAiRecommendations,
-} from "@/lib/projects/use-ai-recommendations";
-import { useProjectDetail } from "@/lib/projects/use-project-detail";
-import { useDesignBriefs } from "@/lib/projects/use-design-briefs";
+} from "@/features/projects/use-ai-recommendations";
+import { useProjectDetail } from "@/features/projects/use-project-detail";
+import { useDesignBriefs } from "@/features/projects/use-design-briefs";
 
 // ---------------------------------------------------------------------------
 // Page component
@@ -119,56 +120,64 @@ export default function ProjectDetailPage() {
       {isInitialLoading ? (
         <PageLoadingSkeleton />
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {/* Left column — brief input (top) + AI Design Iterations (below) */}
-          <div className="flex flex-col gap-4 md:col-span-2">
-            {brief ? <BriefDetailsCard brief={brief} /> : <NoBriefState />}
+        <>
+          {/* Invitation banner — surfaces above the regular content so a
+              provider who just got invited immediately sees the
+              Accept / Decline CTAs without scrolling. Self-hides when
+              the viewer has no pending invitation. */}
+          <ProjectInvitationBanner project={project} />
 
-            {/* AI Design Iterations — stacked directly below the brief in the
-                left column. Only present when we have a brief to scope
-                against. When the brief is missing or the recs are still
-                loading we render an inline skeleton so the section doesn't
-                pop in suddenly after the rest of the page settles. */}
-            {brief ? (
-              isLoadingAi ? (
-                <AiRecommendationsSkeleton />
-              ) : (
-                <AiRecommendationsList recommendations={aiData.items} />
-              )
-            ) : null}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {/* Left column — brief input (top) + AI Design Iterations (below) */}
+            <div className="flex flex-col gap-4 md:col-span-2">
+              {brief ? <BriefDetailsCard brief={brief} /> : <NoBriefState />}
+
+              {/* AI Design Iterations — stacked directly below the brief in the
+                  left column. Only present when we have a brief to scope
+                  against. When the brief is missing or the recs are still
+                  loading we render an inline skeleton so the section doesn't
+                  pop in suddenly after the rest of the page settles. */}
+              {brief ? (
+                isLoadingAi ? (
+                  <AiRecommendationsSkeleton />
+                ) : (
+                  <AiRecommendationsList recommendations={aiData.items} />
+                )
+              ) : null}
+            </div>
+
+            {/* Right column — Quick Facts (top) → Owner → Apply → Members/Providers */}
+            <div className="flex flex-col gap-4 md:col-span-1">
+              <QuickFactsCard project={project} />
+
+              {/* Owner card — the person behind the project. Sits between
+                  Quick Facts and Providers so the right rail reads
+                  "facts → who → who's working on it". Renders nothing if
+                  the API hasn't populated `project.owner` yet. */}
+              <ProjectOwnerCard project={project} />
+
+              {/* Apply card — shown only when the project is actively
+                  collecting bids (open posts / openFor) AND the viewer
+                  isn't the owner themselves. Rendered between Owner and
+                  Providers so the natural reading order is
+                  "facts → who → act on it → who's working on it". */}
+              <ProjectApplyCard project={project} />
+
+              {/* Providers card — owner + collaborators. Right under the
+                  Owner so the right rail stays a self-contained
+                  "project at a glance" stack. */}
+              <ProjectMembersCard project={project} />
+
+              {/* Contractor-style "Construction overview" card. Lives on
+                  the project page for every viewer (designer, owner,
+                  contractor) while per-role sidebar routing is paused —
+                  its four tiles deep-link into the project-scoped sidebar
+                  items (construction-log, daily-reports, issues,
+                  materials). */}
+              <ContractorProjectQuickActions projectId={projectIdParam} />
+            </div>
           </div>
-
-          {/* Right column — Quick Facts (top) → Owner → Apply → Members/Providers */}
-          <div className="flex flex-col gap-4 md:col-span-1">
-            <QuickFactsCard project={project} />
-
-            {/* Owner card — the person behind the project. Sits between
-                Quick Facts and Providers so the right rail reads
-                "facts → who → who's working on it". Renders nothing if
-                the API hasn't populated `project.owner` yet. */}
-            <ProjectOwnerCard project={project} />
-
-            {/* Apply card — shown only when the project is actively
-                collecting bids (open posts / openFor) AND the viewer
-                isn't the owner themselves. Rendered between Owner and
-                Providers so the natural reading order is
-                "facts → who → act on it → who's working on it". */}
-            <ProjectApplyCard project={project} />
-
-            {/* Providers card — owner + collaborators. Right under the
-                Owner so the right rail stays a self-contained
-                "project at a glance" stack. */}
-            <ProjectMembersCard project={project} />
-
-            {/* Contractor-style "Construction overview" card. Lives on
-                the project page for every viewer (designer, owner,
-                contractor) while per-role sidebar routing is paused —
-                its four tiles deep-link into the project-scoped sidebar
-                items (construction-log, daily-reports, issues,
-                materials). */}
-            <ContractorProjectQuickActions projectId={projectIdParam} />
-          </div>
-        </div>
+        </>
       )}
 
       {isFetchingProject || isFetchingBrief || isFetchingAi ? (

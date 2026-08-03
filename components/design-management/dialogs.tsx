@@ -25,9 +25,9 @@ import { projectActionToast } from "@/components/project-overview/project-action
 import type {
   DrawingCategory,
   DesignVersion,
-} from "@/lib/projects/design-version-types";
-import type { Design, DesignType } from "@/lib/projects/design-types";
-import { useCreateDesignMutation } from "@/lib/projects/use-designs";
+} from "@/features/projects/design-version-types";
+import type { Design, DesignType } from "@/features/projects/design-types";
+import { useCreateDesignMutation } from "@/features/projects/use-designs";
 
 // ---------------------------------------------------------------------------
 // NewVersionDialog

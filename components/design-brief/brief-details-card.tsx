@@ -18,7 +18,7 @@ import {
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DefinitionRow } from "@/components/project-overview/definition-row";
-import type { DesignBrief } from "@/lib/projects/design-brief-types";
+import type { DesignBrief } from "@/features/projects/design-brief-types";
 
 interface BriefDetailsCardProps {
   brief: DesignBrief;

@@ -11,11 +11,11 @@ import {
 import {
   DEFAULT_FILTERS,
   type MarketplaceFilters,
-} from "@/lib/projects/marketplace-types";
+} from "@/features/projects/marketplace-types";
 import {
   useMarketplacePosts,
   useOpenMarketplacePostCount,
-} from "@/lib/projects/use-marketplace";
+} from "@/features/projects/use-marketplace";
 
 /**
  * Marketplace page — `/[locale]/(public)/projects`.

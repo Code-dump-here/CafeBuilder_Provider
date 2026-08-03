@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { MarketplacePostCard } from "./marketplace-post-card";
-import type { MarketplacePost } from "@/lib/projects/marketplace-types";
+import type { MarketplacePost } from "@/features/projects/marketplace-types";
 
 interface MarketplaceGridProps {
   posts: MarketplacePost[];

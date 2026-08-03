@@ -15,14 +15,15 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { OwnerAvatar } from "@/components/data-table/owner-avatar";
 import { projectActionToast } from "./project-action-toast";
-import { useIsProjectOwner } from "@/lib/projects/use-is-project-owner";
+import { ProviderEngagementActions } from "./provider-engagement-actions";
+import { useIsProjectOwner } from "@/features/projects/use-is-project-owner";
 import {
   type ProjectDetail,
   type ProjectProvider,
   type ProjectProviderCapability,
   type ProjectProviderStatus,
   type ProjectProviderType,
-} from "@/lib/projects/project-detail-types";
+} from "@/features/projects/project-detail-types";
 
 // ---------------------------------------------------------------------------
 // Colour palette — deterministic per provider so each row stays distinct
@@ -230,6 +231,11 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
                       <RatingChip rating={provider.avgRating} />
                     ) : null}
                   </div>
+                  {/* Provider-only lifecycle CTAs (Báo hoàn thành /
+                      Huỷ ngang hợp tác). Component self-hides for any
+                      viewer who isn't the engaged provider, so it's
+                      safe to mount unconditionally on every row. */}
+                  <ProviderEngagementActions provider={provider} />
                 </div>
               </li>
             );

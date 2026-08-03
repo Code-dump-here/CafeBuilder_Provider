@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { tokenStore } from "@/lib/auth/token-store";
+import { tokenStore } from "@/features/auth/token-store";
 import { queryKeys } from "@/lib/react-query/keys";
 
 import {

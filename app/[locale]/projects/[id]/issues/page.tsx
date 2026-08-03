@@ -7,16 +7,16 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { useProjectDetail } from "@/lib/projects/use-project-detail";
+import { useProjectDetail } from "@/features/projects/use-project-detail";
 import {
   useIssues,
   useCreateIssueMutation,
   useUpdateIssueMutation,
   useSetIssueStatusMutation,
   useDeleteIssueMutation,
-} from "@/lib/projects/use-issues";
+} from "@/features/projects/use-issues";
 
-import type { Issue, IssueStatus } from "@/lib/projects/issue-types";
+import type { Issue, IssueStatus } from "@/features/projects/issue-types";
 
 import {
   AddIssueModal,

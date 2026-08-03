@@ -12,7 +12,7 @@ import { projectActionToast } from "@/components/project-overview/project-action
 import type {
   DrawingComment,
   TechnicalDrawing,
-} from "@/lib/projects/technical-drawing-types";
+} from "@/features/projects/technical-drawing-types";
 
 interface CommentsPanelProps {
   drawing: TechnicalDrawing | null;

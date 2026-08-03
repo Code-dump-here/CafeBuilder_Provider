@@ -21,14 +21,14 @@ import { ThreadDetail } from "@/components/messages/thread-detail";
 import { ThreadList } from "@/components/messages/thread-list";
 import { CreateThreadDialog } from "@/components/messages/create-thread-dialog";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
-import { useProjectDetail } from "@/lib/projects/use-project-detail";
-import { useCurrentUser } from "@/lib/auth/user-context";
+import { useProjectDetail } from "@/features/projects/use-project-detail";
+import { useCurrentUser } from "@/features/auth/user-context";
 
 import type {
   Message,
   MessageAuthor,
   MessageThread,
-} from "@/lib/projects/messages-types";
+} from "@/features/projects/messages-types";
 
 import type { ConversationDetailResponse, ConversationSummary } from "@/features/chat";
 

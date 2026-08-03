@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import type {
   DesignDrawing,
   DesignVersion,
-} from "@/lib/projects/design-version-types";
+} from "@/features/projects/design-version-types";
 
 interface DrawingViewerProps {
   drawing: DesignDrawing | null;

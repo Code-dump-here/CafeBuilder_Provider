@@ -23,16 +23,17 @@ import { Separator } from "@/components/ui/separator";
 
 import { projectActionToast } from "./project-action-toast";
 import { ApplyDialog } from "./apply-dialog";
-import { useIsProjectOwner } from "@/lib/projects/use-is-project-owner";
-import { useCurrentUser } from "@/lib/auth/user-context";
-import { tokenStore } from "@/lib/auth/token-store";
-import { useProviderApplies } from "@/lib/projects/use-project-applications";
+import { useIsProjectOwner } from "@/features/projects/use-is-project-owner";
+import { useCurrentUser } from "@/features/auth/user-context";
+import { tokenStore } from "@/features/auth/token-store";
+import { useProviderApplies } from "@/features/projects/use-project-applications";
 import {
   type ProjectDetail,
   type ProjectOpenForEntry,
   type ProjectOpenPost,
   type ProjectOpenPostServiceKind,
-} from "@/lib/projects/project-detail-types";
+  type ProjectProviderStatus,
+} from "@/features/projects/project-detail-types";
 
 // ---------------------------------------------------------------------------
 // Predicate helpers — keep the "is this project open for applications?"
@@ -100,6 +101,9 @@ interface ProjectApplyCardProps {
  *
  * Visibility rule — renders nothing when ANY of:
  *   - viewer is the project owner (you don't apply to your own project),
+ *   - viewer is already engaged on this project (their
+ *     `serviceProvider.id` is listed in `project.providers[]` with a
+ *     non-terminal status — they don't need to apply again),
  *   - there are no `openPosts` with status === "open",
  *   - `openFor` is empty.
  *
@@ -188,7 +192,30 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   // Hide for owners or non-providers. Keep the card visible for providers
   // who have already applied (to show their application status).
   const isProvider = account?.role === "provider";
-  if (isOwner || !isProvider) return null;
+
+  // Has the current provider already been engaged on this project? We
+  // match `account.serviceProvider.id` against `project.providers[]` so
+  // the "Apply" CTA disappears once the provider is on the team (e.g.
+  // they accepted an invitation, or the owner accepted their bid).
+  // Terminal statuses (`declined`, `completed`) don't block the CTA —
+  // the provider can re-apply if the project is still hiring.
+  const viewerProfileId = account?.serviceProvider?.id;
+  const activeProviderStatuses = new Set<ProjectProviderStatus>([
+    "requested",
+    "accepted",
+    "active",
+    "paused",
+  ]);
+  const isAlreadyEngaged =
+    isProvider &&
+    typeof viewerProfileId === "number" &&
+    project.providers.some(
+      (p) =>
+        p.providerId === viewerProfileId &&
+        activeProviderStatuses.has(p.status),
+    );
+
+  if (isOwner || !isProvider || isAlreadyEngaged) return null;
 
   const handleApply = () => {
     if (!targetPost || !account) {

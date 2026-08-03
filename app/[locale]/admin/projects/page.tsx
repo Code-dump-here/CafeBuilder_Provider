@@ -13,7 +13,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { useFormatter } from "next-intl";
+import { useFormatter, useNow } from "next-intl";
 
 import { PageHead } from "@/components/admin/page-head";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,7 @@ type ViewMode = (typeof VIEW_OPTIONS)[number];
 
 export default function AdminProjectsPage() {
   const format = useFormatter();
+  const now = useNow({ updateInterval: 60_000 });
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<"all" | AdminProject["status"]>("all");
   const [view, setView] = React.useState<ViewMode>("grid");
@@ -155,7 +156,7 @@ export default function AdminProjectsPage() {
       {view === "grid" ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
-            <ProjectCard key={p.id} project={p} format={format} />
+            <ProjectCard key={p.id} project={p} format={format} now={now} />
           ))}
           {filtered.length === 0 ? (
             <div className="col-span-full rounded-lg border border-dashed border-border/60 bg-muted/30 px-4 py-10 text-center text-sm text-muted-foreground">
@@ -203,7 +204,7 @@ export default function AdminProjectsPage() {
                     ${p.budget.toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {format.relativeTime(new Date(p.updatedAt))}
+                    {format.relativeTime(new Date(p.updatedAt), now)}
                   </td>
                 </tr>
               ))}
@@ -218,9 +219,11 @@ export default function AdminProjectsPage() {
 function ProjectCard({
   project,
   format,
+  now,
 }: {
   project: AdminProject;
   format: ReturnType<typeof useFormatter>;
+  now: Date;
 }) {
   const overspent = project.spent > project.budget;
   return (
@@ -281,7 +284,7 @@ function ProjectCard({
         </div>
         <div className="flex flex-col items-end">
           <span className="text-muted-foreground">Updated</span>
-          <span className="text-foreground">{format.relativeTime(new Date(project.updatedAt))}</span>
+          <span className="text-foreground">{format.relativeTime(new Date(project.updatedAt), now)}</span>
         </div>
       </div>
       <span className="inline-flex items-center gap-1 self-end text-[11px] text-primary opacity-0 transition-opacity group-hover:opacity-100">

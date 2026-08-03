@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
-import type { IssueStatus } from "@/lib/projects/issue-types";
+import type { IssueStatus } from "@/features/projects/issue-types";
 
 interface IssueStatusPillProps {
   status: IssueStatus;

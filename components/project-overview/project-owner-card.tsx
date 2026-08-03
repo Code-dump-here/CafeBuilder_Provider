@@ -22,8 +22,8 @@ import { Separator } from "@/components/ui/separator";
 import { OwnerAvatar } from "@/components/data-table/owner-avatar";
 
 import { projectActionToast } from "./project-action-toast";
-import { useIsProjectOwner } from "@/lib/projects/use-is-project-owner";
-import type { ProjectDetail, ProjectOwner } from "@/lib/projects/project-detail-types";
+import { useIsProjectOwner } from "@/features/projects/use-is-project-owner";
+import type { ProjectDetail, ProjectOwner } from "@/features/projects/project-detail-types";
 
 // ---------------------------------------------------------------------------
 // Avatar palette — mirrors the one in `project-members-card.tsx` so the

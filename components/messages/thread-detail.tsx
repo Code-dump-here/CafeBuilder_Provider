@@ -26,7 +26,7 @@ import type {
   Message,
   MessageAttachment,
   MessageThread,
-} from "@/lib/projects/messages-types";
+} from "@/features/projects/messages-types";
 
 interface ThreadDetailProps {
   thread: MessageThread | null;

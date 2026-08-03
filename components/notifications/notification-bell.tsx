@@ -15,12 +15,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCurrentUser } from "@/lib/auth/user-context";
+import { useCurrentUser } from "@/features/auth/user-context";
 import {
   useMarkNotificationReadMutation,
   useNotificationsQuery,
   useUnreadCountQuery,
-} from "@/lib/notifications/hooks";
+} from "@/features/notifications/hooks";
 
 import { NotificationListItem } from "./notification-list-item";
 

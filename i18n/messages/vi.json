@@ -442,6 +442,35 @@
         "paused": "Tạm dừng",
         "completed": "Hoàn thành",
         "declined": "Từ chối"
+      },
+      "providerActions": {
+        "loading": "Đang tải…",
+        "requestCompletion": "Báo hoàn thành",
+        "awaitingAcceptance": "Đang chờ nghiệm thu",
+        "terminate": "Huỷ ngang",
+        "requestCompletionSuccess": "Đã gửi yêu cầu nghiệm thu — chờ chủ dự án xác nhận.",
+        "terminateSuccess": "Đã huỷ ngang hợp tác.",
+        "errors": {
+          "requestCompletion": "Không thể gửi yêu cầu nghiệm thu.",
+          "terminate": "Không thể huỷ ngang hợp tác."
+        }
+      }
+    },
+    "invitationBanner": {
+      "badge": "Lời mời",
+      "title": "Bạn được mời tham gia dự án này",
+      "subtitle": "Chủ dự án muốn hợp tác với bạn trong \"{name}\". Hãy xem brief trước khi quyết định.",
+      "capability": "Vai trò",
+      "ownerLabel": "Chủ dự án",
+      "messageLabel": "Lời nhắn từ chủ dự án",
+      "messageEmpty": "(Chủ dự án không để lại lời nhắn.)",
+      "accept": "Chấp nhận",
+      "reject": "Từ chối",
+      "actionsAria": "Phản hồi lời mời cho {name}",
+      "acceptSuccess": "Bạn đã chấp nhận lời mời cho \"{name}\".",
+      "rejectSuccess": "Bạn đã từ chối lời mời cho \"{name}\".",
+      "errors": {
+        "generic": "Không thể phản hồi lời mời. Vui lòng thử lại."
       }
     },
     "owner": {
@@ -1166,14 +1195,24 @@
     "admin": {
       "overview": "Tổng quan",
       "dashboard": "Bảng điều khiển",
-      "systemAlerts": "Cảnh báo hệ thống",
+      "operations": "Vận hành",
       "management": "Quản lý",
+      "platform": "Nền tảng",
+      "systemAlerts": "Cảnh báo hệ thống",
       "users": "Người dùng",
       "providers": "Nhà cung cấp",
       "projects": "Dự án",
-      "platform": "Nền tảng",
       "disputes": "Tranh chấp",
-      "analytics": "Phân tích"
+      "analytics": "Phân tích",
+      "accounts": "Tài khoản",
+      "activity": "Hoạt động",
+      "billing": "Thanh toán",
+      "settings": "Cài đặt",
+      "revenue": "Doanh thu",
+      "legacyDashboard": "Bảng điều khiển",
+      "legacyUsers": "Người dùng",
+      "legacyDisputes": "Tranh chấp",
+      "legacyAnalytics": "Phân tích"
     },
     "navUser": {
       "upgradeToPro": "Nâng cấp Pro",
@@ -1689,6 +1728,27 @@
       "page": "Trang {page} / {total}",
       "first": "Đầu",
       "last": "Cuối"
+    },
+    "refreshing": "Đang làm mới…",
+    "filters": {
+      "label": "Lọc engagement",
+      "tabs": {
+        "all": "Tất cả",
+        "invitations": "Lời mời",
+        "active": "Đang chạy",
+        "completed": "Hoàn tất"
+      }
+    },
+    "invitations": {
+      "badge": "Lời mời",
+      "accept": "Chấp nhận",
+      "reject": "Từ chối",
+      "acceptSuccess": "Đã chấp nhận lời mời cho \"{name}\".",
+      "rejectSuccess": "Đã từ chối lời mời cho \"{name}\".",
+      "actionsAria": "Phản hồi lời mời cho {name}",
+      "errors": {
+        "generic": "Không thể phản hồi lời mời. Vui lòng thử lại."
+      }
     }
   },
   "Profile": {
@@ -1703,6 +1763,11 @@
       "eyebrow": "Hồ sơ",
       "title": "Hồ sơ của tôi",
       "subtitle": "Cập nhật thông tin để chủ quán thấy được điều bạn mang đến cho dự án."
+    },
+    "tabs": {
+      "posts": "Bài đăng",
+      "projects": "Dự án",
+      "reviews": "Đánh giá"
     },
     "sections": {
       "basics": {
@@ -1750,7 +1815,11 @@
       "saving": "Đang lưu…",
       "saved": "Đã cập nhật hồ sơ.",
       "reset": "Huỷ thay đổi",
-      "signOut": "Đăng xuất"
+      "signOut": "Đăng xuất",
+      "editProfile": "Chỉnh sửa",
+      "settings": "Cài đặt",
+      "changeCover": "Đổi ảnh bìa",
+      "cancel": "Huỷ"
     },
     "states": {
       "loading": "Đang tải hồ sơ…",
@@ -1852,6 +1921,13 @@
     "item": {
       "markRead": "Đánh dấu đã đọc"
     },
+    "types": {
+      "engagement_completion_requested": "Nhà cung cấp đã báo hoàn thành",
+      "engagement_completed": "Hợp tác đã được nghiệm thu",
+      "engagement_terminated": "Hợp tác đã bị huỷ ngang",
+      "project_completed": "Dự án đã được đóng",
+      "project_cancelled": "Dự án đã bị huỷ"
+    },
     "markAll": "Đánh dấu tất cả đã đọc",
     "resultsCount": "{count, plural, =0 {Không có thông báo} other {# thông báo}}",
     "pagination": {
@@ -1863,6 +1939,116 @@
       "loadErrorTitle": "Không tải được thông báo.",
       "loadErrorSubtitle": "Vui lòng thử lại sau ít phút.",
       "loadErrorRetry": "Thử lại"
+    }
+  },
+  "Admin": {
+    "meta": {
+      "title": "Bảng quản trị",
+      "description": "Quản lý và điều hành nền tảng"
+    },
+    "dashboard": {
+      "title": "Bảng điều khiển",
+      "subtitle": "Tổng quan nền tảng và các chỉ số chính",
+      "lastUpdated": "Cập nhật lần cuối",
+      "accountStatus": "Trạng thái tài khoản",
+      "transactionStatus": "Trạng thái giao dịch",
+      "accounts": "Tài khoản",
+      "projects": "Dự án",
+      "contracts": "Hợp đồng",
+      "applications": "Đơn ứng tuyển",
+      "quickActions": "Thao tác nhanh"
+    },
+    "stats": {
+      "accounts": "Tổng tài khoản",
+      "projects": "Tổng dự án",
+      "posts": "Tổng bài đăng",
+      "applications": "Tổng đơn ứng tuyển",
+      "engagements": "Hợp tác",
+      "contracts": "Hợp đồng",
+      "subscriptions": "Đăng ký",
+      "revenue": "Doanh thu",
+      "thisMonth": "Tháng này",
+      "activeSubscriptions": "Đăng ký đang hoạt động",
+      "activeEngagements": "Đang hoạt động: {count}",
+      "newThisMonth": "mới tháng này"
+    },
+    "revenue": {
+      "title": "Doanh thu",
+      "subtitle": "Báo cáo doanh thu và lịch sử giao dịch",
+      "chart": "Doanh thu theo thời gian",
+      "byPurpose": "Theo mục đích",
+      "totalRevenue": "Tổng doanh thu",
+      "transactions": "giao dịch",
+      "subscription": "Đăng ký",
+      "postBoost": "Đẩy bài",
+      "timeRange": "Khoảng thời gian",
+      "daily": "Theo ngày",
+      "monthly": "Theo tháng"
+    },
+    "transactions": {
+      "title": "Giao dịch",
+      "orderCode": "Mã đơn",
+      "purpose": "Mục đích",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "platform": "Nền tảng",
+      "date": "Ngày"
+    },
+    "accounts": {
+      "title": "Tài khoản",
+      "subtitle": "Quản lý người dùng và nhà cung cấp",
+      "user": "Người dùng",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "emailStatus": "Email",
+      "joined": "Tham gia",
+      "actions": "Hành động",
+      "details": "Chi tiết tài khoản",
+      "verified": "Đã xác thực",
+      "pending": "Đang chờ",
+      "emailNotVerified": "Chưa xác thực email",
+      "verifiedOn": "Xác thực ngày {date}",
+      "approve": "Phê duyệt",
+      "unban": "Bỏ cấm",
+      "allRoles": "Tất cả vai trò",
+      "allStatuses": "Tất cả trạng thái",
+      "roleOwner": "Chủ quán",
+      "roleProvider": "Nhà cung cấp",
+      "roleAdmin": "Quản trị",
+      "statusActive": "Hoạt động",
+      "statusInactive": "Không hoạt động",
+      "statusPending": "Đang chờ",
+      "statusBanned": "Bị cấm",
+      "searchPlaceholder": "Tìm theo email hoặc số điện thoại...",
+      "noResults": "Không tìm thấy tài khoản",
+      "noResultsDesc": "Thử điều chỉnh tìm kiếm hoặc bộ lọc",
+      "viewDetails": "Xem chi tiết",
+      "activate": "Kích hoạt",
+      "deactivate": "Vô hiệu hoá",
+      "ban": "Cấm tài khoản",
+      "delete": "Xoá tài khoản",
+      "statusUpdated": "Đã cập nhật trạng thái",
+      "deleted": "Đã xoá tài khoản",
+      "deleteConfirm": "Bạn có chắc muốn xoá {email}? Hành động này không thể hoàn tác.",
+      "shopOwner": "Chủ quán",
+      "provider": "Nhà cung cấp",
+      "providerType": "Loại nhà cung cấp",
+      "capability": "Năng lực",
+      "rating": "Đánh giá",
+      "createdAt": "Tạo lúc",
+      "updatedAt": "Cập nhật lúc"
+    },
+    "actions": {
+      "viewAll": "Xem tất cả",
+      "refresh": "Làm mới",
+      "export": "Xuất",
+      "filter": "Lọc",
+      "retry": "Thử lại"
+    },
+    "errors": {
+      "loadFailed": "Không tải được dữ liệu",
+      "noData": "Không có dữ liệu",
+      "tryAgain": "Vui lòng thử lại"
     }
   }
 }

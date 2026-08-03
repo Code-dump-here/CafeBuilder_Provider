@@ -2,9 +2,9 @@
 
 import * as React from "react";
 
-import { useCurrentUser } from "@/lib/auth/user-context";
-import { useEngagements } from "@/lib/projects/use-engagements";
-import { useProjectDetail } from "@/lib/projects/use-project-detail";
+import { useCurrentUser } from "@/features/auth/user-context";
+import { useEngagements } from "@/features/projects/use-engagements";
+import { useProjectDetail } from "@/features/projects/use-project-detail";
 
 import type { ProjectMembership } from "@/lib/sidebar-config";
 

@@ -3,6 +3,13 @@ export const queryKeys = {
     me: () => ["auth", "me"] as const,
     account: () => ["auth", "account"] as const,
   },
+  admin: {
+    overview: () => ["admin", "overview"] as const,
+    revenue: (params?: unknown) => ["admin", "revenue", params] as const,
+    transactions: (params?: unknown) => ["admin", "transactions", params] as const,
+    accounts: (params?: unknown) => ["admin", "accounts", params] as const,
+    account: (id: number | null) => ["admin", "account", id] as const,
+  },
   users: {
     detail: (id: string) => ["users", "detail", id] as const,
   },
@@ -99,12 +106,17 @@ export const queryKeys = {
      *   `GET /api/project-workings?serviceProviderProfileId={id}`.
      * `serviceProviderProfileId` is the discriminator — two providers
      * never share this cache. `pageNumber` / `pageSize` go into the
-     * key so pagination state doesn't bleed across filters.
+     * key so pagination state doesn't bleed across filters. `status`
+     * is the (optional) wire filter — when omitted the backend returns
+     * every engagement for the provider, when present the cache is
+     * scoped to the matching status only (e.g. `requested` for the
+     * invitations tab).
      */
     list: (params: {
       serviceProviderProfileId: number;
       pageNumber: number;
       pageSize: number;
+      status?: string;
     }) =>
       [
         "myProjects",
@@ -112,7 +124,17 @@ export const queryKeys = {
         params.serviceProviderProfileId,
         params.pageNumber,
         params.pageSize,
+        params.status ?? "all",
       ] as const,
+    /**
+     * Prefix key for invalidating every `myProjects.list` entry for a
+     * single provider (all pages × all statuses). Use this after a
+     * mutation that touches the provider's project-working set
+     * (accept / reject / status change) so the next visit pulls the
+     * freshest rows.
+     */
+    listAll: (serviceProviderProfileId: number) =>
+      ["myProjects", "list", serviceProviderProfileId] as const,
   },
   chat: {
     /**

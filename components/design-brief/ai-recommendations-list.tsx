@@ -15,7 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { AiRecommendationCard } from "./ai-recommendation-card";
 import { AiRecommendationDetailDialog } from "./ai-recommendation-detail-dialog";
-import type { AiRecommendation } from "@/lib/projects/design-brief-types";
+import type { AiRecommendation } from "@/features/projects/design-brief-types";
 
 interface AiRecommendationsListProps {
   recommendations: AiRecommendation[];

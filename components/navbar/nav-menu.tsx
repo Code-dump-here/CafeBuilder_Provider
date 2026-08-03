@@ -10,7 +10,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { useCurrentUser } from "@/lib/auth/user-context";
+import { useCurrentUser } from "@/features/auth/user-context";
 
 export const NavMenu = (props: ComponentProps<typeof NavigationMenu>) => {
   const t = useTranslations("Navbar.nav");

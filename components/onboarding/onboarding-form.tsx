@@ -12,7 +12,7 @@ import { VerifyEmailStep } from "./verify-email-step";
 import { RoleFields } from "./role-fields";
 import type { OnboardingFormValues } from "./role-fields";
 import { SubmitActions } from "./submit-actions";
-import { useCurrentUser } from "@/lib/auth/user-context";
+import { useCurrentUser } from "@/features/auth/user-context";
 import { useCreateServiceProviderProfileMutation } from "@/features/service-provider-profiles/hooks";
 import { AppError } from "@/lib/http/errors";
 
@@ -49,18 +49,14 @@ export function OnboardingForm() {
   const capability = watch("capability");
 
   const createProfile = useCreateServiceProviderProfileMutation();
+  const [profileSaved, setProfileSaved] = React.useState(false);
 
   async function onSubmit(values: OnboardingFormValues) {
     if (!account) {
-      // The page-level `ProfileGuard` should have prevented this — guard
-      // mounts only after /me resolves. Defensive toast anyway.
       toast.error(tErrors("unknown"));
       return;
     }
 
-    // providerType and capability are required enums in the payload.
-    // If they're empty the form validation should already have blocked
-    // submission, but narrow the type anyway so the API call is sound.
     if (values.providerType === "" || values.capability === "") return;
 
     const yearsExperience = values.yearsExperience
@@ -85,15 +81,8 @@ export function OnboardingForm() {
             : undefined,
       });
       toast.success(t("actions.submitSuccess"));
-      // The mutation already invalidated `auth.me`. Push the user into
-      // the protected workspace — `ProfileGuard` will see a non-null
-      // serviceProvider on the next render and let them through.
-      router.replace("/");
+      setProfileSaved(true);
     } catch (err) {
-      // Prefer server's message if we got an `AppError`; otherwise fall
-      // back to the generic "unknown" key already present in
-      // `Auth.errors`. Validation errors with field details would
-      // surface under `err.details` — we keep it simple for now.
       const message =
         err instanceof AppError && err.message
           ? err.message
@@ -101,6 +90,19 @@ export function OnboardingForm() {
       toast.error(message);
     }
   }
+
+  // Redirect after profile is saved and auth data is refreshed
+  React.useEffect(() => {
+    if (!profileSaved) return;
+    if (createProfile.isPending) return;
+
+    // Small delay to ensure React Query cache is updated
+    const timer = setTimeout(() => {
+      router.replace("/");
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [profileSaved, createProfile.isPending, router]);
 
   return (
     <div className="space-y-8">

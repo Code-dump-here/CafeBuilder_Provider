@@ -17,8 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { IssueImageUpload } from "./issue-image-upload";
-import { useIssueTypes } from "@/lib/projects/use-issues";
-import type { IssueType } from "@/lib/projects/issue-types";
+import { useIssueTypes } from "@/features/projects/use-issues";
+import type { IssueType } from "@/features/projects/issue-types";
 
 export interface AddIssueInput {
   issueTypeId: number;

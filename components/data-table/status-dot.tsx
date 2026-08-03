@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import type { VersionStatus } from "@/lib/projects/design-version-types";
+import type { VersionStatus } from "@/features/projects/design-version-types";
 
 export interface StatusDotProps {
   status: VersionStatus;

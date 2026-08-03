@@ -4,6 +4,8 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { Mail, ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSendOtpMutation, useVerifyOtpMutation } from "@/features/auth/hooks";
+import { AppError } from "@/lib/http/errors";
 
 interface VerifyEmailStepProps {
   email: string;
@@ -17,35 +19,61 @@ const OTP_LENGTH = 6;
 export function VerifyEmailStep({ email, onVerified, onBack, isVerified }: VerifyEmailStepProps) {
   const t = useTranslations("Onboarding");
   const [digits, setDigits] = React.useState<string[]>(Array(OTP_LENGTH).fill(""));
-  const [isSending, setIsSending] = React.useState(false);
-  const [isVerifying, setIsVerifying] = React.useState(false);
   const [sent, setSent] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [countdown, setCountdown] = React.useState(0);
   const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
 
+  const sendOtpMutation = useSendOtpMutation();
+  const verifyOtpMutation = useVerifyOtpMutation();
+
   const isCodeComplete = digits.every((d) => d !== "");
+  const isSending = sendOtpMutation.isPending;
+  const isVerifying = verifyOtpMutation.isPending;
+  const isFormDisabled = isSending || isVerifying;
+
+  // Countdown timer for resend
+  React.useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
   async function handleSendCode() {
-    setIsSending(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setIsSending(false);
-    setSent(true);
-    // Focus first input after send
-    setTimeout(() => inputRefs.current[0]?.focus(), 100);
+    setError("");
+    try {
+      await sendOtpMutation.mutateAsync({ email });
+      setSent(true);
+      setCountdown(60);
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
+    } catch (err) {
+      const appErr = err as AppError;
+      if (appErr.status === 429) {
+        setError(t("verifyEmail.errors.tooManyRequests"));
+      } else if (appErr.status && appErr.status >= 500) {
+        setError(t("verifyEmail.errors.serverError"));
+      } else {
+        setError(appErr.message || t("verifyEmail.errors.sendFailed"));
+      }
+    }
   }
 
   async function handleVerifyCode() {
     if (!isCodeComplete) return;
-    setIsVerifying(true);
     setError("");
-    await new Promise((r) => setTimeout(r, 1500));
-    setIsVerifying(false);
     const code = digits.join("");
-    if (code === "123456") {
+    try {
+      await verifyOtpMutation.mutateAsync({ email, code: digits.join("") });
       onVerified();
-    } else {
-      setError(t("verifyEmail.errors.wrongCode"));
-      // Reset and refocus first input
+    } catch (err) {
+      const appErr = err as AppError;
+      if (appErr.status === 400) {
+        setError(t("verifyEmail.errors.wrongCode"));
+      } else if (appErr.status && appErr.status >= 500) {
+        setError(t("verifyEmail.errors.serverError"));
+      } else {
+        setError(appErr.message || t("verifyEmail.errors.verifyFailed"));
+      }
       setDigits(Array(OTP_LENGTH).fill(""));
       inputRefs.current[0]?.focus();
     }
@@ -246,7 +274,7 @@ export function VerifyEmailStep({ email, onVerified, onBack, isVerified }: Verif
               size="2xl"
               className="w-full gap-2 font-medium"
               onClick={handleVerifyCode}
-              disabled={!isCodeComplete || isVerifying}
+              disabled={!isCodeComplete || isFormDisabled}
             >
               {isVerifying ? (
                 <>
@@ -264,10 +292,10 @@ export function VerifyEmailStep({ email, onVerified, onBack, isVerified }: Verif
             <button
               type="button"
               onClick={handleSendCode}
-              disabled={isSending}
+              disabled={isSending || countdown > 0}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
             >
-              {isSending ? t("verifyEmail.sending") : t("verifyEmail.resendCode")}
+              {isSending ? t("verifyEmail.sending") : countdown > 0 ? `${countdown}s` : t("verifyEmail.resendCode")}
             </button>
           </div>
         </div>

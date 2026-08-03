@@ -12,7 +12,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OwnerAvatar } from "@/components/data-table";
 import { cn } from "@/lib/utils";
 
-import type { MessageThread } from "@/lib/projects/messages-types";
+import type { MessageThread } from "@/features/projects/messages-types";
 
 interface ThreadListProps {
   threads: MessageThread[];

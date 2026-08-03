@@ -8,7 +8,7 @@ import { AuthControls } from "./auth-controls";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { LocaleSwitcher } from "@/components/ui/locale-switcher";
 import { ModeToggle } from "@/components/ui/theme-toggle";
-import { useCurrentUser } from "@/lib/auth/user-context";
+import { useCurrentUser } from "@/features/auth/user-context";
 
 const Navbar = () => {
   const { isAuthenticated } = useCurrentUser();

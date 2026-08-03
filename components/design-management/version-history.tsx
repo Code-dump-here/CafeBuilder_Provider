@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import type {
   DesignVersion,
   VersionStatus,
-} from "@/lib/projects/design-version-types";
+} from "@/features/projects/design-version-types";
 
 interface VersionHistoryProps {
   versions: DesignVersion[];

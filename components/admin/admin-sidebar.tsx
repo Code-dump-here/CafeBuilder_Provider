@@ -13,6 +13,7 @@ import {
   Settings,
   ShieldCheck,
   Users,
+  Wallet,
 } from "lucide-react";
 
 import {
@@ -132,6 +133,11 @@ const ADMIN_NAV: NavSection[] = [
         titleKey: "Sidebar.admin.projects",
         url: "/admin/projects",
         icon: FolderKanban,
+      },
+      {
+        titleKey: "Sidebar.admin.revenue",
+        url: "/admin/revenue",
+        icon: Wallet,
       },
     ],
   },

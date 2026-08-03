@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { IssueCard } from "./issue-card";
 import { IssueStatusPill } from "./issue-status-pill";
 import { cn } from "@/lib/utils";
-import type { Issue, IssueStatus } from "@/lib/projects/issue-types";
+import type { Issue, IssueStatus } from "@/features/projects/issue-types";
 
 interface IssueGroupProps {
   status: IssueStatus;

@@ -3,8 +3,8 @@
 import * as React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { tokenStore } from "@/lib/auth/token-store";
-import { authEvents } from "@/lib/auth/auth-events";
+import { tokenStore } from "./token-store";
+import { authEvents } from "./auth-events";
 import { queryKeys } from "@/lib/react-query/keys";
 
 import {
@@ -12,10 +12,14 @@ import {
   logoutApi,
   refreshSession,
   registerApi,
+  sendOtpApi,
+  verifyOtpApi,
   type Account,
   type AuthSession,
   type LoginPayload,
   type RegisterPayload,
+  type SendOtpPayload,
+  type VerifyOtpPayload,
 } from "./api";
 
 // ─── Mutations ──────────────────────────────────────────────────────────────
@@ -132,6 +136,18 @@ export function useLogoutMutation() {
       // `logoutApi` already cleared the local token store on success.
       queryClient.removeQueries({ queryKey: ["auth"] });
     },
+  });
+}
+
+export function useSendOtpMutation() {
+  return useMutation<void, Error, SendOtpPayload>({
+    mutationFn: (payload) => sendOtpApi(payload),
+  });
+}
+
+export function useVerifyOtpMutation() {
+  return useMutation<void, Error, VerifyOtpPayload>({
+    mutationFn: (payload) => verifyOtpApi(payload),
   });
 }
 

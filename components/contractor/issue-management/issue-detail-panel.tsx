@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 import { IssueStatusControl } from "./issue-status-control";
-import type { Issue, IssueStatus } from "@/lib/projects/issue-types";
+import type { Issue, IssueStatus } from "@/features/projects/issue-types";
 
 interface IssueDetailPanelProps {
   issue: Issue | null;

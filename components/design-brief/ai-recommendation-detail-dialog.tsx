@@ -44,7 +44,7 @@ import type {
   LayoutZone,
   PlanRecommendation,
   RiskNote,
-} from "@/lib/projects/design-brief-types";
+} from "@/features/projects/design-brief-types";
 
 interface AiRecommendationDetailDialogProps {
   recommendation: AiRecommendation | null;

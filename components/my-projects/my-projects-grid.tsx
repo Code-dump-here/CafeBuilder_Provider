@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { MyProjectCard } from "./my-project-card";
-import type { MyProjectWorking } from "@/lib/projects/my-projects-types";
+import { MyProjectsInvitationCard } from "./my-projects-invitation-card";
+import type { MyProjectWorking } from "@/features/projects/my-projects-types";
 
 interface MyProjectsGridProps {
   projects: MyProjectWorking[];
@@ -23,6 +24,8 @@ interface MyProjectsGridProps {
   error?: Error | null;
   /** Called when the user clicks "Try again" in the error block. */
   onRetry?: () => void;
+  /** When true, render the invitation variant (Accept / Reject). */
+  mode?: "default" | "invitations";
   className?: string;
 }
 
@@ -39,6 +42,7 @@ export function MyProjectsGrid({
   isLoading,
   error,
   onRetry,
+  mode = "default",
   className,
 }: MyProjectsGridProps) {
   const t = useTranslations("MyProjects.grid.empty");
@@ -113,9 +117,13 @@ export function MyProjectsGrid({
         className,
       )}
     >
-      {projects.map((project) => (
-        <MyProjectCard key={project.id} project={project} />
-      ))}
+      {projects.map((project) =>
+        mode === "invitations" ? (
+          <MyProjectsInvitationCard key={project.id} project={project} />
+        ) : (
+          <MyProjectCard key={project.id} project={project} />
+        ),
+      )}
     </section>
   );
 }

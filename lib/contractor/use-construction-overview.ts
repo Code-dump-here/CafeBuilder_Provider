@@ -4,19 +4,19 @@ import * as React from "react";
 
 import {
   useConstructionItems,
-} from "@/lib/projects/use-construction";
-import { useIssues } from "@/lib/projects/use-issues";
+} from "@/features/projects/use-construction";
+import { useIssues } from "@/features/projects/use-issues";
 import type {
   ConstructionItem,
   ConstructionStatus,
-} from "@/lib/projects/construction-types";
-import type { Issue, IssueStatus } from "@/lib/projects/issue-types";
+} from "@/features/projects/construction-types";
+import type { Issue, IssueStatus } from "@/features/projects/issue-types";
 
 import type {
   ConstructionOverviewData,
   MilestonePhase,
   MilestoneStatus,
-} from "./construction-overview-data";
+} from "@/features/projects/contractor/construction-overview-data";
 
 /**
  * Resolve the contractor's `MilestonePhase[]` (the shape the overview UI
