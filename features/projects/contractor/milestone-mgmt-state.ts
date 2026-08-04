@@ -29,6 +29,8 @@ export interface MilestoneTask {
   images?: string[];
   /** ISO timestamp the task was first added. */
   createdAt?: string;
+  /** Task completion status */
+  status?: "pending" | "in_progress" | "completed";
 }
 
 /**

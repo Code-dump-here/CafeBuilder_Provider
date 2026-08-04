@@ -973,6 +973,7 @@
       "taskLabel": "Công việc",
       "delete": "Xoá việc",
       "deleteConfirm": "Xoá công việc này?",
+      "deleteSuccess": "Đã xoá công việc",
       "markDone": "Đánh dấu đã xong",
       "markUndone": "Đánh dấu chưa xong",
       "noAssignee": "Chưa giao",

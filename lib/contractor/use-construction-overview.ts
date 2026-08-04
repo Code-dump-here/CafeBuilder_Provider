@@ -4,11 +4,13 @@ import * as React from "react";
 
 import {
   useConstructionItems,
+  useConstructionTasks,
 } from "@/features/projects/use-construction";
 import { useIssues } from "@/features/projects/use-issues";
 import type {
   ConstructionItem,
   ConstructionStatus,
+  ConstructionTask,
 } from "@/features/projects/construction-types";
 import type { Issue, IssueStatus } from "@/features/projects/issue-types";
 
@@ -105,9 +107,15 @@ export function useConstructionOverview(
     enabled: projectWorkingId != null && Number(projectWorkingId) > 0,
   });
 
+  // Fetch all tasks to compute accurate progress per milestone
+  const tasksQuery = useConstructionTasks({
+    constructionItemId: undefined, // fetch all
+    enabled: projectWorkingId != null && Number(projectWorkingId) > 0,
+  });
+
   const phases = React.useMemo(
-    () => toMilestonePhases(itemsQuery.topLevelItems, issuesQuery.items),
-    [itemsQuery.topLevelItems, issuesQuery.items],
+    () => toMilestonePhases(itemsQuery.topLevelItems, issuesQuery.items, tasksQuery.items),
+    [itemsQuery.topLevelItems, issuesQuery.items, tasksQuery.items],
   );
 
   const data = React.useMemo<ConstructionOverviewData>(
@@ -126,11 +134,11 @@ export function useConstructionOverview(
     phases,
     items: itemsQuery.items,
     issues: issuesQuery.items,
-    isLoading: itemsQuery.isLoading || issuesQuery.isLoading,
-    isFetching: itemsQuery.isFetching || issuesQuery.isFetching,
-    isError: itemsQuery.isError || issuesQuery.isError,
+    isLoading: itemsQuery.isLoading || issuesQuery.isLoading || tasksQuery.isLoading,
+    isFetching: itemsQuery.isFetching || issuesQuery.isFetching || tasksQuery.isFetching,
+    isError: itemsQuery.isError || issuesQuery.isError || tasksQuery.isError,
     refetch: async () => {
-      await Promise.all([itemsQuery.refetch(), issuesQuery.refetch()]);
+      await Promise.all([itemsQuery.refetch(), issuesQuery.refetch(), tasksQuery.refetch()]);
     },
   };
 }
@@ -148,14 +156,16 @@ export function useConstructionOverview(
 function toMilestonePhase(
   item: ConstructionItem,
   openIssuesByItem: Map<number, number>,
+  tasks: ConstructionTask[],
 ): MilestonePhase {
   const openIssues = openIssuesByItem.get(item.id) ?? 0;
+  const itemTasks = tasks.filter((t) => t.constructionItemId === item.id);
   return {
     id: String(item.id),
     shortLabel: deriveShortLabel(item.name),
     label: item.name,
     status: resolvePhaseStatus(item.status, openIssues),
-    progress: resolvePhaseProgress(item.status, openIssues),
+    progress: resolvePhaseProgress(item.status, openIssues, itemTasks),
     targetDate: item.estimateAt ?? item.createdAt,
     startDate: item.createdAt,
     endDate: item.actualAt ?? item.estimateAt ?? item.updatedAt,
@@ -169,6 +179,7 @@ function toMilestonePhase(
 function toMilestonePhases(
   items: ConstructionItem[],
   issues: Issue[],
+  tasks: ConstructionTask[],
 ): MilestonePhase[] {
   const openIssuesByItem = countOpenIssuesByItem(issues);
   // Filter out sub-milestones — they're rendered on the milestones
@@ -180,7 +191,7 @@ function toMilestonePhases(
   const ordered = [...topLevel].sort((a, b) =>
     a.createdAt.localeCompare(b.createdAt),
   );
-  return ordered.map((item) => toMilestonePhase(item, openIssuesByItem));
+  return ordered.map((item) => toMilestonePhase(item, openIssuesByItem, tasks));
 }
 
 /**
@@ -203,23 +214,35 @@ function resolvePhaseStatus(
 }
 
 /**
- * The API has no progress field. We pick a stable heuristic so the UI
- * has something to render:
+ * Compute phase progress based on actual task completion.
+ * Falls back to milestone status heuristics when no tasks exist:
  *   - completed → 100%
  *   - in_progress without open issues → 50% (work is happening)
  *   - blocked → 35% (some progress, but stalled by issues)
  *   - pending → 0%
- *
- * The numbers are intentionally coarse — once the backend exposes a
- * real progress field we can drop this and forward `item.progress`.
  */
 function resolvePhaseProgress(
   status: ConstructionStatus,
   openIssueCount: number,
+  tasks: ConstructionTask[],
 ): number {
-  if (status === "completed") return 100;
-  if (status === "in_progress") return openIssueCount > 0 ? 35 : 50;
-  return 0;
+  if (tasks.length === 0) {
+    // Fall back to status-based heuristic
+    if (status === "completed") return 100;
+    if (status === "in_progress") return openIssueCount > 0 ? 35 : 50;
+    return 0;
+  }
+
+  // Calculate progress from actual task statuses
+  const completedCount = tasks.filter((t) => t.status === "completed").length;
+  const inProgressCount = tasks.filter((t) => t.status === "in_progress").length;
+
+  // Weight: completed = 100%, in_progress = 50%
+  const totalWeight = tasks.length;
+  const completedWeight = completedCount;
+  const inProgressWeight = inProgressCount * 0.5;
+
+  return Math.round(((completedWeight + inProgressWeight) / totalWeight) * 100);
 }
 
 /**

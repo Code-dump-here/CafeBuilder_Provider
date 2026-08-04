@@ -4,8 +4,19 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
+import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { AlertTriangle } from "lucide-react";
 
 import { MilestoneManagementToolbar } from "@/components/contractor/milestone-management/toolbar";
@@ -208,6 +219,13 @@ export default function MilestoneManagementPage() {
 
   const [addTaskTarget, setAddTaskTarget] = React.useState<number | null>(null);
 
+  // Delete confirmation dialog state
+  const [deleteConfirm, setDeleteConfirm] = React.useState<{
+    open: boolean;
+    taskId: number | null;
+    taskIndex: number | null;
+  }>({ open: false, taskId: null, taskIndex: null });
+
   // Hash-based highlighting
   const [highlightId, setHighlightId] = React.useState<string | null>(null);
   React.useEffect(() => {
@@ -240,9 +258,17 @@ export default function MilestoneManagementPage() {
     const task = activeTasks[taskIndex];
     if (!task) return;
 
-    const nextStatus: ConstructionStatus = task.status === "completed"
-      ? "in_progress"
-      : "completed";
+    let nextStatus: ConstructionStatus;
+    if (task.status === "completed") {
+      // completed → in_progress
+      nextStatus = "in_progress";
+    } else if (task.status === "in_progress") {
+      // in_progress → completed
+      nextStatus = "completed";
+    } else {
+      // pending → in_progress
+      nextStatus = "in_progress";
+    }
 
     await setTaskStatus.mutateAsync({
       id: task.id,
@@ -279,14 +305,27 @@ export default function MilestoneManagementPage() {
     void refetchTasks();
   };
 
-  const handleDeleteTask = async (itemId: number, taskIndex: number) => {
-    const task = activeTasks[taskIndex];
-    if (!task) return;
-    if (!window.confirm(t("phase.deleteConfirm"))) return;
-
-    await deleteTask.mutateAsync(task.id);
+  // Open delete confirmation for a task (from detail view)
+  const handleRequestDeleteTask = () => {
     setTaskDetail((prev) => ({ ...prev, open: false }));
-    void refetchTasks();
+    // TaskDetailView passes delete confirmation back to us
+  };
+
+  // Confirm and execute delete from AlertDialog
+  const handleConfirmDeleteTask = async () => {
+    const { taskId, taskIndex } = deleteConfirm;
+    if (taskId === null || taskIndex === null) return;
+
+    try {
+      await deleteTask.mutateAsync(taskId);
+      toast.success(t("task.deleteSuccess"));
+      setDeleteConfirm({ open: false, taskId: null, taskIndex: null });
+      void refetchTasks();
+    } catch (err) {
+      console.error("[MilestonePage] deleteTask error", err);
+      toast.error("Không thể xóa công việc. Vui lòng thử lại.");
+      setDeleteConfirm({ open: false, taskId: null, taskIndex: null });
+    }
   };
 
   const handleEditTaskFromDetail = () => {
@@ -566,20 +605,62 @@ export default function MilestoneManagementPage() {
           description: activeTasks[taskDetail.taskIndex]!.description ?? undefined,
           dueDate: activeTasks[taskDetail.taskIndex]!.estimateAt ?? undefined,
           assigneeId: undefined,
-          images: activeTasks[taskDetail.taskIndex]!.imageUrl ? [activeTasks[taskDetail.taskIndex]!.imageUrl!] : undefined,
+          images: activeTasks[taskDetail.taskIndex]!.imageViewUrl
+          ? [activeTasks[taskDetail.taskIndex]!.imageViewUrl!]
+          : activeTasks[taskDetail.taskIndex]!.imageUrl
+            ? [activeTasks[taskDetail.taskIndex]!.imageUrl!]
+            : undefined,
           createdAt: activeTasks[taskDetail.taskIndex]!.createdAt,
+          status: activeTasks[taskDetail.taskIndex]!.status,
         } : null}
         phaseLabel={activeItem?.name}
         crewOptions={[]}
         onEdit={handleEditTaskFromDetail}
         onDelete={() => {
           if (taskDetail.itemId == null || taskDetail.taskIndex == null) return;
-          handleDeleteTask(taskDetail.itemId, taskDetail.taskIndex);
+          const task = activeTasks[taskDetail.taskIndex];
+          if (!task) return;
+          setDeleteConfirm({
+            open: true,
+            taskId: task.id,
+            taskIndex: taskDetail.taskIndex,
+          });
+        }}
+        onToggleStatus={() => {
+          if (taskDetail.itemId == null || taskDetail.taskIndex == null) return;
+          handleToggleTask(taskDetail.itemId, taskDetail.taskIndex);
+          setTaskDetail((prev) => ({ ...prev, open: false }));
         }}
         onReportIssue={() => {
           router.push(`/projects/${projectIdParam}/issues`);
         }}
       />
+
+      {/* Delete task confirmation */}
+      <AlertDialog
+        open={deleteConfirm.open}
+        onOpenChange={(open) => {
+          if (!open) setDeleteConfirm((prev) => ({ ...prev, open: false }));
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xoá công việc</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc muốn xoá công việc này? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Huỷ</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => void handleConfirmDeleteTask()}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Xoá
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

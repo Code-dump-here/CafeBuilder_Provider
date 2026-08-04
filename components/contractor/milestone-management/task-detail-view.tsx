@@ -2,18 +2,17 @@
 
 import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { CalendarDays, ClipboardCheck, Clock, User, X, ImageIcon, Trash2, Pencil, TriangleAlert } from "lucide-react";
+import { CalendarDays, Clock, User, ImageIcon, Trash2, Pencil, TriangleAlert, CheckCircle, Circle } from "lucide-react";
 
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 import type { MilestoneTask } from "@/lib/contractor/milestone-mgmt-state";
+import type { ConstructionStatus } from "@/features/projects/construction-types";
 
 interface CrewMember {
   id: string;
@@ -29,6 +28,8 @@ interface TaskDetailViewProps {
   crewOptions: CrewMember[];
   onEdit: () => void;
   onDelete: () => void;
+  /** Toggle task completion status */
+  onToggleStatus: () => void;
   /**
    * Opens the issues page filtered to this task's milestone.
    * Optional — when omitted the "Report issue" button is hidden.
@@ -37,9 +38,8 @@ interface TaskDetailViewProps {
 }
 
 export function TaskDetailView(props: TaskDetailViewProps) {
-  const { open, onOpenChange, task, phaseLabel, crewOptions, onEdit, onDelete, onReportIssue } = props;
+  const { open, onOpenChange, task, phaseLabel, crewOptions, onEdit, onDelete, onToggleStatus, onReportIssue } = props;
   const t = useTranslations("MilestoneManagement.task.detail");
-  const tDeleteConfirm = useTranslations("MilestoneManagement.task");
   const tIssue = useTranslations("MilestoneManagement.issue");
   const format = useFormatter();
 
@@ -50,25 +50,18 @@ export function TaskDetailView(props: TaskDetailViewProps) {
     : undefined;
 
   const handleDelete = () => {
-    if (!window.confirm(tDeleteConfirm("deleteConfirm"))) return;
     onDelete();
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl" showCloseButton={true}>
         {/* Top bar */}
         <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-            <ClipboardCheck className="size-3.5" aria-hidden />
             <span>{phaseLabel ?? t("title")}</span>
           </div>
-          <DialogClose asChild>
-            <Button type="button" variant="ghost" size="icon-sm" aria-label={t("close")}>
-              <X aria-hidden />
-            </Button>
-          </DialogClose>
         </div>
 
         <DialogTitle className="sr-only">{task.title}</DialogTitle>
@@ -76,7 +69,28 @@ export function TaskDetailView(props: TaskDetailViewProps) {
         <div className="flex flex-col gap-5 pt-2">
           {/* Title + meta strip */}
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold leading-tight">{task.title}</h2>
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-lg font-semibold leading-tight">{task.title}</h2>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onToggleStatus}
+                className="shrink-0 gap-1.5"
+              >
+                {(task as { status?: ConstructionStatus }).status === "completed" ? (
+                  <>
+                    <CheckCircle className="size-4 text-emerald-500" aria-hidden />
+                    <span className="text-emerald-600 dark:text-emerald-400">Hoàn thành</span>
+                  </>
+                ) : (
+                  <>
+                    <Circle className="size-4 text-muted-foreground" aria-hidden />
+                    <span>Đánh dấu xong</span>
+                  </>
+                )}
+              </Button>
+            </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="size-3.5" aria-hidden />
@@ -115,9 +129,6 @@ export function TaskDetailView(props: TaskDetailViewProps) {
               </p>
             </section>
           ) : null}
-
-          {/* Checklist / work-to-do */}
-          <Checklist taskId={task.id} t={t} />
 
           {/* Images gallery */}
           <ImagesGallery images={task.images ?? []} t={t} />
@@ -161,59 +172,6 @@ export function TaskDetailView(props: TaskDetailViewProps) {
         </div>
       </DialogContent>
     </Dialog>
-  );
-}
-
-/**
- * Default checklist of "what needs to be done" inside the task. For
- * now it's a static set of best-practice items so the task view feels
- * useful out of the box. When the backend lands, this becomes a
- * server-persisted checklist keyed by `task.id`.
- */
-function Checklist({ taskId, t }: { taskId: string; t: ReturnType<typeof useTranslations<"MilestoneManagement.task.detail">> }) {
-  const [done, setDone] = React.useState<Record<number, boolean>>({});
-  const items = [
-    t("checklist.prepare"),
-    t("checklist.execute"),
-    t("checklist.verify"),
-    t("checklist.log"),
-  ];
-  return (
-    <section className="flex flex-col gap-1.5">
-      <h3 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-        {t("fields.checklist")}
-      </h3>
-      <ul className="flex flex-col gap-1 rounded-md border border-border/60 bg-muted/20 p-2">
-        {items.map((label, idx) => {
-          const checked = Boolean(done[idx]);
-          return (
-            <li key={`${taskId}-${idx}`}>
-              <button
-                type="button"
-                onClick={() => setDone((prev) => ({ ...prev, [idx]: !prev[idx] }))}
-                className={cn(
-                  "flex w-full items-center gap-2 rounded-sm px-1.5 py-1 text-left text-xs hover:bg-background/60",
-                  checked && "text-muted-foreground"
-                )}
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "flex size-4 shrink-0 items-center justify-center rounded border",
-                    checked
-                      ? "border-emerald-500/70 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
-                      : "border-border bg-card"
-                  )}
-                >
-                  {checked ? "✓" : ""}
-                </span>
-                <span className={cn(checked && "line-through")}>{label}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
   );
 }
 

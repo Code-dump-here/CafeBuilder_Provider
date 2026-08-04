@@ -86,8 +86,10 @@ export interface ConstructionTask {
   constructionItemId: number;
   name: string;
   description: string | null;
-  /** URL to the site photo uploaded via /files/images. */
+  /** ObjectName on storage bucket — internal reference. */
   imageUrl: string | null;
+  /** Public absolute URL for img src. */
+  imageViewUrl: string | null;
   /** ISO date string — targeted completion date. */
   estimateAt: string | null;
   /** ISO date string — actual completion date. */

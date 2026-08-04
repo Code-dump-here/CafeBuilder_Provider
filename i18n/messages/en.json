@@ -970,6 +970,7 @@
       "taskLabel": "Task",
       "delete": "Delete task",
       "deleteConfirm": "Delete this task?",
+      "deleteSuccess": "Task deleted successfully",
       "markDone": "Mark task done",
       "markUndone": "Mark task open",
       "noAssignee": "Unassigned",

@@ -100,9 +100,12 @@ export function useMyProjectWorkings(
         }
       : null;
 
+  // Track account loading state to trigger re-fetch when user data loads
+  const accountLoadVersion = isAccountLoading ? "loading" : "ready";
+
   const query = useQuery<PagedResponse<MyProjectWorking>, Error>({
     queryKey: queryParams
-      ? queryKeys.myProjects.list(queryParams)
+      ? [...queryKeys.myProjects.list(queryParams), accountLoadVersion]
       : ["myProjects", "list", "pending"],
     queryFn: ({ signal }) => {
       if (!queryParams) {
