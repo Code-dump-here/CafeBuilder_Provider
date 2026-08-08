@@ -95,3 +95,65 @@ export interface DesignVersionComment {
   parentId: number | null;
   createdAt: Date;
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Design Version Snapshot (Full History)
+//
+// Mirrors the wire contract for `GET /api/designs/{id}/versions` (and
+// `GET /api/designs/{id}/versions/{versionId}`). Every submit / approve
+// on the backend now produces a NEW immutable snapshot — we keep all of
+// them so the UI can render a true audit timeline (who submitted /
+// approved what, when, with what status, what images).
+//
+// Important differences vs. the legacy `DesignVersion`:
+//   - This is the *snapshot* returned by the API (one record per submit
+//     or approve event).
+//   - `DesignVersion` (above) is the *current design* projected into a
+//     version shape for the file-list table. They are NOT the same data:
+//     a single design can have multiple snapshot rows.
+//
+// The new endpoint paginates (`pageNumber`, `pageSize`) and orders by
+// `snapshottedAt DESC` so the freshest snapshot surfaces first.
+
+/** Snapshot trigger — what produced this row. */
+export type DesignVersionSnapshotKind = "submitted" | "approved";
+
+export interface DesignVersionImage {
+  id: number;
+  /** FK to the source `DesignImage.Id`, nulled when the source is deleted. */
+  originalImageId: number | null;
+  /** COPY of the GCS ObjectName — survives deletion of the source image. */
+  imageUrl: string;
+  caption: string | null;
+  uploadedBy: number;
+  uploadedAt: Date;
+}
+
+export interface DesignVersionSnapshot {
+  id: number;
+  designId: number;
+  snapshotKind: DesignVersionSnapshotKind;
+  /** Semantic version at the moment of snapshot (e.g. "0.1", "1.5"). */
+  version: string;
+  title: string | null;
+  type: import("./design-types").DesignType;
+  /** Status at the moment of snapshot (typically equals snapshotKind). */
+  status: import("./design-types").DesignStatus;
+  reason: string | null;
+  createdBy: number | null;
+  snapshottedBy: number | null;
+  createdAt: Date;
+  snapshottedAt: Date;
+  images: DesignVersionImage[];
+}
+
+/** Paged response for `GET /api/designs/{id}/versions`. */
+export interface DesignVersionSnapshotPage {
+  items: DesignVersionSnapshot[];
+  pageNumber: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+}

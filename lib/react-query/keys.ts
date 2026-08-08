@@ -90,6 +90,39 @@ export const queryKeys = {
       page: { pageNumber: number; pageSize: number },
     ) => ["projects", "aiRecommendations", briefId, page.pageNumber, page.pageSize] as const,
   },
+  designs: {
+    /**
+     * Paged full-history of design snapshots:
+     *   `GET /api/designs/{id}/versions?pageNumber=&pageSize=`.
+     * Discriminators are `(designId, pageNumber, pageSize)` so two
+     * designs — or two pages of the same design — never collide. The
+     * list endpoint orders by `snapshottedAt DESC`, so the freshest
+     * snapshot is always on page 1.
+     *
+     * Invalidation target after every submit / approve / start-revision /
+     * request-revision mutation on the same `designId`.
+     */
+    versions: (
+      designId: number,
+      page: { pageNumber: number; pageSize: number },
+    ) =>
+      [
+        "designs",
+        "versions",
+        designId,
+        page.pageNumber,
+        page.pageSize,
+      ] as const,
+    /**
+     * Single snapshot detail:
+     *   `GET /api/designs/{designId}/versions/{versionId}`.
+     * Includes the list of images *as they were* at the moment of the
+     * snapshot (independent of any later edits / deletions to the
+     * source design images).
+     */
+    versionSnapshot: (designId: number, versionId: number) =>
+      ["designs", "versionSnapshot", designId, versionId] as const,
+  },
   marketplace: {
     /** All `list` queries share the `marketplace.list` prefix for easy
      * invalidation from any mutation that touches posts. The filter

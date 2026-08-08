@@ -413,6 +413,7 @@ export function useUpdateDesignMutation(
       queryClient.invalidateQueries({
         queryKey: ["designs", "detail", { designId: design.id }],
       });
+      invalidateDesignSnapshotQueries(queryClient, design.id);
       options.onSuccessSideEffect?.(design);
     },
 
@@ -426,6 +427,29 @@ export function useUpdateDesignMutation(
       }
       options.onErrorSideEffect?.(error);
     },
+  });
+}
+
+// ─── Snapshot invalidation helper ──────────────────────────────────────────
+//
+// Every mutation that mutates a `Design` (submit, approve, request-
+// revision, start-revision, upload / delete image, …) ends up
+// producing a fresh snapshot row on the backend, OR changes the
+// metadata / images that the snapshot list shows. Centralize the
+// invalidation here so the four mutations below don't drift apart.
+//
+// `useDesignVersionSnapshot` (single-snapshot detail) is keyed on
+// `["designs", "versionSnapshot", designId, versionId]` — invalidating
+// the whole `["designs"]` subtree will sweep it too.
+function invalidateDesignSnapshotQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  designId: number,
+): void {
+  queryClient.invalidateQueries({
+    queryKey: ["designs", "versions", designId],
+  });
+  queryClient.invalidateQueries({
+    queryKey: ["designs", "versionSnapshot", designId],
   });
 }
 
@@ -455,6 +479,7 @@ export function useSubmitDesignMutation(options: SubmitDesignOptions = {}) {
       queryClient.invalidateQueries({
         queryKey: ["designs", "detail", { designId: design.id }],
       });
+      invalidateDesignSnapshotQueries(queryClient, design.id);
       options.onSuccessSideEffect?.(design);
     },
 
@@ -495,6 +520,7 @@ export function useApproveDesignMutation(options: ApproveDesignOptions = {}) {
       queryClient.invalidateQueries({
         queryKey: ["designs", "detail", { designId: design.id }],
       });
+      invalidateDesignSnapshotQueries(queryClient, design.id);
       options.onSuccessSideEffect?.(design);
     },
 
@@ -542,6 +568,7 @@ export function useRequestDesignRevisionMutation(
       queryClient.invalidateQueries({
         queryKey: ["designs", "detail", { designId: design.id }],
       });
+      invalidateDesignSnapshotQueries(queryClient, design.id);
       options.onSuccessSideEffect?.(design);
     },
 
@@ -582,6 +609,7 @@ export function useStartRevisionMutation(options: StartRevisionOptions = {}) {
       queryClient.invalidateQueries({
         queryKey: ["designs", "detail", { designId: design.id }],
       });
+      invalidateDesignSnapshotQueries(queryClient, design.id);
       options.onSuccessSideEffect?.(design);
     },
 

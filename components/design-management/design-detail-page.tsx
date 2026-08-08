@@ -13,22 +13,19 @@ import {
   Download,
   Edit2,
   Eye,
+  History,
   ImageOff,
   Loader2,
-  Maximize2,
-  Plus,
   RefreshCw,
   Send,
   Trash2,
   Upload,
-  User,
   X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { OwnerAvatar } from "@/components/data-table";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/features/auth/user-context";
@@ -44,6 +41,13 @@ import {
 } from "@/features/projects/use-designs";
 import type { Design, DesignImage } from "@/features/projects/design-types";
 import type { DesignDrawing, DesignVersion } from "@/features/projects/design-version-types";
+import {
+  useDesignVersionSnapshot,
+  useDesignVersions,
+  DEFAULT_DESIGN_VERSIONS_PAGE_NUMBER,
+  DEFAULT_DESIGN_VERSIONS_PAGE_SIZE,
+} from "@/features/projects/use-design-version-snapshots";
+import { DesignVersionHistoryPanel } from "@/components/design-management/design-version-history-panel";
 
 // ─── Adapter: Design → DesignVersion ──────────────────────────────────────
 //
@@ -192,39 +196,15 @@ export function DesignDetailPage({
 
   const isOwner = account?.role === "owner";
   const isProvider = account?.role === "provider";
-  const uid = currentUserId ?? 0;
 
   // ── Data fetch ──────────────────────────────────────────────────────────
   const {
     design,
     isLoading,
-    isFetching,
     isError,
-    refetch,
   } = useDesign({ designId });
 
   const version: DesignVersion | null = design ? designToVersion(design) : null;
-
-  // ── Selected drawing ──────────────────────────────────────────────────────
-  const defaultDrawing = React.useMemo<DesignDrawing | null>(() => {
-    if (!version || version.drawings.length === 0) return null;
-    return version.drawings[version.drawings.length - 1] ?? null;
-  }, [version]);
-
-  const [selectedDrawingId, setSelectedDrawingId] = React.useState<number | null>(null);
-  const effectiveDrawing = React.useMemo<DesignDrawing | null>(() => {
-    if (selectedDrawingId !== null) {
-      return version?.drawings.find((d) => d.id === selectedDrawingId) ?? null;
-    }
-    return defaultDrawing;
-  }, [version, selectedDrawingId, defaultDrawing]);
-
-  // Seed selection once data arrives
-  React.useEffect(() => {
-    if (selectedDrawingId === null && defaultDrawing) {
-      setSelectedDrawingId(defaultDrawing.id);
-    }
-  }, [defaultDrawing, selectedDrawingId]);
 
   // ── Mutations ───────────────────────────────────────────────────────────
   const submitMutation = useSubmitDesignMutation({
@@ -249,6 +229,114 @@ export function DesignDetailPage({
   const deleteImageMutation = useDeleteDesignImageMutation(designId, {
     onSuccessMessage: null,
   });
+
+  // ── Snapshot history (Full History) ─────────────────────────────────────
+  //
+  // The design detail page now also surfaces the full audit timeline
+  // of submit/approve events. Two pieces of state drive the right
+  // rail:
+  //   - `historyPageNumber`  — page index into `useDesignVersions`
+  //   - `selectedSnapshotId` — id of the snapshot whose images are
+  //                             currently loaded into the viewer (or
+  //                             null = "current design state").
+  //
+  // The hook is gated on a valid `designId` so we don't fire a request
+  // when the URL hasn't parsed yet.
+  const [historyPageNumber, setHistoryPageNumber] = React.useState(
+    DEFAULT_DESIGN_VERSIONS_PAGE_NUMBER,
+  );
+  const [selectedSnapshotId, setSelectedSnapshotId] = React.useState<
+    number | null
+  >(null);
+
+  const historyEnabled =
+    !Number.isNaN(designId) && Number.isFinite(designId) && designId > 0;
+  const history = useDesignVersions({
+    designId: historyEnabled ? designId : null,
+    pageNumber: historyPageNumber,
+    pageSize: DEFAULT_DESIGN_VERSIONS_PAGE_SIZE,
+  });
+
+  // Pull the chosen snapshot's detail so the viewer can show *its*
+  // images (independent of any later edits/deletes to the source
+  // design images). The hook is auto-disabled when no snapshot is
+  // selected.
+  const snapshotQuery = useDesignVersionSnapshot({
+    designId: historyEnabled ? designId : null,
+    versionId: selectedSnapshotId,
+  });
+
+  // ── Selected drawing ──────────────────────────────────────────────────────
+  //
+  // When the viewer is in "snapshot mode" we render the snapshot's
+  // copied images instead of the current design.images. The data
+  // shapes are different (DesignVersionImage vs DesignImage) but the
+  // adapter below normalizes both into the `DesignDrawing` shape the
+  // viewer / image-list already consume.
+  const snapshotDrawings = React.useMemo<DesignDrawing[] | null>(() => {
+    if (!snapshotQuery.snapshot) return null;
+    return snapshotQuery.snapshot.images.map((img, idx) => ({
+      id: img.id,
+      versionId: snapshotQuery.snapshot!.designId,
+      name: img.caption ?? `Snapshot image #${img.id}`,
+      code: `SNAP-${idx + 1}`,
+      category: mapDesignTypeToCategory(snapshotQuery.snapshot!.type),
+      thumbnailUrl: img.imageUrl,
+      scale: null,
+      sheet: null,
+      note: img.caption,
+      updatedAt: img.uploadedAt,
+      updatedBy: String(img.uploadedBy),
+    }));
+  }, [snapshotQuery.snapshot]);
+
+  const effectiveDrawings: DesignDrawing[] = React.useMemo(() => {
+    if (snapshotDrawings) return snapshotDrawings;
+    return version?.drawings ?? [];
+  }, [snapshotDrawings, version]);
+
+  const defaultDrawing = React.useMemo<DesignDrawing | null>(() => {
+    if (effectiveDrawings.length === 0) return null;
+    return effectiveDrawings[effectiveDrawings.length - 1] ?? null;
+  }, [effectiveDrawings]);
+
+  // Reset drawing selection when the snapshot context changes —
+  // otherwise the rail could keep highlighting an image id that no
+  // longer belongs to the current snapshot.
+  //
+  // Implementation note: we avoid `useEffect` here (React 19's
+  // `react-hooks/set-state-in-effect` rule discourages it). Instead
+  // we key the `selectedDrawingId` state off the snapshot context —
+  // when the snapshot id changes, the previous selection is dropped
+  // automatically by the state reset we do at render time below.
+  const [selectedDrawingIdBySnapshot, setSelectedDrawingIdBySnapshot] =
+    React.useState<{ snapshotId: number | null; drawingId: number | null }>({
+      snapshotId: null,
+      drawingId: null,
+    });
+
+  const effectiveDrawing = React.useMemo<DesignDrawing | null>(() => {
+    const currentSelection =
+      selectedDrawingIdBySnapshot.snapshotId === selectedSnapshotId
+        ? selectedDrawingIdBySnapshot.drawingId
+        : null;
+    if (currentSelection !== null) {
+      return effectiveDrawings.find((d) => d.id === currentSelection) ?? null;
+    }
+    return defaultDrawing;
+  }, [effectiveDrawings, selectedDrawingIdBySnapshot, selectedSnapshotId, defaultDrawing]);
+
+  // Selection setter — keeps the snapshot context alongside the
+  // drawing id so we can detect a context switch without an effect.
+  const setSelectedDrawingId = React.useCallback(
+    (id: number | null) => {
+      setSelectedDrawingIdBySnapshot({
+        snapshotId: selectedSnapshotId,
+        drawingId: id,
+      });
+    },
+    [selectedSnapshotId],
+  );
 
   // ── Error / loading states ─────────────────────────────────────────────
   if (Number.isNaN(designId) || (!isLoading && isError)) {
@@ -302,70 +390,127 @@ export function DesignDetailPage({
         </Link>
         <ChevronRight aria-hidden className="size-3" />
         <span className="font-semibold text-foreground">{version.name}</span>
+        {selectedSnapshotId != null ? (
+          <>
+            <ChevronRight aria-hidden className="size-3" />
+            <span className="inline-flex items-center gap-1 font-semibold text-primary">
+              <History aria-hidden className="size-3" />
+              {t("history.snapshotBreadcrumb")}
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedSnapshotId(null)}
+              className="ml-2 inline-flex items-center gap-1 rounded border border-border/60 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:border-primary/40 hover:text-primary"
+              aria-label={t("history.exitSnapshot")}
+            >
+              <X aria-hidden className="size-2.5" />
+              {t("history.backToCurrent")}
+            </button>
+          </>
+        ) : null}
       </nav>
 
-      {/* Three-column layout */}
-      <div className="grid min-h-[calc(100vh-12rem)] grid-cols-1 gap-3 lg:grid-cols-[260px_minmax(0,1fr)_280px]">
-        {/* Left: image list */}
-        <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
-          <ImageListPanel
-            images={design.images}
-            selectedId={effectiveDrawing?.id ?? null}
-            onSelect={(img) => setSelectedDrawingId(img.id)}
-            canDelete={canDeleteImage}
-            onDelete={(img) => deleteImageMutation.mutate(img.id)}
-            isDeleting={deleteImageMutation.isPending}
-            canUpload={canUpload}
-            onUpload={async ({ file, caption }) => {
-              if (!currentUserId) return;
-              uploadMutation.mutate({
-                file,
-                caption,
-                uploadedBy: currentUserId,
-              });
-            }}
-            isUploading={uploadMutation.isPending}
-          />
-        </div>
+      {/* Four-column layout (current) / three-column layout (snapshot view).
+          When the viewer is showing a historical snapshot, we collapse
+          the image-list + actions column into a single info column so
+          the snapshot drawer has room to breathe. */}
+      <div
+        className={cn(
+          "grid min-h-[calc(100vh-12rem)] grid-cols-1 gap-3",
+          selectedSnapshotId != null
+            ? "lg:grid-cols-[minmax(0,1fr)_300px]"
+            : "lg:grid-cols-[260px_minmax(0,1fr)_280px_300px]",
+        )}
+      >
+        {/* Left: image list — hidden when viewing a snapshot (the
+            snapshot panel already shows the captured image names). */}
+        {selectedSnapshotId == null ? (
+          <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
+            <ImageListPanel
+              images={design.images}
+              selectedId={effectiveDrawing?.id ?? null}
+              onSelect={(img) => setSelectedDrawingId(img.id)}
+              canDelete={canDeleteImage}
+              onDelete={(img) => deleteImageMutation.mutate(img.id)}
+              isDeleting={deleteImageMutation.isPending}
+              canUpload={canUpload}
+              onUpload={async ({ file, caption }) => {
+                if (!currentUserId) return;
+                uploadMutation.mutate({
+                  file,
+                  caption,
+                  uploadedBy: currentUserId,
+                });
+              }}
+              isUploading={uploadMutation.isPending}
+            />
+          </div>
+        ) : null}
 
         {/* Center: viewer */}
         <DesignImageViewer
           image={effectiveDrawing}
-          images={version.drawings}
+          images={effectiveDrawings}
           version={version}
           onSelect={(d) => setSelectedDrawingId(d.id)}
+          isHistorical={selectedSnapshotId != null}
         />
 
-        {/* Right: version info + actions */}
-        <div className="overflow-hidden rounded-xl border border-border/60 bg-card p-4">
-          <VersionInfoRail
-            design={design}
-            version={version}
-            statusCfg={statusCfg}
-            format={format}
-            t={t}
-            onSubmit={() => submitMutation.mutate(designId)}
-            onApprove={() => approveMutation.mutate(designId)}
-            onRequestRevision={() => {
-              const reason = window.prompt(t("actions.requestRevisionPrompt"));
-              if (!reason?.trim()) return;
-              requestRevisionMutation.mutate({ designId, payload: { reason } });
-            }}
-            onStartRevision={() => startRevisionMutation.mutate(designId)}
-            canSubmit={canSubmit}
-            canApprove={canApprove}
-            canRequestRevision={canRequestRevision}
-            canStartRevision={canStartRevision}
-            isSubmitting={submitMutation.isPending}
-            isApproving={approveMutation.isPending}
-            isRequestingRevision={requestRevisionMutation.isPending}
-            isStartingRevision={startRevisionMutation.isPending}
-          />
-        </div>
+        {/* Right: version info + actions — hidden when viewing a
+            snapshot (no actions apply to historical state). */}
+        {selectedSnapshotId == null ? (
+          <div className="overflow-hidden rounded-xl border border-border/60 bg-card p-4">
+            <VersionInfoRail
+              design={design}
+              version={version}
+              statusCfg={statusCfg}
+              format={format}
+              t={t}
+              onSubmit={() => submitMutation.mutate(designId)}
+              onApprove={() => approveMutation.mutate(designId)}
+              onRequestRevision={() => {
+                const reason = window.prompt(t("actions.requestRevisionPrompt"));
+                if (!reason?.trim()) return;
+                requestRevisionMutation.mutate({ designId, payload: { reason } });
+              }}
+              onStartRevision={() => startRevisionMutation.mutate(designId)}
+              canSubmit={canSubmit}
+              canApprove={canApprove}
+              canRequestRevision={canRequestRevision}
+              canStartRevision={canStartRevision}
+              isSubmitting={submitMutation.isPending}
+              isApproving={approveMutation.isPending}
+              isRequestingRevision={requestRevisionMutation.isPending}
+              isStartingRevision={startRevisionMutation.isPending}
+            />
+          </div>
+        ) : null}
+
+        {/* Far right: snapshot history panel — always visible. */}
+        <DesignVersionHistoryPanel
+          snapshots={history.data.items}
+          isLoading={history.isLoading}
+          isFetching={history.isFetching}
+          isError={history.isError}
+          hasNextPage={history.data.hasNext}
+          hasPreviousPage={history.data.hasPrevious}
+          pageNumber={history.data.pageNumber}
+          totalItems={history.data.totalItems}
+          pageSize={history.data.pageSize}
+          onRetry={() => void history.refetch()}
+          onNextPage={() => setHistoryPageNumber((p) => p + 1)}
+          onPreviousPage={() => setHistoryPageNumber((p) => Math.max(1, p - 1))}
+          selectedSnapshotId={selectedSnapshotId}
+          onSelectSnapshot={(snapshot) =>
+            setSelectedSnapshotId((current) =>
+              current === snapshot.id ? null : snapshot.id,
+            )
+          }
+        />
       </div>
 
       {/* Footer note */}
-      {version.latestNote ? (
+      {version.latestNote && selectedSnapshotId == null ? (
         <p className="hidden rounded-md border border-dashed border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground lg:block">
           <span className="font-semibold text-foreground/80">{t("version.latestNoteLabel")}:</span>{" "}
           {version.latestNote} · {format.dateTime(version.updatedAt, { dateStyle: "medium" })}
@@ -594,9 +739,23 @@ interface DesignImageViewerProps {
   images: DesignDrawing[];
   version: DesignVersion;
   onSelect: (d: DesignDrawing) => void;
+  /**
+   * When `true`, the viewer is rendering a *historical* snapshot
+   * rather than the current design state. Used to:
+   *   - swap the download filename hint,
+   *   - dim the "edit" affordance (not editable while in snapshot view),
+   *   - show a small "viewing snapshot" pill in the header.
+   */
+  isHistorical?: boolean;
 }
 
-function DesignImageViewer({ image, images, version, onSelect }: DesignImageViewerProps) {
+function DesignImageViewer({
+  image,
+  images,
+  version,
+  onSelect,
+  isHistorical = false,
+}: DesignImageViewerProps) {
   const t = useTranslations("DesignManagement");
   const format = useFormatter();
   const [imgError, setImgError] = React.useState(false);
@@ -665,6 +824,12 @@ function DesignImageViewer({ image, images, version, onSelect }: DesignImageView
         <span className="truncate font-medium text-foreground/80">{image.name}</span>
         <span aria-hidden>/</span>
         <span className="truncate">{version.name}</span>
+        {isHistorical ? (
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+            <History aria-hidden className="size-2.5" />
+            {t("viewer.snapshotPill")}
+          </span>
+        ) : null}
       </header>
 
       {/* Image area */}

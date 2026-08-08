@@ -402,14 +402,14 @@ const VERSIONS: DesignVersion[] = [
   },
 ];
 
-export function useDesignVersions(projectId: string): DesignVersion[] {
+export function useLegacyDesignVersions(projectId: string): DesignVersion[] {
   return React.useMemo(() => {
     const loader = OVERRIDE ?? (() => VERSIONS);
     return loader(projectId);
   }, [projectId]);
 }
 
-export function useDesignVersion(
+export function useLegacyDesignVersion(
   projectId: string,
   versionId: number,
 ): DesignVersion | null {

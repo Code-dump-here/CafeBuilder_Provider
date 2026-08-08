@@ -10,6 +10,10 @@ import type {
   RequestRevisionPayload,
   UpdateDesignPayload,
 } from "./design-types";
+import type {
+  DesignVersionSnapshot,
+  DesignVersionSnapshotPage,
+} from "./design-version-types";
 
 /**
  * List designs for a project (engagement-scoped).
@@ -229,4 +233,150 @@ export async function deleteDesignImageApi(
   config?: RequestConfig,
 ): Promise<void> {
   await api.delete(`/api/designs/${designId}/files/${fileId}`, config);
+}
+
+// ─── Design Version Snapshots (Full History) ────────────────────────────────
+//
+// Each `submit` / `approve` on the backend creates a NEW immutable
+// snapshot of the design's metadata + images. We expose two endpoints:
+//
+//   1. `GET /api/designs/{id}/versions`        — paged list (audit log).
+//   2. `GET /api/designs/{id}/versions/{vid}`  — single snapshot detail
+//      (includes the images copied at that point in time).
+//
+// Pages are sorted `snapshottedAt DESC` so the freshest snapshot is
+// always at the top of the list.
+
+// ─── Wire types ─────────────────────────────────────────────────────────────
+
+interface RawDesignVersionImage {
+  id: number;
+  originalImageId: number | null;
+  imageUrl: string;
+  caption: string | null;
+  uploadedBy: number;
+  uploadedAt: string;
+}
+
+interface RawDesignVersionSnapshot {
+  id: number;
+  designId: number;
+  snapshotKind: "submitted" | "approved";
+  version: string;
+  title: string | null;
+  type: Design["type"];
+  status: Design["status"];
+  reason: string | null;
+  createdBy: number | null;
+  snapshottedBy: number | null;
+  createdAt: string;
+  snapshottedAt: string;
+  images: RawDesignVersionImage[];
+}
+
+interface RawDesignVersionSnapshotPage {
+  items: RawDesignVersionSnapshot[];
+  pageNumber: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+}
+
+// ─── Normalization ──────────────────────────────────────────────────────────
+
+function normalizeSnapshot(
+  raw: RawDesignVersionSnapshot,
+): DesignVersionSnapshot {
+  return {
+    id: raw.id,
+    designId: raw.designId,
+    snapshotKind: raw.snapshotKind,
+    version: raw.version,
+    title: raw.title,
+    type: raw.type,
+    status: raw.status,
+    reason: raw.reason,
+    createdBy: raw.createdBy,
+    snapshottedBy: raw.snapshottedBy,
+    createdAt: new Date(raw.createdAt),
+    snapshottedAt: new Date(raw.snapshottedAt),
+    images: raw.images.map((img) => ({
+      id: img.id,
+      originalImageId: img.originalImageId,
+      imageUrl: img.imageUrl,
+      caption: img.caption,
+      uploadedBy: img.uploadedBy,
+      uploadedAt: new Date(img.uploadedAt),
+    })),
+  };
+}
+
+function normalizeSnapshotPage(
+  raw: RawDesignVersionSnapshotPage,
+): DesignVersionSnapshotPage {
+  return {
+    items: raw.items.map(normalizeSnapshot),
+    pageNumber: raw.pageNumber,
+    pageSize: raw.pageSize,
+    totalItems: raw.totalItems,
+    totalPages: raw.totalPages,
+    hasPrevious: raw.hasPrevious,
+    hasNext: raw.hasNext,
+  };
+}
+
+// ─── Public API ─────────────────────────────────────────────────────────────
+
+export interface ListDesignVersionsParams {
+  designId: number;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+/**
+ * `GET /api/designs/{id}/versions?pageNumber=&pageSize=`
+ *
+ * Returns the paged full-history list of snapshots for a single design.
+ * The backend orders by `snapshottedAt DESC` so the most recent
+ * submit / approve surfaces first.
+ */
+export async function getDesignVersionsApi(
+  params: ListDesignVersionsParams,
+  config?: RequestConfig,
+): Promise<DesignVersionSnapshotPage> {
+  const search = new URLSearchParams();
+  if (params.pageNumber !== undefined) {
+    search.set("pageNumber", String(params.pageNumber));
+  }
+  if (params.pageSize !== undefined) {
+    search.set("pageSize", String(params.pageSize));
+  }
+  const response = await api.get<RawDesignVersionSnapshotPage>(
+    `/api/designs/${params.designId}/versions${
+      search.toString() ? `?${search.toString()}` : ""
+    }`,
+    config,
+  );
+  return normalizeSnapshotPage(response.data);
+}
+
+/**
+ * `GET /api/designs/{id}/versions/{versionId}`
+ *
+ * Returns a single snapshot detail (with images). 404 if the version
+ * belongs to a different design — the caller doesn't need to scope
+ * further, the backend enforces it.
+ */
+export async function getDesignVersionApi(
+  designId: number,
+  versionId: number,
+  config?: RequestConfig,
+): Promise<DesignVersionSnapshot> {
+  const response = await api.get<RawDesignVersionSnapshot>(
+    `/api/designs/${designId}/versions/${versionId}`,
+    config,
+  );
+  return normalizeSnapshot(response.data);
 }

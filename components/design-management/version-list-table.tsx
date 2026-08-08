@@ -239,9 +239,16 @@ function VersionListTableInner({
     <section className="flex flex-col gap-4">
       <header className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold text-foreground">
-            {t(titleKey)}
-          </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-base font-semibold text-foreground">
+              {t(titleKey)}
+            </h2>
+            {/* Tiny badge — surfaces the count of `Design` rows so the
+                user knows how many version entries they're scanning. */}
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("history.totalBadge", { count: versions.length })}
+            </span>
+          </div>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {t(subtitleKey)}
           </p>

@@ -38,6 +38,7 @@ export * from "./ai-recommendations-api";
 export * from "./use-project-detail";
 export * from "./use-designs";
 export * from "./use-design-versions";
+export * from "./use-design-version-snapshots";
 export * from "./use-contracts";
 export * from "./use-my-project-workings";
 export * from "./use-issues";
