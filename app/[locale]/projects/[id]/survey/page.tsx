@@ -353,13 +353,11 @@ function SurveyDialog({
 
   const createMutation = useCreateSurveyMutation({
     onSuccessMessage: null,
-    onErrorMessage: null,
     onSuccessSideEffect: onSuccess,
   });
 
   const updateMutation = useUpdateSurveyMutation({
     onSuccessMessage: null,
-    onErrorMessage: null,
     onSuccessSideEffect: onSuccess,
   });
 

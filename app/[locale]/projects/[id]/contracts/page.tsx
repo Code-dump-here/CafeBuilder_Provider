@@ -519,7 +519,6 @@ function CreateContractDialog({
 
   const createMutation = useCreateContractMutation({
     onSuccessMessage: null,
-    onErrorMessage: null,
     onSuccessSideEffect: onSuccess,
   });
 
@@ -748,7 +747,6 @@ function OtpConfirmDialog({
 
   const sendOtpMutation = useSendContractOtpMutation({
     onSuccessMessage: null,
-    onErrorMessage: null,
     onSuccessSideEffect: (updatedContract) => {
       if (updatedContract.status === "pending_otp") {
         setStep("confirm");
@@ -758,7 +756,6 @@ function OtpConfirmDialog({
 
   const confirmOtpMutation = useConfirmContractOtpMutation({
     onSuccessMessage: null,
-    onErrorMessage: null,
     onSuccessSideEffect: onSuccess,
   });
 
@@ -906,7 +903,6 @@ function CancelContractDialog({
 
   const cancelMutation = useCancelContractMutation({
     onSuccessMessage: null,
-    onErrorMessage: null,
     onSuccessSideEffect: () => {
       onSuccess();
     },

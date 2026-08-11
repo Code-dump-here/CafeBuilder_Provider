@@ -1,43 +1,24 @@
 "use client";
 
-import * as React from "react";
+import { notifyInfo, notifySuccess } from "@/lib/notify";
 
 /**
- * Lightweight "toast" placeholder. Until a toast library (e.g. sonner) is
- * installed, fire a screen-reader announcement and log to console. All call
- * sites use the same `projectActionToast(message)` signature so swapping to
- * `toast.success(message)` later is a one-line change.
+ * Project-overview action feedback.
+ *
+ * This used to be a placeholder that only wrote to `console.info` plus an
+ * `sr-only` live region, so every message it carried was invisible to sighted
+ * users — despite `react-toastify` already being installed and mounted in
+ * `app/[locale]/providers.tsx`. It now delegates to the shared helpers in
+ * `@/lib/notify`, which keep the screen-reader announcement as well.
  */
 export function projectActionToast(message: string) {
-  if (typeof window !== "undefined") {
-    // eslint-disable-next-line no-console
-    console.info("[project-overview action]", message);
-    announce(message);
-  }
+  notifySuccess(message);
 }
 
-let LIVE_REGION: HTMLDivElement | null = null;
-
-function ensureLiveRegion(): HTMLDivElement {
-  if (LIVE_REGION) return LIVE_REGION;
-  const node = document.createElement("div");
-  node.setAttribute("role", "status");
-  node.setAttribute("aria-live", "polite");
-  node.setAttribute("aria-atomic", "true");
-  node.className = "sr-only";
-  document.body.appendChild(node);
-  LIVE_REGION = node;
-  return node;
-}
-
-function announce(message: string) {
-  try {
-    const node = ensureLiveRegion();
-    node.textContent = "";
-    window.setTimeout(() => {
-      node.textContent = message;
-    }, 50);
-  } catch {
-    // DOM unavailable (SSR) — silently no-op.
-  }
+/**
+ * For "not built yet" / advisory messages, which should not look like a
+ * completed action.
+ */
+export function projectActionInfo(message: string) {
+  notifyInfo(message);
 }

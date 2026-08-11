@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { projectActionToast } from "@/components/project-overview/project-action-toast";
 import { useApplyToPostMutation } from "@/features/projects/use-project-applications";
 
 /**
@@ -52,7 +51,6 @@ export function ApplyDialog({
   projectName,
 }: ApplyDialogProps) {
   const t = useTranslations("ProjectsOverview.apply.dialog");
-  const tCard = useTranslations("ProjectsOverview.apply");
 
   const [proposal, setProposal] = React.useState("");
   const [duration, setDuration] = React.useState<string>(
@@ -69,15 +67,15 @@ export function ApplyDialog({
   }, [open]);
 
   const apply = useApplyToPostMutation({
-    // Suppress the default success/error toasts — the dialog owns its own
-    // UX (closes on success, inline message on failure).
+    // Success is suppressed because the dialog closes, which is feedback
+    // enough. Errors now fall through to the hook's own `resolveErrorMessage`,
+    // which surfaces the real server reason. It previously fell back to
+    // "applications are coming soon", mislabelling a genuine failure as an
+    // unbuilt feature — and routed it through `projectActionToast`, which
+    // renders success styling.
     onSuccessMessage: null,
-    onErrorMessage: null,
     onSuccessSideEffect: () => {
       onOpenChange(false);
-    },
-    onErrorSideEffect: (error) => {
-      projectActionToast(error.message || tCard("applyComingSoon"));
     },
   });
 

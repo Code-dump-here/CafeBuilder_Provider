@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { AppError } from "@/lib/http/errors";
 import { useMe } from "@/features/auth/use-me";
+import { notifySuccess, notifyError } from "@/lib/notify";
 import {
   createIssueApi,
   getIssuesApi,
@@ -208,7 +209,7 @@ export function useCreateIssueMutation(
     onSuccess: (issue) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.createSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(issue);
     },
@@ -219,7 +220,7 @@ export function useCreateIssueMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -248,7 +249,7 @@ export function useUpdateIssueMutation(
     onSuccess: (issue) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.updateSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(issue);
     },
@@ -259,7 +260,7 @@ export function useUpdateIssueMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -288,7 +289,7 @@ export function useSetIssueStatusMutation(
     onSuccess: (issue) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.statusSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(issue);
     },
@@ -299,7 +300,7 @@ export function useSetIssueStatusMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -324,7 +325,7 @@ export function useDeleteIssueMutation(
     onSuccess: () => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.deleteSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.();
     },
@@ -335,7 +336,7 @@ export function useDeleteIssueMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },

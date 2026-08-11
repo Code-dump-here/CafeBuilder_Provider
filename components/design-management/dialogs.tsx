@@ -93,7 +93,6 @@ export function NewVersionDialog({
 
   const createMutation = useCreateDesignMutation({
     onSuccessMessage: null,
-    onErrorMessage: null,
     onSuccessSideEffect: (design) => {
       onCreated(design);
       setOpen(false);

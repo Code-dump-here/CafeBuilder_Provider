@@ -4,6 +4,7 @@ import * as React from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { AppError } from "@/lib/http/errors";
+import { notifySuccess, notifyError } from "@/lib/notify";
 import {
   createContractApi,
   getContractsApi,
@@ -150,7 +151,7 @@ export function useCreateContractMutation(
     onSuccess: (contract) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.createSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(contract);
     },
@@ -161,7 +162,7 @@ export function useCreateContractMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -191,7 +192,7 @@ export function useUpdateContractMutation(
     onSuccess: (contract) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.updateSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(contract);
     },
@@ -202,7 +203,7 @@ export function useUpdateContractMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -227,7 +228,7 @@ export function useSendContractOtpMutation(
     onSuccess: (contract) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.otpSent;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(contract);
     },
@@ -238,7 +239,7 @@ export function useSendContractOtpMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -268,7 +269,7 @@ export function useConfirmContractOtpMutation(
     onSuccess: (contract) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.confirmSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(contract);
     },
@@ -279,7 +280,7 @@ export function useConfirmContractOtpMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -304,7 +305,7 @@ export function useCancelContractMutation(
     onSuccess: (contract) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.cancelSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(contract);
     },
@@ -315,7 +316,7 @@ export function useCancelContractMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },

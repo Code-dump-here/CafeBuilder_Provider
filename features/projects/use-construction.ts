@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { AppError } from "@/lib/http/errors";
 import { useMe } from "@/features/auth/use-me";
+import { notifySuccess, notifyError } from "@/lib/notify";
 import {
   createConstructionItemApi,
   getConstructionItemsApi,
@@ -258,7 +259,7 @@ export function useCreateConstructionItemMutation(
     onSuccess: (item) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.createSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(item);
     },
@@ -269,7 +270,7 @@ export function useCreateConstructionItemMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -298,7 +299,7 @@ export function useUpdateConstructionItemMutation(
     onSuccess: (item) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.updateSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(item);
     },
@@ -309,7 +310,7 @@ export function useUpdateConstructionItemMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -338,7 +339,7 @@ export function useSetConstructionItemStatusMutation(
     onSuccess: (item) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.statusSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(item);
     },
@@ -349,7 +350,7 @@ export function useSetConstructionItemStatusMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -374,7 +375,7 @@ export function useDeleteConstructionItemMutation(
     onSuccess: () => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.deleteSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.();
     },
@@ -385,7 +386,7 @@ export function useDeleteConstructionItemMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -413,7 +414,7 @@ export function useCreateConstructionTaskMutation(
     onSuccess: (task) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.createTaskSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(task);
     },
@@ -424,7 +425,7 @@ export function useCreateConstructionTaskMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -453,7 +454,7 @@ export function useUpdateConstructionTaskMutation(
     onSuccess: (task) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.updateTaskSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(task);
     },
@@ -464,7 +465,7 @@ export function useUpdateConstructionTaskMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -493,7 +494,7 @@ export function useSetConstructionTaskStatusMutation(
     onSuccess: (task) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.statusSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(task);
     },
@@ -504,7 +505,7 @@ export function useSetConstructionTaskStatusMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -529,7 +530,7 @@ export function useDeleteConstructionTaskMutation(
     onSuccess: () => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.deleteTaskSuccess;
-        console.log(message);
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.();
     },
@@ -540,7 +541,7 @@ export function useDeleteConstructionTaskMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message);
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },

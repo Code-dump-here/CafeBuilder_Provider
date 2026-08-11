@@ -29,6 +29,7 @@ import type {
 } from "./design-types";
 import type { NormalizedAccount } from "@/features/auth/auth-me-types";
 import type { DesignVersion, DrawingCategory } from "./design-version-types";
+import { notifySuccess, notifyError } from "@/lib/notify";
 
 // ─── Toast messages ─────────────────────────────────────────────────────────
 
@@ -356,7 +357,7 @@ export function useCreateDesignMutation(
     onSuccess: (design) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.createSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       // Invalidate every list query scoped to this engagement so any
       // mounted table refetches the new row. Narrowing on the cache
@@ -373,7 +374,7 @@ export function useCreateDesignMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -405,7 +406,7 @@ export function useUpdateDesignMutation(
     onSuccess: (design) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.updateSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       queryClient.invalidateQueries({
         queryKey: ["designs", { projectWorkingId: design.projectWorkingId }],
@@ -423,7 +424,7 @@ export function useUpdateDesignMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -471,7 +472,7 @@ export function useSubmitDesignMutation(options: SubmitDesignOptions = {}) {
     onSuccess: (design) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.submitSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       queryClient.invalidateQueries({
         queryKey: ["designs", { projectWorkingId: design.projectWorkingId }],
@@ -489,7 +490,7 @@ export function useSubmitDesignMutation(options: SubmitDesignOptions = {}) {
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -512,7 +513,7 @@ export function useApproveDesignMutation(options: ApproveDesignOptions = {}) {
     onSuccess: (design) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.approveSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       queryClient.invalidateQueries({
         queryKey: ["designs", { projectWorkingId: design.projectWorkingId }],
@@ -530,7 +531,7 @@ export function useApproveDesignMutation(options: ApproveDesignOptions = {}) {
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -560,7 +561,7 @@ export function useRequestDesignRevisionMutation(
     onSuccess: (design) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.revisionRequested;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       queryClient.invalidateQueries({
         queryKey: ["designs", { projectWorkingId: design.projectWorkingId }],
@@ -578,7 +579,7 @@ export function useRequestDesignRevisionMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -601,7 +602,7 @@ export function useStartRevisionMutation(options: StartRevisionOptions = {}) {
     onSuccess: (design) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.revisionStarted;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       queryClient.invalidateQueries({
         queryKey: ["designs", { projectWorkingId: design.projectWorkingId }],
@@ -619,7 +620,7 @@ export function useStartRevisionMutation(options: StartRevisionOptions = {}) {
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -653,7 +654,7 @@ export function useUploadDesignImageMutation(
     onSuccess: (image) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.uploadSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       // Invalidate the design detail so the new image appears in the list.
       queryClient.invalidateQueries({
@@ -668,7 +669,7 @@ export function useUploadDesignImageMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -695,7 +696,7 @@ export function useDeleteDesignImageMutation(
     onSuccess: () => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.deleteSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       queryClient.invalidateQueries({
         queryKey: ["designs", "detail", { designId }],
@@ -709,7 +710,7 @@ export function useDeleteDesignImageMutation(
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },

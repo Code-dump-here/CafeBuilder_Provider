@@ -4,6 +4,7 @@ import * as React from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { AppError } from "@/lib/http/errors";
+import { notifySuccess, notifyError } from "@/lib/notify";
 import {
   createSurveyApi,
   getSurveysApi,
@@ -47,7 +48,7 @@ export function useCreateSurveyMutation(options: CreateSurveyOptions = {}) {
     onSuccess: (survey) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.success;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(survey);
     },
@@ -58,7 +59,7 @@ export function useCreateSurveyMutation(options: CreateSurveyOptions = {}) {
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
@@ -81,7 +82,7 @@ export function useUpdateSurveyMutation(options: UpdateSurveyOptions = {}) {
     onSuccess: (survey) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.updateSuccess;
-        console.log(message); // TODO: wire to toast
+        notifySuccess(message);
       }
       options.onSuccessSideEffect?.(survey);
     },
@@ -92,7 +93,7 @@ export function useUpdateSurveyMutation(options: UpdateSurveyOptions = {}) {
           typeof options.onErrorMessage === "function"
             ? options.onErrorMessage(error)
             : options.onErrorMessage ?? resolveErrorMessage(error);
-        console.log(message); // TODO: wire to toast
+        notifyError(message);
       }
       options.onErrorSideEffect?.(error);
     },
