@@ -44,6 +44,13 @@ import {
   sendMessageApi,
 } from "./api";
 
+// ─── Polling backoff ─────────────────────────────────────────────────────────
+
+/** Doubling steps applied to `intervalMs` after consecutive poll failures. */
+const MAX_BACKOFF_STEPS = 5;
+/** Ceiling for the backed-off poll interval (1 minute). */
+const MAX_POLL_INTERVAL_MS = 60_000;
+
 // ─── Hydration gate (mirrors use-project-detail.ts) ────────────────────────────
 
 function useAuthHydrated(): boolean {
@@ -256,6 +263,10 @@ export function useChatPolling(
   const lastIdRef = React.useRef<number | null>(initialSinceId ?? null);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = React.useRef<AbortController | null>(null);
+  // Set by the effect cleanup so an in-flight poll can't reschedule itself
+  // after teardown. See the `finally` block in `poll`.
+  const stoppedRef = React.useRef(false);
+  const failureCountRef = React.useRef(0);
 
   const [newMessages, setNewMessages] = React.useState<MessageResponse[]>([]);
   const [isPolling, setIsPolling] = React.useState(false);
@@ -285,13 +296,29 @@ export function useChatPolling(
           setNewMessages((prev) => [...prev, ...messages]);
         }
       }
+      // Reset backoff after a clean round-trip.
+      failureCountRef.current = 0;
     } catch (err) {
       if ((err as DOMException).name === "AbortError") return;
       // Log polling errors without crashing — the next tick will retry.
       console.error("[chat] polling error", err);
+      failureCountRef.current += 1;
     } finally {
-      setIsPolling(false);
-      timerRef.current = setTimeout(poll, intervalMs);
+      // `finally` runs even on the AbortError `return` above. Without this
+      // guard, tearing down (unmount or switching conversation) left the
+      // aborted request to schedule a fresh timer that nothing held a
+      // reference to — so every conversation switch leaked an immortal poll
+      // loop against the previous conversation.
+      if (!stoppedRef.current) {
+        setIsPolling(false);
+        // Back off on consecutive failures so a down backend isn't hammered
+        // at a flat 3s; reset to `intervalMs` on the next success.
+        const backoff = Math.min(
+          intervalMs * 2 ** Math.min(failureCountRef.current, MAX_BACKOFF_STEPS),
+          MAX_POLL_INTERVAL_MS,
+        );
+        timerRef.current = setTimeout(poll, backoff);
+      }
     }
   }, [conversationId, onMessages, intervalMs]);
 
@@ -299,11 +326,16 @@ export function useChatPolling(
   React.useEffect(() => {
     if (conversationId == null) return;
 
+    stoppedRef.current = false;
+    failureCountRef.current = 0;
     lastIdRef.current = initialSinceId ?? null;
     setNewMessages([]);
     timerRef.current = setTimeout(poll, 0);
 
     return () => {
+      // Order matters: flag first, so a poll that is mid-flight when we abort
+      // below sees `stoppedRef` set by the time its `finally` runs.
+      stoppedRef.current = true;
       if (timerRef.current) clearTimeout(timerRef.current);
       abortRef.current?.abort();
     };
