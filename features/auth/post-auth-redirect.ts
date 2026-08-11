@@ -18,6 +18,22 @@ export type PostAuthDestination =
   | { kind: "home"; role: UserRole };
 
 /**
+ * The destination plus the account we fetched to decide it.
+ *
+ * The account is returned so callers can seed the `["auth", "me"]` query
+ * instead of throwing away a perfectly good response. Previously this data
+ * was discarded, `useMe` never repopulated after login, and every screen
+ * deriving `account.serviceProvider.id` — My Projects, invitation cards, the
+ * apply flow — silently rendered as empty until a manual page refresh.
+ *
+ * `account` is null only when the fetch failed.
+ */
+export interface PostAuthResolution {
+  destination: PostAuthDestination;
+  account: NormalizedAccount | null;
+}
+
+/**
  * Inspect the freshly-logged-in account and decide where the app
  * should send it. Async because we always need a fresh `/api/auth/me`
  * — register/login only return the bare `AuthSession`.
@@ -26,7 +42,7 @@ export type PostAuthDestination =
  * so anything cached from a previous session is by definition stale.
  * We fetch through axios directly to guarantee a network round-trip.
  */
-export async function resolvePostAuthDestination(): Promise<PostAuthDestination> {
+export async function resolvePostAuthDestination(): Promise<PostAuthResolution> {
   let account: NormalizedAccount | null = null;
   try {
     account = await fetchMe();
@@ -35,12 +51,12 @@ export async function resolvePostAuthDestination(): Promise<PostAuthDestination>
     // log loudly so the dev sees why we're sending them to the wrong place.
     // We still prefer landing somewhere over bouncing back to /login.
     console.error("[post-auth-redirect] /api/auth/me failed", err);
-    return { kind: "home", role: "owner" };
+    return { destination: { kind: "home", role: "owner" }, account: null };
   }
 
   if (!account) {
     console.error("[post-auth-redirect] /api/auth/me returned empty account");
-    return { kind: "home", role: "owner" };
+    return { destination: { kind: "home", role: "owner" }, account: null };
   }
 
   const destination = resolvePostAuthDestinationFromAccount(account);
@@ -53,7 +69,7 @@ export async function resolvePostAuthDestination(): Promise<PostAuthDestination>
     destination,
     path: postAuthDestinationToPath(destination),
   });
-  return destination;
+  return { destination, account };
 }
 
 /**

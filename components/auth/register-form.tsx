@@ -72,7 +72,12 @@ export function RegisterForm() {
       {
         onSuccess: async (session) => {
           queryClient.removeQueries({ queryKey: ["auth", "me"] });
-          const destination = await resolvePostAuthDestination();
+          const { destination, account } = await resolvePostAuthDestination();
+          // Seed `useMe` with the account we just fetched — see the same
+          // comment in login-form.tsx.
+          if (account) {
+            queryClient.setQueryData(["auth", "me"], account);
+          }
           const path =
             destination.kind === "onboarding"
               ? postAuthDestinationToPath(destination)

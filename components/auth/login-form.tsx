@@ -13,7 +13,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   postAuthDestinationToPath,
   resolvePostAuthDestination,
-  type PostAuthDestination,
 } from "@/features/auth/post-auth-redirect";
 import { AppError } from "@/lib/http/errors";
 
@@ -64,10 +63,18 @@ export function LoginForm() {
           redirectPath = "/admin";
         } else {
           // For non-admin roles, try to resolve via post-auth logic
-          let destination: PostAuthDestination;
           try {
-            destination = await resolvePostAuthDestination();
+            const { destination, account } = await resolvePostAuthDestination();
             redirectPath = postAuthDestinationToPath(destination);
+
+            // Seed `useMe` with the account the resolver just fetched.
+            // Without this the query stays empty after the `removeQueries`
+            // above, so `account.serviceProvider.id` is undefined and every
+            // screen derived from it — My Projects, invitation cards, the
+            // apply flow — renders as "nothing here" until a manual refresh.
+            if (account) {
+              queryClient.setQueryData(["auth", "me"], account);
+            }
           } catch (e) {
             console.error("[login-form] resolver threw", e);
             // Default to home page for non-admin
