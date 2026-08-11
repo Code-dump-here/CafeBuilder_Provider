@@ -48,6 +48,7 @@ import {
   DEFAULT_DESIGN_VERSIONS_PAGE_SIZE,
 } from "@/features/projects/use-design-version-snapshots";
 import { DesignVersionHistoryPanel } from "@/components/design-management/design-version-history-panel";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 // ─── Adapter: Design → DesignVersion ──────────────────────────────────────
 //
@@ -761,7 +762,7 @@ function DesignImageViewer({
   const [imgError, setImgError] = React.useState(false);
   const [isDownloading, setIsDownloading] = React.useState(false);
 
-  React.useEffect(() => { setImgError(false); }, [image?.id]);
+  useResetOnChange(image?.id, () => { setImgError(false); });
 
   const currentIndex = image ? images.findIndex((d) => d.id === image.id) : -1;
   const prevImage = currentIndex > 0 ? images[currentIndex - 1] : null;

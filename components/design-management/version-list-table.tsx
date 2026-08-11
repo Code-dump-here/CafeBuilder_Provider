@@ -37,6 +37,7 @@ import {
 import type { DesignVersion } from "@/features/projects/design-version-types";
 import type { DesignType } from "@/features/projects/design-types";
 import { mapDesignTypeToCategory } from "@/features/projects/use-designs";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 interface VersionListTableProps {
   projectId: string;
@@ -220,7 +221,7 @@ function VersionListTableInner({
 
   // Reset selection when the active tab changes — otherwise the right
   // rail could end up showing comments for a version that's hidden.
-  React.useEffect(() => {
+  useResetOnChange(filtered, () => {
     if (filtered.length === 0) {
       setSelectedVersionId(null);
       return;
@@ -229,7 +230,7 @@ function VersionListTableInner({
     if (!stillVisible) {
       setSelectedVersionId(filtered[0]?.id ?? null);
     }
-  }, [filtered, selectedVersionId]);
+  });
 
   const selectedVersion: DesignVersion | null = React.useMemo(() => {
     if (selectedVersionId == null) return null;

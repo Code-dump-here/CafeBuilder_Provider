@@ -103,18 +103,20 @@ export function ChatView({ projectId }: ChatViewProps) {
 
   // The existing UI expects `MessageThread[]`. We build them from conversations.
   // messages + attachments are populated lazily when a thread is opened.
-  const [threads, setThreads] = React.useState<MessageThread[]>([]);
-  const [threadMessages, setThreadMessages] = React.useState<
-    Map<number, Message[]>
-  >(new Map());
-
-  React.useEffect(() => {
-    setThreads(
+  //
+  // Derived, not stored: this used to be state written from an effect, which
+  // rendered once with the previous thread list before the effect caught up.
+  // Nothing else ever set it, so a memo is equivalent and one render shorter.
+  const threads = React.useMemo<MessageThread[]>(
+    () =>
       conversations.map((conv) =>
         apiConversationToThread(conv, parseInt(projectId, 10) || 0),
       ),
-    );
-  }, [conversations, projectId]);
+    [conversations, projectId],
+  );
+  const [threadMessages, setThreadMessages] = React.useState<
+    Map<number, Message[]>
+  >(new Map());
 
   // ── Active thread selection ───────────────────────────────────────────────
 

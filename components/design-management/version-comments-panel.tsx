@@ -7,6 +7,7 @@ import { CornerDownRight, MessageSquare, Pin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CodeBadge, OwnerAvatar } from "@/components/data-table";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { cn } from "@/lib/utils";
 
 import type {
@@ -44,10 +45,10 @@ export function VersionCommentsPanel({
 
   // Reset composer state when switching versions — otherwise the
   // pending draft and reply target leak between versions.
-  React.useEffect(() => {
+  useResetOnChange(version?.id, () => {
     setDraft("");
     setReplyTo(null);
-  }, [version?.id]);
+  });
 
   const sorted = React.useMemo(() => {
     const pinned = comments.filter((c) => c.pinned);

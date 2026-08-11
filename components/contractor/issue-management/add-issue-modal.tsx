@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { IssueImageUpload } from "./issue-image-upload";
 import { useIssueTypes } from "@/features/projects/use-issues";
 import type { IssueType } from "@/features/projects/issue-types";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 export interface AddIssueInput {
   issueTypeId: number;
@@ -71,16 +72,16 @@ export function AddIssueModal({
     enabled: open,
   });
 
-  React.useEffect(() => {
+  useResetOnChange(open, () => {
     if (!open) setForm(EMPTY);
-  }, [open]);
+  });
 
-  // Default to first catalog entry once it loads.
-  React.useEffect(() => {
-    if (open && form.issueTypeId === 0 && issueTypes.length > 0) {
-      setForm((prev) => ({ ...prev, issueTypeId: issueTypes[0]!.id }));
-    }
-  }, [open, issueTypes, form.issueTypeId]);
+  // Default to the first catalogue entry once it loads. Derived at render
+  // rather than written back into state: storing it meant an extra render,
+  // and the effect had `form.issueTypeId` in its own deps — it re-ran on
+  // every change to the field it was setting.
+  const effectiveIssueTypeId =
+    form.issueTypeId !== 0 ? form.issueTypeId : issueTypes[0]?.id ?? 0;
 
   const update = <K extends keyof AddIssueInput>(
     key: K,
@@ -91,9 +92,9 @@ export function AddIssueModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.issueTypeId) return;
+    if (!effectiveIssueTypeId) return;
     onSubmit({
-      issueTypeId: form.issueTypeId,
+      issueTypeId: effectiveIssueTypeId,
       cause: form.cause.trim(),
       reason: form.reason.trim(),
       solution: form.solution.trim(),
@@ -118,7 +119,7 @@ export function AddIssueModal({
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <Field label={tIssue("fields.issueType")}>
             <select
-              value={form.issueTypeId}
+              value={effectiveIssueTypeId}
               onChange={(e) => update("issueTypeId", Number(e.target.value))}
               required
               disabled={isLoadingTypes}
@@ -199,7 +200,7 @@ export function AddIssueModal({
             <Button
               type="submit"
               size="sm"
-              disabled={!form.issueTypeId || isSubmitting}
+              disabled={!effectiveIssueTypeId || isSubmitting}
             >
               <Plus aria-hidden />
               {t("create")}

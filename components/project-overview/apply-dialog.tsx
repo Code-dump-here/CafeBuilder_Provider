@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useApplyToPostMutation } from "@/features/projects/use-project-applications";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 /**
  * Bounds for the apply form. Mirrors typical backend column limits
@@ -59,12 +60,12 @@ export function ApplyDialog({
 
   // Reset form whenever the dialog re-opens so a previous (failed) attempt
   // doesn't bleed into the next one. Cheap because both inputs are tiny.
-  React.useEffect(() => {
+  useResetOnChange(open, () => {
     if (open) {
       setProposal("");
       setDuration(String(DURATION_DEFAULT_DAYS));
     }
-  }, [open]);
+  });
 
   const apply = useApplyToPostMutation({
     // Success is suppressed because the dialog closes, which is feedback

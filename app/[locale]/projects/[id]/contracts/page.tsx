@@ -40,6 +40,7 @@ import { useCurrentUser } from "@/features/auth/user-context";
 import { uploadFileApi } from "@/lib/http/file-upload-api";
 import { useContracts, useCreateContractMutation, useUpdateContractMutation, useSendContractOtpMutation, useConfirmContractOtpMutation, useCancelContractMutation } from "@/features/projects/use-contracts";
 import { useEngagements } from "@/features/projects/use-engagements";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import type { Contract } from "@/features/projects/contract-types";
 
 // ---------------------------------------------------------------------------
@@ -507,7 +508,7 @@ function CreateContractDialog({
   const [isUploading, setIsUploading] = React.useState(false);
 
   // Reset form when dialog opens
-  React.useEffect(() => {
+  useResetOnChange(open, () => {
     if (open) {
       setTitle("");
       setTerms("");
@@ -515,7 +516,7 @@ function CreateContractDialog({
       setDocumentUrl("");
       setDocumentFile(null);
     }
-  }, [open]);
+  });
 
   const createMutation = useCreateContractMutation({
     onSuccessMessage: null,
@@ -738,12 +739,12 @@ function OtpConfirmDialog({
   const [step, setStep] = React.useState<"send" | "confirm">("send");
 
   // Reset when dialog opens
-  React.useEffect(() => {
+  useResetOnChange(open && contract ? `${contract.id}:${contract.status}` : null, () => {
     if (open && contract) {
       setOtpCode("");
       setStep(contract.status === "drafted" ? "send" : "confirm");
     }
-  }, [open, contract]);
+  });
 
   const sendOtpMutation = useSendContractOtpMutation({
     onSuccessMessage: null,

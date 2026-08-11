@@ -28,6 +28,7 @@ import type {
 } from "@/features/projects/design-version-types";
 import type { Design, DesignType } from "@/features/projects/design-types";
 import { useCreateDesignMutation } from "@/features/projects/use-designs";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 // ---------------------------------------------------------------------------
 // NewVersionDialog
@@ -82,14 +83,14 @@ export function NewVersionDialog({
   const [category, setCategory] = React.useState<DesignType>("concept");
   const [notes, setNotes] = React.useState("");
 
-  React.useEffect(() => {
+  useResetOnChange(open, () => {
     if (!open) {
       setName("");
       setCode("");
       setCategory("concept");
       setNotes("");
     }
-  }, [open]);
+  });
 
   const createMutation = useCreateDesignMutation({
     onSuccessMessage: null,
@@ -239,12 +240,15 @@ export function PublishRevisionDialog({
   );
   const [notes, setNotes] = React.useState("");
 
-  React.useEffect(() => {
+  // Token carries the first publishable id too: the original effect also
+  // re-ran when the list changed while closed, so the default selection
+  // wouldn't be stale on reopen.
+  useResetOnChange(`${open}:${publishable[0]?.id ?? ""}`, () => {
     if (!open) {
       setVersionId(publishable[0]?.id.toString() ?? null);
       setNotes("");
     }
-  }, [open, publishable]);
+  });
 
   const selected =
     publishable.find((v) => v.id.toString() === versionId) ?? null;

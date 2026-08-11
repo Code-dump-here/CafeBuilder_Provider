@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { IssueImageUpload } from "./issue-image-upload";
 import { useIssueTypes } from "@/features/projects/use-issues";
 import type { Issue, IssueType } from "@/features/projects/issue-types";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 export interface EditIssueInput {
   issueTypeId: number;
@@ -70,13 +71,13 @@ export function EditIssueModal({
     enabled: open,
   });
 
-  React.useEffect(() => {
+  useResetOnChange(`${open}:${issue?.id ?? ""}`, () => {
     if (open && issue) {
       setForm(fromIssue(issue));
     } else if (!open) {
       setForm(null);
     }
-  }, [open, issue]);
+  });
 
   const update = <K extends keyof EditIssueInput>(
     key: K,

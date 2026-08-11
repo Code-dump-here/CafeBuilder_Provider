@@ -104,7 +104,17 @@ export default function IssuesPage() {
 
   const [addOpen, setAddOpen] = React.useState(false);
   const [editTarget, setEditTarget] = React.useState<Issue | null>(null);
-  const [detailTarget, setDetailTarget] = React.useState<Issue | null>(null);
+  // Store only the id and look the issue up from the list. Holding the whole
+  // object meant it went stale on every refetch, which needed an effect to
+  // copy fresh data back into state; deriving keeps it current for free.
+  const [detailTargetId, setDetailTargetId] = React.useState<number | null>(null);
+  const detailTarget = React.useMemo(
+    () =>
+      detailTargetId == null
+        ? null
+        : issues.find((i) => i.id === detailTargetId) ?? null,
+    [issues, detailTargetId],
+  );
 
   const handleAdd = async (input: AddIssueInput) => {
     if (!projectWorkingId) return;
@@ -137,37 +147,19 @@ export default function IssuesPage() {
 
   const handleChangeStatus = async (id: number, next: IssueStatus) => {
     await setStatus.mutateAsync({ id, payload: { status: next } });
-    if (detailTarget?.id === id) {
-      setDetailTarget({ ...detailTarget, status: next });
-    }
+    // No local patch needed — `detailTarget` is derived from the list, so the
+    // refreshed status flows straight through.
   };
 
   const handleDelete = async (issue: Issue) => {
     if (!window.confirm(t("deleteConfirm"))) return;
     await deleteIssue.mutateAsync(issue.id);
-    if (detailTarget?.id === issue.id) setDetailTarget(null);
+    if (detailTargetId === issue.id) setDetailTargetId(null);
   };
 
   const handleSelectIssue = React.useCallback((issue: Issue) => {
-    setDetailTarget(issue);
+    setDetailTargetId(issue.id);
   }, []);
-
-  // Keep the selected issue synced with the underlying list so status
-  // updates / refetches don't leave the panel showing stale data.
-  React.useEffect(() => {
-    if (!detailTarget) return;
-    const fresh = issues.find((i) => i.id === detailTarget.id);
-    if (!fresh) {
-      setDetailTarget(null);
-      return;
-    }
-    if (
-      fresh.status !== detailTarget.status ||
-      fresh.updatedAt !== detailTarget.updatedAt
-    ) {
-      setDetailTarget(fresh);
-    }
-  }, [issues, detailTarget]);
 
   // Counts derived from the full list. Mirrors the milestone
   // toolbar's "totalTasks / doneTasks" pills.
@@ -329,7 +321,7 @@ export default function IssuesPage() {
               issue={detailTarget}
               onChangeStatus={handleChangeStatus}
               onEdit={(it) => setEditTarget(it)}
-              onClose={() => setDetailTarget(null)}
+              onClose={() => setDetailTargetId(null)}
               isChangingStatus={setStatus.isPending}
             />
           </div>

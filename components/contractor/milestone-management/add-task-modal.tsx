@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadImageApi } from "@/lib/http/file-upload-api";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 interface CrewOption {
   id: string;
@@ -69,7 +70,7 @@ export function AddTaskModal({
   const [uploadError, setUploadError] = React.useState<string | null>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
+  useResetOnChange(open, () => {
     if (!open) {
       setName("");
       setDescription("");
@@ -79,7 +80,7 @@ export function AddTaskModal({
       setUploadError(null);
       setIsUploading(false);
     }
-  }, [open]);
+  });
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;

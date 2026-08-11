@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { OwnerAvatar } from "@/components/data-table";
 import { cn } from "@/lib/utils";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 import type {
   Message,
@@ -68,9 +69,9 @@ export function ThreadDetail({ thread, onOpenInfo, onSend, onDeleteMessage, curr
 
   // Reset composer state when switching threads — otherwise the
   // pending draft + reply target leak between contexts.
-  React.useEffect(() => {
+  useResetOnChange(thread?.id, () => {
     setDraft("");
-  }, [thread?.id]);
+  });
 
   // Auto-scroll to bottom whenever the message log grows.
   // We pin to the bottom on every message change (incl. optimistic ones)

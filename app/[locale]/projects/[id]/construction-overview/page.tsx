@@ -132,23 +132,18 @@ export default function ConstructionOverviewPage() {
     return phases[0]!.id;
   }, [data.phases]);
 
+  // Empty until the user picks a phase; the auto-derived id fills in until
+  // then. Deriving beats copying `initialPhaseId` into state from an effect:
+  // no extra render, and no window where the list has loaded but the
+  // selection is still "".
   const [selectedPhaseId, setSelectedPhaseId] = React.useState<string>("");
-
-  // Push the auto-derived id into state once the list loads. Done in an
-  // effect (not during render) to keep the `useState` initializer
-  // side-effect-free — a state update during render would trigger a
-  // re-render warning in React 18+ strict mode.
-  React.useEffect(() => {
-    if (initialPhaseId && selectedPhaseId === "") {
-      setSelectedPhaseId(initialPhaseId);
-    }
-  }, [initialPhaseId, selectedPhaseId]);
+  const effectivePhaseId = selectedPhaseId || initialPhaseId;
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const selectedPhase = React.useMemo(
-    () => data.phases.find((p) => p.id === selectedPhaseId) ?? data.phases[0],
-    [data.phases, selectedPhaseId],
+    () => data.phases.find((p) => p.id === effectivePhaseId) ?? data.phases[0],
+    [data.phases, effectivePhaseId],
   );
 
   // Phase shown in the drawer — locked to whatever was selected when
@@ -258,7 +253,7 @@ export default function ConstructionOverviewPage() {
 
         <MilestoneTrack
           phases={data.phases}
-          selectedPhaseId={selectedPhaseId}
+          selectedPhaseId={effectivePhaseId}
           onSelect={setSelectedPhaseId}
         />
 

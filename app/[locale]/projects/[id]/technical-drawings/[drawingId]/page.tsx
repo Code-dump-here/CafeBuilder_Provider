@@ -18,6 +18,7 @@ import {
   useTechnicalDrawings,
 } from "@/features/projects/use-technical-drawings";
 import type { DrawingVersion } from "@/features/projects/technical-drawing-types";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 export default function TechnicalDrawingDetailPage() {
   const params = useParams<{ id: string; drawingId: string }>();
@@ -48,7 +49,7 @@ export default function TechnicalDrawingDetailPage() {
   // Reset version selection when the drawing changes. Without this,
   // navigating from drawing A (id=1) to drawing B (id=2) would keep the
   // previous `selectedVersionId`, which no longer exists in B's list.
-  React.useEffect(() => {
+  useResetOnChange(drawing?.id, () => {
     if (!drawing) {
       setSelectedVersionId(null);
       setCompareVersionId(null);
@@ -56,7 +57,7 @@ export default function TechnicalDrawingDetailPage() {
     }
     setSelectedVersionId(drawing.versions[0]?.id ?? null);
     setCompareVersionId(null);
-  }, [drawing?.id]);
+  });
 
   // Open the first group that contains the current drawing by default.
   //

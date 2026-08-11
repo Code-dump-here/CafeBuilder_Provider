@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 interface AddPhaseDialogProps {
   open: boolean;
@@ -41,14 +42,14 @@ export function AddPhaseDialog({
   const [description, setDescription] = React.useState("");
   const [estimateAt, setEstimateAt] = React.useState("");
 
-  React.useEffect(() => {
+  useResetOnChange(open, () => {
     if (!open) {
       setName("");
       setCategory("");
       setDescription("");
       setEstimateAt("");
     }
-  }, [open]);
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

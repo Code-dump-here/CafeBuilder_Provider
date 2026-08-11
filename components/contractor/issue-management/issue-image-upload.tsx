@@ -6,6 +6,7 @@ import { Loader2, Upload, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { uploadImageApi } from "@/lib/http/file-upload-api";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 interface IssueImageUploadProps {
   label: string;
@@ -33,12 +34,12 @@ export function IssueImageUpload({
 
   // When the underlying value changes from outside (form reset),
   // drop the local preview.
-  React.useEffect(() => {
+  useResetOnChange(value, () => {
     if (!value) {
       setPreviewUrl(null);
       setError(null);
     }
-  }, [value]);
+  });
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;

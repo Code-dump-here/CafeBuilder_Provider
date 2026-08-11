@@ -30,6 +30,7 @@ import { uploadFileApi } from "@/lib/http/file-upload-api";
 import { useSurveys, useCreateSurveyMutation, useUpdateSurveyMutation } from "@/features/projects/use-surveys";
 import { useEngagements } from "@/features/projects/use-engagements";
 import type { Survey } from "@/features/projects/survey-types";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -342,14 +343,14 @@ function SurveyDialog({
   const [uploadError, setUploadError] = React.useState<string | null>(null);
 
   // Reset form when dialog opens/closes or survey changes
-  React.useEffect(() => {
+  useResetOnChange(`${open}:${survey?.id ?? "new"}`, () => {
     if (open) {
       setConditionNote(survey?.conditionNote ?? "");
       setReportUrl(survey?.reportUrl ?? "");
       setReportFile(null);
       setUploadError(null);
     }
-  }, [open, survey]);
+  });
 
   const createMutation = useCreateSurveyMutation({
     onSuccessMessage: null,

@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import type { MilestonePhase } from "@/lib/contractor/construction-overview-data";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 export interface PhaseEditInput {
   label: string;
@@ -73,7 +74,7 @@ export function PhaseEditDialog({
 
   // Sync local form state with the phase under edit whenever the
   // dialog re-opens for a different phase (or the same one).
-  React.useEffect(() => {
+  useResetOnChange(`${phase?.id ?? ""}:${open}`, () => {
     if (!phase) return;
     setLabel(phase.label);
     setLead(phase.lead ?? "");
@@ -81,7 +82,7 @@ export function PhaseEditDialog({
     setTargetDate(toDateInput(phase.targetDate ?? ""));
     setStartDate(toDateInput(phase.startDate ?? ""));
     setEndDate(toDateInput(phase.endDate ?? ""));
-  }, [phase?.id, open]);
+  });
 
   if (!phase) return null;
 
