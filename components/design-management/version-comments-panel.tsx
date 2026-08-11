@@ -17,6 +17,12 @@ import type {
 interface VersionCommentsPanelProps {
   version: DesignVersion | null;
   comments: DesignVersionComment[];
+  /**
+   * Posts a comment. When omitted the composer keeps its old placeholder
+   * behaviour, which the technical-drawings surface still relies on because
+   * it has no backend behind it yet.
+   */
+  onAddComment?: (body: string) => Promise<void> | void;
 }
 
 /**
@@ -29,10 +35,12 @@ interface VersionCommentsPanelProps {
 export function VersionCommentsPanel({
   version,
   comments,
+  onAddComment,
 }: VersionCommentsPanelProps) {
   const t = useTranslations("DesignManagement");
   const [draft, setDraft] = React.useState("");
   const [replyTo, setReplyTo] = React.useState<number | null>(null);
+  const [submitting, setSubmitting] = React.useState(false);
 
   // Reset composer state when switching versions — otherwise the
   // pending draft and reply target leak between versions.
@@ -62,12 +70,30 @@ export function VersionCommentsPanel({
     return map;
   }, [sorted]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!draft.trim() || !version) return;
-    projectActionToast(t("comments.comingSoon"));
-    setDraft("");
-    setReplyTo(null);
+    const body = draft.trim();
+    if (!body || !version || submitting) return;
+
+    if (!onAddComment) {
+      projectActionToast(t("comments.comingSoon"));
+      setDraft("");
+      setReplyTo(null);
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await onAddComment(body);
+      // Only clear on success — a failed post shouldn't silently discard
+      // what the user typed.
+      setDraft("");
+      setReplyTo(null);
+    } catch {
+      // The mutation surfaces its own error toast; keep the draft intact.
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -149,13 +175,14 @@ export function VersionCommentsPanel({
               onChange={(e) => setDraft(e.target.value)}
               placeholder={t("comments.placeholder")}
               rows={2}
-              className="min-h-9 w-full resize-none rounded-md border border-input bg-input/20 px-2 py-1.5 text-xs/relaxed text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:outline-none dark:bg-input/30"
+              disabled={submitting}
+              className="min-h-9 w-full resize-none rounded-md border border-input bg-input/20 px-2 py-1.5 text-xs/relaxed text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:outline-none disabled:opacity-60 dark:bg-input/30"
             />
             <Button
               type="submit"
               size="icon-sm"
               variant="default"
-              disabled={!draft.trim()}
+              disabled={!draft.trim() || submitting}
               aria-label={t("comments.post")}
             >
               <Send aria-hidden />
