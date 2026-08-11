@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import { AdminGuard } from "@/components/auth/admin-guard";
 
 export default function AdminLayout({
   children,
@@ -19,6 +20,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
+    <AdminGuard>
     <SidebarProvider>
       <AdminSidebar />
       <SidebarInset>
@@ -52,5 +54,6 @@ export default function AdminLayout({
         <div className="p-4">{children}</div>
       </SidebarInset>
     </SidebarProvider>
+    </AdminGuard>
   );
 }
