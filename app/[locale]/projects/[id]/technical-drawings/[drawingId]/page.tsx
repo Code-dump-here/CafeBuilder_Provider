@@ -58,6 +58,19 @@ export default function TechnicalDrawingDetailPage() {
     setCompareVersionId(null);
   }, [drawing?.id]);
 
+  // Open the first group that contains the current drawing by default.
+  //
+  // Runs before the "not found" early return below so the hook order stays
+  // identical across renders — a render that bailed out early followed by one
+  // that didn't would otherwise trip "Rendered more hooks than during the
+  // previous render". `drawing` may be undefined here, hence the optional
+  // chaining; the early return still handles the not-found UI.
+  const defaultOpenGroupIds = React.useMemo(() => {
+    if (!drawing) return undefined;
+    const group = groups.find((g) => g.drawingIds.includes(drawing.id));
+    return group ? [group.id] : undefined;
+  }, [groups, drawing]);
+
   if (!drawingId || Number.isNaN(drawingId) || !drawing) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
@@ -89,12 +102,6 @@ export default function TechnicalDrawingDetailPage() {
       current === version.id ? null : version.id,
     );
   };
-
-  // Open the first group that contains the current drawing by default.
-  const defaultOpenGroupIds = React.useMemo(() => {
-    const group = groups.find((g) => g.drawingIds.includes(drawing.id));
-    return group ? [group.id] : undefined;
-  }, [groups, drawing.id]);
 
   return (
     <div className="flex flex-col gap-4">
