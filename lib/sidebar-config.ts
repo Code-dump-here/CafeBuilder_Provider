@@ -150,7 +150,10 @@ const DESIGNER_PROJECT_INFO: NavSection = {
 
 const DESIGNER_DESIGN_WORK: NavSection = {
   labelKey: "Sidebar.designer.designWork",
-  projectScope: ["design", "construction"],
+  // Design scope only. `DesignService` rejects a design on a 'construction'
+  // engagement, so showing these to a constructor offered work the server
+  // would refuse. A 'both' engagement still matches — see `filterSection`.
+  projectScope: ["design"],
   items: [
     {
       titleKey: "Sidebar.designer.designManagement",
@@ -197,7 +200,10 @@ const DESIGNER_MESSAGES: NavSection = {
 
 const CONSTRUCTION_WORK_SECTION: NavSection = {
   labelKey: "Sidebar.contractor.workspace",
-  projectScope: ["design", "construction"],
+  // Construction scope only. `ConstructionItemService` rejects items on a
+  // 'design' engagement, so a designer clicking Milestones could fill in a
+  // phase and only then be refused by the server.
+  projectScope: ["construction"],
   items: [
     {
       titleKey: "Sidebar.contractor.constructionOverview",
@@ -211,30 +217,25 @@ const CONSTRUCTION_WORK_SECTION: NavSection = {
       icon: ClipboardCheck,
       scope: "project",
     },
-    {
-      titleKey: "Sidebar.contractor.issuesAndRFI",
-      url: "/issues",
-      icon: AlertTriangle,
-      badge: 3,
-      scope: "project",
-    },
   ],
 };
 
-// ─── Contractor Section ───────────────────────────────────────────────────────
+// ─── Issues ──────────────────────────────────────────────────────────────────
 //
-// Standalone contractor config kept for completeness — currently unused
-// because role-based sidebar switching is paused, but the data is here
-// when it's wired back in.
+// Its own section rather than part of the construction workspace, because
+// issues aren't construction-only: `Issue.ConstructionItemId` is nullable and
+// `IssueService` has no contract-type gate, so a design-only provider can
+// raise one against their engagement. Folding it into the construction
+// section would have hidden a feature that genuinely works for them.
 
-const CONTRACTOR_SECTION: NavSection = {
-  labelKey: "Sidebar.contractor.workspace",
+const ISSUES_SECTION: NavSection = {
+  labelKey: "Sidebar.contractor.issuesAndRFI",
+  projectScope: ["design", "construction"],
   items: [
     {
       titleKey: "Sidebar.contractor.issuesAndRFI",
       url: "/issues",
       icon: AlertTriangle,
-      badge: 3,
       scope: "project",
     },
   ],
@@ -388,6 +389,7 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
       CONSTRUCTION_WORK_SECTION,
+      ISSUES_SECTION,
       DESIGNER_MESSAGES,
     ],
     projects: [],
@@ -402,6 +404,7 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
       CONSTRUCTION_WORK_SECTION,
+      ISSUES_SECTION,
       DESIGNER_MESSAGES,
     ],
     projects: [],
