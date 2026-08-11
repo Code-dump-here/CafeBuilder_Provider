@@ -470,6 +470,25 @@
         "generic": "Could not respond to the invitation. Please try again."
       }
     },
+    "terminationBanner": {
+      "titleFromOwner": "The owner asked to end this engagement",
+      "titleFromYou": "Waiting for the owner to respond",
+      "reasonLabel": "Reason",
+      "stillRunningFromOwner": "The work continues until you respond.",
+      "stillRunningFromYou": "The work continues until they agree.",
+      "approve": "Agree to end",
+      "reject": "Decline",
+      "withdraw": "Withdraw request",
+      "request": "Propose ending this engagement",
+      "requestBody": "The engagement only stops if the other side agrees. Your request is sent to the owner for a response.",
+      "reasonPlaceholder": "Reason (optional)",
+      "cancel": "Cancel",
+      "send": "Send request",
+      "requestSent": "Request sent — waiting for the owner to respond.",
+      "ended": "The engagement has ended.",
+      "declined": "Request declined — the work continues.",
+      "withdrawn": "Request withdrawn."
+    },
     "owner": {
       "title": "Owner",
       "subtitle": "The person who created this project.",

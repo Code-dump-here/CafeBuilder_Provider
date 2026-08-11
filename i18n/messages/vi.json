@@ -473,6 +473,25 @@
         "generic": "Không thể phản hồi lời mời. Vui lòng thử lại."
       }
     },
+    "terminationBanner": {
+      "titleFromOwner": "Chủ dự án đề nghị huỷ hợp tác",
+      "titleFromYou": "Đang chờ chủ dự án phản hồi",
+      "reasonLabel": "Lý do",
+      "stillRunningFromOwner": "Hợp tác vẫn đang chạy cho tới khi bạn phản hồi.",
+      "stillRunningFromYou": "Hợp tác vẫn đang chạy cho tới khi họ đồng ý.",
+      "approve": "Đồng ý huỷ",
+      "reject": "Từ chối",
+      "withdraw": "Rút lại đề nghị",
+      "request": "Đề nghị huỷ hợp tác",
+      "requestBody": "Hợp tác chỉ dừng khi bên còn lại đồng ý. Đề nghị của bạn sẽ được gửi cho chủ dự án để họ phản hồi.",
+      "reasonPlaceholder": "Lý do (tuỳ chọn)",
+      "cancel": "Không",
+      "send": "Gửi đề nghị",
+      "requestSent": "Đã gửi đề nghị huỷ — đang chờ chủ dự án phản hồi.",
+      "ended": "Hợp tác đã kết thúc.",
+      "declined": "Đã từ chối đề nghị huỷ — hợp tác tiếp tục.",
+      "withdrawn": "Đã rút lại đề nghị huỷ."
+    },
     "owner": {
       "title": "Chủ dự án",
       "subtitle": "Người đã tạo dự án này.",

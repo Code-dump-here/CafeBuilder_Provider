@@ -17,6 +17,9 @@ import { AiRecommendationsList } from "@/components/design-brief/ai-recommendati
 import { BriefDetailsCard } from "@/components/design-brief/brief-details-card";
 import { ProjectApplyCard } from "@/components/project-overview/project-apply-card";
 import { ProjectInvitationBanner } from "@/components/project-overview/project-invitation-banner";
+import { ProjectTerminationBanner } from "@/components/project-overview/project-termination-banner";
+import { useCurrentUser } from "@/features/auth/user-context";
+import { useEngagements } from "@/features/projects/use-engagements";
 import { ProjectMembersCard } from "@/components/project-overview/project-members-card";
 import { ProjectOwnerCard } from "@/components/project-overview/project-owner-card";
 import { QuickFactsCard } from "@/components/project-overview/quick-facts-card";
@@ -95,6 +98,20 @@ export default function ProjectDetailPage() {
     refetch: refetchAi,
   } = useAiRecommendations({ briefId: brief?.id ?? null });
 
+  // The viewer's own engagement on this project, used by the termination
+  // banner. Scoped by `providerId` so another provider's engagement on the
+  // same project can never drive our buttons.
+  const { account } = useCurrentUser();
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
+  const { engagements: myEngagements } = useEngagements({
+    projectId: projectIdParam,
+    providerId: viewerProfileId ?? undefined,
+    status: "accepted",
+    pageSize: 1,
+    enabled: viewerProfileId != null,
+  });
+  const myEngagement = myEngagements[0] ?? null;
+
   if (isProjectError || isBriefError || isAiError) {
     const message =
       projectError?.message ??
@@ -126,6 +143,7 @@ export default function ProjectDetailPage() {
               Accept / Decline CTAs without scrolling. Self-hides when
               the viewer has no pending invitation. */}
           <ProjectInvitationBanner project={project} />
+          <ProjectTerminationBanner engagement={myEngagement} />
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {/* Left column — brief input (top) + AI Design Iterations (below) */}

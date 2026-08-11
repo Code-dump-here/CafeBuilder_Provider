@@ -83,6 +83,19 @@ export interface Engagement {
   completionRequestNote: string | null;
   /** `true` when the provider has requested completion but the owner has not accepted. */
   isAwaitingAcceptance: boolean;
+  /**
+   * Ending a running engagement takes both sides. One party requests, the
+   * other approves; until then the status stays `accepted`.
+   */
+  terminationRequestedAt: string | null;
+  /** Which side asked to end it: `"owner"` | `"provider"` | `null`. */
+  terminationRequestedBy: "owner" | "provider" | null;
+  /** Reason the requesting side supplied (≤ 1000 chars) or `null`. */
+  terminationRequestNote: string | null;
+  /** Set once both sides agreed; `null` while the engagement is live. */
+  terminatedAt: string | null;
+  /** Server-derived: a request is pending the other side's answer. */
+  isAwaitingTerminationApproval: boolean;
   /** Denormalised contract summary; `null` while no contract exists. */
   contract: EngagementContractSummary | null;
 }
