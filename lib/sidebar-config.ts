@@ -178,7 +178,6 @@ const DESIGNER_MESSAGES: NavSection = {
       titleKey: "Sidebar.designer.messages",
       url: "/messages",
       icon: MessageCircle,
-      badge: 3,
       scope: "project",
       keepOnCompletion: true,
     },
@@ -289,13 +288,11 @@ const OWNER_PROJECT_SECTION: NavSection = {
       titleKey: "Sidebar.shopOwner.quotations",
       url: "/quotation-selection",
       icon: DollarSign,
-      badge: 2,
     },
     {
       titleKey: "Sidebar.shopOwner.approvals",
       url: "/progress",
       icon: CheckCircle,
-      badge: 3,
     },
     {
       titleKey: "Sidebar.shopOwner.progress",
@@ -360,7 +357,6 @@ const ADMIN_PLATFORM_SECTION: NavSection = {
       titleKey: "Sidebar.admin.legacyDisputes",
       url: "/admin/disputes",
       icon: AlertTriangle,
-      badge: 2,
     },
     {
       titleKey: "Sidebar.admin.legacyAnalytics",
