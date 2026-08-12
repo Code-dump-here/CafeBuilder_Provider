@@ -19,20 +19,17 @@ interface QuickFactsCardProps {
   project: ProjectDetail;
 }
 
-function budgetToRange(value: number): { min: number; max: number } {
-  // Convert the single budget figure into a +/- 17% range to read like the
-  // "250–350 million VND" pattern shown in the reference, without pretending
-  // we know a real range.
-  const min = Math.round(value * 0.85 / 1_000_000) * 1_000_000;
-  const max = Math.round(value * 1.15 / 1_000_000) * 1_000_000;
-  return { min, max };
-}
+// The backend gives a single `budget` figure. This card used to widen it into
+// a ±15% band so it read like the "250–350 million VND" pattern in the design
+// reference — but a provider has no way to tell an invented range from one the
+// owner actually stated, and may quote against it. Show the real number.
 
 export function QuickFactsCard({ project }: QuickFactsCardProps) {
   const t = useTranslations("ProjectsOverview.quickFacts");
   const format = useFormatter();
 
-  const range = project.budget != null ? budgetToRange(project.budget) : null;
+  const budgetMillions =
+    project.budget != null ? project.budget / 1_000_000 : null;
 
   return (
     <Card
@@ -50,8 +47,8 @@ export function QuickFactsCard({ project }: QuickFactsCardProps) {
           icon={<Banknote className="size-4" />}
           label={t("budget")}
           value={
-            range
-              ? `${format.number(range.min / 1_000_000, { maximumFractionDigits: 0 })} – ${format.number(range.max / 1_000_000, { maximumFractionDigits: 0 })} ${t("millionShort")}`
+            budgetMillions != null
+              ? `${format.number(budgetMillions, { maximumFractionDigits: 0 })} ${t("millionShort")}`
               : "—"
           }
         />

@@ -23,7 +23,6 @@ import { useEngagements } from "@/features/projects/use-engagements";
 import { ProjectMembersCard } from "@/components/project-overview/project-members-card";
 import { ProjectOwnerCard } from "@/components/project-overview/project-owner-card";
 import { QuickFactsCard } from "@/components/project-overview/quick-facts-card";
-import { ContractorProjectQuickActions } from "@/components/project-overview/contractor-project-quick-actions";
 
 import {
   useAiRecommendations,
@@ -185,14 +184,6 @@ export default function ProjectDetailPage() {
                   Owner so the right rail stays a self-contained
                   "project at a glance" stack. */}
               <ProjectMembersCard project={project} />
-
-              {/* Contractor-style "Construction overview" card. Lives on
-                  the project page for every viewer (designer, owner,
-                  contractor) while per-role sidebar routing is paused —
-                  its four tiles deep-link into the project-scoped sidebar
-                  items (construction-log, daily-reports, issues,
-                  materials). */}
-              <ContractorProjectQuickActions projectId={projectIdParam} />
             </div>
           </div>
         </>

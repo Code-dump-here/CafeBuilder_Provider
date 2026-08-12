@@ -9,7 +9,6 @@ import { AlertTriangle, ClipboardList, Loader2 } from "lucide-react";
 import { ConstructionOverviewHeader } from "@/components/contractor/construction-overview-header";
 import { MilestoneTrack } from "@/components/contractor/milestone-track";
 import { MilestoneDetailCard } from "@/components/contractor/milestone-detail-card";
-import { ContractorActionTiles } from "@/components/contractor/contractor-action-tiles";
 import { PhaseDetailDrawer } from "@/components/contractor/phase-detail-drawer";
 import { Button } from "@/components/ui/button";
 import { useEngagements } from "@/features/projects/use-engagements";
@@ -261,8 +260,6 @@ export default function ConstructionOverviewPage() {
           phase={selectedPhase}
           onOpenDetail={handleOpenDetail}
         />
-
-        <ContractorActionTiles projectId={projectIdParam} />
       </div>
 
       <PhaseDetailDrawer
