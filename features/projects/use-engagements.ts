@@ -27,7 +27,17 @@ const TOAST = {
   requestCompletionSuccess:
     "Đã gửi yêu cầu nghiệm thu — chờ chủ dự án xác nhận.",
   completeSuccess: "Đã nghiệm thu hợp tác.",
+  /** Both sides agreed — the engagement really is over. */
   terminateSuccess: "Đã huỷ ngang hợp tác.",
+  /**
+   * Only our side has asked so far. `POST /terminate` is a one-touch gateway:
+   * with no request pending it FILES one and the engagement stays `accepted`;
+   * it only transitions to `terminated` when the other side had already asked
+   * (or an admin calls it). Reporting "đã huỷ ngang" for the first tap told
+   * the user the collaboration had ended when nothing had happened yet.
+   */
+  terminateRequestSent:
+    "Đã gửi đề nghị huỷ ngang — chờ bên còn lại đồng ý.",
   network: "Mất kết nối mạng. Vui lòng thử lại.",
   timeout: "Yêu cầu quá thời gian. Vui lòng thử lại.",
   unauthorized: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
@@ -420,10 +430,18 @@ export function useTerminateEngagementMutation(
 
     onSuccess: (engagement) => {
       if (options.onSuccessMessage !== null) {
+        // Read the result rather than assuming the tap ended the engagement —
+        // see `TOAST.terminateRequestSent`. `status` is the authority;
+        // `isAwaitingTerminationApproval` is the server's derived flag for the
+        // in-between state.
+        const didEnd = engagement.status === "terminated";
+        const fallback = didEnd
+          ? TOAST.terminateSuccess
+          : TOAST.terminateRequestSent;
         const message =
           typeof options.onSuccessMessage === "function"
             ? options.onSuccessMessage(engagement)
-            : options.onSuccessMessage ?? TOAST.terminateSuccess;
+            : options.onSuccessMessage ?? fallback;
         toast.success(message);
       }
 
