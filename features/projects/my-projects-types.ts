@@ -157,9 +157,24 @@ interface RawPagedResponse {
 
 // ─── Normalization ──────────────────────────────────────────────────────────
 
-function normalizeStatus(raw: string): MyProjectStatus {
-  if (raw === "accepted" || raw === "completed") return raw;
-  return "requested";
+/**
+ * Narrows the wire status to what "My projects" renders, or `null` when the
+ * row shouldn't be listed at all.
+ *
+ * `rejected` and `terminated` are real backend statuses that this list has no
+ * place for: the provider has already declined the invitation, or the
+ * engagement is over. They used to fall through a catch-all `return
+ * "requested"`, which showed a *declined* project back to the provider as a
+ * pending invitation — including under the "Requested" filter tab.
+ *
+ * Unknown values are dropped rather than guessed at, so a status added to the
+ * backend later can't silently reappear as a fake invite.
+ */
+function normalizeStatus(raw: string): MyProjectStatus | null {
+  if (raw === "requested" || raw === "accepted" || raw === "completed") {
+    return raw;
+  }
+  return null;
 }
 
 function normalizeContractType(raw: string): MyProjectContractType {
@@ -183,13 +198,19 @@ function normalizeContract(raw: RawMyProjectContract | null | undefined): MyProj
   };
 }
 
-function normalizeMyProjectWorking(raw: RawMyProjectWorking): MyProjectWorking {
+/** Returns `null` for rows this list shouldn't show — see `normalizeStatus`. */
+function normalizeMyProjectWorking(
+  raw: RawMyProjectWorking,
+): MyProjectWorking | null {
+  const status = normalizeStatus(raw.status);
+  if (status == null) return null;
+
   return {
     id: raw.id,
     projectShopOwnerId: raw.projectShopOwnerId,
     projectName: raw.projectName ?? "",
     contractType: normalizeContractType(raw.contractType),
-    status: normalizeStatus(raw.status),
+    status,
     requestMessage: typeof raw.requestMessage === "string" ? raw.requestMessage : "",
     providerDisplayName:
       typeof raw.providerDisplayName === "string" ? raw.providerDisplayName : "",
@@ -208,19 +229,38 @@ function normalizeMyProjectWorking(raw: RawMyProjectWorking): MyProjectWorking {
 export function normalizeMyProjectsPage(
   raw: RawPagedResponse,
 ): import("./marketplace-types").PagedResponse<MyProjectWorking> {
+  const items = raw.items
+    .map(normalizeMyProjectWorking)
+    .filter((item): item is MyProjectWorking => item !== null);
+
+  // The "All" tab sends no `status`, and the backend's list query excludes
+  // only soft-deleted rows — so declined and finished engagements arrive here
+  // and get dropped above.
+  //
+  // `totalItems` still counts them, so it's corrected by however many this
+  // page discarded. That's approximate: rows dropped on *other* pages are
+  // still in the server's total. Filtering server-side would fix it properly,
+  // but the endpoint takes a single `status` value, so "every live status"
+  // isn't expressible without a backend change.
+  const dropped = raw.items.length - items.length;
+
   return {
-    items: raw.items.map(normalizeMyProjectWorking),
+    items,
     pageNumber: raw.pageNumber,
     pageSize: raw.pageSize,
-    totalItems: raw.totalItems,
+    totalItems: Math.max(0, raw.totalItems - dropped),
     totalPages: raw.totalPages,
     hasPrevious: raw.hasPrevious,
     hasNext: raw.hasNext,
   };
 }
 
+/**
+ * Single-row variant. `null` when the row is a status this list doesn't show
+ * (see `normalizeStatus`).
+ */
 export function normalizeRawMyProjectWorking(
   raw: RawMyProjectWorking,
-): MyProjectWorking {
+): MyProjectWorking | null {
   return normalizeMyProjectWorking(raw);
 }
