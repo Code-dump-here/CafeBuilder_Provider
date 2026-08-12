@@ -961,6 +961,10 @@
     "emptyNoEngagementCta": "Xem hợp đồng"
   },
   "MilestoneManagement": {
+    "gate": {
+      "notAccepted": "Hợp tác chưa được chấp nhận nên chưa tạo được hạng mục.",
+      "noContract": "Ký hợp đồng trước khi tạo hạng mục thi công."
+    },
     "title": "Quản lý mốc & công việc",
     "subtitle": "Sắp xếp lại mốc, sửa công việc và cân chỉnh tiến độ — thay đổi sẽ cập nhật ngay tổng quan thi công.",
     "toolbar": {

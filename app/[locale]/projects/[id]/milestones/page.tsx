@@ -28,6 +28,7 @@ import { TaskDetailView } from "@/components/contractor/milestone-management/tas
 import { AddTaskModal } from "@/components/contractor/milestone-management/add-task-modal";
 
 import { useProjectDetail } from "@/features/projects/use-project-detail";
+import { useEngagements } from "@/features/projects/use-engagements";
 import {
   useConstructionItems,
   useCreateConstructionItemMutation,
@@ -118,6 +119,37 @@ export default function MilestoneManagementPage() {
   }, [project.providers]);
 
   const projectWorkingId = constructionEngagement?.projectWorkingId;
+
+  // `project.providers` carries the engagement's id, status and contractType
+  // but not `hasConfirmedContract`, so pull the full record to decide whether
+  // a phase can be created at all.
+  const { engagements } = useEngagements({
+    projectId: projectIdParam,
+    pageSize: 20,
+  });
+  const engagementRecord = React.useMemo(
+    () => engagements.find((e) => e.id === projectWorkingId) ?? null,
+    [engagements, projectWorkingId],
+  );
+
+  // The server refuses `POST /construction-items` unless the engagement is
+  // `accepted` AND has a confirmed contract ("đã ký mới được làm"). Only
+  // creation is gated — editing, status changes and tasks are not — but since
+  // creation is the way into the flow, this covers it.
+  //
+  // Note the engagement resolved above can be a `requested` row when no
+  // accepted one exists, which the server also rejects; the status check
+  // below catches that too.
+  const canAddPhase =
+    engagementRecord?.status === "accepted" &&
+    engagementRecord.hasConfirmedContract === true;
+  const blockedReason = !constructionEngagement
+    ? null
+    : engagementRecord?.status !== "accepted"
+      ? t("gate.notAccepted")
+      : !engagementRecord.hasConfirmedContract
+        ? t("gate.noContract")
+        : null;
 
   // Check if there's no construction engagement
   const hasNoConstructionEngagement = !constructionEngagement;
@@ -476,6 +508,7 @@ export default function MilestoneManagementPage() {
           taskCount={0}
           doneTaskCount={0}
           onAddPhase={() => setAddPhaseOpen(true)}
+          addPhaseDisabled
         />
         <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-sm text-muted-foreground">
           No construction engagement found for this project.
@@ -500,7 +533,13 @@ export default function MilestoneManagementPage() {
           taskCount={0}
           doneTaskCount={0}
           onAddPhase={() => setAddPhaseOpen(true)}
+          addPhaseDisabled={!canAddPhase}
         />
+        {blockedReason ? (
+          <p className="mt-3 rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
+            {blockedReason}
+          </p>
+        ) : null}
         <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-sm text-muted-foreground">
           {t("errorEmpty")}
         </p>
@@ -523,7 +562,13 @@ export default function MilestoneManagementPage() {
         taskCount={totalTasks}
         doneTaskCount={doneTaskCount}
         onAddPhase={() => setAddPhaseOpen(true)}
+        addPhaseDisabled={!canAddPhase}
       />
+      {blockedReason ? (
+        <p className="mt-3 rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
+          {blockedReason}
+        </p>
+      ) : null}
 
       <div className="mt-3 flex flex-col gap-3">
         {phases.map((phase, idx) => {

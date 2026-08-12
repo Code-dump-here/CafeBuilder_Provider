@@ -958,6 +958,10 @@
     "emptyNoEngagementCta": "View engagements"
   },
   "MilestoneManagement": {
+    "gate": {
+      "notAccepted": "This engagement isn’t active yet, so phases can’t be created.",
+      "noContract": "Sign the contract before creating construction phases."
+    },
     "title": "Milestone & task management",
     "subtitle": "Drag phases, edit tasks, and rebalance progress — changes apply to the construction overview immediately.",
     "toolbar": {
