@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { ArrowRight, AlertCircle } from "lucide-react";
 import { toast } from "react-toastify";
@@ -12,8 +12,9 @@ import { useLoginMutation } from "@/features/auth/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   postAuthDestinationToPath,
-  resolvePostAuthDestination,
+  resolvePostAuthDestinationFromAccount,
 } from "@/features/auth/post-auth-redirect";
+import { fetchMe } from "@/features/auth/auth-me-api";
 import { AppError } from "@/lib/http/errors";
 
 interface LoginFormData {
@@ -23,7 +24,7 @@ interface LoginFormData {
 
 export function LoginForm() {
   const t = useTranslations("Auth");
-  const router = useRouter();
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const [rememberMe, setRememberMe] = React.useState(false);
 
@@ -62,27 +63,47 @@ export function LoginForm() {
         if (response.role === "admin") {
           redirectPath = "/admin";
         } else {
-          // For non-admin roles, try to resolve via post-auth logic
+          // Resolve the landing page from the account, fetching it *through*
+          // React Query rather than beside it.
+          //
+          // This previously called `fetchMe()` directly and then wrote the
+          // result back with `setQueryData`. That left `useMe` empty on the
+          // page we landed on — the cache held the account and had an
+          // observer, but the component still rendered null until a manual
+          // refresh, so every screen derived from `account.serviceProvider.id`
+          // (My Projects, invitation cards, the apply flow) looked empty.
+          //
+          // `fetchQuery` populates the cache through the normal path, so
+          // observers are notified the same way a regular query would notify
+          // them, and awaiting it means the data is settled before we
+          // navigate. It is also one request instead of two.
           try {
-            const { destination, account } = await resolvePostAuthDestination();
-            redirectPath = postAuthDestinationToPath(destination);
-
-            // Seed `useMe` with the account the resolver just fetched.
-            // Without this the query stays empty after the `removeQueries`
-            // above, so `account.serviceProvider.id` is undefined and every
-            // screen derived from it — My Projects, invitation cards, the
-            // apply flow — renders as "nothing here" until a manual refresh.
-            if (account) {
-              queryClient.setQueryData(["auth", "me"], account);
-            }
+            const account = await queryClient.fetchQuery({
+              queryKey: ["auth", "me"],
+              queryFn: () => fetchMe(),
+              staleTime: 5 * 60 * 1000,
+            });
+            redirectPath = postAuthDestinationToPath(
+              resolvePostAuthDestinationFromAccount(account),
+            );
           } catch (e) {
-            console.error("[login-form] resolver threw", e);
-            // Default to home page for non-admin
+            console.error("[login-form] /auth/me failed after login", e);
+            // Prefer landing somewhere over bouncing back to /login.
             redirectPath = "/";
           }
         }
 
-        router.replace(redirectPath);
+        // Full page load rather than a client-side `router.replace`.
+        //
+        // Something in the post-login transition leaves `useMe` without an
+        // account until the page is refreshed, so the app renders signed-in but
+        // empty — My Projects shows "no projects", the avatar falls back to
+        // "?". A hard navigation rebuilds the client from scratch, which is the
+        // state a manual refresh produces and is known to work.
+        //
+        // This is a deliberate workaround, not a fix: the root cause is still
+        // open. It costs one extra page load on login only.
+        window.location.assign(`/${locale}${redirectPath === "/" ? "" : redirectPath}`);
       },
       onError: (err) => {
         console.error("[login-form] login onError", err);
