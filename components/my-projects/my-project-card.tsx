@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { formatVndParts } from "@/lib/format-currency";
 import type {
   MyProjectContractType,
   MyProjectStatus,
@@ -33,35 +34,9 @@ const NF_DATE_VI = new Intl.DateTimeFormat("vi-VN", {
   year: "numeric",
 });
 
-const NF_VND_FULL_VI = new Intl.NumberFormat("vi-VN", {
-  style: "currency",
-  currency: "VND",
-  maximumFractionDigits: 0,
-});
-const NF_VND_COMPACT_VI = new Intl.NumberFormat("vi-VN", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-const NF_VND_FULL_EN = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "VND",
-  maximumFractionDigits: 0,
-});
-const NF_VND_COMPACT_EN = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
 
 function formatDate(date: Date, locale: string): string {
   return (locale.startsWith("vi") ? NF_DATE_VI : NF_DATE_EN).format(date);
-}
-
-function formatVnd(amount: number, locale: string): { full: string; compact: string } {
-  const isVi = locale.startsWith("vi");
-  return {
-    full: (isVi ? NF_VND_FULL_VI : NF_VND_FULL_EN).format(amount),
-    compact: (isVi ? NF_VND_COMPACT_VI : NF_VND_COMPACT_EN).format(amount),
-  };
 }
 
 // ─── Status / contract-type tone ────────────────────────────────────────────
@@ -114,7 +89,7 @@ export function MyProjectCard({ project, className }: MyProjectCardProps) {
   const dateLabel = project.startedAt ? t("startedLabel") : t("invitedLabel");
 
   const contract = project.contract;
-  const contractValue = contract ? formatVnd(contract.agreedValue, locale) : null;
+  const contractValue = contract ? formatVndParts(contract.agreedValue, locale) : null;
 
   return (
     <Link

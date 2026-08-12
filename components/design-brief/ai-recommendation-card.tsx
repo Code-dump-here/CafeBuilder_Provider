@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
+import { formatVndMillions } from "@/lib/format-currency";
 import type {
   AiRecommendation,
   AiRecommendationState,
@@ -57,12 +58,6 @@ function deriveVariant(state: AiRecommendationState): Variant {
     default:
       return "legacy";
   }
-}
-
-function formatVnd(value: number, format: ReturnType<typeof useFormatter>) {
-  // Always show in millions for readability, matches the QuickFacts card.
-  const millions = value / 1_000_000;
-  return `${format.number(millions, { maximumFractionDigits: 0 })} tr VND`;
 }
 
 function formatDateTime(
@@ -394,13 +389,13 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
             {rec.fitoutMinVnd != null && rec.fitoutMaxVnd != null ? (
               <CostRow
                 label={t("fitout")}
-                value={`${formatVnd(rec.fitoutMinVnd, format)} – ${formatVnd(rec.fitoutMaxVnd, format)}`}
+                value={`${formatVndMillions(rec.fitoutMinVnd, format)} – ${formatVndMillions(rec.fitoutMaxVnd, format)}`}
               />
             ) : null}
             {rec.equipmentMinVnd != null && rec.equipmentMaxVnd != null ? (
               <CostRow
                 label={t("equipment")}
-                value={`${formatVnd(rec.equipmentMinVnd, format)} – ${formatVnd(rec.equipmentMaxVnd, format)}`}
+                value={`${formatVndMillions(rec.equipmentMinVnd, format)} – ${formatVndMillions(rec.equipmentMaxVnd, format)}`}
                 bordered={false}
               />
             ) : null}

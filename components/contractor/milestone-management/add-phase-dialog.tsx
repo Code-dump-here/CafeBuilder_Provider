@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { Field } from "@/components/ui/field";
 
 interface AddPhaseDialogProps {
   open: boolean;
@@ -125,20 +126,5 @@ export function AddPhaseDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="flex flex-col gap-1.5 text-xs">
-      <span className="font-medium text-muted-foreground">{label}</span>
-      {children}
-    </label>
   );
 }

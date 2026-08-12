@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AlertTriangle, FileText, Loader2, Plus, Upload } from "lucide-react";
+import { FileText, Loader2, Plus, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +31,8 @@ import { useSurveys, useCreateSurveyMutation, useUpdateSurveyMutation } from "@/
 import { useEngagements } from "@/features/projects/use-engagements";
 import type { Survey } from "@/features/projects/survey-types";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { ErrorState } from "@/components/ui/error-state";
+import { EmptyState } from "@/components/ui/empty-state";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -130,6 +132,9 @@ export default function SurveyPage() {
   if (isSurveysError) {
     return (
       <ErrorState
+        title={t("errors.title")}
+        subtitle={t("errors.subtitle")}
+        retryLabel={t("errors.retry")}
         message={surveysError?.message ?? "Failed to load surveys."}
         onRetry={() => { void refetch(); }}
       />
@@ -162,7 +167,12 @@ export default function SurveyPage() {
 
       {/* Survey List */}
       {surveys.length === 0 ? (
-        <EmptyState onCreateNew={handleCreateNew} />
+        <EmptyState
+            title={t("empty.title")}
+            description={t("empty.description")}
+            actionLabel={t("createFirst")}
+            onAction={handleCreateNew}
+          />
       ) : (
         <div className="flex flex-col gap-4">
           {/* Latest Survey Card */}
@@ -581,71 +591,5 @@ function SurveyLoadingSkeleton() {
 // ---------------------------------------------------------------------------
 // Empty state
 
-interface EmptyStateProps {
-  onCreateNew: () => void;
-}
-
-function EmptyState({ onCreateNew }: EmptyStateProps) {
-  const t = useTranslations("Survey");
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card/40 px-6 py-16 text-center">
-      <div className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
-        <FileText className="size-5" aria-hidden />
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-base font-semibold text-foreground">
-          {t("empty.title")}
-        </p>
-        <p className="max-w-md text-sm text-muted-foreground">
-          {t("empty.description")}
-        </p>
-      </div>
-      <Button onClick={onCreateNew} className="mt-2">
-        <Plus aria-hidden />
-        {t("createFirst")}
-      </Button>
-    </div>
-  );
-}
-
 // ---------------------------------------------------------------------------
 // Error state
-
-interface ErrorStateProps {
-  message: string;
-  onRetry: () => void;
-}
-
-function ErrorState({ message, onRetry }: ErrorStateProps) {
-  const t = useTranslations("Survey.errors");
-  return (
-    <div
-      role="alert"
-      className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-16 text-center"
-    >
-      <div className="grid size-12 place-items-center rounded-full bg-destructive/10 text-destructive">
-        <AlertTriangle className="size-5" aria-hidden />
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-base font-semibold text-foreground">{t("title")}</p>
-        <p className="max-w-md text-sm text-muted-foreground">
-          {t("subtitle")}
-        </p>
-        {message ? (
-          <p className="mt-1 font-mono text-[11px] text-muted-foreground/80">
-            {message}
-          </p>
-        ) : null}
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        onClick={onRetry}
-        className="mt-1"
-      >
-        {t("retry")}
-      </Button>
-    </div>
-  );
-}

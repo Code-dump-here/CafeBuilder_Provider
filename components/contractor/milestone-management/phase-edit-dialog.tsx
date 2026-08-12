@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 
 import type { MilestonePhase } from "@/lib/contractor/construction-overview-data";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { Field } from "@/components/ui/field";
 
 export interface PhaseEditInput {
   label: string;
@@ -172,21 +173,6 @@ export function PhaseEditDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="flex flex-col gap-1.5 text-xs">
-      <span className="font-medium text-muted-foreground">{label}</span>
-      {children}
-    </label>
   );
 }
 

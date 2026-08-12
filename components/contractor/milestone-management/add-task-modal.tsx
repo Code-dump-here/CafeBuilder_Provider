@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadImageApi } from "@/lib/http/file-upload-api";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { Field } from "@/components/ui/field";
 
 interface CrewOption {
   id: string;
@@ -234,14 +235,5 @@ export function AddTaskModal({
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1.5 text-xs">
-      <span className="font-medium text-muted-foreground">{label}</span>
-      {children}
-    </label>
   );
 }

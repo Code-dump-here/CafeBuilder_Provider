@@ -3,9 +3,8 @@
 import * as React from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AlertTriangle, FileText, Loader2 } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -29,6 +28,7 @@ import {
 } from "@/features/projects/use-ai-recommendations";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
 import { useDesignBriefs } from "@/features/projects/use-design-briefs";
+import { ErrorState } from "@/components/ui/error-state";
 
 // ---------------------------------------------------------------------------
 // Page component
@@ -58,6 +58,7 @@ import { useDesignBriefs } from "@/features/projects/use-design-briefs";
 export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
   const projectIdParam = params?.id ?? "";
+  const tErrors = useTranslations("ProjectsOverview.errors");
 
   const {
     project,
@@ -119,6 +120,9 @@ export default function ProjectDetailPage() {
       "Failed to load this project.";
     return (
       <ErrorState
+        title={tErrors("title")}
+        subtitle={tErrors("subtitle")}
+        retryLabel={tErrors("retry")}
         message={message}
         onRetry={() => {
           void refetchProject();
@@ -382,40 +386,3 @@ function NoBriefState() {
 
 // ---------------------------------------------------------------------------
 // Error state — full-width alert with retry.
-
-interface ErrorStateProps {
-  message: string;
-  onRetry: () => void;
-}
-
-function ErrorState({ message, onRetry }: ErrorStateProps) {
-  const t = useTranslations("ProjectsOverview.errors");
-  return (
-    <div
-      role="alert"
-      className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-16 text-center"
-    >
-      <div className="grid size-12 place-items-center rounded-full bg-destructive/10 text-destructive">
-        <AlertTriangle className="size-5" aria-hidden />
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-base font-semibold text-foreground">{t("title")}</p>
-        <p className="max-w-md text-sm text-muted-foreground">{t("subtitle")}</p>
-        {message ? (
-          <p className="mt-1 font-mono text-[11px] text-muted-foreground/80">
-            {message}
-          </p>
-        ) : null}
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        onClick={onRetry}
-        className="mt-1"
-      >
-        {t("retry")}
-      </Button>
-    </div>
-  );
-}

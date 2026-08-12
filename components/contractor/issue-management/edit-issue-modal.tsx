@@ -20,6 +20,7 @@ import { IssueImageUpload } from "./issue-image-upload";
 import { useIssueTypes } from "@/features/projects/use-issues";
 import type { Issue, IssueType } from "@/features/projects/issue-types";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { Field } from "@/components/ui/field";
 
 export interface EditIssueInput {
   issueTypeId: number;
@@ -193,14 +194,5 @@ export function EditIssueModal({
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1.5 text-xs">
-      <span className="font-medium text-muted-foreground">{label}</span>
-      {children}
-    </label>
   );
 }
