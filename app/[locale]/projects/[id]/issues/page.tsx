@@ -66,15 +66,17 @@ export default function IssuesPage() {
     isError: isProjectError,
   } = useProjectDetail(projectIdParam);
 
+  // Gate on `contractType` (hired-for), not `capability` (able-to) — see the
+  // same resolution in `milestones/page.tsx`. Prefer an `accepted` engagement
+  // over a still-`requested` invitation.
   const projectWorkingId = React.useMemo(() => {
-    const eng = project.providers.find((p) => {
-      const cap = String(p.capability ?? "").toLowerCase();
-      const stat = String(p.status ?? "").toLowerCase();
-      return (
-        (cap === "constructor" || cap === "construction") &&
-        (stat === "accepted" || stat === "requested")
-      );
-    });
+    const candidates = project.providers.filter(
+      (p) =>
+        (p.contractType === "construction" || p.contractType === "both") &&
+        (p.status === "accepted" || p.status === "requested"),
+    );
+    const eng =
+      candidates.find((p) => p.status === "accepted") ?? candidates[0];
     return eng?.projectWorkingId;
   }, [project.providers]);
 

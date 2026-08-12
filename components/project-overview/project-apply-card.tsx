@@ -9,8 +9,20 @@ import {
   Sparkles,
   CheckCircle,
   Clock,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Card,
   CardContent,
@@ -26,7 +38,10 @@ import { ApplyDialog } from "./apply-dialog";
 import { useIsProjectOwner } from "@/features/projects/use-is-project-owner";
 import { useCurrentUser } from "@/features/auth/user-context";
 import { tokenStore } from "@/features/auth/token-store";
-import { useProviderApplies } from "@/features/projects/use-project-applications";
+import {
+  useProviderApplies,
+  useWithdrawApplyMutation,
+} from "@/features/projects/use-project-applications";
 import {
   type ProjectDetail,
   type ProjectOpenForEntry,
@@ -60,10 +75,13 @@ function earliestOpenDeadline(
   if (open.length === 0) return null;
   let best: { date: Date; post: ProjectOpenPost } | null = null;
   for (const post of open) {
-    const ts = post.submissionDeadline.getTime();
+    // Open-ended posts carry no deadline — they can't be "earliest".
+    const deadline = post.submissionDeadline;
+    if (deadline === null) continue;
+    const ts = deadline.getTime();
     if (!Number.isFinite(ts)) continue;
     if (best === null || ts < best.date.getTime()) {
-      best = { date: post.submissionDeadline, post };
+      best = { date: deadline, post };
     }
   }
   return best;
@@ -124,8 +142,11 @@ interface ProjectApplyCardProps {
  */
 export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   const t = useTranslations("ProjectsOverview.apply");
-  const tCapabilities = useTranslations(
-    "ProjectsOverview.members.capabilities",
+  // Service kinds, not capabilities: this card labels what the owner is
+  // hiring for (`design` / `construction` / `both`), which is the
+  // `ServiceKind` vocabulary, not the `Capability` one.
+  const tServiceKinds = useTranslations(
+    "ProjectsOverview.members.contractTypes",
   );
   const format = useFormatter();
 
@@ -149,7 +170,17 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   // both required by the wire contract (`ApplyToPostPayload`). Keeping
   // dialog state in the card means the form is reset on close by the
   // dialog itself (`useEffect` on `open`).
+  //
+  // `editing` reuses the same dialog in revise mode; `withdrawOpen` drives
+  // the confirmation for the (irreversible) withdraw.
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [editing, setEditing] = React.useState(false);
+  const [withdrawOpen, setWithdrawOpen] = React.useState(false);
+
+  const withdraw = useWithdrawApplyMutation({
+    onSuccessSideEffect: () => setWithdrawOpen(false),
+    onErrorSideEffect: () => setWithdrawOpen(false),
+  });
 
   const openPosts = project.openPosts.filter(isOpenPostOpen);
   const openForKinds = uniqueOpenFor(project.openFor);
@@ -168,7 +199,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
 
   const earliest = earliestOpenDeadline(openPosts);
 
-  const summaryLabel = kindsLabel(kinds, tCapabilities);
+  const summaryLabel = kindsLabel(kinds, tServiceKinds);
 
   // Pick the post to apply to: the earliest-deadline open post. Falls
   // back to the first open post when no deadline is parseable.
@@ -197,14 +228,12 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   // match `account.serviceProvider.id` against `project.providers[]` so
   // the "Apply" CTA disappears once the provider is on the team (e.g.
   // they accepted an invitation, or the owner accepted their bid).
-  // Terminal statuses (`declined`, `completed`) don't block the CTA —
-  // the provider can re-apply if the project is still hiring.
+  // Terminal statuses (`rejected`, `completed`, `terminated`) don't block
+  // the CTA — the provider can re-apply if the project is still hiring.
   const viewerProfileId = account?.serviceProvider?.id;
   const activeProviderStatuses = new Set<ProjectProviderStatus>([
     "requested",
     "accepted",
-    "active",
-    "paused",
   ]);
   const isAlreadyEngaged =
     isProvider &&
@@ -230,6 +259,9 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   const renderAppliedState = () => {
     if (!hasAlreadyApplied || !existingApply) return null;
 
+    // Keys mirror the backend `ApplicationStatus` enum. There is no
+    // `withdrawn` case: withdrawing hard-deletes the row, so a withdrawn
+    // application disappears from the list rather than reaching this render.
     const statusConfig = {
       pending: {
         icon: Clock,
@@ -246,16 +278,14 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
         label: t("applied.rejected"),
         className: "text-destructive",
       },
-      withdrawn: {
-        icon: Clock,
-        label: t("applied.pending"),
-        className: "text-muted-foreground",
-      },
     };
 
-    const status = existingApply.status as keyof typeof statusConfig;
-    const config = statusConfig[status] ?? statusConfig.pending;
+    const config = statusConfig[existingApply.status] ?? statusConfig.pending;
     const Icon = config.icon;
+
+    // Revise / withdraw are only legal while the owner hasn't answered —
+    // the server returns 409 otherwise, so don't offer the buttons at all.
+    const canAmend = existingApply.status === "pending";
 
     return (
       <div className="flex flex-col gap-2">
@@ -265,6 +295,37 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
             {config.label}
           </span>
         </div>
+
+        {canAmend ? (
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={() => {
+                setEditing(true);
+                setDialogOpen(true);
+              }}
+              disabled={withdraw.isPending}
+            >
+              <Pencil aria-hidden />
+              {t("applied.edit")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1 text-destructive hover:text-destructive"
+              onClick={() => setWithdrawOpen(true)}
+              disabled={withdraw.isPending}
+              aria-busy={withdraw.isPending}
+            >
+              <Trash2 aria-hidden />
+              {t("applied.withdraw")}
+            </Button>
+          </div>
+        ) : null}
       </div>
     );
   };
@@ -334,12 +395,52 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
       {targetPost && account ? (
         <ApplyDialog
           open={dialogOpen}
-          onOpenChange={setDialogOpen}
+          onOpenChange={(open) => {
+            setDialogOpen(open);
+            // Drop back to "create" mode on close so the next open of the
+            // dialog from the Apply CTA isn't stuck editing a stale record.
+            if (!open) setEditing(false);
+          }}
           postId={targetPost.id}
-          providerId={account.id}
+          // The apply payload carries no provider id (the server reads the
+          // JWT); this is the dialog's "do you have a provider profile?"
+          // guard, so it must be the profile id, not the account id.
+          providerId={viewerProfileId ?? 0}
           projectName={project.name}
+          existingApply={editing ? existingApply ?? null : null}
         />
       ) : null}
+
+      <AlertDialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("withdrawConfirm.title")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("withdrawConfirm.description")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={withdraw.isPending}>
+              {t("withdrawConfirm.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(event) => {
+                // Keep the dialog mounted while the request is in flight so
+                // the button can show its pending state; the mutation's
+                // side-effects close it either way.
+                event.preventDefault();
+                if (existingApply) withdraw.mutate(existingApply.id);
+              }}
+              disabled={withdraw.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {withdraw.isPending
+                ? t("withdrawConfirm.confirming")
+                : t("withdrawConfirm.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
@@ -355,17 +456,12 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
  */
 function kindsLabel(
   kinds: ProjectOpenPostServiceKind[],
-  tCapabilities: ReturnType<typeof useTranslations>,
+  tServiceKinds: ReturnType<typeof useTranslations>,
 ): string {
   if (kinds.length === 0) return "";
   if (kinds.includes("both")) {
-    return tCapabilities("both");
+    return tServiceKinds("both");
   }
-  return kinds
-    .map((kind) =>
-      kind === "design"
-        ? tCapabilities("design")
-        : tCapabilities("construction"),
-    )
-    .join(" · ");
+  // Keys mirror the `ServiceKind` members, so this lookup is total.
+  return kinds.map((kind) => tServiceKinds(kind)).join(" · ");
 }

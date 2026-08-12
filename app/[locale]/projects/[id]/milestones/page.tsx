@@ -97,14 +97,24 @@ export default function MilestoneManagementPage() {
   // Get project to find the construction engagement (projectWorkingId)
   const { project, isLoading: isLoadingProject, isError: isProjectError } = useProjectDetail(projectIdParam);
 
-  // Find the construction provider's projectWorkingId
+  // Find the construction engagement's projectWorkingId.
+  //
+  // Gate on `contractType` (what the provider was hired for here), not
+  // `capability` (what they can do in general) — a `both`-capability studio
+  // engaged for design only has no business owning milestones, and a
+  // designer-capability provider can still be engaged for construction.
+  //
+  // Prefer an `accepted` row over a `requested` one: if the owner invited two
+  // contractors and one has accepted, that's the live engagement.
   const constructionEngagement = React.useMemo(() => {
-    return project.providers.find((p) => {
-      const cap = String(p.capability ?? "").toLowerCase();
-      const stat = String(p.status ?? "").toLowerCase();
-      return (cap === "constructor" || cap === "construction") &&
-        (stat === "accepted" || stat === "requested");
-    });
+    const candidates = project.providers.filter(
+      (p) =>
+        (p.contractType === "construction" || p.contractType === "both") &&
+        (p.status === "accepted" || p.status === "requested"),
+    );
+    return (
+      candidates.find((p) => p.status === "accepted") ?? candidates[0]
+    );
   }, [project.providers]);
 
   const projectWorkingId = constructionEngagement?.projectWorkingId;

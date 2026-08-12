@@ -12,35 +12,54 @@
 export type ProjectStatus = string;
 
 /**
- * Provider type — what kind of service the provider is registered for.
- * Mirrors `ServiceKind` in `lib/http/auth.ts` but kept local to project
- * types so this file remains self-contained for the project-detail page.
+ * The provider's legal structure. Mirrors the backend `ProviderType`
+ * enum (`individual` | `company`) — NOT a service kind. This describes
+ * who the provider is, not what they were hired to do.
  */
-export type ProjectProviderType = "design" | "construction" | "both";
+export type ProjectProviderType = "individual" | "company";
 
 /**
- * Capability the provider is hired for on this specific project. May be
- * narrower than their registration type (a "both" provider hired only
- * for "design" on this project).
+ * What the provider is *able* to do in general, carried over from their
+ * `ServiceProviderProfile`. Mirrors the backend `Capability` enum, whose
+ * members are role-oriented (`designer` / `constructor`), not phase-oriented.
+ *
+ * This is broader than the engagement: a `both` provider can be hired for
+ * design alone. Use `ProjectContractType` to gate on what they were
+ * actually hired for here.
  */
-export type ProjectProviderCapability = "design" | "construction";
+export type ProjectProviderCapability = "designer" | "constructor" | "both";
 
 /**
- * Lifecycle of a project's relationship with a provider:
- *   - `requested` — owner invited the provider, no response yet.
- *   - `accepted`  — provider accepted the invitation.
- *   - `active`    — provider is engaged and working.
- *   - `paused`    — work is temporarily on hold.
- *   - `completed` — engagement is finished (e.g. construction done).
- *   - `declined`  — provider turned down the invitation.
+ * The scope the provider was hired for on *this* project. Mirrors the
+ * backend `ServiceKind` enum, shared by `project_provider.contract_type`
+ * and `project_post.service_kind`.
+ *
+ * Distinct from `ProjectProviderCapability` on purpose — these are two
+ * different backend enums with two different vocabularies, and collapsing
+ * them loses the `both` case in each.
+ */
+export type ProjectContractType = "design" | "construction" | "both";
+
+/**
+ * Lifecycle of a project's relationship with a provider. Mirrors the
+ * backend `ProviderStatus` enum exactly:
+ *   - `requested`  — owner invited the provider, no response yet.
+ *   - `accepted`   — provider accepted; the engagement is live.
+ *   - `completed`  — owner signed off on the finished work.
+ *   - `rejected`   — provider turned down the invitation.
+ *   - `terminated` — both sides agreed to end it early.
+ *
+ * "In progress", "awaiting handover" and "awaiting termination approval"
+ * are *derived* server-side (see `Engagement.isAwaitingAcceptance` /
+ * `isAwaitingTerminationApproval`), not stored statuses — don't add them
+ * to this union.
  */
 export type ProjectProviderStatus =
   | "requested"
   | "accepted"
-  | "active"
-  | "paused"
   | "completed"
-  | "declined";
+  | "rejected"
+  | "terminated";
 
 /**
  * Marketplace status of an "open post" (a public listing the owner put up
@@ -82,8 +101,13 @@ export interface ProjectOpenPost {
   serviceKind: ProjectOpenPostServiceKind;
   title: string;
   status: ProjectOpenPostStatus;
-  /** ISO string on the wire; normalized to `Date`. */
-  submissionDeadline: Date;
+  /**
+   * ISO string on the wire; normalized to `Date`. `null` when the owner
+   * left the post open-ended — the backend's `SubmissionDeadline` is
+   * nullable, and coercing that to `new Date(undefined)` rendered
+   * "Invalid Date".
+   */
+  submissionDeadline: Date | null;
 }
 
 /**
@@ -103,17 +127,21 @@ export type ProjectOpenForEntry = ProjectOpenPostServiceKind;
  * projects, a project can have many providers.
  *
  * Two ids are present:
- *   - `projectProviderId`: the join-table primary key (use for mutations
- *     like "remove provider from project").
- *   - `providerId`: the underlying provider account id (use for "go to
+ *   - `projectWorkingId`: the engagement (join-row) id — use it for every
+ *     `/api/project-workings/{id}` call and as the row's stable key.
+ *   - `providerId`: the `ServiceProviderProfile` id (use for "go to
  *     provider profile").
+ *
+ * There is no separate join-table id on the wire: the backend's
+ * `ProjectWorkingSummary` exposes the engagement id as `projectWorkingId`
+ * and nothing else. A `projectProviderId` field used to be declared here
+ * and was always `undefined`.
  *
  * `displayName`, `avgRating`, `isVerified` are denormalised onto the
  * row by the backend so the UI can render a card without an extra fetch.
  */
 export interface ProjectProvider {
-  projectProviderId: number;
-  /** The engagement/projectWorking id for API calls */
+  /** The engagement/projectWorking id for API calls. */
   projectWorkingId: number;
   providerId: number;
   displayName: string;
@@ -121,7 +149,8 @@ export interface ProjectProvider {
   capability: ProjectProviderCapability;
   isVerified: boolean;
   avgRating: number | null;
-  contractType: ProjectProviderCapability;
+  /** What this provider was hired for here — gate features on this, not `capability`. */
+  contractType: ProjectContractType;
   status: ProjectProviderStatus;
   createdAt: Date;
 }
@@ -182,18 +211,21 @@ export interface RawProjectDetail {
  * returns in the `providers[]` array of the project detail response.
  */
 export interface RawProjectProvider {
-  projectProviderId: number;
   projectWorkingId: number;
   /** API field: `serviceProviderProfileId` */
   serviceProviderProfileId: number;
   /** Fallback alias for compatibility */
   providerId?: number;
   displayName: string;
+  /** `individual` | `company` */
   providerType: string;
+  /** `designer` | `constructor` | `both` */
   capability: string;
   isVerified: boolean;
   avgRating: number | null;
+  /** `design` | `construction` | `both` */
   contractType: string;
+  /** `requested` | `accepted` | `completed` | `rejected` | `terminated` */
   status: string;
   createdAt: string;
 }
@@ -212,7 +244,8 @@ export interface RawProjectOpenPost {
   serviceKind: string;
   title: string;
   status: string;
-  submissionDeadline: string;
+  /** Nullable on the wire — an open-ended post carries no deadline. */
+  submissionDeadline: string | null;
 }
 
 /** Raw wire shape for a single entry in `openFor[]` — a `serviceKind`
@@ -222,32 +255,71 @@ export type RawProjectOpenForEntry = string | number | null | undefined;
 
 // ─── Normalization ──────────────────────────────────────────────────────────
 
-function normalizeProviderType(raw: string): ProjectProviderType {
-  return raw === "design" || raw === "construction" || raw === "both"
-    ? raw
-    : "design";
+/**
+ * Surface a wire value we don't recognise. An unknown enum member means the
+ * backend gained one and this file hasn't caught up — the previous version of
+ * these normalizers swallowed that silently, which is how `both` engagements
+ * and `terminated` engagements ended up misreported for months.
+ */
+function warnUnknown(field: string, raw: string, fallback: string): void {
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      `[project-detail] unrecognised ${field} "${raw}" from the API — ` +
+        `falling back to "${fallback}". Add it to the union in ` +
+        `features/projects/project-detail-types.ts.`,
+    );
+  }
 }
 
-function normalizeCapability(
-  raw: string,
-): ProjectProviderCapability {
-  // Backend may send "designer" / "constructor" or "design" / "construction".
-  // Normalise to the canonical values.
-  if (raw === "designer" || raw === "design") return "design";
-  if (raw === "constructor" || raw === "construction") return "construction";
-  return "design";
+/**
+ * Parse an optional ISO timestamp. Returns `null` for absent values *and*
+ * for strings the `Date` constructor can't read, so callers never have to
+ * guard against an `Invalid Date` leaking into a formatter.
+ */
+function parseNullableDate(raw: string | null | undefined): Date | null {
+  if (raw == null || raw === "") return null;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function normalizeProviderType(raw: string): ProjectProviderType {
+  if (raw === "individual" || raw === "company") return raw;
+  warnUnknown("providerType", raw, "individual");
+  return "individual";
+}
+
+function normalizeCapability(raw: string): ProjectProviderCapability {
+  if (raw === "designer" || raw === "constructor" || raw === "both") {
+    return raw;
+  }
+  warnUnknown("capability", raw, "both");
+  // `both` is the permissive fallback: it never hides a badge or a section
+  // the provider is entitled to. Gating reads `contractType`, so an
+  // over-broad capability can't grant access on its own.
+  return "both";
+}
+
+function normalizeContractType(raw: string): ProjectContractType {
+  if (raw === "design" || raw === "construction" || raw === "both") {
+    return raw;
+  }
+  warnUnknown("contractType", raw, "both");
+  return "both";
 }
 
 function normalizeProviderStatus(raw: string): ProjectProviderStatus {
   switch (raw) {
     case "requested":
     case "accepted":
-    case "active":
-    case "paused":
     case "completed":
-    case "declined":
+    case "rejected":
+    case "terminated":
       return raw;
     default:
+      // Only reachable if the backend adds a sixth `ProviderStatus`. Treating
+      // it as `requested` keeps the row visible and inert rather than letting
+      // an unknown state read as an active engagement.
+      warnUnknown("status", raw, "requested");
       return "requested";
   }
 }
@@ -260,7 +332,6 @@ function normalizeServiceKind(raw: string): ProjectOpenPostServiceKind {
 
 function normalizeProjectProvider(raw: RawProjectProvider): ProjectProvider {
   return {
-    projectProviderId: raw.projectProviderId,
     projectWorkingId: raw.projectWorkingId,
     // API uses `serviceProviderProfileId`, with `providerId` as fallback alias
     providerId: raw.serviceProviderProfileId ?? (raw.providerId ?? 0),
@@ -269,7 +340,7 @@ function normalizeProjectProvider(raw: RawProjectProvider): ProjectProvider {
     capability: normalizeCapability(raw.capability),
     isVerified: !!raw.isVerified,
     avgRating: typeof raw.avgRating === "number" ? raw.avgRating : null,
-    contractType: normalizeCapability(raw.contractType),
+    contractType: normalizeContractType(raw.contractType),
     status: normalizeProviderStatus(raw.status),
     createdAt: new Date(raw.createdAt),
   };
@@ -291,7 +362,7 @@ function normalizeOpenPost(raw: RawProjectOpenPost): ProjectOpenPost {
     serviceKind: normalizeServiceKind(raw.serviceKind),
     title: raw.title,
     status: raw.status,
-    submissionDeadline: new Date(raw.submissionDeadline),
+    submissionDeadline: parseNullableDate(raw.submissionDeadline),
   };
 }
 

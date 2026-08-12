@@ -431,6 +431,11 @@
       "invite": "Mời nhà cung cấp",
       "inviteComingSoon": "Tính năng mời nhà cung cấp sắp ra mắt.",
       "capabilities": {
+        "designer": "Thiết kế",
+        "constructor": "Thi công",
+        "both": "Thiết kế & Thi công"
+      },
+      "contractTypes": {
         "design": "Thiết kế",
         "construction": "Thi công",
         "both": "Thiết kế & Thi công"
@@ -438,10 +443,9 @@
       "providerStatus": {
         "requested": "Đã mời",
         "accepted": "Đã chấp nhận",
-        "active": "Đang hợp tác",
-        "paused": "Tạm dừng",
         "completed": "Hoàn thành",
-        "declined": "Từ chối"
+        "rejected": "Đã từ chối",
+        "terminated": "Đã huỷ ngang"
       },
       "providerActions": {
         "loading": "Đang tải…",
@@ -513,11 +517,24 @@
       "applied": {
         "pending": "Đã gửi hồ sơ ứng tuyển",
         "accepted": "Hồ sơ được chấp nhận",
-        "rejected": "Hồ sơ bị từ chối"
+        "rejected": "Hồ sơ bị từ chối",
+        "edit": "Sửa hồ sơ",
+        "withdraw": "Rút hồ sơ"
+      },
+      "withdrawConfirm": {
+        "title": "Rút hồ sơ ứng tuyển?",
+        "description": "Đề xuất của bạn sẽ bị xoá vĩnh viễn và chủ dự án sẽ không còn thấy nữa. Bạn có thể ứng tuyển lại khi bài đăng còn mở.",
+        "cancel": "Giữ lại",
+        "confirm": "Rút hồ sơ",
+        "confirming": "Đang rút…"
       },
       "dialog": {
         "title": "Ứng tuyển vào \"{project}\"",
         "description": "Cho chủ dự án biết lý do bạn phù hợp và thời gian dự kiến hoàn thành.",
+        "editTitle": "Sửa hồ sơ ứng tuyển vào \"{project}\"",
+        "editDescription": "Cập nhật đề xuất hoặc thời lượng. Chủ dự án sẽ thấy bản mới ngay.",
+        "saveEdit": "Lưu thay đổi",
+        "savingEdit": "Đang lưu…",
         "proposalLabel": "Đề xuất của bạn",
         "proposalPlaceholder": "Mô tả cách tiếp cận, kinh nghiệm liên quan và lý do bạn phù hợp với dự án này…",
         "proposalHint": "Tối thiểu {min} ký tự.",

@@ -428,6 +428,11 @@
       "invite": "Invite provider",
       "inviteComingSoon": "Provider invitations are coming soon.",
       "capabilities": {
+        "designer": "Design",
+        "constructor": "Construction",
+        "both": "Design + Build"
+      },
+      "contractTypes": {
         "design": "Design",
         "construction": "Construction",
         "both": "Design + Build"
@@ -435,10 +440,9 @@
       "providerStatus": {
         "requested": "Requested",
         "accepted": "Accepted",
-        "active": "Active",
-        "paused": "Paused",
         "completed": "Completed",
-        "declined": "Declined"
+        "rejected": "Rejected",
+        "terminated": "Ended"
       },
       "providerActions": {
         "loading": "Loading…",
@@ -510,11 +514,24 @@
       "applied": {
         "pending": "Application submitted",
         "accepted": "Application accepted",
-        "rejected": "Application declined"
+        "rejected": "Application declined",
+        "edit": "Edit",
+        "withdraw": "Withdraw"
+      },
+      "withdrawConfirm": {
+        "title": "Withdraw your application?",
+        "description": "Your proposal will be permanently deleted and the owner will no longer see it. You can apply again while the post is open.",
+        "cancel": "Keep it",
+        "confirm": "Withdraw",
+        "confirming": "Withdrawing…"
       },
       "dialog": {
         "title": "Apply to \"{project}\"",
         "description": "Tell the owner why you're a good fit and when you can deliver.",
+        "editTitle": "Edit your application to \"{project}\"",
+        "editDescription": "Revise your proposal or timeline. The owner sees the updated version straight away.",
+        "saveEdit": "Save changes",
+        "savingEdit": "Saving…",
         "proposalLabel": "Your proposal",
         "proposalPlaceholder": "Describe your approach, relevant experience, and why this project fits you…",
         "proposalHint": "Minimum {min} characters.",

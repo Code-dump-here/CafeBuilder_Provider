@@ -51,7 +51,7 @@ export default function DesignManagementPage() {
   // gets the full list + authoring actions.
   const isReadOnlyViewer =
     account?.role === "provider" &&
-    account.serviceProvider?.capability === "construction";
+    account.serviceProvider?.capability === "constructor";
 
   // Find the engagement this provider is on for the project.  Today the
   // list endpoint is filtered by `projectShopOwnerId`, so we map the

@@ -17,11 +17,11 @@ import { OwnerAvatar } from "@/components/data-table/owner-avatar";
 import { projectActionToast } from "./project-action-toast";
 import { useIsProjectOwner } from "@/features/projects/use-is-project-owner";
 import {
+  type ProjectContractType,
   type ProjectDetail,
   type ProjectProvider,
   type ProjectProviderCapability,
   type ProjectProviderStatus,
-  type ProjectProviderType,
 } from "@/features/projects/project-detail-types";
 
 // ---------------------------------------------------------------------------
@@ -43,8 +43,12 @@ const AVATAR_PALETTE = [
 
 function avatarColorFor(provider: ProjectProvider): string {
   const palette = AVATAR_PALETTE;
+  // Both ids come from the wire (`projectWorkingId` + `serviceProviderProfileId`),
+  // so the colour is stable per engagement across renders and reloads. This
+  // used to multiply `projectProviderId`, a field the API never sends, which
+  // made the index `NaN` and the colour `undefined` for every row.
   const idx =
-    (provider.projectProviderId * 7 + provider.providerId * 13) % palette.length;
+    (provider.projectWorkingId * 7 + provider.providerId * 13) % palette.length;
   return palette[Math.abs(idx)];
 }
 
@@ -76,8 +80,8 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
   const tCapabilities = useTranslations(
     "ProjectsOverview.members.capabilities",
   );
-  const tStatuses = useTranslations(
-    "ProjectsOverview.members.providerStatus",
+  const tContractTypes = useTranslations(
+    "ProjectsOverview.members.contractTypes",
   );
   const format = useFormatter();
 
@@ -128,37 +132,25 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
 
   // Inline helpers — pull from translation hooks so we don't hard-code
   // English/Vietnamese strings. Kept short on purpose.
-  const capabilityLabel = (cap: ProjectProviderCapability): string =>
-    cap === "design" ? tCapabilities("design") : tCapabilities("construction");
-
-  const statusLabel = (status: ProjectProviderStatus): string => {
-    switch (status) {
-      case "requested":
-        return tStatuses("requested");
-      case "accepted":
-        return tStatuses("accepted");
-      case "active":
-        return tStatuses("active");
-      case "paused":
-        return tStatuses("paused");
-      case "completed":
-        return tStatuses("completed");
-      case "declined":
-        return tStatuses("declined");
-    }
-  };
-
-  /** Build a subtitle like "Design · Design + Build" when the provider is
-   *  registered for both kinds but was hired for only one capability. */
+  /**
+   * Subtitle like "Design · Design + Build" — what they were hired for on
+   * this project, and (when it differs) what they're capable of overall.
+   *
+   * This used to key off `providerType`, which is the provider's legal
+   * structure (`individual` / `company`), not a service kind — so the
+   * `both` branch was unreachable. The meaningful comparison is
+   * contractType-vs-capability: worth spelling out only when the provider
+   * can do more here than they were engaged for.
+   */
   const subtitleFor = (
-    type: ProjectProviderType,
+    contractType: ProjectContractType,
     cap: ProjectProviderCapability,
   ): string => {
-    const capText = capabilityLabel(cap);
-    if (type === "both") {
-      return `${capText} · ${tCapabilities("both")}`;
+    const hiredFor = tContractTypes(contractType);
+    if (cap === "both" && contractType !== "both") {
+      return `${hiredFor} · ${tCapabilities("both")}`;
     }
-    return capText;
+    return hiredFor;
   };
 
   return (
@@ -183,7 +175,7 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
       <CardContent className="flex flex-col gap-0 p-0">
         <ul className="flex flex-col">
           {providers.map((provider, index) => {
-            const subtitle = subtitleFor(provider.providerType, provider.capability);
+            const subtitle = subtitleFor(provider.contractType, provider.capability);
             const joinedLabel = provider.createdAt.getTime() !== 0
               ? t("since", {
                   date: format.dateTime(provider.createdAt, {
@@ -193,7 +185,7 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
               : null;
             return (
               <li
-                key={provider.projectProviderId ?? `provider-${index}`}
+                key={provider.projectWorkingId ?? `provider-${index}`}
                 className="flex items-start gap-3 px-4 py-2.5"
               >
                 <OwnerAvatar
@@ -264,14 +256,11 @@ function CapabilityBadge({
   capability: ProjectProviderCapability;
 }) {
   const t = useTranslations("ProjectsOverview.members.capabilities");
-  const isDesign = capability === "design";
   return (
     <span
       className={
         "shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide " +
-        (isDesign
-          ? "border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300"
-          : "border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300")
+        CAPABILITY_TONE[capability]
       }
     >
       {t(capability)}
@@ -297,18 +286,25 @@ function StatusBadge({
   );
 }
 
+/** Tone class per capability — `both` gets its own hue so it reads as distinct. */
+const CAPABILITY_TONE: Record<ProjectProviderCapability, string> = {
+  designer:
+    "border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300",
+  constructor:
+    "border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300",
+  both: "border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-300",
+};
+
 /** Tone class per status — survives dark mode via paired CSS vars. */
 const STATUS_TONE: Record<ProjectProviderStatus, string> = {
-  active:
-    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
   accepted:
     "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
   requested:
     "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30",
-  paused: "bg-muted text-muted-foreground border-border/60",
   completed:
     "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30",
-  declined: "bg-destructive/10 text-destructive border-destructive/30",
+  rejected: "bg-destructive/10 text-destructive border-destructive/30",
+  terminated: "bg-muted text-muted-foreground border-border/60",
 };
 
 function RatingChip({ rating }: { rating: number }) {
