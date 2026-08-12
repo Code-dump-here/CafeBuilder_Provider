@@ -153,12 +153,10 @@ export function LoginForm() {
             />
             <span>{t("fields.rememberMe")}</span>
           </label>
-          <Link
-            href="/forgot-password"
-            className="text-xs font-medium text-primary transition-colors hover:text-primary/80 hover:underline underline-offset-2"
-          >
-            {t("fields.forgotPassword")}
-          </Link>
+          {/* "Forgot password?" removed: /forgot-password has no route, so the
+              link 404'd on prefetch and on click. The backend does support the
+              flow (POST /auth/forgot-password + /auth/reset-password) — restore
+              this link when the page exists. */}
         </div>
 
         {/* Server error banner */}

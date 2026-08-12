@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Coffee, Lock } from "lucide-react";
-import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { RegisterForm } from "@/components/auth/register-form";
 
@@ -99,20 +98,8 @@ export default function RegisterPage() {
           <RegisterForm />
         </div>
 
-        {/* Footer links */}
-        <div className="mx-auto mt-10 flex items-center gap-4 text-xs text-muted-foreground">
-          <Link href="/terms" className="hover:text-foreground hover:underline underline-offset-2">
-            {t("footer.terms")}
-          </Link>
-          <span className="opacity-40">·</span>
-          <Link href="/privacy" className="hover:text-foreground hover:underline underline-offset-2">
-            {t("footer.privacy")}
-          </Link>
-          <span className="opacity-40">·</span>
-          <Link href="/support" className="hover:text-foreground hover:underline underline-offset-2">
-            {t("footer.support")}
-          </Link>
-        </div>
+        {/* Footer links removed — see the note in the login page: /terms,
+            /privacy and /support have no routes and 404 on prefetch. */}
       </div>
     </div>
   );
