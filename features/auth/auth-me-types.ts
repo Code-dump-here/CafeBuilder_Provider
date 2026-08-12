@@ -53,7 +53,13 @@ export interface NormalizedServiceProviderProfile {
   createdAt: Date;
   updatedAt: Date;
   designer: NormalizedDesignerProfile | null;
-  constructor: NormalizedConstructorProfile | null;
+  /**
+   * No `constructor` field: naming a property `constructor` shadows the
+   * built-in, and React Query's structural sharing reads
+   * `data.constructor.prototype` when diffing a refetch — which throws and
+   * makes the query error out, silently discarding the account.
+   * See the note in `normalizeAccount`.
+   */
 }
 
 export interface NormalizedAccount {
