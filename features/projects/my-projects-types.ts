@@ -36,10 +36,20 @@ export type MyProjectStatus = "requested" | "accepted" | "completed";
 export type MyProjectContractType = "design" | "construction" | "both";
 
 /**
- * Confirmed-contract status. `null` means no contract has been created
- * for this engagement yet. Other values match `contract.status`.
+ * Contract status. Mirrors the backend `ContractStatus` enum:
+ * `drafted → pending_otp → confirmed`, or `cancelled`.
+ *
+ * This used to read `"draft" | "confirmed" | "signed" | string`. Two of those
+ * three literals were wrong — the backend sends `drafted`, not `draft`, and
+ * has never had a `signed` state (a contract is sealed by OTP, which lands it
+ * on `confirmed`). The trailing `| string` widened the union back to `string`
+ * and hid all of it from the compiler.
  */
-export type MyProjectContractStatus = "draft" | "confirmed" | "signed" | string;
+export type MyProjectContractStatus =
+  | "drafted"
+  | "pending_otp"
+  | "confirmed"
+  | "cancelled";
 
 /**
  * Slim contract denormalized onto each engagement row. `null` when no
@@ -49,8 +59,12 @@ export type MyProjectContractStatus = "draft" | "confirmed" | "signed" | string;
 export interface MyProjectContract {
   id: number;
   title: string;
-  /** VND, as agreed at the time of contract creation. */
-  agreedValue: number;
+  /**
+   * VND, as agreed at the time of contract creation. `null` when no value has
+   * been agreed yet — the backend's `AgreedValue` is `decimal?`, and coercing
+   * that to `0` rendered an unpriced contract as a confident "0 ₫".
+   */
+  agreedValue: number | null;
   /** Optional URL to the signed PDF — `null` if not yet uploaded. */
   documentViewUrl: string | null;
   status: MyProjectContractStatus;
@@ -119,8 +133,10 @@ export interface RawMyProjectWorking {
 export interface RawMyProjectContract {
   id: number;
   title: string;
-  agreedValue: number;
+  /** `decimal?` server-side — absent until the two sides agree a figure. */
+  agreedValue?: number | null;
   documentViewUrl?: string | null;
+  /** `drafted` | `pending_otp` | `confirmed` | `cancelled` */
   status: string;
   confirmedAt?: string | null;
   createdAt: string;
@@ -199,15 +215,38 @@ function normalizeContractType(raw: string): MyProjectContractType {
   return "both";
 }
 
+function normalizeContractStatus(raw: string): MyProjectContractStatus {
+  if (
+    raw === "drafted" ||
+    raw === "pending_otp" ||
+    raw === "confirmed" ||
+    raw === "cancelled"
+  ) {
+    return raw;
+  }
+  // `drafted` is the backend's initial state, so it's the safe assumption for
+  // anything unfamiliar: it claims the least about where the contract has got
+  // to. The old fallback was `"draft"`, a value the server never sends.
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      `[my-projects] unrecognised contract status "${raw}" from the API — ` +
+        `falling back to "drafted". Add it to MyProjectContractStatus.`,
+    );
+  }
+  return "drafted";
+}
+
 function normalizeContract(raw: RawMyProjectContract | null | undefined): MyProjectContract | null {
   if (raw == null || typeof raw !== "object") return null;
   return {
     id: raw.id,
     title: typeof raw.title === "string" ? raw.title : "",
-    agreedValue: typeof raw.agreedValue === "number" ? raw.agreedValue : 0,
+    // `null`, not `0`: "no figure agreed yet" and "agreed to nothing" are
+    // different claims, and the card must not make the second one.
+    agreedValue: typeof raw.agreedValue === "number" ? raw.agreedValue : null,
     documentViewUrl:
       typeof raw.documentViewUrl === "string" ? raw.documentViewUrl : null,
-    status: typeof raw.status === "string" ? raw.status : "draft",
+    status: normalizeContractStatus(raw.status),
     confirmedAt:
       typeof raw.confirmedAt === "string" && raw.confirmedAt
         ? new Date(raw.confirmedAt)

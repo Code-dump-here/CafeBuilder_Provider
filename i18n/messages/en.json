@@ -793,6 +793,7 @@
     "viewDocument": "View document",
     "refreshing": "Refreshing…",
     "value": "Value: {value} VND",
+    "valueNotSet": "Value: not set",
     "termsLabel": "Terms",
     "createdAt": "Created {date} at {time}",
     "otpExpiresAt": "OTP expires: {time}",

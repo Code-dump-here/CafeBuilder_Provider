@@ -35,7 +35,13 @@ export interface Contract {
   title: string;
   partyInfo: string | null;
   terms: string | null;
-  agreedValue: number;
+  /**
+   * `decimal?` server-side — the backend calls it "giá trị thoả thuận (tham
+   * khảo)" and never requires one, so a contract can legitimately carry no
+   * figure. Typed non-null, this crashed the contract card:
+   * `contract.agreedValue.toLocaleString(...)` on a null.
+   */
+  agreedValue: number | null;
   documentUrl: string | null;
   documentViewUrl: string | null;
   otpExpiresAt: string | null;
@@ -67,7 +73,8 @@ export interface CreateContractPayload {
   title: string;
   partyInfo?: string;
   terms?: string;
-  agreedValue: number;
+  /** Optional: `CreateContractRequest.AgreedValue` is `decimal?`. */
+  agreedValue?: number;
   documentUrl?: string;
 }
 

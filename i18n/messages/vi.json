@@ -796,6 +796,7 @@
     "viewDocument": "Xem tài liệu",
     "refreshing": "Đang làm mới…",
     "value": "Giá trị: {value} VND",
+    "valueNotSet": "Giá trị: chưa có",
     "termsLabel": "Điều khoản",
     "createdAt": "Tạo {date} lúc {time}",
     "otpExpiresAt": "OTP hết hạn: {time}",

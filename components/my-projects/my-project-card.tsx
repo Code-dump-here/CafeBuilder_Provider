@@ -93,7 +93,13 @@ export function MyProjectCard({ project, className }: MyProjectCardProps) {
   const dateLabel = project.startedAt ? t("startedLabel") : t("invitedLabel");
 
   const contract = project.contract;
-  const contractValue = contract ? formatVndParts(contract.agreedValue, locale) : null;
+  // No agreed figure yet -> render no value line at all. The badge below
+  // already guards on `contractValue`, so the contract title still shows;
+  // previously a null value arrived here as `0` and printed "0 ₫".
+  const contractValue =
+    contract && contract.agreedValue !== null
+      ? formatVndParts(contract.agreedValue, locale)
+      : null;
 
   return (
     <Link

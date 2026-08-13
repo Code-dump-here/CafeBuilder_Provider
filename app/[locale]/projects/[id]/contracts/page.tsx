@@ -388,9 +388,15 @@ function ContractCard({
         <CardDescription>
           {t("createdAt", { date: formattedDate, time: formattedTime })}
           {" • "}
-          {t("value", {
-            value: contract.agreedValue.toLocaleString("vi-VN"),
-          })}
+          {/* The backend treats the agreed value as optional ("tham khảo"),
+              so say so explicitly rather than implying a figure of zero.
+              This used to call `.toLocaleString()` straight on the value,
+              which threw on any contract drafted without one. */}
+          {contract.agreedValue !== null
+            ? t("value", {
+                value: contract.agreedValue.toLocaleString("vi-VN"),
+              })
+            : t("valueNotSet")}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
