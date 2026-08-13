@@ -52,11 +52,17 @@ export function LoginForm() {
     loginMutation.mutate(data, {
       onSuccess: async (response) => {
         toast.success(t("toast.loginSuccess"));
-        // Wipe any cached `useMe` data from a previous session before
-        // we ask the backend again — otherwise a stale cached profile
-        // could survive across logins on the same browser and route us
-        // to the wrong page.
-        queryClient.removeQueries({ queryKey: ["auth", "me"] });
+
+        // A stale profile from a previous session on this browser must not
+        // decide where we land. `fetchQuery` below is given `staleTime: 0`
+        // so it always goes to the network; that supersedes the old cache
+        // without removing the query out from under `useMe`.
+        //
+        // Removing it was itself a hazard: setting the tokens (in the
+        // mutation's own `onSuccess`, which runs first) flips `useMe` from
+        // disabled to enabled, so by this point it may already be fetching.
+        // Dropping the query mid-flight left that observer with no data and
+        // nothing scheduled to refill it.
 
         // Direct redirect based on login response role - faster and more reliable
         let redirectPath = "/";
@@ -81,7 +87,9 @@ export function LoginForm() {
             const account = await queryClient.fetchQuery({
               queryKey: ["auth", "me"],
               queryFn: () => fetchMe(),
-              staleTime: 5 * 60 * 1000,
+              // Always hit the network here — a cached profile belongs to
+              // whoever was signed in before.
+              staleTime: 0,
             });
             redirectPath = postAuthDestinationToPath(
               resolvePostAuthDestinationFromAccount(account),

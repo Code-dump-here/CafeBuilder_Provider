@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { tokenStore } from "./token-store";
 import { authEvents } from "./auth-events";
-import { queryKeys } from "@/lib/react-query/keys";
+import { useMe } from "./use-me";
 
 import {
   loginApi,
@@ -25,7 +25,6 @@ import {
 // ─── Mutations ──────────────────────────────────────────────────────────────
 
 export function useLoginMutation() {
-  const queryClient = useQueryClient();
 
   return useMutation<AuthSession, Error, LoginPayload>({
     mutationFn: (payload) => loginApi(payload),
@@ -52,12 +51,9 @@ export function useLoginMutation() {
         refreshToken: response.refreshToken,
       });
       authEvents.clearExpiredFlag();
-      const account: Account = {
-        accountId: response.accountId,
-        email: response.email,
-        role: response.role,
-      };
-      queryClient.setQueryData(queryKeys.auth.account(), account);
+      // Identity lives in one place: the `/auth/me` query. Mirroring a
+      // second, smaller copy here meant two caches that could disagree —
+      // and the one screens actually read was the one nothing refreshed.
     },
   });
 }
@@ -74,7 +70,6 @@ export function useLoginMutation() {
  * `setTokens` there.
  */
 export function useRegisterMutation() {
-  const queryClient = useQueryClient();
 
   return useMutation<AuthSession, Error, RegisterPayload>({
     mutationFn: (payload) => registerApi(payload),
@@ -97,11 +92,6 @@ export function useRegisterMutation() {
         refreshToken: response.refreshToken,
       });
       authEvents.clearExpiredFlag();
-      queryClient.setQueryData(queryKeys.auth.account(), {
-        accountId: response.accountId,
-        email: response.email,
-        role: response.role,
-      });
     },
   });
 }
@@ -112,17 +102,13 @@ export function useRegisterMutation() {
  * Returns the new session, or `null` when no refresh token is stored.
  */
 export function useRefreshSessionMutation() {
-  const queryClient = useQueryClient();
 
   return useMutation<AuthSession | null, Error, void>({
     mutationFn: () => refreshSession(),
     onSuccess: (session) => {
       if (!session) return;
-      queryClient.setQueryData(queryKeys.auth.account(), {
-        accountId: session.accountId,
-        email: session.email,
-        role: session.role,
-      });
+      // Tokens are already refreshed by `refreshSession()`; `/auth/me` is
+      // unchanged by a token rotation, so there's nothing to write here.
     },
   });
 }
@@ -170,15 +156,24 @@ export function useAccessToken(): string | null {
  * Snapshot of the current auth state for UI gating (e.g. "hide Sign In
  * button when already logged in").
  *
- * - `account` is the cached `AccountSummary` written by
- *   `useLoginMutation` / `useRegisterMutation` (kept in React Query's
- *   `queryKeys.auth.account` cache). `null` when not cached.
+ * - `account` is derived from the `/auth/me` query — the single source of
+ *   truth for identity. `null` until it resolves.
  * - `isAuthenticated` is `true` once the token store has been hydrated
  *   AND a non-empty access token exists in `localStorage`.
  * - `isHydrated` is `true` once the token store has re-read its persisted
  *   state from `localStorage` at least once on this page load. Use this
  *   to gate rendering of auth-dependent UI and avoid an SSR/CSR flicker
  *   (server has no `localStorage`, client does).
+ *
+ * This used to read a second, login-populated cache with
+ * `queryClient.getQueryData(...)` inside a `useMemo` keyed on
+ * `[queryClient, hasAccessToken]`. `getQueryData` is a one-shot read, not a
+ * subscription, so the memo never re-ran when that cache was filled later:
+ * on login the token flipped first, the memo ran against an empty cache,
+ * `/auth/me` resolved afterwards, and nothing re-rendered. `account` stayed
+ * `null` for the rest of the page's life — which is why anything built on
+ * `useIsProjectOwner` (the owner, members and apply cards) rendered as if
+ * signed out until a manual refresh.
  */
 export interface AuthSessionSnapshot {
   account: Account | null;
@@ -187,7 +182,6 @@ export interface AuthSessionSnapshot {
 }
 
 export function useAuthSession(): AuthSessionSnapshot {
-  const queryClient = useQueryClient();
   // Server-side: pretend hydration has already happened with no token, so
   // SSR markup matches the client's "logged-out" baseline and React
   // doesn't warn about hydration mismatches.
@@ -202,13 +196,13 @@ export function useAuthSession(): AuthSessionSnapshot {
     () => false,
   );
 
-  // Re-read the cached account whenever the token changes (login/logout)
-  // so the UI flips in lockstep with the auth state.
+  // Derived from the live `/auth/me` query, so it updates the moment that
+  // query resolves instead of being sampled once.
+  const { data: me } = useMe();
   const account = React.useMemo<Account | null>(() => {
-    if (!hasAccessToken) return null;
-    return (queryClient.getQueryData(queryKeys.auth.account()) ??
-      null) as Account | null;
-  }, [queryClient, hasAccessToken]);
+    if (!hasAccessToken || !me) return null;
+    return { accountId: me.id, email: me.email, role: me.role };
+  }, [hasAccessToken, me]);
 
   return {
     account,
