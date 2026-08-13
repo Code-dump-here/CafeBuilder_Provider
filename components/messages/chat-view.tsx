@@ -61,15 +61,24 @@ export function ChatView({ projectId }: ChatViewProps) {
   // Current user's account id — used for ownership checks
   const currentAccountId = account?.id ?? null;
 
+  // Narrowed to a primitive up front, same as `currentAccountId` above. The
+  // memo below used to depend on the `account?.serviceProvider` OBJECT and then
+  // dereference it with a non-null assertion inside the callback. That reads
+  // `account` while declaring a narrower dependency, which the React Compiler
+  // can't reconcile — it bailed out of the whole component rather than trust
+  // the hand-written memo. A number also can't change identity on an
+  // `/api/auth/me` refetch the way the profile object can.
+  const serviceProviderId = account?.serviceProvider?.id ?? null;
+
   // projectWorkingId: find the engagement whose providerId matches the current
   // user's serviceProviderProfile.id on THIS project.
   const projectWorkingId = React.useMemo(() => {
-    if (!account?.serviceProvider) return null;
+    if (serviceProviderId === null) return null;
     const provider = project.providers.find(
-      (p) => p.providerId === account.serviceProvider!.id,
+      (p) => p.providerId === serviceProviderId,
     );
     return provider?.projectWorkingId ?? null;
-  }, [project.providers, account?.serviceProvider]);
+  }, [project.providers, serviceProviderId]);
 
   // ── Conversation list ─────────────────────────────────────────────────────
 
