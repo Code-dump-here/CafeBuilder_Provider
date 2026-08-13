@@ -167,12 +167,6 @@ export function ChatView({ projectId }: ChatViewProps) {
 
   const [loadedMessages, setLoadedMessages] = React.useState<Message[]>([]);
 
-  // Optimistic messages per thread — shown immediately on send, replaced
-  // when the server-side message arrives (via polling or mutation success).
-  const [optimisticMessages, setOptimisticMessages] = React.useState<
-    Map<number, Message[]>
-  >(new Map());
-
   const loadMessages = React.useCallback(async (conversationId: number) => {
     try {
       const detail = await getConversationApi(conversationId);
@@ -230,16 +224,18 @@ export function ChatView({ projectId }: ChatViewProps) {
     },
   });
 
-  // Effective messages: merge loaded + polled new + optimistic pending,
-// then dedupe by id and sort by `createdAt` ASC so the newest message
-// is always at the BOTTOM of the list (matches chat convention and
-// keeps auto-scroll behaviour predictable).
-//
-// Optimistic bubbles are kept until the matching real message arrives
-// (matched by id when the mutation response lands, or by author+body
-// when polling pulls it in earlier). Once matched, the optimistic is
-// dropped to avoid showing the same text twice.
-const effectiveMessages: Message[] = React.useMemo(() => {
+  // Effective messages: merge the loaded page with anything polling has pulled
+  // in since, dedupe by id, and sort by `createdAt` ASC so the newest message
+  // is always at the BOTTOM of the list (matches chat convention and keeps
+  // auto-scroll behaviour predictable).
+  //
+  // There is no optimistic layer to reconcile. Optimistic sending was built and
+  // then deliberately removed (see `handleSend`) because a client-side
+  // `new Date()` could sort a pending bubble above older real messages. The
+  // fingerprint-matching that used to drop superseded bubbles lived here and
+  // has gone with it — `optimisticMessages` was only ever written as an empty
+  // map, so the branch had been unreachable rather than merely unused.
+  const effectiveMessages: Message[] = React.useMemo(() => {
     if (!selectedThread) return [];
     const base: Message[] = threadMessages.get(selectedThread.id) ?? [];
     const baseIds = new Set(base.map((m) => m.id));
@@ -247,33 +243,12 @@ const effectiveMessages: Message[] = React.useMemo(() => {
       .map((msg) => apiMessageToDisplay(msg, selectedThread.id))
       .filter((m) => !baseIds.has(m.id));
 
-    const realMessages = [...base, ...newOnes];
-
-    // Drop optimistic bubbles already represented by a real message
-    // (same author + body). FIFO so the most-recent user send stays
-    // visible until its own server response lands.
-    const realFingerprints = new Set(
-      realMessages.map((m) => `${m.author.id}|${m.body}`),
-    );
-    const pendingList = optimisticMessages.get(selectedThread.id) ?? [];
-    let droppedOne = false;
-    const pending = pendingList.filter((m) => {
-      if (m.id >= 0) return true;
-      const fp = `${m.author.id}|${m.body}`;
-      if (!droppedOne && realFingerprints.has(fp)) {
-        droppedOne = true;
-        return false;
-      }
-      return true;
-    });
-
-    // Final dedupe by id (a real message could appear in both `base`
-    // and `pending` after the mutation's optimistic drop), then sort
-    // by `createdAt` ASC — newest at the bottom.
-    const all = [...realMessages, ...pending];
+    // `base` can already contain a message polling also returned — `handleSend`
+    // injects the mutation's response straight into `threadMessages` — so the
+    // id dedupe still earns its keep.
     const deduped: Message[] = [];
     const seenIds = new Set<number>();
-    for (const m of all) {
+    for (const m of [...base, ...newOnes]) {
       if (seenIds.has(m.id)) continue;
       seenIds.add(m.id);
       deduped.push(m);
@@ -281,7 +256,7 @@ const effectiveMessages: Message[] = React.useMemo(() => {
     return deduped.sort(
       (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
     );
-  }, [selectedThread, threadMessages, newMessages, optimisticMessages]);
+  }, [selectedThread, threadMessages, newMessages]);
 
   // ── Send message ─────────────────────────────────────────────────────────
 
@@ -293,18 +268,14 @@ const effectiveMessages: Message[] = React.useMemo(() => {
       const trimmedBody = body.trim();
       if (!trimmedBody && (!files || files.length === 0)) return;
 
-      // ── Optimistic update removed ────────────────────────────────────
-      // We no longer inject a pending bubble on send. Reasons:
+      // No optimistic bubble on send, deliberately:
       //  - Sorting by createdAt was unreliable: client `new Date()` can
       //    sit before older real messages, pushing the optimistic ABOVE
       //    them and confusing the user.
       //  - The server response arrives in <500 ms typically; the user
       //    perceives it as instant anyway.
-      //  - The mutation's `setSending(true)` below still disables the
-      //    composer so the user gets clear feedback that their send is
-      //    in flight.
-      void effectiveThreadId;
-
+      //  - `sendMutation.isPending` still disables the composer, so the
+      //    user gets clear feedback that their send is in flight.
       try {
         const realMessage = await sendMutation.mutateAsync({
           conversationId: effectiveThreadId,
@@ -338,20 +309,18 @@ const effectiveMessages: Message[] = React.useMemo(() => {
         );
       } catch {
         toast.error("Failed to send message.");
-      } finally {
-        // Make sure we never leave a stuck optimistic bubble behind
-        // (e.g. if a previous code path still had one in state).
-        setOptimisticMessages((prev) => {
-          const next = new Map(prev);
-          next.set(effectiveThreadId, []);
-          return next;
-        });
       }
     },
     [effectiveThreadId, sendMutation],
   );
 
   // ── Create conversation ───────────────────────────────────────────────────
+
+  // Declared here, not next to the dialog markup further down: `handleCreateThread`
+  // closes the dialog on success, and a `const` referenced ~130 lines above its
+  // declaration is a temporal-dead-zone hazard. It only worked because the
+  // callback never runs during the first render.
+  const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
 
   const createMutation = useCreateConversation();
 
@@ -482,8 +451,6 @@ const effectiveMessages: Message[] = React.useMemo(() => {
   );
 
   // ── Create thread dialog ──────────────────────────────────────────────────
-
-  const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
 
   const handleOpenCreateDialog = () => {
     if (!projectWorkingId) {
