@@ -11,7 +11,15 @@
 
 export type ServiceKind = "design" | "construction" | "both";
 
-export type PostStatus = "open" | "closed" | "draft";
+/**
+ * Mirrors the backend `PostStatus` enum. `draft` used to appear here and does
+ * not exist server-side: `PostService` parses the `status` query param with
+ * `Enum.TryParse<PostStatus>` and throws
+ * "Status 'draft' không hợp lệ. Cho phép: open, closed, cancelled." — so the
+ * Draft entry in the marketplace filter produced a failed request, while
+ * genuinely cancelled posts couldn't be filtered for at all.
+ */
+export type PostStatus = "open" | "closed" | "cancelled";
 
 export interface MarketplacePost {
   id: number;

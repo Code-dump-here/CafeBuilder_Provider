@@ -85,10 +85,10 @@ const STATUS_TONE: Record<
     dot: "bg-muted-foreground/50",
     pill: "border-border bg-muted text-muted-foreground",
   },
-  draft: {
-    dot: "bg-amber-500",
+  cancelled: {
+    dot: "bg-destructive",
     pill:
-      "border-amber-300/50 bg-amber-50 text-amber-700 dark:border-amber-700/40 dark:bg-amber-950/40 dark:text-amber-300",
+      "border-destructive/30 bg-destructive/10 text-destructive",
   },
 };
 

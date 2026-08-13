@@ -37,7 +37,7 @@ const STATUS_VALUES: Array<MarketplaceFilters["status"]> = [
   "all",
   "open",
   "closed",
-  "draft",
+  "cancelled",
 ];
 
 const SORT_VALUES: Array<MarketplaceFilters["sort"]> = [

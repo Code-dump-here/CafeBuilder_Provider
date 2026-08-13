@@ -24,11 +24,16 @@
 export type MyProjectStatus = "requested" | "accepted" | "completed";
 
 /**
- * What this provider is hired to do on this engagement. Backend sends
- * "design" / "construction" today; other values land in the `unknown`
- * bucket so the UI degrades gracefully.
+ * What this provider is hired to do on this engagement. Mirrors the backend
+ * `ServiceKind` enum, which `project_provider.contract_type` uses — all three
+ * members, including the turnkey `both`.
+ *
+ * `both` used to be missing here, and `normalizeContractType` funnelled
+ * everything that wasn't `"construction"` into `"design"`. A design-and-build
+ * engagement therefore rendered as "Design" with a pen icon, hiding the
+ * construction half of the job from the provider's own dashboard.
  */
-export type MyProjectContractType = "design" | "construction";
+export type MyProjectContractType = "design" | "construction" | "both";
 
 /**
  * Confirmed-contract status. `null` means no contract has been created
@@ -178,7 +183,20 @@ function normalizeStatus(raw: string): MyProjectStatus | null {
 }
 
 function normalizeContractType(raw: string): MyProjectContractType {
-  return raw === "construction" ? "construction" : "design";
+  if (raw === "design" || raw === "construction" || raw === "both") {
+    return raw;
+  }
+  // Unlike `normalizeStatus`, an unfamiliar contract type is no reason to hide
+  // the engagement — it's a label, not a filter. Fall back to the most
+  // inclusive value (so nothing the provider is entitled to gets hidden) and
+  // say so, matching `features/projects/project-detail-types.ts`.
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      `[my-projects] unrecognised contractType "${raw}" from the API — ` +
+        `falling back to "both". Add it to MyProjectContractType.`,
+    );
+  }
+  return "both";
 }
 
 function normalizeContract(raw: RawMyProjectContract | null | undefined): MyProjectContract | null {

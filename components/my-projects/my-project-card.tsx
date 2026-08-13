@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   FileText,
   Hammer,
+  Layers,
   PenLine,
 } from "lucide-react";
 
@@ -56,6 +57,9 @@ const CONTRACT_ICON: Record<
 > = {
   design: PenLine,
   construction: Hammer,
+  // Turnkey — neither a pen nor a hammer alone reads right, so use the
+  // combined-scope icon.
+  both: Layers,
 };
 
 interface MyProjectCardProps {

@@ -1691,7 +1691,7 @@
         "all": "All",
         "open": "Open",
         "closed": "Closed",
-        "draft": "Draft"
+        "cancelled": "Cancelled"
       },
       "sort": {
         "label": "Sort by",
@@ -1725,7 +1725,7 @@
       "status": {
         "open": "Open",
         "closed": "Closed",
-        "draft": "Draft"
+        "cancelled": "Cancelled"
       },
       "budget": "Budget",
       "area": "Area",
@@ -1771,7 +1771,8 @@
       "viewAria": "Open project {name}",
       "contractType": {
         "design": "Design",
-        "construction": "Construction"
+        "construction": "Construction",
+        "both": "Design + Build"
       },
       "status": {
         "requested": "Invited",

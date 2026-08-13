@@ -1692,7 +1692,7 @@
         "all": "Tất cả",
         "open": "Đang mở",
         "closed": "Đã đóng",
-        "draft": "Nháp"
+        "cancelled": "Đã huỷ"
       },
       "sort": {
         "label": "Sắp xếp",
@@ -1726,7 +1726,7 @@
       "status": {
         "open": "Đang mở",
         "closed": "Đã đóng",
-        "draft": "Nháp"
+        "cancelled": "Đã huỷ"
       },
       "budget": "Ngân sách",
       "area": "Diện tích",
@@ -1772,7 +1772,8 @@
       "viewAria": "Mở dự án {name}",
       "contractType": {
         "design": "Thiết kế",
-        "construction": "Thi công"
+        "construction": "Thi công",
+        "both": "Thiết kế & Thi công"
       },
       "status": {
         "requested": "Đã mời",
