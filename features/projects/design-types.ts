@@ -93,15 +93,14 @@ export interface DesignListResponse {
  *
  * Only `projectWorkingId` is required by the backend today; `title` and
  * `type` are required in the FE so we can route the row into the right
- * tab (FLOOR_PLAN / 3D / …) on first render. `createdBy` comes from the
- * signed-in account — the FE passes it explicitly to avoid backend
- * re-reading the JWT (which can drift during a token refresh).
+ * tab (FLOOR_PLAN / 3D / …) on first render. The creator is always the
+ * signed-in account — the backend derives it from the JWT and ignores
+ * any client-supplied value, so it isn't part of this payload.
  */
 export interface CreateDesignPayload {
   projectWorkingId: number;
   title: string;
   type: DesignType;
-  createdBy: number;
 }
 
 /**
@@ -128,8 +127,6 @@ export interface RequestRevisionPayload {
 export interface DesignImageUploadFields {
   /** Display caption / description for the uploaded file. */
   caption?: string;
-  /** Account id of the uploader — the FE passes it explicitly. */
-  uploadedBy: number;
 }
 
 /** Resolved result after a successful `POST /api/designs/{id}/files`. */

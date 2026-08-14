@@ -176,8 +176,6 @@ interface DesignDetailPageProps {
   projectId: string;
   /** `projectWorkingId` — needed to fetch the engagement for account resolution. */
   projectWorkingId: number | null;
-  /** Account id of the current user (creator for uploads). */
-  currentUserId: number | null;
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────
@@ -185,7 +183,6 @@ interface DesignDetailPageProps {
 export function DesignDetailPage({
   projectId,
   projectWorkingId,
-  currentUserId,
 }: DesignDetailPageProps) {
   const params = useParams<{ id: string; designId: string }>();
   const designIdRaw = params?.designId ?? "";
@@ -443,12 +440,7 @@ export function DesignDetailPage({
               isDeleting={deleteImageMutation.isPending}
               canUpload={canUpload}
               onUpload={async ({ file, caption }) => {
-                if (!currentUserId) return;
-                uploadMutation.mutate({
-                  file,
-                  caption,
-                  uploadedBy: currentUserId,
-                });
+                uploadMutation.mutate({ file, caption });
               }}
               isUploading={uploadMutation.isPending}
             />

@@ -39,7 +39,6 @@ export default function DesignDetailRoutePage() {
     <DesignDetailPage
       projectId={projectId}
       projectWorkingId={projectWorkingId}
-      currentUserId={account?.id ?? null}
     />
   );
 }

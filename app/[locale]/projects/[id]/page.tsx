@@ -87,6 +87,19 @@ export default function ProjectDetailPage() {
     )[0];
   }, [briefData.items]);
 
+  // The viewer's own engagement on this project, used by the termination
+  // banner. Scoped by `providerId` so another provider's engagement on the
+  // same project can never drive our buttons.
+  const { account } = useCurrentUser();
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
+
+  // GET /api/ai-recommendations is owner+admin only — a provider calling it
+  // gets a 403. This page is shared by both roles, so gate the call itself
+  // (pass a null briefId to keep the query idle) rather than letting a
+  // provider's visit here fire a doomed request.
+  const canSeeAiRecommendations =
+    account?.role === "owner" || account?.role === "admin";
+
   // AI recs only fire once we know which brief to ask about. Pass `null`
   // while the brief is still loading — the hook keeps the query idle.
   const {
@@ -96,13 +109,9 @@ export default function ProjectDetailPage() {
     isError: isAiError,
     error: aiError,
     refetch: refetchAi,
-  } = useAiRecommendations({ briefId: brief?.id ?? null });
-
-  // The viewer's own engagement on this project, used by the termination
-  // banner. Scoped by `providerId` so another provider's engagement on the
-  // same project can never drive our buttons.
-  const { account } = useCurrentUser();
-  const viewerProfileId = account?.serviceProvider?.id ?? null;
+  } = useAiRecommendations({
+    briefId: canSeeAiRecommendations ? (brief?.id ?? null) : null,
+  });
   const { engagements: myEngagements } = useEngagements({
     projectId: projectIdParam,
     providerId: viewerProfileId ?? undefined,
@@ -154,11 +163,13 @@ export default function ProjectDetailPage() {
               {brief ? <BriefDetailsCard brief={brief} /> : <NoBriefState />}
 
               {/* AI Design Iterations — stacked directly below the brief in the
-                  left column. Only present when we have a brief to scope
-                  against. When the brief is missing or the recs are still
-                  loading we render an inline skeleton so the section doesn't
-                  pop in suddenly after the rest of the page settles. */}
-              {brief ? (
+                  left column. Owner/admin only (see canSeeAiRecommendations
+                  above — a provider calling GET /api/ai-recommendations gets
+                  a 403). Only present when we have a brief to scope against.
+                  When the brief is missing or the recs are still loading we
+                  render an inline skeleton so the section doesn't pop in
+                  suddenly after the rest of the page settles. */}
+              {brief && canSeeAiRecommendations ? (
                 isLoadingAi ? (
                   <AiRecommendationsSkeleton />
                 ) : (

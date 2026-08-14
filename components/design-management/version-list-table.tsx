@@ -44,8 +44,6 @@ interface VersionListTableProps {
   versions: DesignVersion[];
   /** Engagement id forwarded to `NewVersionDialog` for `POST /api/designs`. */
   projectWorkingId: number | null;
-  /** Callers account id (creator) — forwarded to `NewVersionDialog`. */
-  createdBy: number | null;
   /** Render the right-hand action buttons (New Version, Publish Revision). */
   showActions?: boolean;
   /**
@@ -121,7 +119,6 @@ const DEFAULT_TABS: ReadonlyArray<{
 export function VersionListTable({
   projectId,
   projectWorkingId,
-  createdBy,
   versions,
   showActions = true,
   titleKey = "pageTitle",
@@ -136,7 +133,6 @@ export function VersionListTable({
     <VersionListTableInner
       projectId={projectId}
       projectWorkingId={projectWorkingId}
-      createdBy={createdBy}
       versions={versions}
       showActions={showActions}
       titleKey={titleKey}
@@ -153,7 +149,6 @@ export function VersionListTable({
 function VersionListTableInner({
   projectId,
   projectWorkingId,
-  createdBy,
   versions,
   showActions = true,
   titleKey = "pageTitle",
@@ -277,7 +272,6 @@ function VersionListTableInner({
             <NewVersionDialog
               nextCode={`V${(versions.length + 1).toFixed(1)}`}
               projectWorkingId={projectWorkingId}
-              createdBy={createdBy}
               onCreated={(design) =>
                 projectActionToast(
                   t("dialogs.newVersion.created", {

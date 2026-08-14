@@ -44,8 +44,8 @@ interface AddTaskModalProps {
 /**
  * Modal for creating a brand-new task aligned with the
  * `POST /construction-tasks` contract: `name`, `description`,
- * `imageUrl`, `estimateAt`. Item id and `createdBy` are supplied
- * by the page-level mutation.
+ * `imageUrl`, `estimateAt`. Item id is supplied by the page-level
+ * mutation; the creator is derived server-side from the JWT.
  *
  * Image handling: user picks a file, we POST it to
  * `POST /api/files/images` and store the returned `url` on the task.

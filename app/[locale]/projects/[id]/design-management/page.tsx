@@ -18,8 +18,8 @@ import { useDesigns } from "@/features/projects/use-designs";
  *      `projectShopOwnerId`.)
  *   2. `useDesigns({ projectWorkingId })` → `GET /api/designs?…` — the
  *      real list, replacing the mock array used during scaffolding.
- *   3. `useCurrentUser` → `account.id` is forwarded as `createdBy` when
- *      posting a new design via `NewVersionDialog`.
+ *   3. `useCurrentUser` → drives the capability read-only gate and scopes
+ *      the engagement lookup to the viewer's own providerId.
  *
  * The `VersionListTable` consumes the legacy `DesignVersion[]` shape; we
  * convert the `Design[]` API records into that shape inside `useDesigns`
@@ -84,7 +84,6 @@ export default function DesignManagementPage() {
     <VersionListTable
       projectId={projectIdParam}
       projectWorkingId={engagementId}
-      createdBy={account?.id ?? null}
       versions={versions}
       isLoading={isLoadingEngagements || isLoadingDesigns}
       isFetching={isFetchingDesigns}

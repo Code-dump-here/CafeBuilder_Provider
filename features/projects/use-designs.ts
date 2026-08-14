@@ -646,10 +646,10 @@ export function useUploadDesignImageMutation(
   return useMutation<
     DesignImageUploadResponse,
     AppError,
-    { file: File; caption?: string; uploadedBy: number }
+    { file: File; caption?: string }
   >({
-    mutationFn: ({ file, caption, uploadedBy }) =>
-      uploadDesignImageApi(designId, file, { caption, uploadedBy }),
+    mutationFn: ({ file, caption }) =>
+      uploadDesignImageApi(designId, file, { caption }),
 
     onSuccess: (image) => {
       if (options.onSuccessMessage !== null) {

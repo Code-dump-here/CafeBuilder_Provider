@@ -34,9 +34,9 @@ import { useResetOnChange } from "@/hooks/use-reset-on-change";
 // NewVersionDialog
 //
 // Creates a new design by hitting `POST /api/designs`. The wire payload
-// is `{ projectWorkingId, title, type, createdBy }` (see API_FLOW_FE.md §6);
-// we map the dialog's local state onto that shape on submit and surface
-// the resulting `Design` via `onCreated` so the parent can refresh its
+// is `{ projectWorkingId, title, type }` (see API_FLOW_FE.md §6); we map
+// the dialog's local state onto that shape on submit and surface the
+// resulting `Design` via `onCreated` so the parent can refresh its
 // version list.
 //
 // `nextCode` is retained as a UX hint (the user can still override the
@@ -51,8 +51,6 @@ interface NewVersionDialogProps {
    *  button stays disabled — the parent hasn't resolved the engagement
    *  yet. */
   projectWorkingId: number | null;
-  /** Account id of the caller (creator). Same null-when-unknown rule. */
-  createdBy: number | null;
   /** Called with the created Design when the API call resolves. */
   onCreated: (design: Design) => void;
   /** Render-prop for the trigger button so the parent controls styling. */
@@ -72,7 +70,6 @@ const NEW_VERSION_CATEGORIES: Array<{
 export function NewVersionDialog({
   nextCode,
   projectWorkingId,
-  createdBy,
   onCreated,
   renderTrigger,
 }: NewVersionDialogProps) {
@@ -104,7 +101,6 @@ export function NewVersionDialog({
   const canSubmit =
     !isPending &&
     Boolean(projectWorkingId) &&
-    Boolean(createdBy) &&
     name.trim().length > 0;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -117,7 +113,6 @@ export function NewVersionDialog({
       projectWorkingId: projectWorkingId as number,
       title: finalTitle,
       type: category,
-      createdBy: createdBy as number,
     });
 
     // Lightweight UX hint — the real toast/error message is rendered by
@@ -186,7 +181,7 @@ export function NewVersionDialog({
               className="min-h-16 w-full rounded-md border border-input bg-input/20 px-2 py-1.5 text-xs/relaxed text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:outline-none disabled:opacity-50 dark:bg-input/30"
             />
           </Field>
-          {!projectWorkingId || !createdBy ? (
+          {!projectWorkingId ? (
             <p className="rounded-md border border-amber-300/40 bg-amber-50 px-3 py-2 text-[11px] text-amber-700 dark:border-amber-700/40 dark:bg-amber-950/30 dark:text-amber-300">
               {t("dialogs.newVersion.engagementMissing")}
             </p>

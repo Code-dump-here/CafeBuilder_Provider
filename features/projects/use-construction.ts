@@ -4,7 +4,6 @@ import * as React from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { AppError } from "@/lib/http/errors";
-import { useMe } from "@/features/auth/use-me";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import {
   createConstructionItemApi,
@@ -262,11 +261,8 @@ export interface UseCreateConstructionItemOptions {
 export function useCreateConstructionItemMutation(
   options: UseCreateConstructionItemOptions = {},
 ) {
-  const { data: me } = useMe();
-
-  return useMutation<ConstructionItem, AppError, Omit<CreateConstructionItemPayload, "createdBy">>({
-    mutationFn: (payload) =>
-      createConstructionItemApi({ ...payload, createdBy: me?.id ?? 0 }),
+  return useMutation<ConstructionItem, AppError, CreateConstructionItemPayload>({
+    mutationFn: (payload) => createConstructionItemApi(payload),
 
     onSuccess: (item) => {
       if (options.onSuccessMessage !== null) {
@@ -417,11 +413,8 @@ export interface UseCreateConstructionTaskOptions {
 export function useCreateConstructionTaskMutation(
   options: UseCreateConstructionTaskOptions = {},
 ) {
-  const { data: me } = useMe();
-
-  return useMutation<ConstructionTask, AppError, Omit<CreateConstructionTaskPayload, "createdBy">>({
-    mutationFn: (payload) =>
-      createConstructionTaskApi({ ...payload, createdBy: me?.id ?? 0 }),
+  return useMutation<ConstructionTask, AppError, CreateConstructionTaskPayload>({
+    mutationFn: (payload) => createConstructionTaskApi(payload),
 
     onSuccess: (task) => {
       if (options.onSuccessMessage !== null) {
