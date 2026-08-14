@@ -60,15 +60,19 @@ export async function resolvePostAuthDestination(): Promise<PostAuthResolution> 
   }
 
   const destination = resolvePostAuthDestinationFromAccount(account);
-  // Promoted to console.error so it's not filtered out by browser
-  // "verbose" log levels — we *always* want to see this in dev.
-  console.error("[post-auth-redirect] resolved", {
-    role: account.role,
-    hasShopOwner: account.shopOwner !== null,
-    hasServiceProvider: account.serviceProvider !== null,
-    destination,
-    path: postAuthDestinationToPath(destination),
-  });
+  // Dev-only: console.error (not .log) so it survives browser "verbose"
+  // log-level filtering. Gated on NODE_ENV so a routine, successful login
+  // doesn't spam production error monitoring (Sentry, etc.) with this on
+  // every request.
+  if (process.env.NODE_ENV !== "production") {
+    console.error("[post-auth-redirect] resolved", {
+      role: account.role,
+      hasShopOwner: account.shopOwner !== null,
+      hasServiceProvider: account.serviceProvider !== null,
+      destination,
+      path: postAuthDestinationToPath(destination),
+    });
+  }
   return { destination, account };
 }
 
