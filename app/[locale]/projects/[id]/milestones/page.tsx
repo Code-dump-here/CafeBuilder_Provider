@@ -297,7 +297,7 @@ export default function MilestoneManagementPage() {
 
   // ── Task handlers ───────────────────────────────────────────────────────────
   const handleToggleTask = async (itemId: number, taskIndex: number) => {
-    const task = activeTasks[taskIndex];
+    const task = (tasksByItem[itemId] ?? [])[taskIndex];
     if (!task) return;
 
     let nextStatus: ConstructionStatus;
@@ -411,8 +411,13 @@ export default function MilestoneManagementPage() {
 
   const handleDeletePhase = async (phaseId: string) => {
     if (!window.confirm(t("phase.deleteConfirm"))) return;
-    await deleteItem.mutateAsync(Number(phaseId));
-    void refetchItems();
+    try {
+      await deleteItem.mutateAsync(Number(phaseId));
+      void refetchItems();
+    } catch (err) {
+      console.error("[MilestonePage] deleteItem error", err);
+      toast.error(t("phase.deleteError"));
+    }
   };
 
   const handleStatusChange = async (phaseId: string, status: string) => {
@@ -428,7 +433,7 @@ export default function MilestoneManagementPage() {
       return;
     }
     try {
-      const result = await createItem.mutateAsync({
+      await createItem.mutateAsync({
         projectWorkingId,
         name: input.name,
         category: input.category,
@@ -438,6 +443,8 @@ export default function MilestoneManagementPage() {
       void refetchItems();
     } catch (err) {
       console.error("[MilestonePage] createItem error", err);
+      toast.error(t("addPhase.error"));
+      throw err;
     }
   };
 

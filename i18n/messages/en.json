@@ -984,6 +984,7 @@
       "renameLabel": "Phase name",
       "delete": "Delete phase",
       "deleteConfirm": "Delete this phase and all its tasks?",
+      "deleteError": "Couldn't delete the phase. Please try again.",
       "moveLeft": "Move left",
       "moveRight": "Move right",
       "editMeta": "Edit details",
@@ -1178,7 +1179,8 @@
       "startDate": "Start date",
       "endDate": "End date",
       "create": "Create phase",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "error": "Couldn't create the phase. Please try again."
     },
     "errorEmpty": "No phases yet. Add the first one to start tracking.",
     "summaryError": "Couldn't update milestone state."

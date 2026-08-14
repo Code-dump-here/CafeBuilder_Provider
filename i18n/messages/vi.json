@@ -987,6 +987,7 @@
       "renameLabel": "Tên mốc",
       "delete": "Xoá mốc",
       "deleteConfirm": "Xoá mốc này và mọi công việc bên trong?",
+      "deleteError": "Không thể xoá mốc. Vui lòng thử lại.",
       "moveLeft": "Dịch trái",
       "moveRight": "Dịch phải",
       "editMeta": "Sửa chi tiết",
@@ -1180,7 +1181,8 @@
       "startDate": "Ngày bắt đầu",
       "endDate": "Ngày kết thúc",
       "create": "Tạo mốc",
-      "cancel": "Huỷ"
+      "cancel": "Huỷ",
+      "error": "Không thể tạo mốc. Vui lòng thử lại."
     },
     "errorEmpty": "Chưa có mốc nào. Thêm mốc đầu tiên để bắt đầu.",
     "summaryError": "Không cập nhật được trạng thái mốc."
