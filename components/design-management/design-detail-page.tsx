@@ -197,6 +197,12 @@ export function DesignDetailPage({
 
   const isOwner = account?.role === "owner";
   const isProvider = account?.role === "provider";
+  // The design-management list page already downgrades a constructor to a
+  // read-only, approved-only view — this page has no such gate of its own,
+  // so a constructor who knows/guesses a designId for a non-approved design
+  // could otherwise get live upload/submit/delete/start-revision controls.
+  const isReadOnlyProvider =
+    isProvider && account?.serviceProvider?.capability === "constructor";
 
   // ── Data fetch ──────────────────────────────────────────────────────────
   const {
@@ -368,12 +374,13 @@ export function DesignDetailPage({
 
   const statusCfg = STATUS_CONFIG[design.status];
   const isApproved = design.status === "approved";
-  const canUpload = !isApproved && isProvider;
-  const canDeleteImage = !isApproved && isProvider;
-  const canSubmit = design.status === "in_progress" && isProvider && design.images.length > 0;
+  const canUpload = !isApproved && isProvider && !isReadOnlyProvider;
+  const canDeleteImage = !isApproved && isProvider && !isReadOnlyProvider;
+  const canSubmit =
+    design.status === "in_progress" && isProvider && !isReadOnlyProvider && design.images.length > 0;
   const canApprove = design.status === "submitted" && isOwner;
   const canRequestRevision = design.status === "submitted" && isOwner;
-  const canStartRevision = design.status === "revision" && isProvider;
+  const canStartRevision = design.status === "revision" && isProvider && !isReadOnlyProvider;
 
   return (
     <div className="flex h-full flex-col gap-3">
