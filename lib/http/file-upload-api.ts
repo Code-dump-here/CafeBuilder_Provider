@@ -39,11 +39,14 @@ export async function uploadFileApi(
   const formData = new FormData();
   formData.append("file", file);
 
+  // The `api` instance defaults Content-Type to application/json, which
+  // merges into every request. For FormData we must explicitly clear it
+  // (not just omit the override) so the client sets it itself with the
+  // multipart boundary — otherwise axios either ships a boundary-less
+  // header or, worse, JSON-serializes the FormData instead of sending it.
   const response = await api.post<FileUploadResponse>("/api/files", formData, {
     ...config,
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+    headers: { ...config?.headers, "Content-Type": undefined },
   });
 
   return response.data;
@@ -67,11 +70,10 @@ export async function uploadImageApi(
   const formData = new FormData();
   formData.append("file", file);
 
+  // See uploadFileApi — Content-Type must be explicitly cleared.
   const response = await api.post<FileUploadResponse>("/api/files/images", formData, {
     ...config,
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+    headers: { ...config?.headers, "Content-Type": undefined },
   });
 
   return response.data;
