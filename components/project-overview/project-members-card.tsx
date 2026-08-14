@@ -85,7 +85,18 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
   );
   const format = useFormatter();
 
-  const providers = project.providers;
+  // Who is actually on the project. A provider who declined the invitation,
+  // or whose engagement was ended, is not a member — showing them here just
+  // advertises other providers' rejections to everyone who opens the project.
+  // Pending invites and completed engagements stay: one is still in play, the
+  // other is who did the work.
+  const providers = React.useMemo(
+    () =>
+      project.providers.filter(
+        (p) => p.status !== "rejected" && p.status !== "terminated",
+      ),
+    [project.providers],
+  );
 
   // Only the project owner can invite providers onto the project. Hide
   // the "Invite" CTA for everyone else so non-owners don't see buttons
