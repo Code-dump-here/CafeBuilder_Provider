@@ -996,6 +996,8 @@
       "endDate": "End date",
       "progress": "Progress",
       "setStatus": "Set status",
+      "statusMoveHint": "Status moves forward one step at a time — the next step is highlighted below.",
+      "statusTerminalHint": "This phase is completed and can't be changed.",
       "statusCompleted": "Completed",
       "statusInProgress": "In progress",
       "statusBlocked": "Blocked",
@@ -1015,6 +1017,8 @@
       "deleteSuccess": "Task deleted successfully",
       "markDone": "Mark task done",
       "markUndone": "Mark task open",
+      "markInProgress": "Mark task in progress",
+      "taskCompleted": "Completed — can't be reopened",
       "noAssignee": "Unassigned",
       "detail": {
         "title": "Task detail",

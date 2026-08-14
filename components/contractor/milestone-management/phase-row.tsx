@@ -13,6 +13,7 @@ import type {
   MilestoneStatus,
 } from "@/lib/contractor/construction-overview-data";
 import type { MilestoneTask } from "@/lib/contractor/milestone-mgmt-state";
+import type { ConstructionStatus } from "@/features/projects/construction-types";
 
 import { PhaseRowHeader } from "@/components/contractor/milestone-management/phase-row-header";
 
@@ -21,7 +22,7 @@ interface PhaseRowProps {
   index: number;
   lastIndex: number;
   taskMeta: Record<string, MilestoneTask>;
-  taskDone: Record<string, boolean>;
+  taskStatus: Record<string, ConstructionStatus>;
   resolveAssignee: (id: string | undefined) => { initials: string; name: string } | undefined;
   onToggleTask: (phaseId: string, taskIndex: number) => void;
   onOpenTask: (phaseId: string, taskIndex: number) => void;
@@ -36,11 +37,11 @@ interface PhaseRowProps {
 }
 
 export function PhaseRow(props: PhaseRowProps) {
-  const { phase, index, lastIndex, taskMeta, taskDone, resolveAssignee, highlight, onToggleTask, onOpenTask, onRequestAddTask, onRename, onEditMeta, onDelete, onMoveLeft, onMoveRight, onStatusChange } = props;
+  const { phase, index, lastIndex, taskMeta, taskStatus, resolveAssignee, highlight, onToggleTask, onOpenTask, onRequestAddTask, onRename, onEditMeta, onDelete, onMoveLeft, onMoveRight, onStatusChange } = props;
   const t = useTranslations("MilestoneManagement.phase");
 
   const doneCount = phase.tasks.reduce(
-    (acc, _t, idx) => acc + (taskDone[`${phase.id}:${idx}`] ? 1 : 0),
+    (acc, _t, idx) => acc + (taskStatus[`${phase.id}:${idx}`] === "completed" ? 1 : 0),
     0
   );
 
@@ -82,7 +83,7 @@ export function PhaseRow(props: PhaseRowProps) {
                 phaseId={phase.id}
                 taskIndex={idx}
                 task={meta ?? { id: key, title: phase.tasks[idx] ?? "" }}
-                done={Boolean(taskDone[key])}
+                status={taskStatus[key] ?? "pending"}
                 assigneeInitials={assignee?.initials}
                 assigneeName={assignee?.name}
                 onClick={() => onOpenTask(phase.id, idx)}

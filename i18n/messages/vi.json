@@ -999,6 +999,8 @@
       "endDate": "Ngày kết thúc",
       "progress": "Tiến độ",
       "setStatus": "Đặt trạng thái",
+      "statusMoveHint": "Trạng thái chỉ chuyển tiến từng bước — bước tiếp theo được đánh dấu bên dưới.",
+      "statusTerminalHint": "Hạng mục này đã hoàn thành và không thể thay đổi.",
       "statusCompleted": "Hoàn thành",
       "statusInProgress": "Đang chạy",
       "statusBlocked": "Bị chặn",
@@ -1018,6 +1020,8 @@
       "deleteSuccess": "Đã xoá công việc",
       "markDone": "Đánh dấu đã xong",
       "markUndone": "Đánh dấu chưa xong",
+      "markInProgress": "Đánh dấu đang thực hiện",
+      "taskCompleted": "Đã hoàn thành — không thể mở lại",
       "noAssignee": "Chưa giao",
       "detail": {
         "title": "Chi tiết công việc",

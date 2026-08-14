@@ -2,6 +2,7 @@
 
 import { useFormatter, useTranslations } from "next-intl";
 import {
+  ArrowRight,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
@@ -16,6 +17,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
@@ -45,6 +47,22 @@ const STATUS_TONE: Record<MilestoneStatus, { badgeClass: string }> = {
   upcoming: { badgeClass: "bg-muted text-muted-foreground" },
 };
 
+// The backend only allows one-step-forward transitions — pending ("upcoming")
+// → in_progress → completed, never backward and never skipped — and rejects
+// anything else with a 400. "blocked" isn't a real backend status at all (it
+// maps to "pending" on write, and the API never returns it on read), so it
+// can never be a valid target from any state. Picking a status the backend
+// will reject used to just surface a raw, Vietnamese-only error toast with no
+// indication *why* — this maps each current status to the single status that
+// can actually be set next, so the menu only ever offers a transition that
+// will succeed.
+const VALID_NEXT_STATUS: Record<MilestoneStatus, MilestoneStatus | null> = {
+  upcoming: "inProgress",
+  inProgress: "completed",
+  completed: null,
+  blocked: null,
+};
+
 /**
  * Header strip for a single milestone row.
  * Left side  = milestone name + # + tasksDone
@@ -66,6 +84,7 @@ export function PhaseRowHeader({
   const t = useTranslations("MilestoneManagement.phase");
   const tStatus = useTranslations("ConstructionOverview.status");
   const format = useFormatter();
+  const nextStatus = VALID_NEXT_STATUS[phase.status];
 
   return (
     <header className="flex items-start justify-between gap-2">
@@ -126,14 +145,35 @@ export function PhaseRowHeader({
               {t("editMeta")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              {t("setStatus")}
+            </DropdownMenuLabel>
+            <p className="px-2 pb-1.5 text-[11px] leading-snug text-muted-foreground">
+              {nextStatus ? t("statusMoveHint") : t("statusTerminalHint")}
+            </p>
             <DropdownMenuRadioGroup
               value={phase.status}
               onValueChange={(v) => onStatusChange(phase.id, v as MilestoneStatus)}
             >
-              <DropdownMenuRadioItem value="completed">{t("statusCompleted")}</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="inProgress">{t("statusInProgress")}</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="blocked">{t("statusBlocked")}</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="upcoming">{t("statusUpcoming")}</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem
+                value="completed"
+                disabled={nextStatus !== "completed"}
+                className={cn(nextStatus === "completed" && "font-medium text-foreground")}
+              >
+                {nextStatus === "completed" && <ArrowRight aria-hidden className="size-3.5" />}
+                {t("statusCompleted")}
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem
+                value="inProgress"
+                disabled={nextStatus !== "inProgress"}
+                className={cn(nextStatus === "inProgress" && "font-medium text-foreground")}
+              >
+                {nextStatus === "inProgress" && <ArrowRight aria-hidden className="size-3.5" />}
+                {t("statusInProgress")}
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="upcoming" disabled>
+                {t("statusUpcoming")}
+              </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => onMoveLeft(phase.id)} disabled={index === 0}>
