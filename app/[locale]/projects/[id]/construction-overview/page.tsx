@@ -11,6 +11,7 @@ import { MilestoneTrack } from "@/components/contractor/milestone-track";
 import { MilestoneDetailCard } from "@/components/contractor/milestone-detail-card";
 import { PhaseDetailDrawer } from "@/components/contractor/phase-detail-drawer";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/features/auth/user-context";
 import { useEngagements } from "@/features/projects/use-engagements";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
 import { useConstructionOverview } from "@/lib/contractor/use-construction-overview";
@@ -65,13 +66,17 @@ export default function ConstructionOverviewPage() {
   // 1. Project metadata for the header chip. Cheap call (cached).
   const { project, isLoading: isLoadingProject } = useProjectDetail(projectIdParam);
 
-  // 2. Resolve the accepted engagement. We take the first row — same
-  //    scoping rule as `design-management` so the two overview pages
-  //    agree on which engagement they're talking about.
+  // 2. Resolve the accepted engagement. Scoped by `providerId` so another
+  //    provider's engagement on the same project (e.g. the designer when
+  //    this viewer is the constructor) can never drive this page.
+  const { account } = useCurrentUser();
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const { engagements, isLoading: isLoadingEngagements } = useEngagements({
     projectId: projectIdParam,
+    providerId: viewerProfileId ?? undefined,
     status: "accepted",
     pageSize: 1,
+    enabled: viewerProfileId != null,
   });
   const engagementId = engagements[0]?.id ?? null;
 

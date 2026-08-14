@@ -73,15 +73,21 @@ export default function ContractsPage() {
 
   const { account } = useCurrentUser();
 
-  // Fetch engagements for this project
+  // Fetch engagements for this project, scoped to the viewer's own
+  // providerId so another provider's engagement on the same project
+  // (e.g. the constructor when this viewer is the designer) can never
+  // drive this page.
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const {
     engagements,
     isLoading: isLoadingEngagements,
     isError: isEngagementsError,
   } = useEngagements({
     projectId: projectIdParam,
+    providerId: viewerProfileId ?? undefined,
     status: "accepted",
     pageSize: 10,
+    enabled: viewerProfileId != null,
   });
 
   // Find the engagement for this provider (if they are a provider)

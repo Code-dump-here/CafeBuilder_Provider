@@ -55,23 +55,25 @@ export default function SurveyPage() {
 
   const { account } = useCurrentUser();
 
-  // Fetch engagements for this project
+  // Fetch engagements for this project, scoped to the viewer's own
+  // providerId so another provider's engagement on the same project
+  // can never drive this page.
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const {
     engagements,
     isLoading: isLoadingEngagements,
     isError: isEngagementsError,
   } = useEngagements({
     projectId: projectIdParam,
+    providerId: viewerProfileId ?? undefined,
     status: "accepted", // Only get accepted engagements
     pageSize: 10,
+    enabled: viewerProfileId != null,
   });
 
   // Find the engagement for this provider (if they are a provider)
   const myEngagement = React.useMemo(() => {
     if (!account || account.role !== "provider") return null;
-    // Find engagement where this provider's profile matches
-    // Note: In real implementation, we'd need to match by serviceProviderProfileId
-    // For now, we'll use the first accepted engagement
     return engagements[0] ?? null;
   }, [engagements, account]);
 

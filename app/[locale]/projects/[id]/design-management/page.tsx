@@ -53,14 +53,17 @@ export default function DesignManagementPage() {
     account?.role === "provider" &&
     account.serviceProvider?.capability === "constructor";
 
-  // Find the engagement this provider is on for the project.  Today the
-  // list endpoint is filtered by `projectShopOwnerId`, so we map the
-  // URL segment straight through.  When multiple accepted engagements
-  // exist (rare — usually one provider per project) we take the first.
+  // Find the engagement this provider is on for the project. Scoped by
+  // `providerId` so another provider's engagement on the same project
+  // (e.g. the constructor when this viewer is the designer) can never
+  // drive this page.
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const { engagements, isLoading: isLoadingEngagements } = useEngagements({
     projectId: projectIdParam,
+    providerId: viewerProfileId ?? undefined,
     status: "accepted",
     pageSize: 1,
+    enabled: viewerProfileId != null,
   });
   const engagementId = engagements[0]?.id ?? null;
 
