@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { OwnerAvatar } from "@/components/data-table/owner-avatar";
 import { projectActionToast } from "./project-action-toast";
 import { useIsProjectOwner } from "@/features/projects/use-is-project-owner";
+import { isVisibleEngagementStatus } from "@/features/projects/engagement-visibility";
 import {
   type ProjectContractType,
   type ProjectDetail,
@@ -85,16 +86,11 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
   );
   const format = useFormatter();
 
-  // Who is actually on the project. A provider who declined the invitation,
-  // or whose engagement was ended, is not a member — showing them here just
-  // advertises other providers' rejections to everyone who opens the project.
-  // Pending invites and completed engagements stay: one is still in play, the
-  // other is who did the work.
+  // Who is actually on the project — see `engagement-visibility`. Showing a
+  // declined or ended engagement here would advertise other providers'
+  // rejections to everyone who opens the project.
   const providers = React.useMemo(
-    () =>
-      project.providers.filter(
-        (p) => p.status !== "rejected" && p.status !== "terminated",
-      ),
+    () => project.providers.filter((p) => isVisibleEngagementStatus(p.status)),
     [project.providers],
   );
 

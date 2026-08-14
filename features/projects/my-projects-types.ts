@@ -10,12 +10,15 @@
  * navigation — it maps 1-1 to the existing `useProjectDetail({id})` hook).
  */
 
+import { isVisibleEngagementStatus } from "./engagement-visibility";
+
 // ─── Status / contract type ─────────────────────────────────────────────────
 
 /**
  * Lifecycle of a single provider ↔ project engagement row, as returned
- * by the backend. Narrows on the way in; unknown values fall back to
- * `requested` so the UI never has to render an unhandled label.
+ * by the backend, narrowed to the states this list renders. Rows with any
+ * other status — `rejected`, `terminated`, or anything added later — are
+ * dropped by `normalizeStatus` rather than coerced into one of these.
  *
  *   - `requested` — owner invited the provider, no decision yet
  *   - `accepted`  — provider accepted, work ongoing / pending contract
@@ -192,10 +195,10 @@ interface RawPagedResponse {
  * backend later can't silently reappear as a fake invite.
  */
 function normalizeStatus(raw: string): MyProjectStatus | null {
-  if (raw === "requested" || raw === "accepted" || raw === "completed") {
-    return raw;
-  }
-  return null;
+  // Same rule as the members card — see `engagement-visibility`. The two
+  // lists disagreeing about who counts as engaged is exactly the drift that
+  // shared constant exists to prevent.
+  return isVisibleEngagementStatus(raw) ? raw : null;
 }
 
 function normalizeContractType(raw: string): MyProjectContractType {
