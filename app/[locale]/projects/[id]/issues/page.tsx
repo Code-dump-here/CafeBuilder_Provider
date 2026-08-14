@@ -7,6 +7,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+import { useCurrentUser } from "@/features/auth/user-context";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
 import {
   useIssues,
@@ -67,18 +68,24 @@ export default function IssuesPage() {
   } = useProjectDetail(projectIdParam);
 
   // Gate on `contractType` (hired-for), not `capability` (able-to) — see the
-  // same resolution in `milestones/page.tsx`. Prefer an `accepted` engagement
-  // over a still-`requested` invitation.
+  // same resolution in `milestones/page.tsx`. Also scoped by the viewer's
+  // own providerId so another provider's engagement on the same project
+  // can never drive this page — project.providers lists every provider on
+  // the project, not just the caller. Prefer an `accepted` engagement over
+  // a still-`requested` invitation.
+  const { account } = useCurrentUser();
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const projectWorkingId = React.useMemo(() => {
     const candidates = project.providers.filter(
       (p) =>
+        p.providerId === viewerProfileId &&
         (p.contractType === "construction" || p.contractType === "both") &&
         (p.status === "accepted" || p.status === "requested"),
     );
     const eng =
       candidates.find((p) => p.status === "accepted") ?? candidates[0];
     return eng?.projectWorkingId;
-  }, [project.providers]);
+  }, [project.providers, viewerProfileId]);
 
   const {
     items: issues,

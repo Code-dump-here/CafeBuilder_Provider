@@ -27,6 +27,7 @@ import { AddPhaseDialog } from "@/components/contractor/milestone-management/add
 import { TaskDetailView } from "@/components/contractor/milestone-management/task-detail-view";
 import { AddTaskModal } from "@/components/contractor/milestone-management/add-task-modal";
 
+import { useCurrentUser } from "@/features/auth/user-context";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
 import { useEngagements } from "@/features/projects/use-engagements";
 import {
@@ -105,18 +106,26 @@ export default function MilestoneManagementPage() {
   // engaged for design only has no business owning milestones, and a
   // designer-capability provider can still be engaged for construction.
   //
+  // Also scoped by the viewer's own providerId so another provider's
+  // engagement on the same project (e.g. the designer when this viewer is
+  // the constructor) can never drive this page — project.providers lists
+  // every provider on the project, not just the caller.
+  //
   // Prefer an `accepted` row over a `requested` one: if the owner invited two
   // contractors and one has accepted, that's the live engagement.
+  const { account } = useCurrentUser();
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const constructionEngagement = React.useMemo(() => {
     const candidates = project.providers.filter(
       (p) =>
+        p.providerId === viewerProfileId &&
         (p.contractType === "construction" || p.contractType === "both") &&
         (p.status === "accepted" || p.status === "requested"),
     );
     return (
       candidates.find((p) => p.status === "accepted") ?? candidates[0]
     );
-  }, [project.providers]);
+  }, [project.providers, viewerProfileId]);
 
   const projectWorkingId = constructionEngagement?.projectWorkingId;
 
@@ -125,7 +134,9 @@ export default function MilestoneManagementPage() {
   // a phase can be created at all.
   const { engagements } = useEngagements({
     projectId: projectIdParam,
+    providerId: viewerProfileId ?? undefined,
     pageSize: 20,
+    enabled: viewerProfileId != null,
   });
   const engagementRecord = React.useMemo(
     () => engagements.find((e) => e.id === projectWorkingId) ?? null,
@@ -167,9 +178,16 @@ export default function MilestoneManagementPage() {
   } = useConstructionItems({
     projectWorkingId: projectWorkingId ?? 0,
     enabled: Boolean(projectWorkingId),
+    // The backend defaults to pageSize=10, which silently hid every phase
+    // past the first page on any project with more than 10 milestones.
+    pageSize: 200,
   });
 
-  // Fetch all tasks for these milestones
+  // Fetch all tasks for these milestones. Same pageSize=10 default problem
+  // as above, made worse here since this endpoint has no project-level
+  // filter — without an explicit pageSize it pages across every task the
+  // account can see, not just this project's, so this project's tasks
+  // could be crowded out entirely by another project's.
   const {
     items: allTasks,
     isLoading: isLoadingTasks,
@@ -177,6 +195,7 @@ export default function MilestoneManagementPage() {
     refetch: refetchTasks,
   } = useConstructionTasks({
     enabled: Boolean(projectWorkingId),
+    pageSize: 200,
   });
 
   // Mutations
@@ -300,17 +319,12 @@ export default function MilestoneManagementPage() {
     const task = (tasksByItem[itemId] ?? [])[taskIndex];
     if (!task) return;
 
-    let nextStatus: ConstructionStatus;
-    if (task.status === "completed") {
-      // completed → in_progress
-      nextStatus = "in_progress";
-    } else if (task.status === "in_progress") {
-      // in_progress → completed
-      nextStatus = "completed";
-    } else {
-      // pending → in_progress
-      nextStatus = "in_progress";
-    }
+    // The backend only allows forward transitions (pending → in_progress →
+    // completed) and rejects anything else, including reopening a completed
+    // task — so there's no valid next status once a task is done.
+    if (task.status === "completed") return;
+    const nextStatus: ConstructionStatus =
+      task.status === "in_progress" ? "completed" : "in_progress";
 
     await setTaskStatus.mutateAsync({
       id: task.id,
@@ -589,8 +603,8 @@ export default function MilestoneManagementPage() {
               index={idx}
               lastIndex={lastIndex}
               taskMeta={{}} // Not used with API
-              taskDone={Object.fromEntries(
-                itemTasks.map((t, i) => [`${phase.id}:${i}`, t.status === "completed"])
+              taskStatus={Object.fromEntries(
+                itemTasks.map((t, i) => [`${phase.id}:${i}`, t.status])
               )}
               resolveAssignee={() => undefined}
               highlight={highlightId === phase.id}
