@@ -13,12 +13,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { AiRecommendationsList } from "@/components/design-brief/ai-recommendations-list";
+import { AiRecommendationsSummaryList } from "@/components/design-brief/ai-recommendations-summary-list";
 import { BriefDetailsCard } from "@/components/design-brief/brief-details-card";
 import { ProjectApplyCard } from "@/components/project-overview/project-apply-card";
 import { ProjectInvitationBanner } from "@/components/project-overview/project-invitation-banner";
 import { ProjectTerminationBanner } from "@/components/project-overview/project-termination-banner";
 import { useCurrentUser } from "@/features/auth/user-context";
-import { useEngagements } from "@/features/projects/use-engagements";
+import {
+  useEngagementOverview,
+  useEngagements,
+} from "@/features/projects/use-engagements";
 import { ProjectMembersCard } from "@/components/project-overview/project-members-card";
 import { ProjectOwnerCard } from "@/components/project-overview/project-owner-card";
 import { QuickFactsCard } from "@/components/project-overview/quick-facts-card";
@@ -34,7 +38,8 @@ import { ErrorState } from "@/components/ui/error-state";
 // Page component
 //
 // Renders the combined project overview + design brief + AI iterations at
-// `/[locale]/projects/[id]` — single page, three parallel API calls.
+// `/[locale]/projects/[id]` — single page, shared by owner and provider
+// roles, several parallel API calls.
 //
 // Data flow:
 //   1. `useParams` picks up the `[id]` segment.
@@ -42,15 +47,24 @@ import { ErrorState } from "@/components/ui/error-state";
 //      interceptor attaches the Bearer access token from `tokenStore`).
 //   3. `useDesignBriefs({ projectId })` calls
 //      `GET /api/design-briefs?projectId={id}&pageNumber=1&pageSize=10`.
-//   4. `useAiRecommendations({ briefId })` (enabled only after the brief
-//      resolves) calls
+//   4. `useEngagements` resolves the viewer's own (provider-scoped)
+//      engagement on this project — feeds both the termination banner
+//      and step 6 below.
+//   5. `useAiRecommendations({ briefId })` (owner/admin only — enabled
+//      only after the brief resolves) calls
 //      `GET /api/ai-recommendations?briefId={id}&pageNumber=1&pageSize=10`.
-//   5. While the project or brief is loading, render skeleton shells so
+//      Providers get a 403 from this endpoint, so the call is gated off
+//      for them entirely (see `canSeeAiRecommendations`).
+//   6. `useEngagementOverview` (providers only) calls
+//      `GET /api/project-workings/{id}/overview` and renders its
+//      `aiRecommendations` summary instead — same underlying data, just a
+//      thinner shape, already scoped to the viewer's own engagement.
+//   7. While the project or brief is loading, render skeleton shells so
 //      the page doesn't jump. AI recs have their own inline skeleton
 //      because they're a separate dependent request.
-//   6. On error, render an alert with a Retry CTA wired to refetch
+//   8. On error, render an alert with a Retry CTA wired to refetch
 //      whatever failed (project + brief + recs).
-//   7. On success, render the hero (in the layout), the brief details
+//   9. On success, render the hero (in the layout), the brief details
 //      card (left column), the AI iterations list (under the brief),
 //      and the right-column stack:
 //        Quick Facts → Owner → Apply → Providers
@@ -88,10 +102,19 @@ export default function ProjectDetailPage() {
   }, [briefData.items]);
 
   // The viewer's own engagement on this project, used by the termination
-  // banner. Scoped by `providerId` so another provider's engagement on the
-  // same project can never drive our buttons.
+  // banner and (for providers) the AI recommendations summary below.
+  // Scoped by `providerId` so another provider's engagement on the same
+  // project can never drive our buttons.
   const { account } = useCurrentUser();
   const viewerProfileId = account?.serviceProvider?.id ?? null;
+  const { engagements: myEngagements } = useEngagements({
+    projectId: projectIdParam,
+    providerId: viewerProfileId ?? undefined,
+    status: "accepted",
+    pageSize: 1,
+    enabled: viewerProfileId != null,
+  });
+  const myEngagement = myEngagements[0] ?? null;
 
   // GET /api/ai-recommendations is owner+admin only — a provider calling it
   // gets a 403. This page is shared by both roles, so gate the call itself
@@ -99,6 +122,7 @@ export default function ProjectDetailPage() {
   // provider's visit here fire a doomed request.
   const canSeeAiRecommendations =
     account?.role === "owner" || account?.role === "admin";
+  const isProviderViewer = account?.role === "provider";
 
   // AI recs only fire once we know which brief to ask about. Pass `null`
   // while the brief is still loading — the hook keeps the query idle.
@@ -112,14 +136,16 @@ export default function ProjectDetailPage() {
   } = useAiRecommendations({
     briefId: canSeeAiRecommendations ? (brief?.id ?? null) : null,
   });
-  const { engagements: myEngagements } = useEngagements({
-    projectId: projectIdParam,
-    providerId: viewerProfileId ?? undefined,
-    status: "accepted",
-    pageSize: 1,
-    enabled: viewerProfileId != null,
+
+  // Providers can't call the endpoint above (BE_CHANGES_FOR_FE.md §1.5), so
+  // they get the AI recommendation summary bundled into their own
+  // engagement overview instead — same underlying data, already scoped to
+  // their engagement, just a thinner shape (id/conceptSummary/state, no
+  // cost/layout/image detail).
+  const providerAiOverview = useEngagementOverview({
+    engagementId: myEngagement ? String(myEngagement.id) : "",
+    enabled: isProviderViewer && myEngagement != null,
   });
-  const myEngagement = myEngagements[0] ?? null;
 
   if (isProjectError || isBriefError || isAiError) {
     const message =
@@ -163,17 +189,34 @@ export default function ProjectDetailPage() {
               {brief ? <BriefDetailsCard brief={brief} /> : <NoBriefState />}
 
               {/* AI Design Iterations — stacked directly below the brief in the
-                  left column. Owner/admin only (see canSeeAiRecommendations
-                  above — a provider calling GET /api/ai-recommendations gets
-                  a 403). Only present when we have a brief to scope against.
-                  When the brief is missing or the recs are still loading we
-                  render an inline skeleton so the section doesn't pop in
-                  suddenly after the rest of the page settles. */}
+                  left column. Owner/admin get the full detail list. Only
+                  present when we have a brief to scope against. When the
+                  brief is missing or the recs are still loading we render
+                  an inline skeleton so the section doesn't pop in suddenly
+                  after the rest of the page settles. */}
               {brief && canSeeAiRecommendations ? (
                 isLoadingAi ? (
                   <AiRecommendationsSkeleton />
                 ) : (
                   <AiRecommendationsList recommendations={aiData.items} />
+                )
+              ) : null}
+
+              {/* Providers can't call GET /api/ai-recommendations (403 —
+                  owner+admin only). They get the same underlying data via
+                  their own engagement overview instead — a thinner summary
+                  (no cost/layout/image detail), scoped to their engagement.
+                  Self-hides while loading or when there's nothing to show
+                  (e.g. a construction-scope engagement has none). */}
+              {isProviderViewer && myEngagement ? (
+                providerAiOverview.isLoading ? (
+                  <AiRecommendationsSkeleton />
+                ) : (
+                  <AiRecommendationsSummaryList
+                    recommendations={
+                      providerAiOverview.overview?.aiRecommendations ?? []
+                    }
+                  />
                 )
               ) : null}
             </div>
@@ -204,7 +247,10 @@ export default function ProjectDetailPage() {
         </>
       )}
 
-      {isFetchingProject || isFetchingBrief || isFetchingAi ? (
+      {isFetchingProject ||
+      isFetchingBrief ||
+      isFetchingAi ||
+      providerAiOverview.isFetching ? (
         !isInitialLoading && !isLoadingAi ? (
           <p
             aria-live="polite"
