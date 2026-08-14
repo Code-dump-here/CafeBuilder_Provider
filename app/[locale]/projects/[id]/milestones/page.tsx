@@ -17,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AlertTriangle } from "lucide-react";
 
 import { MilestoneManagementToolbar } from "@/components/contractor/milestone-management/toolbar";
@@ -249,9 +250,18 @@ export default function MilestoneManagementPage() {
         label: item.name,
         status: mapItemStatus(item.status),
         progress,
-        targetDate: item.estimateAt ?? "",
-        startDate: item.estimateAt ?? "",
-        endDate: item.estimateAt ?? "",
+        // ConstructionItem only tracks one real date (`estimateAt`, a
+        // target/completion date) — there's no start-date field on the
+        // backend. This used to fill start/end/target with the same
+        // value, which rendered as a date "range" whose two ends were
+        // secretly identical. Approximate the same way the read-only
+        // construction overview page already does (see
+        // `use-construction-overview.ts`): start = when the record was
+        // created, end = actual completion if set, else the planned
+        // target, else last-touched.
+        targetDate: item.estimateAt ?? item.createdAt,
+        startDate: item.createdAt,
+        endDate: item.actualAt ?? item.estimateAt ?? item.updatedAt,
         lead: "",
         tasks: itemTasks.map((t) => t.name),
         blockerCount: 0,
@@ -315,16 +325,45 @@ export default function MilestoneManagementPage() {
   }, [activeItem, tasksByItem]);
 
   // ── Task handlers ───────────────────────────────────────────────────────────
-  const handleToggleTask = async (itemId: number, taskIndex: number) => {
-    const task = (tasksByItem[itemId] ?? [])[taskIndex];
-    if (!task) return;
+  //
+  // Status toggles used to fire the moment the checkbox was clicked — one
+  // misclick and a task jumped forward with no way back (the backend only
+  // allows one-step-forward transitions, never backward, so "completed" is
+  // a dead end). `toggleConfirm` holds the pending toggle until the user
+  // confirms it in a dialog instead. Both entry points (the chip's inline
+  // circle and the task detail modal's button) route through
+  // `handleRequestToggleTask` so there's exactly one confirm dialog.
+  const [toggleConfirm, setToggleConfirm] = React.useState<{
+    open: boolean;
+    itemId: number | null;
+    taskIndex: number | null;
+  }>({ open: false, itemId: null, taskIndex: null });
 
-    // The backend only allows forward transitions (pending → in_progress →
-    // completed) and rejects anything else, including reopening a completed
-    // task — so there's no valid next status once a task is done.
-    if (task.status === "completed") return;
-    const nextStatus: ConstructionStatus =
-      task.status === "in_progress" ? "completed" : "in_progress";
+  const pendingToggleTask =
+    toggleConfirm.itemId != null && toggleConfirm.taskIndex != null
+      ? (tasksByItem[toggleConfirm.itemId] ?? [])[toggleConfirm.taskIndex]
+      : undefined;
+  const pendingToggleNextStatus: ConstructionStatus | null =
+    pendingToggleTask == null
+      ? null
+      : pendingToggleTask.status === "in_progress"
+        ? "completed"
+        : "in_progress";
+
+  const handleRequestToggleTask = (itemId: number, taskIndex: number) => {
+    const task = (tasksByItem[itemId] ?? [])[taskIndex];
+    // The backend rejects reopening a completed task — there's no valid
+    // next status once a task is done, so there's nothing to confirm.
+    if (!task || task.status === "completed") return;
+    setToggleConfirm({ open: true, itemId, taskIndex });
+  };
+
+  const handleConfirmToggleTask = async () => {
+    const task = pendingToggleTask;
+    const nextStatus = pendingToggleNextStatus;
+    setToggleConfirm({ open: false, itemId: null, taskIndex: null });
+    setTaskDetail((prev) => ({ ...prev, open: false }));
+    if (!task || !nextStatus) return;
 
     await setTaskStatus.mutateAsync({
       id: task.id,
@@ -608,7 +647,7 @@ export default function MilestoneManagementPage() {
               )}
               resolveAssignee={() => undefined}
               highlight={highlightId === phase.id}
-              onToggleTask={(phaseId, taskIndex) => handleToggleTask(Number(phaseId), taskIndex)}
+              onToggleTask={(phaseId, taskIndex) => handleRequestToggleTask(Number(phaseId), taskIndex)}
               onOpenTask={(_, taskIndex) => handleOpenTask(itemId, taskIndex)}
               onRequestAddTask={() => handleStartAddTask(itemId)}
               onRename={handleRenamePhase}
@@ -704,8 +743,7 @@ export default function MilestoneManagementPage() {
         }}
         onToggleStatus={() => {
           if (taskDetail.itemId == null || taskDetail.taskIndex == null) return;
-          handleToggleTask(taskDetail.itemId, taskDetail.taskIndex);
-          setTaskDetail((prev) => ({ ...prev, open: false }));
+          handleRequestToggleTask(taskDetail.itemId, taskDetail.taskIndex);
         }}
         onReportIssue={() => {
           router.push(`/projects/${projectIdParam}/issues`);
@@ -737,6 +775,25 @@ export default function MilestoneManagementPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Task status toggle confirmation */}
+      <ConfirmDialog
+        open={toggleConfirm.open}
+        onOpenChange={(open) => {
+          if (!open) setToggleConfirm({ open: false, itemId: null, taskIndex: null });
+        }}
+        title={t("task.confirmToggleTitle")}
+        description={
+          pendingToggleTask
+            ? pendingToggleNextStatus === "completed"
+              ? t("task.confirmToggleToCompleted", { title: pendingToggleTask.name })
+              : t("task.confirmToggleToInProgress", { title: pendingToggleTask.name })
+            : ""
+        }
+        confirmLabel={t("task.confirmCta")}
+        cancelLabel={t("task.confirmCancel")}
+        onConfirm={() => void handleConfirmToggleTask()}
+      />
     </>
   );
 }

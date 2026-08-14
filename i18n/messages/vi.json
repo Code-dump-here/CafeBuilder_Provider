@@ -1009,7 +1009,15 @@
       "addTaskPlaceholder": "Cần làm gì?",
       "addTaskCta": "Thêm",
       "noTasks": "Chưa có việc nào — thêm việc đầu tiên.",
-      "tasksDone": "{done}/{total} đã xong"
+      "tasksDone": "{done}/{total} đã xong",
+      "confirmStatusTitle": "Đổi trạng thái mốc?",
+      "confirmStatusToCompleted": "Đánh dấu \"{name}\" là hoàn thành? Không thể hoàn tác — mốc đã hoàn thành sẽ không thể mở lại.",
+      "confirmStatusToInProgress": "Chuyển \"{name}\" sang đang chạy?",
+      "confirmCta": "Xác nhận",
+      "confirmCancel": "Huỷ",
+      "blockedTasksTitle": "Còn công việc chưa xong",
+      "blockedTasksBody": "\"{name}\" còn {count, plural, =1 {1 việc} other {# việc}} chưa hoàn thành. Hoàn tất chúng trước khi đánh dấu mốc này là hoàn thành.",
+      "blockedTasksCta": "Đã hiểu"
     },
     "task": {
       "edit": "Sửa việc",
@@ -1023,6 +1031,11 @@
       "markInProgress": "Đánh dấu đang thực hiện",
       "taskCompleted": "Đã hoàn thành — không thể mở lại",
       "noAssignee": "Chưa giao",
+      "confirmToggleTitle": "Đổi trạng thái công việc?",
+      "confirmToggleToCompleted": "Đánh dấu \"{title}\" là hoàn thành? Không thể hoàn tác — công việc đã hoàn thành sẽ không thể mở lại.",
+      "confirmToggleToInProgress": "Đánh dấu \"{title}\" là đang thực hiện?",
+      "confirmCta": "Xác nhận",
+      "confirmCancel": "Huỷ",
       "detail": {
         "title": "Chi tiết công việc",
         "close": "Đóng",
@@ -1355,7 +1368,18 @@
       "awaitingOwnerReview": "Đang chờ chủ dự án phê duyệt.",
       "noActionsAvailable": "Không có thao tác nào tại thời điểm này.",
       "submitSuccess": "Đã gửi thiết kế để phê duyệt.",
-      "approveSuccess": "Đã phê duyệt thiết kế."
+      "approveSuccess": "Đã phê duyệt thiết kế.",
+      "confirmSubmitTitle": "Gửi để phê duyệt?",
+      "confirmSubmitBody": "Chủ dự án sẽ được thông báo để xem xét thiết kế này. Bạn sẽ không thể chỉnh sửa thêm cho đến khi họ phản hồi.",
+      "confirmApproveTitle": "Phê duyệt thiết kế này?",
+      "confirmApproveBody": "Thao tác này sẽ khoá thiết kế — không thể chỉnh sửa hoặc tải file lên sau khi đã phê duyệt.",
+      "confirmStartRevisionTitle": "Bắt đầu chỉnh sửa mới?",
+      "confirmStartRevisionBody": "Thao tác này sẽ mở một phiên bản làm việc mới dựa trên phản hồi của chủ dự án.",
+      "confirmDeleteImageTitle": "Xoá hình ảnh này?",
+      "confirmDeleteImageBody": "Không thể hoàn tác.",
+      "confirmCta": "Xác nhận",
+      "confirmCancel": "Huỷ",
+      "deleteCta": "Xoá"
     },
     "tabs": {
       "all": "Tất cả",

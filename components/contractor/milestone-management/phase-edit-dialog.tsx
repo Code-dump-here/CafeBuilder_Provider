@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import type { MilestonePhase } from "@/lib/contractor/construction-overview-data";
+import { todayDateInputValue } from "@/lib/date-input";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { Field } from "@/components/ui/field";
 
@@ -23,8 +24,6 @@ export interface PhaseEditInput {
   label: string;
   lead: string;
   targetDate: string;
-  startDate: string;
-  endDate: string;
 }
 
 /** Minimal phase data needed by the dialog */
@@ -35,8 +34,6 @@ export interface PhaseEditTarget {
   lead?: string;
   status?: string;
   targetDate?: string;
-  startDate?: string;
-  endDate?: string;
 }
 
 interface PhaseEditDialogProps {
@@ -70,8 +67,6 @@ export function PhaseEditDialog({
   const [label, setLabel] = React.useState("");
   const [lead, setLead] = React.useState("");
   const [targetDate, setTargetDate] = React.useState("");
-  const [startDate, setStartDate] = React.useState("");
-  const [endDate, setEndDate] = React.useState("");
 
   // Sync local form state with the phase under edit whenever the
   // dialog re-opens for a different phase (or the same one).
@@ -81,8 +76,6 @@ export function PhaseEditDialog({
     setLead(phase.lead ?? "");
     // ISO → yyyy-MM-dd for native date input.
     setTargetDate(toDateInput(phase.targetDate ?? ""));
-    setStartDate(toDateInput(phase.startDate ?? ""));
-    setEndDate(toDateInput(phase.endDate ?? ""));
   });
 
   if (!phase) return null;
@@ -95,8 +88,6 @@ export function PhaseEditDialog({
       label: isRename ? label.trim() : (phase.label || label.trim()),
       lead: lead.trim(),
       targetDate: targetDate ? new Date(targetDate).toISOString() : (phase.targetDate ?? ""),
-      startDate: startDate ? new Date(startDate).toISOString() : (phase.startDate ?? ""),
-      endDate: endDate ? new Date(endDate).toISOString() : (phase.endDate ?? ""),
     });
     onOpenChange(false);
   };
@@ -131,29 +122,12 @@ export function PhaseEditDialog({
                   required
                 />
               </Field>
-              <div className="grid grid-cols-2 gap-2">
-                <Field label={tPhase("startDate")}>
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    required
-                  />
-                </Field>
-                <Field label={tPhase("endDate")}>
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    required
-                  />
-                </Field>
-              </div>
               <Field label={tPhase("targetDate")}>
                 <Input
                   type="date"
                   value={targetDate}
                   onChange={(e) => setTargetDate(e.target.value)}
+                  min={todayDateInputValue()}
                   required
                 />
               </Field>

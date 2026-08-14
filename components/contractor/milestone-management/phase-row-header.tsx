@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import {
   ArrowRight,
@@ -13,6 +14,15 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,6 +96,33 @@ export function PhaseRowHeader({
   const format = useFormatter();
   const nextStatus = VALID_NEXT_STATUS[phase.status];
 
+  // The three-dot menu used to fire `onStatusChange` the instant a radio
+  // item was clicked — one misclick and the phase moved forward with no
+  // way back (the backend only allows one-step-forward transitions, never
+  // backward). `pendingStatus` holds the selection until the user confirms
+  // it in a separate dialog instead.
+  const [pendingStatus, setPendingStatus] = React.useState<MilestoneStatus | null>(null);
+  const [blockedOpen, setBlockedOpen] = React.useState(false);
+
+  const totalTasks = phase.tasks.length;
+  const allTasksDone = totalTasks === 0 || doneCount === totalTasks;
+
+  const handleRadioChange = (value: MilestoneStatus) => {
+    if (value === "completed" && !allTasksDone) {
+      // Nothing stops the API from marking a phase "completed" while its
+      // tasks are still open — it doesn't check. Block it client-side so
+      // "completed" always actually means done.
+      setBlockedOpen(true);
+      return;
+    }
+    setPendingStatus(value);
+  };
+
+  const handleConfirmStatus = () => {
+    if (pendingStatus) onStatusChange(phase.id, pendingStatus);
+    setPendingStatus(null);
+  };
+
   return (
     <header className="flex items-start justify-between gap-2">
       <div className="flex min-w-0 flex-col gap-1">
@@ -153,7 +190,7 @@ export function PhaseRowHeader({
             </p>
             <DropdownMenuRadioGroup
               value={phase.status}
-              onValueChange={(v) => onStatusChange(phase.id, v as MilestoneStatus)}
+              onValueChange={(v) => handleRadioChange(v as MilestoneStatus)}
             >
               <DropdownMenuRadioItem
                 value="completed"
@@ -192,6 +229,39 @@ export function PhaseRowHeader({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <ConfirmDialog
+        open={pendingStatus !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingStatus(null);
+        }}
+        title={t("confirmStatusTitle")}
+        description={
+          pendingStatus === "completed"
+            ? t("confirmStatusToCompleted", { name: phase.label })
+            : t("confirmStatusToInProgress", { name: phase.label })
+        }
+        confirmLabel={t("confirmCta")}
+        cancelLabel={t("confirmCancel")}
+        onConfirm={handleConfirmStatus}
+      />
+
+      {/* Info-only — acknowledgement, not confirm/cancel. Nothing to
+          confirm here since "completed" was already rejected client-side. */}
+      <AlertDialog open={blockedOpen} onOpenChange={setBlockedOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("blockedTasksTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("blockedTasksBody", {
+                name: phase.label,
+                count: totalTasks - doneCount,
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogAction>{t("blockedTasksCta")}</AlertDialogAction>
+        </AlertDialogContent>
+      </AlertDialog>
     </header>
   );
 }

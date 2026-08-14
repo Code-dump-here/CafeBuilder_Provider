@@ -181,12 +181,15 @@ const DESIGNER_MESSAGES: NavSection = {
       scope: "project",
       keepOnCompletion: true,
     },
-    { titleKey: "Sidebar.designer.progress", url: "/progress", icon: BarChart },
-    {
-      titleKey: "Sidebar.designer.constructionSupport",
-      url: "/workspace/construction-support",
-      icon: Wrench,
-    },
+    // Removed: "/progress" and "/workspace/construction-support" have no
+    // matching page under app/[locale]/ — keeping the entries here (not
+    // deleting) so they're easy to re-enable once those pages exist.
+    // { titleKey: "Sidebar.designer.progress", url: "/progress", icon: BarChart },
+    // {
+    //   titleKey: "Sidebar.designer.constructionSupport",
+    //   url: "/workspace/construction-support",
+    //   icon: Wrench,
+    // },
   ],
 };
 
@@ -245,11 +248,16 @@ const ISSUES_SECTION: NavSection = {
 const OWNER_WORKSPACE_SECTION: NavSection = {
   labelKey: "Sidebar.shopOwner.workspace",
   items: [
-    {
-      titleKey: "Sidebar.shopOwner.overview",
-      url: "/workspace",
-      icon: LayoutDashboard,
-    },
+    // Removed: "/workspace" has no matching page under app/[locale]/ —
+    // keeping the entry here (not deleting) so it's easy to re-enable
+    // once that page exists. Not referenced in ROLE_SIDEBAR_CONFIG below
+    // while this is the only item (an empty section would still render
+    // its label with nothing under it).
+    // {
+    //   titleKey: "Sidebar.shopOwner.overview",
+    //   url: "/workspace",
+    //   icon: LayoutDashboard,
+    // },
   ],
 };
 
@@ -278,43 +286,52 @@ const OWNER_PROJECT_SECTION: NavSection = {
       icon: FileCheck,
       scope: "project",
     },
-    {
-      titleKey: "Sidebar.shopOwner.documents",
-      url: "/documents",
-      icon: FileText,
-      scope: "project",
-    },
-    {
-      titleKey: "Sidebar.shopOwner.quotations",
-      url: "/quotation-selection",
-      icon: DollarSign,
-    },
-    {
-      titleKey: "Sidebar.shopOwner.approvals",
-      url: "/progress",
-      icon: CheckCircle,
-    },
-    {
-      titleKey: "Sidebar.shopOwner.progress",
-      url: "/progress",
-      icon: TrendingUp,
-    },
+    // Removed: "/documents", "/quotation-selection", and "/progress" have
+    // no matching page under app/[locale]/ — keeping the entries here
+    // (not deleting) so they're easy to re-enable once those pages exist.
+    // {
+    //   titleKey: "Sidebar.shopOwner.documents",
+    //   url: "/documents",
+    //   icon: FileText,
+    //   scope: "project",
+    // },
+    // {
+    //   titleKey: "Sidebar.shopOwner.quotations",
+    //   url: "/quotation-selection",
+    //   icon: DollarSign,
+    // },
+    // {
+    //   titleKey: "Sidebar.shopOwner.approvals",
+    //   url: "/progress",
+    //   icon: CheckCircle,
+    // },
+    // {
+    //   titleKey: "Sidebar.shopOwner.progress",
+    //   url: "/progress",
+    //   icon: TrendingUp,
+    // },
   ],
 };
 
 const OWNER_CONTRACTS_SECTION: NavSection = {
   labelKey: "Sidebar.shopOwner.contracts",
   items: [
-    {
-      titleKey: "Sidebar.shopOwner.createContract",
-      url: "/contract-create",
-      icon: FileCheck,
-    },
-    {
-      titleKey: "Sidebar.shopOwner.contractHistory",
-      url: "/workspace/contracts",
-      icon: FileText,
-    },
+    // Removed: "/contract-create" and "/workspace/contracts" have no
+    // matching page under app/[locale]/ — keeping the entries here (not
+    // deleting) so they're easy to re-enable once those pages exist. Not
+    // referenced in ROLE_SIDEBAR_CONFIG below while both items are out
+    // (an empty section would still render its label with nothing
+    // under it).
+    // {
+    //   titleKey: "Sidebar.shopOwner.createContract",
+    //   url: "/contract-create",
+    //   icon: FileCheck,
+    // },
+    // {
+    //   titleKey: "Sidebar.shopOwner.contractHistory",
+    //   url: "/workspace/contracts",
+    //   icon: FileText,
+    // },
   ],
 };
 
@@ -353,16 +370,22 @@ const ADMIN_MANAGEMENT_SECTION: NavSection = {
 const ADMIN_PLATFORM_SECTION: NavSection = {
   labelKey: "Sidebar.admin.platform",
   items: [
-    {
-      titleKey: "Sidebar.admin.legacyDisputes",
-      url: "/admin/disputes",
-      icon: AlertTriangle,
-    },
-    {
-      titleKey: "Sidebar.admin.legacyAnalytics",
-      url: "/admin/analytics",
-      icon: BarChart3,
-    },
+    // Removed: "/admin/disputes" and "/admin/analytics" have no matching
+    // page under app/[locale]/admin/ — keeping the entries here (not
+    // deleting) so they're easy to re-enable once those pages exist. Not
+    // referenced in ROLE_SIDEBAR_CONFIG below while both items are out
+    // (an empty section would still render its label with nothing
+    // under it).
+    // {
+    //   titleKey: "Sidebar.admin.legacyDisputes",
+    //   url: "/admin/disputes",
+    //   icon: AlertTriangle,
+    // },
+    // {
+    //   titleKey: "Sidebar.admin.legacyAnalytics",
+    //   url: "/admin/analytics",
+    //   icon: BarChart3,
+    // },
   ],
 };
 
@@ -372,9 +395,13 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
   SHOP_OWNER: {
     brand: { name: "Smart Cafe", labelKey: "Roles.shopOwner" },
     sections: [
-      OWNER_WORKSPACE_SECTION,
+      // OWNER_WORKSPACE_SECTION and OWNER_CONTRACTS_SECTION are commented
+      // out above — every item they held pointed at a page that doesn't
+      // exist yet, so both sections are empty. Re-add them here once
+      // either section has at least one real item again.
+      // OWNER_WORKSPACE_SECTION,
       OWNER_PROJECT_SECTION,
-      OWNER_CONTRACTS_SECTION,
+      // OWNER_CONTRACTS_SECTION,
     ],
     projects: [],
     secondaryItems: [],
@@ -411,7 +438,10 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
     sections: [
       ADMIN_OVERVIEW_SECTION,
       ADMIN_MANAGEMENT_SECTION,
-      ADMIN_PLATFORM_SECTION,
+      // ADMIN_PLATFORM_SECTION is commented out above — both of its
+      // items pointed at pages that don't exist yet. Re-add here once
+      // it has at least one real item again.
+      // ADMIN_PLATFORM_SECTION,
     ],
     projects: [],
     secondaryItems: [],

@@ -62,8 +62,11 @@ export interface NotificationItem {
  *   1. `actionUrl` (full URL the backend already computed).
  *   2. `referenceType` + `referenceId` — used by the close-collaboration
  *      notifications (see `a.md` §6 for the canonical mapping).
- *   3. Fall through to the notification detail page (`/notifications/{id}`)
- *      so the user can at least read what was sent.
+ *   3. Fall through to the notifications list (`/notifications`) — there's
+ *      no per-notification detail page (`/notifications/{id}` was never
+ *      built; no matching route under app/[locale]/), so a bare id would
+ *      404. Not deleting the original fallback below — swap it back in
+ *      once that page exists.
  */
 export function deriveNotificationHref(item: NotificationItem): string {
   if (typeof item.actionUrl === "string" && item.actionUrl.length > 0) {
@@ -75,7 +78,8 @@ export function deriveNotificationHref(item: NotificationItem): string {
     if (refType === "project_provider") return `/my-projects`;
     if (refType === "project") return `/projects/${refId}`;
   }
-  return `/notifications/${item.id}`;
+  // return `/notifications/${item.id}`;
+  return `/notifications`;
 }
 
 /**

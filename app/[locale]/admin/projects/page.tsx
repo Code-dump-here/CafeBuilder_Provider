@@ -228,7 +228,7 @@ function ProjectCard({
   const overspent = project.spent > project.budget;
   return (
     <Link
-      href={`/projects/${project.id}/overview`}
+      href={`/projects/${project.id}`}
       className="group flex flex-col gap-3 rounded-lg border border-border/60 bg-card/60 p-4 shadow-sm transition-colors hover:border-primary/60 hover:bg-card"
     >
       <div className="flex items-start justify-between gap-2">

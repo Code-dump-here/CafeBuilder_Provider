@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { IssueImageUpload } from "./issue-image-upload";
 import { useIssueTypes } from "@/features/projects/use-issues";
 import type { IssueType } from "@/features/projects/issue-types";
+import { todayDateInputValue } from "@/lib/date-input";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { Field } from "@/components/ui/field";
 
@@ -74,7 +75,13 @@ export function AddIssueModal({
   });
 
   useResetOnChange(open, () => {
-    if (!open) setForm(EMPTY);
+    if (open) {
+      // Default the target fix date to today rather than leaving the
+      // picker blank — the user can still push it forward.
+      setForm({ ...EMPTY, estimateAt: todayDateInputValue() });
+    } else {
+      setForm(EMPTY);
+    }
   });
 
   // Default to the first catalogue entry once it loads. Derived at render
@@ -174,6 +181,7 @@ export function AddIssueModal({
               onChange={(e) =>
                 update("estimateAt", e.target.value || null)
               }
+              min={todayDateInputValue()}
             />
           </Field>
 

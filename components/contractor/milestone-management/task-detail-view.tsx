@@ -76,6 +76,7 @@ export function TaskDetailView(props: TaskDetailViewProps) {
                 variant="outline"
                 size="sm"
                 onClick={onToggleStatus}
+                disabled={(task as { status?: ConstructionStatus }).status === "completed"}
                 className="shrink-0 gap-1.5"
               >
                 {(task as { status?: ConstructionStatus }).status === "completed" ? (

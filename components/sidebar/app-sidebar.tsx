@@ -145,7 +145,10 @@ export function AppSidebar({
   }, [account, locale]);
 
   const secondaryItems = [
-    { title: t("Sidebar.common.shortcuts"), url: "/shortcuts", icon: Keyboard },
+    // Removed: "/shortcuts" and "/settings" have no matching page under
+    // app/[locale]/ — keeping the entries here (not deleting) so they're
+    // easy to re-enable once those pages exist.
+    // { title: t("Sidebar.common.shortcuts"), url: "/shortcuts", icon: Keyboard },
     {
       title: t("Sidebar.common.notifications"),
       url: "/notifications",
@@ -155,7 +158,7 @@ export function AppSidebar({
       // stay in sync without an extra request.
       badge: unreadCount > 0 ? (unreadCount > 99 ? "99+" : unreadCount) : undefined,
     },
-    { title: t("Sidebar.common.settings"), url: "/settings", icon: Settings },
+    // { title: t("Sidebar.common.settings"), url: "/settings", icon: Settings },
   ];
 
   return (
@@ -164,6 +167,10 @@ export function AppSidebar({
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
+              {/* Removed the brand-header link: "/workspace" has no
+                  matching page under app/[locale]/. Not deleting the
+                  original — just rendering the same content unlinked so
+                  it doesn't send anyone to a 404.
               <SidebarMenuButton size="lg" asChild>
                 <Link href="/workspace">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
@@ -176,6 +183,18 @@ export function AppSidebar({
                     </span>
                   </div>
                 </Link>
+              </SidebarMenuButton>
+              */}
+              <SidebarMenuButton size="lg" className="cursor-default hover:bg-transparent">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <AppWindow className="size-4" aria-hidden />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{config.brand.name}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {t(config.brand.labelKey)}
+                  </span>
+                </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

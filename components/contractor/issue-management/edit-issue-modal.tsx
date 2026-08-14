@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { IssueImageUpload } from "./issue-image-upload";
 import { useIssueTypes } from "@/features/projects/use-issues";
 import type { Issue, IssueType } from "@/features/projects/issue-types";
+import { todayDateInputValue } from "@/lib/date-input";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { Field } from "@/components/ui/field";
 
@@ -158,6 +159,7 @@ export function EditIssueModal({
               onChange={(e) =>
                 update("estimateAt", e.target.value || null)
               }
+              min={todayDateInputValue()}
             />
           </Field>
 

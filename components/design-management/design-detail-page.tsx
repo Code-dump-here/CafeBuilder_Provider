@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
@@ -234,6 +235,17 @@ export function DesignDetailPage({
     onSuccessMessage: null,
   });
 
+  // Submit / approve / start-revision used to fire the instant the button
+  // was clicked — no way back once submitted (locks editing until the
+  // owner responds), approved (locks the design permanently), or a new
+  // revision cycle started. Image delete is unrecoverable too. Each now
+  // routes through a confirm dialog instead of mutating on click.
+  const [pendingAction, setPendingAction] = React.useState<
+    "submit" | "approve" | "startRevision" | null
+  >(null);
+  const [pendingDeleteImage, setPendingDeleteImage] =
+    React.useState<DesignImage | null>(null);
+
   // ── Snapshot history (Full History) ─────────────────────────────────────
   //
   // The design detail page now also surfaces the full audit timeline
@@ -436,7 +448,7 @@ export function DesignDetailPage({
               selectedId={effectiveDrawing?.id ?? null}
               onSelect={(img) => setSelectedDrawingId(img.id)}
               canDelete={canDeleteImage}
-              onDelete={(img) => deleteImageMutation.mutate(img.id)}
+              onDelete={(img) => setPendingDeleteImage(img)}
               isDeleting={deleteImageMutation.isPending}
               canUpload={canUpload}
               onUpload={async ({ file, caption }) => {
@@ -466,14 +478,14 @@ export function DesignDetailPage({
               statusCfg={statusCfg}
               format={format}
               t={t}
-              onSubmit={() => submitMutation.mutate(designId)}
-              onApprove={() => approveMutation.mutate(designId)}
+              onSubmit={() => setPendingAction("submit")}
+              onApprove={() => setPendingAction("approve")}
               onRequestRevision={() => {
                 const reason = window.prompt(t("actions.requestRevisionPrompt"));
                 if (!reason?.trim()) return;
                 requestRevisionMutation.mutate({ designId, payload: { reason } });
               }}
-              onStartRevision={() => startRevisionMutation.mutate(designId)}
+              onStartRevision={() => setPendingAction("startRevision")}
               canSubmit={canSubmit}
               canApprove={canApprove}
               canRequestRevision={canRequestRevision}
@@ -516,6 +528,65 @@ export function DesignDetailPage({
           {version.latestNote} · {format.dateTime(version.updatedAt, { dateStyle: "medium" })}
         </p>
       ) : null}
+
+      <ConfirmDialog
+        open={pendingAction === "submit"}
+        onOpenChange={(open) => {
+          if (!open) setPendingAction(null);
+        }}
+        title={t("actions.confirmSubmitTitle")}
+        description={t("actions.confirmSubmitBody")}
+        confirmLabel={t("actions.confirmCta")}
+        cancelLabel={t("actions.confirmCancel")}
+        onConfirm={() => {
+          setPendingAction(null);
+          submitMutation.mutate(designId);
+        }}
+      />
+      <ConfirmDialog
+        open={pendingAction === "approve"}
+        onOpenChange={(open) => {
+          if (!open) setPendingAction(null);
+        }}
+        title={t("actions.confirmApproveTitle")}
+        description={t("actions.confirmApproveBody")}
+        confirmLabel={t("actions.confirmCta")}
+        cancelLabel={t("actions.confirmCancel")}
+        onConfirm={() => {
+          setPendingAction(null);
+          approveMutation.mutate(designId);
+        }}
+      />
+      <ConfirmDialog
+        open={pendingAction === "startRevision"}
+        onOpenChange={(open) => {
+          if (!open) setPendingAction(null);
+        }}
+        title={t("actions.confirmStartRevisionTitle")}
+        description={t("actions.confirmStartRevisionBody")}
+        confirmLabel={t("actions.confirmCta")}
+        cancelLabel={t("actions.confirmCancel")}
+        onConfirm={() => {
+          setPendingAction(null);
+          startRevisionMutation.mutate(designId);
+        }}
+      />
+      <ConfirmDialog
+        open={pendingDeleteImage !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteImage(null);
+        }}
+        title={t("actions.confirmDeleteImageTitle")}
+        description={t("actions.confirmDeleteImageBody")}
+        confirmLabel={t("actions.deleteCta")}
+        cancelLabel={t("actions.confirmCancel")}
+        variant="destructive"
+        onConfirm={() => {
+          const img = pendingDeleteImage;
+          setPendingDeleteImage(null);
+          if (img) deleteImageMutation.mutate(img.id);
+        }}
+      />
     </div>
   );
 }

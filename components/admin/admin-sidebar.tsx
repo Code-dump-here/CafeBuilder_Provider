@@ -141,26 +141,34 @@ const ADMIN_NAV: NavSection[] = [
       },
     ],
   },
-  {
-    labelKey: "Sidebar.admin.platform",
-    items: [
-      {
-        titleKey: "Sidebar.admin.billing",
-        url: "/admin/billing",
-        icon: CreditCard,
-      },
-      {
-        titleKey: "Sidebar.admin.settings",
-        url: "/admin/settings",
-        icon: Settings,
-      },
-    ],
-  },
+  // Removed: the "platform" section's items ("/admin/billing",
+  // "/admin/settings") have no matching page under app/[locale]/admin/ —
+  // keeping the section here (not deleting) so it's easy to re-enable
+  // once those pages exist.
+  // {
+  //   labelKey: "Sidebar.admin.platform",
+  //   items: [
+  //     {
+  //       titleKey: "Sidebar.admin.billing",
+  //       url: "/admin/billing",
+  //       icon: CreditCard,
+  //     },
+  //     {
+  //       titleKey: "Sidebar.admin.settings",
+  //       url: "/admin/settings",
+  //       icon: Settings,
+  //     },
+  //   ],
+  // },
 ];
 
 function AdminSidebarActions() {
   return (
     <SidebarMenu>
+      {/* Removed: "/admin/support" and "/admin/notifications" have no
+          matching page under app/[locale]/admin/ — keeping the original
+          markup here (not deleting) so it's easy to re-enable once those
+          pages exist.
       <SidebarMenuItem>
         <SidebarMenuButton asChild tooltip="Support">
           <Link href="/admin/support">
@@ -178,6 +186,7 @@ function AdminSidebarActions() {
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
+      */}
     </SidebarMenu>
   );
 }

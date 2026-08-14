@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadImageApi } from "@/lib/http/file-upload-api";
+import { todayDateInputValue } from "@/lib/date-input";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { Field } from "@/components/ui/field";
 
@@ -72,7 +73,12 @@ export function AddTaskModal({
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   useResetOnChange(open, () => {
-    if (!open) {
+    if (open) {
+      // Default to today rather than leaving the picker blank — a task
+      // created just now most naturally starts today, and the user can
+      // still push it forward.
+      setEstimateAt(todayDateInputValue());
+    } else {
       setName("");
       setDescription("");
       setEstimateAt("");
@@ -164,6 +170,7 @@ export function AddTaskModal({
               type="date"
               value={estimateAt}
               onChange={(e) => setEstimateAt(e.target.value)}
+              min={todayDateInputValue()}
             />
           </Field>
 

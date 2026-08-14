@@ -1006,7 +1006,15 @@
       "addTaskPlaceholder": "What needs to happen?",
       "addTaskCta": "Add task",
       "noTasks": "No tasks yet — add the first one.",
-      "tasksDone": "{done}/{total} done"
+      "tasksDone": "{done}/{total} done",
+      "confirmStatusTitle": "Change phase status?",
+      "confirmStatusToCompleted": "Mark \"{name}\" as completed? This can't be undone — a completed phase can't be reopened.",
+      "confirmStatusToInProgress": "Move \"{name}\" to in progress?",
+      "confirmCta": "Confirm",
+      "confirmCancel": "Cancel",
+      "blockedTasksTitle": "Tasks still open",
+      "blockedTasksBody": "\"{name}\" still has {count, plural, =1 {1 task} other {# tasks}} not completed. Finish them first before marking this phase as completed.",
+      "blockedTasksCta": "Got it"
     },
     "task": {
       "edit": "Edit task",
@@ -1020,6 +1028,11 @@
       "markInProgress": "Mark task in progress",
       "taskCompleted": "Completed — can't be reopened",
       "noAssignee": "Unassigned",
+      "confirmToggleTitle": "Change task status?",
+      "confirmToggleToCompleted": "Mark \"{title}\" as completed? This can't be undone — a completed task can't be reopened.",
+      "confirmToggleToInProgress": "Mark \"{title}\" as in progress?",
+      "confirmCta": "Confirm",
+      "confirmCancel": "Cancel",
       "detail": {
         "title": "Task detail",
         "close": "Close",
@@ -1354,7 +1367,18 @@
       "awaitingOwnerReview": "Awaiting owner review.",
       "noActionsAvailable": "No actions available at this time.",
       "submitSuccess": "Design submitted for review.",
-      "approveSuccess": "Design approved."
+      "approveSuccess": "Design approved.",
+      "confirmSubmitTitle": "Submit for review?",
+      "confirmSubmitBody": "The owner will be notified to review this design. You won't be able to make further edits until they respond.",
+      "confirmApproveTitle": "Approve this design?",
+      "confirmApproveBody": "This locks the design — no further edits or uploads once approved.",
+      "confirmStartRevisionTitle": "Start a new revision?",
+      "confirmStartRevisionBody": "This begins a new working version based on the owner's feedback.",
+      "confirmDeleteImageTitle": "Delete this image?",
+      "confirmDeleteImageBody": "This can't be undone.",
+      "confirmCta": "Confirm",
+      "confirmCancel": "Cancel",
+      "deleteCta": "Delete"
     },
     "tabs": {
       "all": "All",
