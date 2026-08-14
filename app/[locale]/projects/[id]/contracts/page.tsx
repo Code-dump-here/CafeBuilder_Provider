@@ -72,11 +72,21 @@ export default function ContractsPage() {
   const projectIdParam = params?.id ?? "";
 
   const { account } = useCurrentUser();
+  const isProvider = account?.role === "provider";
+  const isOwner = account?.role === "owner";
 
-  // Fetch engagements for this project, scoped to the viewer's own
-  // providerId so another provider's engagement on the same project
-  // (e.g. the constructor when this viewer is the designer) can never
-  // drive this page.
+  // Fetch engagements for this project. Providers are scoped to their own
+  // providerId so another provider's engagement on the same project (e.g.
+  // the constructor when this viewer is the designer) can never drive
+  // this page. Owners own the project itself rather than a specific
+  // engagement, so they aren't scoped by providerId — every engagement on
+  // the project comes back and the right one is picked in `myEngagement`
+  // below.
+  //
+  // No `status` filter here (this used to hardcode `status: "accepted"`,
+  // which meant a provider whose engagement had ended lost contract
+  // access entirely — including their own confirmed contract history).
+  // Status-based access is handled per-role below instead.
   const viewerProfileId = account?.serviceProvider?.id ?? null;
   const {
     engagements,
@@ -84,17 +94,37 @@ export default function ContractsPage() {
     isError: isEngagementsError,
   } = useEngagements({
     projectId: projectIdParam,
-    providerId: viewerProfileId ?? undefined,
-    status: "accepted",
+    providerId: isProvider ? (viewerProfileId ?? undefined) : undefined,
     pageSize: 10,
-    enabled: viewerProfileId != null,
+    enabled: isProvider ? viewerProfileId != null : isOwner,
   });
 
-  // Find the engagement for this provider (if they are a provider)
+  // Find the engagement whose contracts this viewer should see.
   const myEngagement = React.useMemo(() => {
-    if (!account || account.role !== "provider") return null;
-    return engagements[0] ?? null;
-  }, [engagements, account]);
+    if (isProvider) {
+      // A provider keeps contract access regardless of how the
+      // engagement ended — it's still their own history, not the
+      // owner's to revoke.
+      return (
+        engagements.find((e) => e.status === "accepted") ??
+        engagements.find((e) => e.status === "completed") ??
+        engagements.find((e) => e.status === "terminated") ??
+        null
+      );
+    }
+    if (isOwner) {
+      // An owner loses contract access once the engagement is
+      // terminated — the relationship (and the paperwork tied to it) is
+      // over from their side. A completed engagement's contract stays
+      // visible for their records.
+      return (
+        engagements.find((e) => e.status === "accepted") ??
+        engagements.find((e) => e.status === "completed") ??
+        null
+      );
+    }
+    return null;
+  }, [engagements, isProvider, isOwner]);
 
   const projectWorkingId = myEngagement?.id ?? null;
 
@@ -330,7 +360,11 @@ function ContractCard({
   const status = statusConfig[contract.status];
   const StatusIcon = status.icon;
 
-  const canSendOtp = accountRole === "provider" && contract.status === "drafted";
+  // Sending the OTP is being moved to the owner side (backend role change
+  // in progress) — the provider's trigger is removed here, not deleted,
+  // so it's easy to bring back if that plan changes. Until the owner-side
+  // trigger exists, a drafted contract has no way to reach 'pending_otp'.
+  // const canSendOtp = accountRole === "provider" && contract.status === "drafted";
   const canEdit = accountRole === "provider" && contract.status === "drafted";
   const canCancel = accountRole === "provider" && (contract.status === "drafted" || contract.status === "pending_otp");
   const canConfirm = accountRole === "owner" && contract.status === "pending_otp";
@@ -349,6 +383,7 @@ function ContractCard({
             </span>
           </div>
           <div className="flex items-center gap-2">
+            {/*
             {canSendOtp && (
               <Button
                 variant="outline"
@@ -359,6 +394,7 @@ function ContractCard({
                 {t("sendOtp")}
               </Button>
             )}
+            */}
             {canConfirm && (
               <Button
                 variant="default"

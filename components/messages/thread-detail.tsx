@@ -437,12 +437,17 @@ function Bubble({
         isMine
           ? "rounded-tr-sm bg-blue-600 text-white ring-blue-600 dark:bg-blue-500 dark:ring-blue-500"
           : "rounded-tl-sm bg-card text-foreground ring-border/40",
-        canDelete && "group-hover:ring-destructive/40",
+        // canDelete && "group-hover:ring-destructive/40" — removed along
+        // with the delete button above; this hover ring hinted at an
+        // action that's no longer rendered.
         pending && "opacity-70",
       )}
     >
       <span className="flex items-start justify-between gap-2">
         <span>{body}</span>
+        {/* Removed: the delete-message button didn't work (no-op /
+            broken). Keeping the original markup here (not deleting) so
+            it's easy to re-enable once the underlying mutation is fixed.
         {canDelete && onDelete && (
           <button
             type="button"
@@ -458,6 +463,7 @@ function Bubble({
             <Trash2 aria-hidden className="size-3.5" />
           </button>
         )}
+        */}
       </span>
     </div>
   );

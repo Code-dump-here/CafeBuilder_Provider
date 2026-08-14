@@ -405,6 +405,7 @@
     "admin": "Admin"
   },
   "Breadcrumb": {
+    "myProjects": "My Projects",
     "projectFallback": "Project {id}",
     "versionFallback": "Version {code}"
   },
@@ -1299,7 +1300,7 @@
       "label": "Conversation threads",
       "heading": "Messages",
       "title": "Threads",
-      "newMessage": "New message",
+      "newMessage": "New thread",
       "searchPlaceholder": "Search threads or people…",
       "empty": "No threads match the current filter.",
       "pinned": "Pinned",

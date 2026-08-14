@@ -37,16 +37,15 @@ export default function AdminLayout({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {/* Removed: "/workspace" has no matching page under
-                app/[locale]/ — keeping the button here (not deleting) so
-                it's easy to re-enable once that page exists.
+            {/* "/workspace" never existed as a route — points at "/" now,
+                matching the same "back to home" convention used by the
+                sidebar's own brand header (see app-sidebar.tsx). */}
             <Button asChild variant="ghost" size="sm">
-              <Link href="/workspace">
+              <Link href="/">
                 <ArrowLeft aria-hidden />
                 Back to client view
               </Link>
             </Button>
-            */}
             <Button variant="ghost" size="icon-sm" aria-label="Notifications">
               <Bell aria-hidden />
             </Button>

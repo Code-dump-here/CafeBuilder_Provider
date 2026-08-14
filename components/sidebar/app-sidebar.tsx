@@ -167,12 +167,13 @@ export function AppSidebar({
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              {/* Removed the brand-header link: "/workspace" has no
-                  matching page under app/[locale]/. Not deleting the
-                  original — just rendering the same content unlinked so
-                  it doesn't send anyone to a 404.
+              {/* "/workspace" never existed as a route — this used to point
+                  there and got disabled entirely, which meant no way back
+                  to home from inside a project. Points at "/" instead,
+                  matching how the marketing navbar's own logo behaves for
+                  every user, signed in or not (see components/navbar/navbar.tsx). */}
               <SidebarMenuButton size="lg" asChild>
-                <Link href="/workspace">
+                <Link href="/">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <AppWindow className="size-4" aria-hidden />
                   </div>
@@ -183,18 +184,6 @@ export function AppSidebar({
                     </span>
                   </div>
                 </Link>
-              </SidebarMenuButton>
-              */}
-              <SidebarMenuButton size="lg" className="cursor-default hover:bg-transparent">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <AppWindow className="size-4" aria-hidden />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{config.brand.name}</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {t(config.brand.labelKey)}
-                  </span>
-                </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

@@ -405,6 +405,7 @@
     "admin": "Quản trị viên"
   },
   "Breadcrumb": {
+    "myProjects": "Dự án của tôi",
     "projectFallback": "Dự án {id}",
     "versionFallback": "Phiên bản {code}"
   },
@@ -1300,7 +1301,7 @@
       "label": "Danh sách cuộc trò chuyện",
       "heading": "Tin nhắn",
       "title": "Các thread",
-      "newMessage": "Tin nhắn mới",
+      "newMessage": "Thread mới",
       "searchPlaceholder": "Tìm thread hoặc người…",
       "empty": "Không có thread nào khớp bộ lọc.",
       "pinned": "Đã ghim",
