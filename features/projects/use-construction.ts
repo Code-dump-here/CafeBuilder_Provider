@@ -87,6 +87,10 @@ export interface UseConstructionItemsOptions {
   parentId?: number | null;
   status?: ConstructionStatus;
   enabled?: boolean;
+  /** The backend defaults to 10 when omitted, silently hiding every
+   * milestone past the first page. Callers that need the full list (e.g.
+   * the milestones management page) should pass something larger. */
+  pageSize?: number;
 }
 
 export interface UseConstructionItemsResult {
@@ -103,14 +107,14 @@ export interface UseConstructionItemsResult {
 export function useConstructionItems(
   options: UseConstructionItemsOptions,
 ): UseConstructionItemsResult {
-  const { projectWorkingId, parentId, status, enabled = true } = options;
+  const { projectWorkingId, parentId, status, enabled = true, pageSize } = options;
 
   const query = useQuery<ConstructionItemListResponse, Error>({
-    queryKey: ["construction-items", { projectWorkingId, status }],
+    queryKey: ["construction-items", { projectWorkingId, status, pageSize }],
     queryFn: async ({ signal }) =>
       getConstructionItemsApi(
         Number(projectWorkingId),
-        { status, ...(parentId !== undefined ? { parentId } : {}) },
+        { status, pageSize, ...(parentId !== undefined ? { parentId } : {}) },
         { signal },
       ),
     enabled: enabled && Boolean(projectWorkingId),
@@ -195,6 +199,13 @@ export interface UseConstructionTasksOptions {
   constructionItemId?: number | string;
   status?: ConstructionStatus;
   enabled?: boolean;
+  /** The backend defaults to 10 when omitted, silently hiding every task
+   * past the first page — worse here than on items, since this call has no
+   * constructionItemId filter option at the milestones-page call site, so
+   * it's paging across every task the account can see, not just this
+   * project's. Callers that need the full list should pass something
+   * larger. */
+  pageSize?: number;
 }
 
 export interface UseConstructionTasksResult {
@@ -209,10 +220,10 @@ export interface UseConstructionTasksResult {
 export function useConstructionTasks(
   options: UseConstructionTasksOptions,
 ): UseConstructionTasksResult {
-  const { constructionItemId, status, enabled = true } = options;
+  const { constructionItemId, status, enabled = true, pageSize } = options;
 
   const query = useQuery<ConstructionTaskListResponse, Error>({
-    queryKey: ["construction-tasks", { constructionItemId, status }],
+    queryKey: ["construction-tasks", { constructionItemId, status, pageSize }],
     queryFn: async ({ signal }) =>
       getConstructionTasksApi(
         {
@@ -220,6 +231,7 @@ export function useConstructionTasks(
             ? Number(constructionItemId)
             : undefined,
           status,
+          pageSize,
         },
         { signal },
       ),

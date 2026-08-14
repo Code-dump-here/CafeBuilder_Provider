@@ -100,6 +100,9 @@ export function useConstructionOverview(
     // Don't pass `status` — we want every milestone so the track shows
     // completed + in-progress + upcoming in correct order.
     enabled: projectWorkingId != null && Number(projectWorkingId) > 0,
+    // The backend defaults to pageSize=10, which silently hid every
+    // milestone past the first page on any project with more than 10.
+    pageSize: 200,
   });
 
   const issuesQuery = useIssues({
