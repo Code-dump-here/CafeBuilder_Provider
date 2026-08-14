@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { LogOut, LayoutDashboard, Briefcase, IdCard } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -31,7 +31,6 @@ import type { UserRole } from "@/features/auth/auth-me-types";
  */
 export function UserMenu() {
   const t = useTranslations("Navbar.userMenu");
-  const router = useRouter();
   const { account } = useCurrentUser();
   const logoutMutation = useLogoutMutation();
 
@@ -59,13 +58,15 @@ export function UserMenu() {
   );
 
   const handleSignOut = React.useCallback(() => {
+    // Cache flush + redirect to "/" both happen inside useLogoutMutation
+    // itself now, so every consumer gets them regardless of what it passes
+    // here.
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
         toast.success(t("signOutSuccess"));
-        router.replace("/");
       },
     });
-  }, [logoutMutation, router, t]);
+  }, [logoutMutation, t]);
 
   return (
     <DropdownMenu>

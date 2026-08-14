@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@/i18n/navigation";
 
 import { tokenStore } from "./token-store";
 import { authEvents } from "./auth-events";
@@ -115,12 +116,19 @@ export function useRefreshSessionMutation() {
 
 export function useLogoutMutation() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation<void, Error, void>({
     mutationFn: () => logoutApi(),
     onSuccess: () => {
       // `logoutApi` already cleared the local token store on success.
-      queryClient.removeQueries({ queryKey: ["auth"] });
+      // Flush the whole cache, not just ["auth"] — anything else cached
+      // (projects, dashboards, profile data) belonged to this session and
+      // must not leak into whichever account logs in next on this tab.
+      queryClient.clear();
+      // Centralized here (not left to each call site) so every consumer
+      // gets the redirect for free — a call site can no longer forget it.
+      router.replace("/");
     },
   });
 }
