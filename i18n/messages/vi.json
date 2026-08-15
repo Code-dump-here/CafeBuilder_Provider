@@ -857,6 +857,11 @@
       "title": "Không thể tải hợp đồng",
       "subtitle": "Đã xảy ra lỗi khi lấy dữ liệu hợp đồng. Vui lòng thử lại.",
       "retry": "Thử lại"
+    },
+    "blocked": {
+      "confirmed": "Dự án này đã có hợp đồng được ký ({title}). Không thể lập thêm hợp đồng.",
+      "pendingOtp": "Hợp đồng \"{title}\" đang chờ chủ quán xác nhận bằng OTP. Hãy chờ họ ký, hoặc hủy hợp đồng này nếu muốn lập bản khác.",
+      "drafted": "Bạn đang có hợp đồng nháp (\"{title}\") cho dự án này. Hãy sửa bản đó, hoặc hủy nó trước khi lập bản mới."
     }
   },
   "ConstructionOverview": {
@@ -1032,7 +1037,6 @@
       "markUndone": "Đánh dấu chưa xong",
       "markInProgress": "Đánh dấu đang thực hiện",
       "taskCompleted": "Đã hoàn thành — không thể mở lại",
-      "noAssignee": "Chưa giao",
       "confirmToggleTitle": "Đổi trạng thái công việc?",
       "confirmToggleToCompleted": "Đánh dấu \"{title}\" là hoàn thành? Không thể hoàn tác — công việc đã hoàn thành sẽ không thể mở lại.",
       "confirmToggleToInProgress": "Đánh dấu \"{title}\" là đang thực hiện?",
@@ -1061,7 +1065,6 @@
           "log": "Cập nhật tiến độ + ảnh lên feed dự án"
         },
         "descriptionPlaceholder": "Cần làm gì ở đây?",
-        "noAssigneeOption": "Chưa giao",
         "noDueDate": "Không có hạn",
         "toast": {
           "saved": "Đã cập nhật công việc.",
@@ -1075,6 +1078,18 @@
         "uploadCta": "Tải ảnh lên",
         "uploadFailed": "Tải ảnh thất bại. Vui lòng thử lại."
       }
+    },
+    "notes": {
+      "open": "Ghi chú của chủ quán",
+      "title": "Ghi chú của chủ quán",
+      "subtitle": "Ghi chú chủ quán để lại cho hạng mục này.",
+      "subtitleWithPhase": "Ghi chú cho “{phase}”, chia sẻ với chủ quán.",
+      "loading": "Đang tải ghi chú…",
+      "error": "Không thể tải ghi chú của hạng mục này.",
+      "empty": "Hạng mục này chưa có ghi chú nào.",
+      "unknownAuthor": "Không rõ",
+      "placeholder": "Viết ghi chú…",
+      "send": "Gửi ghi chú"
     },
     "issue": {
       "pageTitle": "Vấn đề",

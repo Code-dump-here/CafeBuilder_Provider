@@ -854,6 +854,11 @@
       "title": "Couldn't load contracts",
       "subtitle": "Something went wrong while fetching contract data. Please try again.",
       "retry": "Try again"
+    },
+    "blocked": {
+      "confirmed": "This project already has a signed contract ({title}). No further contracts can be drafted for it.",
+      "pendingOtp": "Contract \"{title}\" is waiting for the shop owner to confirm it with an OTP. Wait for them to sign, or cancel it if you need to draft a different one.",
+      "drafted": "You already have a draft contract (\"{title}\") for this project. Edit that one, or cancel it before drafting a new one."
     }
   },
   "ConstructionOverview": {
@@ -1029,7 +1034,6 @@
       "markUndone": "Mark task open",
       "markInProgress": "Mark task in progress",
       "taskCompleted": "Completed — can't be reopened",
-      "noAssignee": "Unassigned",
       "confirmToggleTitle": "Change task status?",
       "confirmToggleToCompleted": "Mark \"{title}\" as completed? This can't be undone — a completed task can't be reopened.",
       "confirmToggleToInProgress": "Mark \"{title}\" as in progress?",
@@ -1058,7 +1062,6 @@
           "log": "Log progress + photos in the project feed"
         },
         "descriptionPlaceholder": "What needs to happen here?",
-        "noAssigneeOption": "Unassigned",
         "noDueDate": "No due date",
         "toast": {
           "saved": "Task updated.",
@@ -1072,6 +1075,18 @@
         "uploadCta": "Upload images",
         "uploadFailed": "Upload failed. Please try again."
       }
+    },
+    "notes": {
+      "open": "Owner notes",
+      "title": "Owner notes",
+      "subtitle": "Notes the shop owner left on this milestone.",
+      "subtitleWithPhase": "Notes on “{phase}”, shared with the shop owner.",
+      "loading": "Loading notes…",
+      "error": "Couldn't load the notes for this milestone.",
+      "empty": "No notes on this milestone yet.",
+      "unknownAuthor": "Unknown",
+      "placeholder": "Write a note…",
+      "send": "Post note"
     },
     "issue": {
       "pageTitle": "Issues",

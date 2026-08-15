@@ -51,6 +51,11 @@ export interface UseContractsResult {
   contracts: Contract[];
   latestContract: Contract | null;
   confirmedContract: Contract | null;
+  /**
+   * The one contract currently occupying the provider's slot on this project,
+   * or null when the slot is free. See the derivation below.
+   */
+  activeContract: Contract | null;
   isLoading: boolean;
   isFetching: boolean;
   isError: boolean;
@@ -83,10 +88,33 @@ export function useContracts(options: UseContractsOptions): UseContractsResult {
     return contracts.find((c) => c.status === "confirmed") ?? null;
   }, [contracts]);
 
+  /**
+   * A provider may hold exactly one live contract with a project at a time.
+   * Every status except `cancelled` occupies that slot — a draft, one awaiting
+   * the owner's OTP, and a signed one all count — so a new contract can only be
+   * drafted once the previous one has been cancelled.
+   *
+   * The precedence mirrors the server's, which reports the furthest-along
+   * contract first: confirmed, then pending_otp, then the newest draft. Naming
+   * the same contract the API would name keeps the explanation shown here and
+   * the message returned on a rejected create from contradicting each other.
+   */
+  const activeContract = React.useMemo(() => {
+    return (
+      contracts.find((c) => c.status === "confirmed") ??
+      contracts.find((c) => c.status === "pending_otp") ??
+      [...contracts]
+        .filter((c) => c.status === "drafted")
+        .sort((a, b) => b.id - a.id)[0] ??
+      null
+    );
+  }, [contracts]);
+
   return {
     contracts,
     latestContract,
     confirmedContract,
+    activeContract,
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     isError: query.isError,
