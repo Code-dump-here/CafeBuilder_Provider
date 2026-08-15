@@ -315,7 +315,13 @@ function resolveErrorMessage(error: AppError): string {
     case 404:
       return TOAST.notFound;
     case 409:
-      return TOAST.conflict;
+      // 409 isn't only "you already applied" — a capability mismatch or a
+      // slot that filled up between browse and submit hits this same
+      // status. The backend's own message names the real reason; falling
+      // back to a generic "already applied" here previously made those
+      // failures look like a harmless duplicate instead of the actual
+      // problem.
+      return preferServerMessage(error, TOAST.conflict);
     default:
       // Use the server's own message when it looks meaningful (non-empty,
       // not axios's boilerplate "Request failed with status code XXX").
@@ -343,7 +349,7 @@ function resolveUpdateErrorMessage(error: AppError): string {
     case 404:
       return UPDATE_TOAST.notFound;
     case 409:
-      return UPDATE_TOAST.conflict;
+      return preferServerMessage(error, UPDATE_TOAST.conflict);
     default:
       return preferServerMessage(error, UPDATE_TOAST.generic);
   }
@@ -358,7 +364,7 @@ function resolveWithdrawErrorMessage(error: AppError): string {
     case 401:
       return TOAST.unauthorized;
     case 409:
-      return WITHDRAW_TOAST.conflict;
+      return preferServerMessage(error, WITHDRAW_TOAST.conflict);
     default:
       return preferServerMessage(error, WITHDRAW_TOAST.generic);
   }

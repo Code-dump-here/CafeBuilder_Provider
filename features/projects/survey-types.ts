@@ -38,7 +38,10 @@ export interface Survey {
   projectWorkingId: number;
   version: number;
   conditionNote: string;
+  /** Storage object name — not a browsable URL. Use `reportViewUrl` to link/preview. */
   reportUrl: string | null;
+  /** Absolute public URL for the report file. Null only when no file was uploaded. */
+  reportViewUrl: string | null;
   createdBy: number;
   createdAt: string;
   updatedAt: string;

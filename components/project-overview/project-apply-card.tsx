@@ -49,6 +49,7 @@ import {
   type ProjectOpenPostServiceKind,
   type ProjectProviderStatus,
 } from "@/features/projects/project-detail-types";
+import { type ProviderCapability } from "@/features/auth/auth-me-types";
 
 // ---------------------------------------------------------------------------
 // Predicate helpers — keep the "is this project open for applications?"
@@ -105,6 +106,23 @@ function uniqueOpenFor(
     }
   }
   return result;
+}
+
+/**
+ * Mirrors the backend's capability gate in `ApplyService.ApplyAsync`
+ * exactly: `both` can apply to any post; `designer`/`constructor` can only
+ * apply to a post of their own exact service kind — neither can apply to a
+ * `both` post (only a `both`-capability provider can). Keep this in sync
+ * with that check if the backend rule ever changes.
+ */
+function capabilityMatchesServiceKind(
+  capability: ProviderCapability | undefined,
+  serviceKind: ProjectOpenPostServiceKind,
+): boolean {
+  if (capability === "both") return true;
+  if (capability === "designer") return serviceKind === "design";
+  if (capability === "constructor") return serviceKind === "construction";
+  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -197,14 +215,25 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   // returns `false` until hydration so we never briefly expose the CTA.
   if (openPosts.length === 0 && openForKinds.length === 0) return null;
 
-  const earliest = earliestOpenDeadline(openPosts);
-
   const summaryLabel = kindsLabel(kinds, tServiceKinds);
 
-  // Pick the post to apply to: the earliest-deadline open post. Falls
-  // back to the first open post when no deadline is parseable.
+  // Pick the post to apply to: the earliest-deadline post the viewer's own
+  // capability can actually apply to (mirrors the backend's capability gate
+  // in ApplyService.ApplyAsync exactly — see capabilityMatchesServiceKind).
+  // A project can have both a design post and a construction post open at
+  // once; picking by deadline alone (the old behavior) could hand a
+  // designer the construction post's id whenever it happened to close
+  // sooner. Submitting against that id always 409s on the backend, and the
+  // generic error-toast mapping showed "you already applied" — which is
+  // wrong and made the failure look like success, so the application never
+  // actually reached the owner.
+  const viewerCapability = account?.serviceProvider?.capability;
+  const applicablePosts = openPosts.filter((p) =>
+    capabilityMatchesServiceKind(viewerCapability, p.serviceKind),
+  );
+  const earliest = earliestOpenDeadline(applicablePosts);
   const targetPost: ProjectOpenPost | null =
-    earliest?.post ?? openPosts[0] ?? null;
+    earliest?.post ?? applicablePosts[0] ?? null;
 
   // Check if provider has already applied to the target post
   const existingApply = targetPost

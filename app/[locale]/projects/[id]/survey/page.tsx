@@ -303,14 +303,16 @@ function SurveyCard({ survey, isLatest, onEdit, canEdit }: SurveyCardProps) {
           <p className="text-sm whitespace-pre-wrap">{survey.conditionNote}</p>
         </div>
 
-        {/* Report File */}
-        {survey.reportUrl && (
+        {/* Report File — `reportUrl` is just the storage object name, not a
+            browsable link (that's what 404'd here before); `reportViewUrl`
+            is the resolved public URL the backend hands back alongside it. */}
+        {(survey.reportViewUrl ?? survey.reportUrl) && (
           <div className="flex flex-col gap-1.5">
             <h4 className="text-xs font-medium text-muted-foreground">
               {t("reportFile")}
             </h4>
             <a
-              href={survey.reportUrl}
+              href={survey.reportViewUrl ?? survey.reportUrl!}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-primary hover:underline"
@@ -355,7 +357,11 @@ function SurveyDialog({
   useResetOnChange(`${open}:${survey?.id ?? "new"}`, () => {
     if (open) {
       setConditionNote(survey?.conditionNote ?? "");
-      setReportUrl(survey?.reportUrl ?? "");
+      // Prefer the resolved public URL — `survey.reportUrl` is just the
+      // storage object name and isn't directly browsable. The backend
+      // accepts either form back on submit (it re-normalizes whatever we
+      // send), so reusing this same state for the submit payload is safe.
+      setReportUrl(survey?.reportViewUrl ?? survey?.reportUrl ?? "");
       setReportFile(null);
       setUploadError(null);
     }
