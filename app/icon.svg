@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="CafeBuilder">
+  <!-- Brand mark for the browser tab: a coffee cup on the app's primary
+       colour, oklch(0.52 0.18 55) in the light theme.
+
+       Drawn on a filled tile rather than as a bare glyph so it stays legible
+       against both light and dark tab strips, and kept to a few thick shapes
+       because the whole thing is usually rendered at 16px. -->
+  <rect width="32" height="32" rx="7" fill="#B23F00"/>
+
+  <!-- Steam -->
+  <g stroke="#F8F5EE" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.9">
+    <path d="M13 5.5c-1 1.2-1 2.3 0 3.5"/>
+    <path d="M17.5 5.5c-1 1.2-1 2.3 0 3.5"/>
+  </g>
+
+  <!-- Cup body -->
+  <path d="M7.5 12.5h14v4.8a6.2 6.2 0 0 1-6.2 6.2h-1.6a6.2 6.2 0 0 1-6.2-6.2z" fill="#F8F5EE"/>
+
+  <!-- Handle -->
+  <path d="M22 14.2h1.4a3.1 3.1 0 0 1 0 6.2H22" fill="none" stroke="#F8F5EE" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Saucer -->
+  <rect x="6" y="25" width="17" height="2.4" rx="1.2" fill="#F8F5EE"/>
+</svg>
