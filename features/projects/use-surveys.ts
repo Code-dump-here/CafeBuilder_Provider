@@ -131,10 +131,14 @@ export function useSurveys(options: UseSurveysOptions): UseSurveysResult {
 
   const surveys = query.data?.items ?? [];
 
-  // Get the latest survey (highest version)
+  // Most recently filed survey. Ordered by createdAt rather than by version:
+  // version is being retired, and once the API stops sending it every
+  // comparison here would be NaN and the "latest" survey arbitrary.
   const latestSurvey = React.useMemo(() => {
     if (surveys.length === 0) return null;
-    return [...surveys].sort((a, b) => b.version - a.version)[0];
+    return [...surveys].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )[0];
   }, [surveys]);
 
   return {
