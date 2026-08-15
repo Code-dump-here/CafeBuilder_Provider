@@ -12,13 +12,13 @@
  * `projectWorkingId`  — the engagement this survey belongs to.
  * `conditionNote`     — free-form notes about site conditions.
  * `reportUrl`         — optional file uploaded via `/files` endpoint.
- * `createdBy`         — accountId of the provider creating the survey.
+ *
+ * `createdBy` is resolved server-side from the JWT, not sent here.
  */
 export interface CreateSurveyPayload {
   projectWorkingId: number;
   conditionNote: string;
   reportUrl?: string;
-  createdBy: number;
 }
 
 /**

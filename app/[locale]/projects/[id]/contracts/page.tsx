@@ -360,11 +360,10 @@ function ContractCard({
   const status = statusConfig[contract.status];
   const StatusIcon = status.icon;
 
-  // Sending the OTP is being moved to the owner side (backend role change
-  // in progress) — the provider's trigger is removed here, not deleted,
-  // so it's easy to bring back if that plan changes. Until the owner-side
-  // trigger exists, a drafted contract has no way to reach 'pending_otp'.
-  // const canSendOtp = accountRole === "provider" && contract.status === "drafted";
+  // Backend now requires the owner to trigger OTP send (the code always
+  // emails the owner's own account regardless of who calls the endpoint,
+  // so only the owner can meaningfully send it to themselves).
+  const canSendOtp = accountRole === "owner" && contract.status === "drafted";
   const canEdit = accountRole === "provider" && contract.status === "drafted";
   const canCancel = accountRole === "provider" && (contract.status === "drafted" || contract.status === "pending_otp");
   const canConfirm = accountRole === "owner" && contract.status === "pending_otp";
@@ -383,7 +382,6 @@ function ContractCard({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            {/*
             {canSendOtp && (
               <Button
                 variant="outline"
@@ -394,7 +392,6 @@ function ContractCard({
                 {t("sendOtp")}
               </Button>
             )}
-            */}
             {canConfirm && (
               <Button
                 variant="default"

@@ -234,7 +234,6 @@ export default function SurveyPage() {
         onOpenChange={setDialogOpen}
         survey={editingSurvey}
         projectWorkingId={projectWorkingId}
-        accountId={account?.id ?? 0}
         onSuccess={() => {
           setDialogOpen(false);
           void refetch();
@@ -334,7 +333,6 @@ interface SurveyDialogProps {
   onOpenChange: (open: boolean) => void;
   survey: Survey | null;
   projectWorkingId: number;
-  accountId: number;
   onSuccess: () => void;
 }
 
@@ -343,7 +341,6 @@ function SurveyDialog({
   onOpenChange,
   survey,
   projectWorkingId,
-  accountId,
   onSuccess,
 }: SurveyDialogProps) {
   const t = useTranslations("Survey.dialog");
@@ -420,7 +417,6 @@ function SurveyDialog({
         projectWorkingId,
         conditionNote: trimmedNote,
         reportUrl: reportUrl || undefined,
-        createdBy: accountId,
       });
     }
   };
