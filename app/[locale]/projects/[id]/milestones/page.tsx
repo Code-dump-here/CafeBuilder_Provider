@@ -204,7 +204,12 @@ export default function MilestoneManagementPage() {
   // Mutations
   const createItem = useCreateConstructionItemMutation();
   const updateItem = useUpdateConstructionItemMutation();
-  const setItemStatus = useSetConstructionItemStatusMutation();
+  // Closing a milestone can take two calls (see `handleStatusChange`), so the
+  // hook's per-call success toast is suppressed and fired once at the end
+  // instead — otherwise one click produced two identical toasts.
+  const setItemStatus = useSetConstructionItemStatusMutation({
+    onSuccessMessage: null,
+  });
   const deleteItem = useDeleteConstructionItemMutation();
 
   const createTask = useCreateConstructionTaskMutation();
@@ -476,11 +481,37 @@ export default function MilestoneManagementPage() {
   };
 
   const handleStatusChange = async (phaseId: string, status: string) => {
-    await setItemStatus.mutateAsync({
-      id: Number(phaseId),
-      payload: { status: unmapStatus(status) },
-    });
-    void refetchItems();
+    const target = unmapStatus(status);
+    const current = allItems.find((i) => i.id === Number(phaseId))?.status;
+
+    try {
+      // The backend only accepts one-step-forward transitions
+      // (pending → in_progress → completed) and never auto-advances a
+      // milestone when its tasks finish. A provider who ticked off every
+      // task therefore still had a "pending" milestone, and reporting the
+      // engagement complete kept failing with "Còn N hạng mục thi công
+      // chưa 'completed'". Walking the intermediate hop here lets one
+      // click close a finished milestone without weakening the server's
+      // rule (it still refuses if any task is unfinished).
+      if (target === "completed" && current === "pending") {
+        await setItemStatus.mutateAsync({
+          id: Number(phaseId),
+          payload: { status: "in_progress" },
+        });
+      }
+      await setItemStatus.mutateAsync({
+        id: Number(phaseId),
+        payload: { status: target },
+      });
+      toast.success(t("phase.statusSuccess"));
+    } catch (err) {
+      // The mutation hook already surfaced the server's own message.
+      console.error("[MilestonePage] setItemStatus error", err);
+    } finally {
+      // Refetch either way: the intermediate hop may have landed even when
+      // the second call failed, so the UI must not keep showing "pending".
+      void refetchItems();
+    }
   };
 
   const handleAddPhase = async (input: { name: string; category?: string; description?: string; estimateAt?: string }) => {

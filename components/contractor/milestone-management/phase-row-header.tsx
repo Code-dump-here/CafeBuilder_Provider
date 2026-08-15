@@ -4,9 +4,11 @@ import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import {
   ArrowRight,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
+  Loader2,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -47,7 +49,12 @@ interface PhaseRowHeaderProps {
   onDelete: (phaseId: string) => void;
   onMoveLeft: (phaseId: string) => void;
   onMoveRight: (phaseId: string) => void;
-  onStatusChange: (phaseId: string, status: MilestoneStatus) => void;
+  /** May be async — awaited so the row can show a busy state while the
+   *  status change (which can take two requests) is in flight. */
+  onStatusChange: (
+    phaseId: string,
+    status: MilestoneStatus,
+  ) => void | Promise<void>;
 }
 
 const STATUS_TONE: Record<MilestoneStatus, { badgeClass: string }> = {
@@ -58,14 +65,18 @@ const STATUS_TONE: Record<MilestoneStatus, { badgeClass: string }> = {
 };
 
 // The backend only allows one-step-forward transitions — pending ("upcoming")
-// → in_progress → completed, never backward and never skipped — and rejects
-// anything else with a 400. "blocked" isn't a real backend status at all (it
-// maps to "pending" on write, and the API never returns it on read), so it
-// can never be a valid target from any state. Picking a status the backend
-// will reject used to just surface a raw, Vietnamese-only error toast with no
-// indication *why* — this maps each current status to the single status that
-// can actually be set next, so the menu only ever offers a transition that
-// will succeed.
+// → in_progress → completed, never backward and never skipped. Skipping is
+// rejected with a 409 ("Không thể chuyển hạng mục từ 'pending' sang
+// 'completed'"), confirmed against the live API. "blocked" isn't a real
+// backend status at all (it maps to "pending" on write, and the API never
+// returns it on read), so it can never be a valid target from any state.
+// This maps each current status to the status immediately after it, which
+// drives the menu's hint text.
+//
+// Note "completed" is offered from "upcoming" too even though it isn't the
+// immediate next step: `onStatusChange` walks the in_progress hop for us, so
+// a milestone whose tasks are all done closes in one action instead of
+// forcing two trips through this menu.
 const VALID_NEXT_STATUS: Record<MilestoneStatus, MilestoneStatus | null> = {
   upcoming: "inProgress",
   inProgress: "completed",
@@ -103,15 +114,41 @@ export function PhaseRowHeader({
   // it in a separate dialog instead.
   const [pendingStatus, setPendingStatus] = React.useState<MilestoneStatus | null>(null);
   const [blockedOpen, setBlockedOpen] = React.useState(false);
+  const [isApplying, setIsApplying] = React.useState(false);
 
   const totalTasks = phase.tasks.length;
   const allTasksDone = totalTasks === 0 || doneCount === totalTasks;
 
+  // Every task ticked off but the milestone still open. This is the state
+  // that used to strand providers: the work was visibly finished, yet the
+  // engagement couldn't be reported complete because the milestone itself
+  // was never advanced. Surface it as a real button rather than leaving it
+  // buried two levels into the kebab menu.
+  //
+  // Requires at least one task on purpose — `allTasksDone` is vacuously
+  // true for an empty milestone, which would otherwise stamp "Mark
+  // completed" on every phase the moment it was created. Closing an empty
+  // milestone is still possible through the menu, it just isn't promoted.
+  const canClose =
+    totalTasks > 0 && allTasksDone && phase.status !== "completed";
+
+  const applyStatus = async (target: MilestoneStatus) => {
+    setIsApplying(true);
+    try {
+      await onStatusChange(phase.id, target);
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
   const handleRadioChange = (value: MilestoneStatus) => {
     if (value === "completed" && !allTasksDone) {
-      // Nothing stops the API from marking a phase "completed" while its
-      // tasks are still open — it doesn't check. Block it client-side so
-      // "completed" always actually means done.
+      // The server does enforce this — it answers 409 "Còn N task chưa
+      // 'completed' trong hạng mục này". (An earlier comment here claimed
+      // the API didn't check; that was wrong, and verifying against the
+      // live API disproved it.) The client guard stays anyway: it names
+      // the phase and the outstanding count instead of surfacing a raw
+      // server string, and it costs a round trip to learn nothing new.
       setBlockedOpen(true);
       return;
     }
@@ -119,8 +156,9 @@ export function PhaseRowHeader({
   };
 
   const handleConfirmStatus = () => {
-    if (pendingStatus) onStatusChange(phase.id, pendingStatus);
+    const target = pendingStatus;
     setPendingStatus(null);
+    if (target) void applyStatus(target);
   };
 
   return (
@@ -158,6 +196,24 @@ export function PhaseRowHeader({
         </div>
       </div>
     <div className="flex shrink-0 items-center gap-1.5">
+        {canClose ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-6 gap-1 px-2 text-[10px]"
+            onClick={() => setPendingStatus("completed")}
+            disabled={isApplying}
+            aria-busy={isApplying || undefined}
+          >
+            {isApplying ? (
+              <Loader2 className="size-3 animate-spin" aria-hidden />
+            ) : (
+              <CheckCircle2 className="size-3" aria-hidden />
+            )}
+            {t("closeMilestone")}
+          </Button>
+        ) : null}
         <span
           className={cn(
             "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
@@ -192,12 +248,15 @@ export function PhaseRowHeader({
               value={phase.status}
               onValueChange={(v) => handleRadioChange(v as MilestoneStatus)}
             >
+              {/* Reachable from "upcoming" as well — `onStatusChange` walks
+                  the in_progress hop, so a finished milestone doesn't need
+                  two separate trips through this menu. */}
               <DropdownMenuRadioItem
                 value="completed"
-                disabled={nextStatus !== "completed"}
-                className={cn(nextStatus === "completed" && "font-medium text-foreground")}
+                disabled={phase.status === "completed"}
+                className={cn(canClose && "font-medium text-foreground")}
               >
-                {nextStatus === "completed" && <ArrowRight aria-hidden className="size-3.5" />}
+                {canClose && <ArrowRight aria-hidden className="size-3.5" />}
                 {t("statusCompleted")}
               </DropdownMenuRadioItem>
               <DropdownMenuRadioItem
