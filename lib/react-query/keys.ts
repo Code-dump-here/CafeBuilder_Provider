@@ -123,6 +123,16 @@ export const queryKeys = {
     versionSnapshot: (designId: number, versionId: number) =>
       ["designs", "versionSnapshot", designId, versionId] as const,
   },
+  comments: {
+    /**
+     * Thread for one target: `GET /api/comments?targetType=&targetId=`.
+     * Discriminated by the (targetType, targetId) pair, since ids are only
+     * unique within a target type. Invalidate after posting or deleting a
+     * comment on the same target.
+     */
+    list: (targetType: string, targetId: number) =>
+      ["comments", targetType, targetId] as const,
+  },
   marketplace: {
     /** All `list` queries share the `marketplace.list` prefix for easy
      * invalidation from any mutation that touches posts. The filter

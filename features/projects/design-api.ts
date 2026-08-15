@@ -202,17 +202,17 @@ export async function uploadDesignImageApi(
   const form = new FormData();
   form.append("file", file);
   if (fields.caption !== undefined) form.append("caption", fields.caption);
-  form.append("uploadedBy", String(fields.uploadedBy));
 
+  // The `api` instance defaults Content-Type to application/json, which
+  // merges into every request. For FormData we must explicitly clear it
+  // (not just omit an override) so the client sets it itself with the
+  // multipart boundary — see the identical fix in lib/http/file-upload-api.ts.
   const response = await api.post<DesignImageUploadResponse>(
     `/api/designs/${designId}/files`,
     form,
     {
       ...config,
-      headers: {
-        "Content-Type": "multipart/form-data",
-        ...config?.headers,
-      } as Record<string, string>,
+      headers: { ...config?.headers, "Content-Type": undefined },
     },
   );
   return response.data;

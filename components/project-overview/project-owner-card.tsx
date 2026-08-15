@@ -86,15 +86,20 @@ export function ProjectOwnerCard({ project }: ProjectOwnerCardProps) {
     projectActionToast(t("phoneCopied"));
   }, [owner?.phone, t]);
 
-  if (!owner) {
-    return null;
-  }
-
   // Don't offer "Send message" when the viewer IS the project owner —
   // messaging yourself doesn't make sense. Everyone else (other owners,
   // providers, admins) sees the CTA.
+  //
+  // Must run before the `!owner` early return below: `project.owner` arrives
+  // asynchronously, so a render that bailed out early followed by one that
+  // didn't would call a different number of hooks and React would throw
+  // "Rendered more hooks than during the previous render".
   const isOwner = useIsProjectOwner(project);
   const canMessageOwner = !isOwner;
+
+  if (!owner) {
+    return null;
+  }
 
   return (
     <Card

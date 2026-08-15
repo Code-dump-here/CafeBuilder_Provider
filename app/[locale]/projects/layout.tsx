@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { ProjectBreadcrumb } from "@/components/breadcrumb/project-breadcrumb";
 import { ModeToggle } from "@/components/ui/theme-toggle";
 import { LocaleSwitcher } from "@/components/ui/locale-switcher";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { ProfileGuard } from "@/components/auth/profile-guard";
 
 interface ProjectsLayoutProps {
@@ -42,6 +43,12 @@ export default async function ProjectsLayout({
               <ProjectBreadcrumb localePrefix={locale} />
             </div>
             <div className="flex items-center gap-2">
+              {/* The sidebar footer carries identity (NavUser) instead of a
+                  navbar-style user menu, but notifications had no
+                  equivalent here at all — they simply vanished the moment
+                  you entered a project. Matches the marketing navbar's
+                  placement (components/navbar/navbar.tsx). */}
+              <NotificationBell />
               <LocaleSwitcher />
               <ModeToggle />
             </div>

@@ -99,8 +99,11 @@ function ProviderEngagementHeroInner({
     onSuccessMessage: null,
     onErrorMessage: (err) => err.message || tErrors("requestCompletion"),
   });
+  // No `onSuccessMessage` override: the hook picks between "ended" and
+  // "request sent" by reading the engagement it gets back. This used to
+  // suppress the hook's toast and unconditionally announce termination in
+  // `handleTerminate`, which lied on the first tap.
   const terminate = useTerminateEngagementMutation({
-    onSuccessMessage: null,
     onErrorMessage: (err) => err.message || tErrors("terminate"),
   });
 
@@ -135,10 +138,7 @@ function ProviderEngagementHeroInner({
     setPendingKind("terminate");
     terminate.mutate(
       { engagementId: engagement.id },
-      {
-        onSettled: () => setPendingKind(null),
-        onSuccess: () => toast.success(t("terminateSuccess")),
-      },
+      { onSettled: () => setPendingKind(null) },
     );
   }
 

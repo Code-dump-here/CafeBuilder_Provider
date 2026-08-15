@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
@@ -48,6 +49,7 @@ import {
   DEFAULT_DESIGN_VERSIONS_PAGE_SIZE,
 } from "@/features/projects/use-design-version-snapshots";
 import { DesignVersionHistoryPanel } from "@/components/design-management/design-version-history-panel";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 // ─── Adapter: Design → DesignVersion ──────────────────────────────────────
 //
@@ -175,8 +177,6 @@ interface DesignDetailPageProps {
   projectId: string;
   /** `projectWorkingId` — needed to fetch the engagement for account resolution. */
   projectWorkingId: number | null;
-  /** Account id of the current user (creator for uploads). */
-  currentUserId: number | null;
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────
@@ -184,7 +184,6 @@ interface DesignDetailPageProps {
 export function DesignDetailPage({
   projectId,
   projectWorkingId,
-  currentUserId,
 }: DesignDetailPageProps) {
   const params = useParams<{ id: string; designId: string }>();
   const designIdRaw = params?.designId ?? "";
@@ -196,6 +195,12 @@ export function DesignDetailPage({
 
   const isOwner = account?.role === "owner";
   const isProvider = account?.role === "provider";
+  // The design-management list page already downgrades a constructor to a
+  // read-only, approved-only view — this page has no such gate of its own,
+  // so a constructor who knows/guesses a designId for a non-approved design
+  // could otherwise get live upload/submit/delete/start-revision controls.
+  const isReadOnlyProvider =
+    isProvider && account?.serviceProvider?.capability === "constructor";
 
   // ── Data fetch ──────────────────────────────────────────────────────────
   const {
@@ -229,6 +234,17 @@ export function DesignDetailPage({
   const deleteImageMutation = useDeleteDesignImageMutation(designId, {
     onSuccessMessage: null,
   });
+
+  // Submit / approve / start-revision used to fire the instant the button
+  // was clicked — no way back once submitted (locks editing until the
+  // owner responds), approved (locks the design permanently), or a new
+  // revision cycle started. Image delete is unrecoverable too. Each now
+  // routes through a confirm dialog instead of mutating on click.
+  const [pendingAction, setPendingAction] = React.useState<
+    "submit" | "approve" | "startRevision" | null
+  >(null);
+  const [pendingDeleteImage, setPendingDeleteImage] =
+    React.useState<DesignImage | null>(null);
 
   // ── Snapshot history (Full History) ─────────────────────────────────────
   //
@@ -367,12 +383,13 @@ export function DesignDetailPage({
 
   const statusCfg = STATUS_CONFIG[design.status];
   const isApproved = design.status === "approved";
-  const canUpload = !isApproved && isProvider;
-  const canDeleteImage = !isApproved && isProvider;
-  const canSubmit = design.status === "in_progress" && isProvider && design.images.length > 0;
+  const canUpload = !isApproved && isProvider && !isReadOnlyProvider;
+  const canDeleteImage = !isApproved && isProvider && !isReadOnlyProvider;
+  const canSubmit =
+    design.status === "in_progress" && isProvider && !isReadOnlyProvider && design.images.length > 0;
   const canApprove = design.status === "submitted" && isOwner;
   const canRequestRevision = design.status === "submitted" && isOwner;
-  const canStartRevision = design.status === "revision" && isProvider;
+  const canStartRevision = design.status === "revision" && isProvider && !isReadOnlyProvider;
 
   return (
     <div className="flex h-full flex-col gap-3">
@@ -431,16 +448,11 @@ export function DesignDetailPage({
               selectedId={effectiveDrawing?.id ?? null}
               onSelect={(img) => setSelectedDrawingId(img.id)}
               canDelete={canDeleteImage}
-              onDelete={(img) => deleteImageMutation.mutate(img.id)}
+              onDelete={(img) => setPendingDeleteImage(img)}
               isDeleting={deleteImageMutation.isPending}
               canUpload={canUpload}
               onUpload={async ({ file, caption }) => {
-                if (!currentUserId) return;
-                uploadMutation.mutate({
-                  file,
-                  caption,
-                  uploadedBy: currentUserId,
-                });
+                uploadMutation.mutate({ file, caption });
               }}
               isUploading={uploadMutation.isPending}
             />
@@ -466,14 +478,14 @@ export function DesignDetailPage({
               statusCfg={statusCfg}
               format={format}
               t={t}
-              onSubmit={() => submitMutation.mutate(designId)}
-              onApprove={() => approveMutation.mutate(designId)}
+              onSubmit={() => setPendingAction("submit")}
+              onApprove={() => setPendingAction("approve")}
               onRequestRevision={() => {
                 const reason = window.prompt(t("actions.requestRevisionPrompt"));
                 if (!reason?.trim()) return;
                 requestRevisionMutation.mutate({ designId, payload: { reason } });
               }}
-              onStartRevision={() => startRevisionMutation.mutate(designId)}
+              onStartRevision={() => setPendingAction("startRevision")}
               canSubmit={canSubmit}
               canApprove={canApprove}
               canRequestRevision={canRequestRevision}
@@ -516,6 +528,65 @@ export function DesignDetailPage({
           {version.latestNote} · {format.dateTime(version.updatedAt, { dateStyle: "medium" })}
         </p>
       ) : null}
+
+      <ConfirmDialog
+        open={pendingAction === "submit"}
+        onOpenChange={(open) => {
+          if (!open) setPendingAction(null);
+        }}
+        title={t("actions.confirmSubmitTitle")}
+        description={t("actions.confirmSubmitBody")}
+        confirmLabel={t("actions.confirmCta")}
+        cancelLabel={t("actions.confirmCancel")}
+        onConfirm={() => {
+          setPendingAction(null);
+          submitMutation.mutate(designId);
+        }}
+      />
+      <ConfirmDialog
+        open={pendingAction === "approve"}
+        onOpenChange={(open) => {
+          if (!open) setPendingAction(null);
+        }}
+        title={t("actions.confirmApproveTitle")}
+        description={t("actions.confirmApproveBody")}
+        confirmLabel={t("actions.confirmCta")}
+        cancelLabel={t("actions.confirmCancel")}
+        onConfirm={() => {
+          setPendingAction(null);
+          approveMutation.mutate(designId);
+        }}
+      />
+      <ConfirmDialog
+        open={pendingAction === "startRevision"}
+        onOpenChange={(open) => {
+          if (!open) setPendingAction(null);
+        }}
+        title={t("actions.confirmStartRevisionTitle")}
+        description={t("actions.confirmStartRevisionBody")}
+        confirmLabel={t("actions.confirmCta")}
+        cancelLabel={t("actions.confirmCancel")}
+        onConfirm={() => {
+          setPendingAction(null);
+          startRevisionMutation.mutate(designId);
+        }}
+      />
+      <ConfirmDialog
+        open={pendingDeleteImage !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteImage(null);
+        }}
+        title={t("actions.confirmDeleteImageTitle")}
+        description={t("actions.confirmDeleteImageBody")}
+        confirmLabel={t("actions.deleteCta")}
+        cancelLabel={t("actions.confirmCancel")}
+        variant="destructive"
+        onConfirm={() => {
+          const img = pendingDeleteImage;
+          setPendingDeleteImage(null);
+          if (img) deleteImageMutation.mutate(img.id);
+        }}
+      />
     </div>
   );
 }
@@ -761,7 +832,7 @@ function DesignImageViewer({
   const [imgError, setImgError] = React.useState(false);
   const [isDownloading, setIsDownloading] = React.useState(false);
 
-  React.useEffect(() => { setImgError(false); }, [image?.id]);
+  useResetOnChange(image?.id, () => { setImgError(false); });
 
   const currentIndex = image ? images.findIndex((d) => d.id === image.id) : -1;
   const prevImage = currentIndex > 0 ? images[currentIndex - 1] : null;

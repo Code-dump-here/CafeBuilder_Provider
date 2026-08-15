@@ -16,6 +16,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadImageApi } from "@/lib/http/file-upload-api";
+import { todayDateInputValue } from "@/lib/date-input";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { Field } from "@/components/ui/field";
 
 interface CrewOption {
   id: string;
@@ -42,8 +45,8 @@ interface AddTaskModalProps {
 /**
  * Modal for creating a brand-new task aligned with the
  * `POST /construction-tasks` contract: `name`, `description`,
- * `imageUrl`, `estimateAt`. Item id and `createdBy` are supplied
- * by the page-level mutation.
+ * `imageUrl`, `estimateAt`. Item id is supplied by the page-level
+ * mutation; the creator is derived server-side from the JWT.
  *
  * Image handling: user picks a file, we POST it to
  * `POST /api/files/images` and store the returned `url` on the task.
@@ -69,8 +72,13 @@ export function AddTaskModal({
   const [uploadError, setUploadError] = React.useState<string | null>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
-    if (!open) {
+  useResetOnChange(open, () => {
+    if (open) {
+      // Default to today rather than leaving the picker blank — a task
+      // created just now most naturally starts today, and the user can
+      // still push it forward.
+      setEstimateAt(todayDateInputValue());
+    } else {
       setName("");
       setDescription("");
       setEstimateAt("");
@@ -79,7 +87,7 @@ export function AddTaskModal({
       setUploadError(null);
       setIsUploading(false);
     }
-  }, [open]);
+  });
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -162,6 +170,7 @@ export function AddTaskModal({
               type="date"
               value={estimateAt}
               onChange={(e) => setEstimateAt(e.target.value)}
+              min={todayDateInputValue()}
             />
           </Field>
 
@@ -233,14 +242,5 @@ export function AddTaskModal({
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1.5 text-xs">
-      <span className="font-medium text-muted-foreground">{label}</span>
-      {children}
-    </label>
   );
 }

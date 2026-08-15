@@ -405,8 +405,10 @@
     "admin": "Admin"
   },
   "Breadcrumb": {
+    "myProjects": "My Projects",
     "projectFallback": "Project {id}",
-    "versionFallback": "Version {code}"
+    "versionFallback": "Version {code}",
+    "backToOverview": "Back to project overview"
   },
   "ProjectsOverview": {
     "title": "Overview",
@@ -428,6 +430,11 @@
       "invite": "Invite provider",
       "inviteComingSoon": "Provider invitations are coming soon.",
       "capabilities": {
+        "designer": "Design",
+        "constructor": "Construction",
+        "both": "Design + Build"
+      },
+      "contractTypes": {
         "design": "Design",
         "construction": "Construction",
         "both": "Design + Build"
@@ -435,10 +442,9 @@
       "providerStatus": {
         "requested": "Requested",
         "accepted": "Accepted",
-        "active": "Active",
-        "paused": "Paused",
         "completed": "Completed",
-        "declined": "Declined"
+        "rejected": "Rejected",
+        "terminated": "Ended"
       },
       "providerActions": {
         "loading": "Loading…",
@@ -470,6 +476,25 @@
         "generic": "Could not respond to the invitation. Please try again."
       }
     },
+    "terminationBanner": {
+      "titleFromOwner": "The owner asked to end this engagement",
+      "titleFromYou": "Waiting for the owner to respond",
+      "reasonLabel": "Reason",
+      "stillRunningFromOwner": "The work continues until you respond.",
+      "stillRunningFromYou": "The work continues until they agree.",
+      "approve": "Agree to end",
+      "reject": "Decline",
+      "withdraw": "Withdraw request",
+      "request": "Propose ending this engagement",
+      "requestBody": "The engagement only stops if the other side agrees. Your request is sent to the owner for a response.",
+      "reasonPlaceholder": "Reason (optional)",
+      "cancel": "Cancel",
+      "send": "Send request",
+      "requestSent": "Request sent — waiting for the owner to respond.",
+      "ended": "The engagement has ended.",
+      "declined": "Request declined — the work continues.",
+      "withdrawn": "Request withdrawn."
+    },
     "owner": {
       "title": "Owner",
       "subtitle": "The person who created this project.",
@@ -491,11 +516,24 @@
       "applied": {
         "pending": "Application submitted",
         "accepted": "Application accepted",
-        "rejected": "Application declined"
+        "rejected": "Application declined",
+        "edit": "Edit",
+        "withdraw": "Withdraw"
+      },
+      "withdrawConfirm": {
+        "title": "Withdraw your application?",
+        "description": "Your proposal will be permanently deleted and the owner will no longer see it. You can apply again while the post is open.",
+        "cancel": "Keep it",
+        "confirm": "Withdraw",
+        "confirming": "Withdrawing…"
       },
       "dialog": {
         "title": "Apply to \"{project}\"",
         "description": "Tell the owner why you're a good fit and when you can deliver.",
+        "editTitle": "Edit your application to \"{project}\"",
+        "editDescription": "Revise your proposal or timeline. The owner sees the updated version straight away.",
+        "saveEdit": "Save changes",
+        "savingEdit": "Saving…",
         "proposalLabel": "Your proposal",
         "proposalPlaceholder": "Describe your approach, relevant experience, and why this project fits you…",
         "proposalHint": "Minimum {min} characters.",
@@ -757,6 +795,7 @@
     "viewDocument": "View document",
     "refreshing": "Refreshing…",
     "value": "Value: {value} VND",
+    "valueNotSet": "Value: not set",
     "termsLabel": "Terms",
     "createdAt": "Created {date} at {time}",
     "otpExpiresAt": "OTP expires: {time}",
@@ -922,6 +961,10 @@
     "emptyNoEngagementCta": "View engagements"
   },
   "MilestoneManagement": {
+    "gate": {
+      "notAccepted": "This engagement isn’t active yet, so phases can’t be created.",
+      "noContract": "Sign the contract before creating construction phases."
+    },
     "title": "Milestone & task management",
     "subtitle": "Drag phases, edit tasks, and rebalance progress — changes apply to the construction overview immediately.",
     "toolbar": {
@@ -943,8 +986,7 @@
       "renameLabel": "Phase name",
       "delete": "Delete phase",
       "deleteConfirm": "Delete this phase and all its tasks?",
-      "moveLeft": "Move left",
-      "moveRight": "Move right",
+      "deleteError": "Couldn't delete the phase. Please try again.",
       "editMeta": "Edit details",
       "editMetaTitle": "Edit phase details",
       "lead": "Lead",
@@ -954,6 +996,10 @@
       "endDate": "End date",
       "progress": "Progress",
       "setStatus": "Set status",
+      "statusMoveHint": "Status only moves forward — the next step is highlighted below.",
+      "statusTerminalHint": "This phase is completed and can't be changed.",
+      "closeMilestone": "Mark completed",
+      "statusSuccess": "Phase status updated.",
       "statusCompleted": "Completed",
       "statusInProgress": "In progress",
       "statusBlocked": "Blocked",
@@ -962,7 +1008,15 @@
       "addTaskPlaceholder": "What needs to happen?",
       "addTaskCta": "Add task",
       "noTasks": "No tasks yet — add the first one.",
-      "tasksDone": "{done}/{total} done"
+      "tasksDone": "{done}/{total} done",
+      "confirmStatusTitle": "Change phase status?",
+      "confirmStatusToCompleted": "Mark \"{name}\" as completed? This can't be undone — a completed phase can't be reopened.",
+      "confirmStatusToInProgress": "Move \"{name}\" to in progress?",
+      "confirmCta": "Confirm",
+      "confirmCancel": "Cancel",
+      "blockedTasksTitle": "Tasks still open",
+      "blockedTasksBody": "\"{name}\" still has {count, plural, =1 {1 task} other {# tasks}} not completed. Finish them first before marking this phase as completed.",
+      "blockedTasksCta": "Got it"
     },
     "task": {
       "edit": "Edit task",
@@ -973,7 +1027,14 @@
       "deleteSuccess": "Task deleted successfully",
       "markDone": "Mark task done",
       "markUndone": "Mark task open",
+      "markInProgress": "Mark task in progress",
+      "taskCompleted": "Completed — can't be reopened",
       "noAssignee": "Unassigned",
+      "confirmToggleTitle": "Change task status?",
+      "confirmToggleToCompleted": "Mark \"{title}\" as completed? This can't be undone — a completed task can't be reopened.",
+      "confirmToggleToInProgress": "Mark \"{title}\" as in progress?",
+      "confirmCta": "Confirm",
+      "confirmCancel": "Cancel",
       "detail": {
         "title": "Task detail",
         "close": "Close",
@@ -1026,9 +1087,7 @@
       "loadingTypes": "Loading types…",
       "selectType": "Select a type",
       "noCause": "(No description provided)",
-      "delete": "Delete",
       "deleteConfirm": "Delete this issue?",
-      "edit": "Edit",
       "byId": "Issue #{id}",
       "advanceStatus": "Advance status",
       "changeStatus": "Change status",
@@ -1139,7 +1198,8 @@
       "startDate": "Start date",
       "endDate": "End date",
       "create": "Create phase",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "error": "Couldn't create the phase. Please try again."
     },
     "errorEmpty": "No phases yet. Add the first one to start tracking.",
     "summaryError": "Couldn't update milestone state."
@@ -1241,7 +1301,7 @@
       "label": "Conversation threads",
       "heading": "Messages",
       "title": "Threads",
-      "newMessage": "New message",
+      "newMessage": "New thread",
       "searchPlaceholder": "Search threads or people…",
       "empty": "No threads match the current filter.",
       "pinned": "Pinned",
@@ -1309,7 +1369,18 @@
       "awaitingOwnerReview": "Awaiting owner review.",
       "noActionsAvailable": "No actions available at this time.",
       "submitSuccess": "Design submitted for review.",
-      "approveSuccess": "Design approved."
+      "approveSuccess": "Design approved.",
+      "confirmSubmitTitle": "Submit for review?",
+      "confirmSubmitBody": "The owner will be notified to review this design. You won't be able to make further edits until they respond.",
+      "confirmApproveTitle": "Approve this design?",
+      "confirmApproveBody": "This locks the design — no further edits or uploads once approved.",
+      "confirmStartRevisionTitle": "Start a new revision?",
+      "confirmStartRevisionBody": "This begins a new working version based on the owner's feedback.",
+      "confirmDeleteImageTitle": "Delete this image?",
+      "confirmDeleteImageBody": "This can't be undone.",
+      "confirmCta": "Confirm",
+      "confirmCancel": "Cancel",
+      "deleteCta": "Delete"
     },
     "tabs": {
       "all": "All",
@@ -1651,7 +1722,7 @@
         "all": "All",
         "open": "Open",
         "closed": "Closed",
-        "draft": "Draft"
+        "cancelled": "Cancelled"
       },
       "sort": {
         "label": "Sort by",
@@ -1685,7 +1756,7 @@
       "status": {
         "open": "Open",
         "closed": "Closed",
-        "draft": "Draft"
+        "cancelled": "Cancelled"
       },
       "budget": "Budget",
       "area": "Area",
@@ -1731,7 +1802,8 @@
       "viewAria": "Open project {name}",
       "contractType": {
         "design": "Design",
-        "construction": "Construction"
+        "construction": "Construction",
+        "both": "Design + Build"
       },
       "status": {
         "requested": "Invited",

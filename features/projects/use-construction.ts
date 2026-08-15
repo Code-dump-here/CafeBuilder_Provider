@@ -4,7 +4,6 @@ import * as React from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { AppError } from "@/lib/http/errors";
-import { useMe } from "@/features/auth/use-me";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import {
   createConstructionItemApi,
@@ -87,6 +86,10 @@ export interface UseConstructionItemsOptions {
   parentId?: number | null;
   status?: ConstructionStatus;
   enabled?: boolean;
+  /** The backend defaults to 10 when omitted, silently hiding every
+   * milestone past the first page. Callers that need the full list (e.g.
+   * the milestones management page) should pass something larger. */
+  pageSize?: number;
 }
 
 export interface UseConstructionItemsResult {
@@ -103,14 +106,14 @@ export interface UseConstructionItemsResult {
 export function useConstructionItems(
   options: UseConstructionItemsOptions,
 ): UseConstructionItemsResult {
-  const { projectWorkingId, parentId, status, enabled = true } = options;
+  const { projectWorkingId, parentId, status, enabled = true, pageSize } = options;
 
   const query = useQuery<ConstructionItemListResponse, Error>({
-    queryKey: ["construction-items", { projectWorkingId, status }],
+    queryKey: ["construction-items", { projectWorkingId, status, pageSize }],
     queryFn: async ({ signal }) =>
       getConstructionItemsApi(
         Number(projectWorkingId),
-        { status, ...(parentId !== undefined ? { parentId } : {}) },
+        { status, pageSize, ...(parentId !== undefined ? { parentId } : {}) },
         { signal },
       ),
     enabled: enabled && Boolean(projectWorkingId),
@@ -193,8 +196,16 @@ export function useConstructionItem(
 
 export interface UseConstructionTasksOptions {
   constructionItemId?: number | string;
+  /** Scope to one engagement. Without this the server returns every task
+   * on every engagement the account can see, which made project-level
+   * counters (e.g. the milestones toolbar) sum other projects' tasks. */
+  projectWorkingId?: number | string;
   status?: ConstructionStatus;
   enabled?: boolean;
+  /** The backend defaults to 10 when omitted, silently hiding every task
+   * past the first page. Callers that need the full list should pass
+   * something larger. */
+  pageSize?: number;
 }
 
 export interface UseConstructionTasksResult {
@@ -209,17 +220,33 @@ export interface UseConstructionTasksResult {
 export function useConstructionTasks(
   options: UseConstructionTasksOptions,
 ): UseConstructionTasksResult {
-  const { constructionItemId, status, enabled = true } = options;
+  const {
+    constructionItemId,
+    projectWorkingId,
+    status,
+    enabled = true,
+    pageSize,
+  } = options;
 
   const query = useQuery<ConstructionTaskListResponse, Error>({
-    queryKey: ["construction-tasks", { constructionItemId, status }],
+    // `projectWorkingId` has to be part of the key: it changes the response,
+    // so leaving it out would serve one project's tasks from cache while
+    // viewing another.
+    queryKey: [
+      "construction-tasks",
+      { constructionItemId, projectWorkingId, status, pageSize },
+    ],
     queryFn: async ({ signal }) =>
       getConstructionTasksApi(
         {
           constructionItemId: constructionItemId
             ? Number(constructionItemId)
             : undefined,
+          projectWorkingId: projectWorkingId
+            ? Number(projectWorkingId)
+            : undefined,
           status,
+          pageSize,
         },
         { signal },
       ),
@@ -250,11 +277,8 @@ export interface UseCreateConstructionItemOptions {
 export function useCreateConstructionItemMutation(
   options: UseCreateConstructionItemOptions = {},
 ) {
-  const { data: me } = useMe();
-
-  return useMutation<ConstructionItem, AppError, Omit<CreateConstructionItemPayload, "createdBy">>({
-    mutationFn: (payload) =>
-      createConstructionItemApi({ ...payload, createdBy: me?.id ?? 0 }),
+  return useMutation<ConstructionItem, AppError, CreateConstructionItemPayload>({
+    mutationFn: (payload) => createConstructionItemApi(payload),
 
     onSuccess: (item) => {
       if (options.onSuccessMessage !== null) {
@@ -405,11 +429,8 @@ export interface UseCreateConstructionTaskOptions {
 export function useCreateConstructionTaskMutation(
   options: UseCreateConstructionTaskOptions = {},
 ) {
-  const { data: me } = useMe();
-
-  return useMutation<ConstructionTask, AppError, Omit<CreateConstructionTaskPayload, "createdBy">>({
-    mutationFn: (payload) =>
-      createConstructionTaskApi({ ...payload, createdBy: me?.id ?? 0 }),
+  return useMutation<ConstructionTask, AppError, CreateConstructionTaskPayload>({
+    mutationFn: (payload) => createConstructionTaskApi(payload),
 
     onSuccess: (task) => {
       if (options.onSuccessMessage !== null) {

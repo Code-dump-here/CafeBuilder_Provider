@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
 import {
   BadgeCheck,
   Bell,
@@ -48,21 +47,22 @@ export function NavUser({
   };
 }) {
   const t = useTranslations("Sidebar.navUser");
-  const router = useRouter();
   const { isMobile } = useSidebar();
   const logoutMutation = useLogoutMutation();
 
   const handleSignOut = React.useCallback(() => {
+    // Cache flush + redirect to "/" both happen inside useLogoutMutation
+    // itself now, so every consumer gets them regardless of what it passes
+    // here.
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
         toast.success(t("signOutSuccess"));
-        router.replace("/");
       },
       onError: () => {
         toast.error(t("signOutError"));
       },
     });
-  }, [logoutMutation, router, t]);
+  }, [logoutMutation, t]);
 
   return (
     <SidebarMenu>

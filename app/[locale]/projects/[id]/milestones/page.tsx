@@ -17,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AlertTriangle } from "lucide-react";
 
 import { MilestoneManagementToolbar } from "@/components/contractor/milestone-management/toolbar";
@@ -27,7 +28,9 @@ import { AddPhaseDialog } from "@/components/contractor/milestone-management/add
 import { TaskDetailView } from "@/components/contractor/milestone-management/task-detail-view";
 import { AddTaskModal } from "@/components/contractor/milestone-management/add-task-modal";
 
+import { useCurrentUser } from "@/features/auth/user-context";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
+import { useEngagements } from "@/features/projects/use-engagements";
 import {
   useConstructionItems,
   useCreateConstructionItemMutation,
@@ -97,17 +100,68 @@ export default function MilestoneManagementPage() {
   // Get project to find the construction engagement (projectWorkingId)
   const { project, isLoading: isLoadingProject, isError: isProjectError } = useProjectDetail(projectIdParam);
 
-  // Find the construction provider's projectWorkingId
+  // Find the construction engagement's projectWorkingId.
+  //
+  // Gate on `contractType` (what the provider was hired for here), not
+  // `capability` (what they can do in general) — a `both`-capability studio
+  // engaged for design only has no business owning milestones, and a
+  // designer-capability provider can still be engaged for construction.
+  //
+  // Also scoped by the viewer's own providerId so another provider's
+  // engagement on the same project (e.g. the designer when this viewer is
+  // the constructor) can never drive this page — project.providers lists
+  // every provider on the project, not just the caller.
+  //
+  // Prefer an `accepted` row over a `requested` one: if the owner invited two
+  // contractors and one has accepted, that's the live engagement.
+  const { account } = useCurrentUser();
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const constructionEngagement = React.useMemo(() => {
-    return project.providers.find((p) => {
-      const cap = String(p.capability ?? "").toLowerCase();
-      const stat = String(p.status ?? "").toLowerCase();
-      return (cap === "constructor" || cap === "construction") &&
-        (stat === "accepted" || stat === "requested");
-    });
-  }, [project.providers]);
+    const candidates = project.providers.filter(
+      (p) =>
+        p.providerId === viewerProfileId &&
+        (p.contractType === "construction" || p.contractType === "both") &&
+        (p.status === "accepted" || p.status === "requested"),
+    );
+    return (
+      candidates.find((p) => p.status === "accepted") ?? candidates[0]
+    );
+  }, [project.providers, viewerProfileId]);
 
   const projectWorkingId = constructionEngagement?.projectWorkingId;
+
+  // `project.providers` carries the engagement's id, status and contractType
+  // but not `hasConfirmedContract`, so pull the full record to decide whether
+  // a phase can be created at all.
+  const { engagements } = useEngagements({
+    projectId: projectIdParam,
+    providerId: viewerProfileId ?? undefined,
+    pageSize: 20,
+    enabled: viewerProfileId != null,
+  });
+  const engagementRecord = React.useMemo(
+    () => engagements.find((e) => e.id === projectWorkingId) ?? null,
+    [engagements, projectWorkingId],
+  );
+
+  // The server refuses `POST /construction-items` unless the engagement is
+  // `accepted` AND has a confirmed contract ("đã ký mới được làm"). Only
+  // creation is gated — editing, status changes and tasks are not — but since
+  // creation is the way into the flow, this covers it.
+  //
+  // Note the engagement resolved above can be a `requested` row when no
+  // accepted one exists, which the server also rejects; the status check
+  // below catches that too.
+  const canAddPhase =
+    engagementRecord?.status === "accepted" &&
+    engagementRecord.hasConfirmedContract === true;
+  const blockedReason = !constructionEngagement
+    ? null
+    : engagementRecord?.status !== "accepted"
+      ? t("gate.notAccepted")
+      : !engagementRecord.hasConfirmedContract
+        ? t("gate.noContract")
+        : null;
 
   // Check if there's no construction engagement
   const hasNoConstructionEngagement = !constructionEngagement;
@@ -125,22 +179,37 @@ export default function MilestoneManagementPage() {
   } = useConstructionItems({
     projectWorkingId: projectWorkingId ?? 0,
     enabled: Boolean(projectWorkingId),
+    // The backend defaults to pageSize=10, which silently hid every phase
+    // past the first page on any project with more than 10 milestones.
+    pageSize: 200,
   });
 
-  // Fetch all tasks for these milestones
+  // Fetch all tasks for these milestones. Same pageSize=10 default problem
+  // Scoped to this engagement: the toolbar counts (`totalTasks`,
+  // `doneTaskCount`) are derived straight off this list, so an unscoped
+  // fetch made them sum every task the provider could see across all their
+  // projects — the page then rendered only this project's, leaving the
+  // counter permanently disagreeing with the rows beneath it.
   const {
     items: allTasks,
     isLoading: isLoadingTasks,
     isFetching: isFetchingTasks,
     refetch: refetchTasks,
   } = useConstructionTasks({
+    projectWorkingId: projectWorkingId ?? undefined,
     enabled: Boolean(projectWorkingId),
+    pageSize: 200,
   });
 
   // Mutations
   const createItem = useCreateConstructionItemMutation();
   const updateItem = useUpdateConstructionItemMutation();
-  const setItemStatus = useSetConstructionItemStatusMutation();
+  // Closing a milestone can take two calls (see `handleStatusChange`), so the
+  // hook's per-call success toast is suppressed and fired once at the end
+  // instead — otherwise one click produced two identical toasts.
+  const setItemStatus = useSetConstructionItemStatusMutation({
+    onSuccessMessage: null,
+  });
   const deleteItem = useDeleteConstructionItemMutation();
 
   const createTask = useCreateConstructionTaskMutation();
@@ -188,9 +257,18 @@ export default function MilestoneManagementPage() {
         label: item.name,
         status: mapItemStatus(item.status),
         progress,
-        targetDate: item.estimateAt ?? "",
-        startDate: item.estimateAt ?? "",
-        endDate: item.estimateAt ?? "",
+        // ConstructionItem only tracks one real date (`estimateAt`, a
+        // target/completion date) — there's no start-date field on the
+        // backend. This used to fill start/end/target with the same
+        // value, which rendered as a date "range" whose two ends were
+        // secretly identical. Approximate the same way the read-only
+        // construction overview page already does (see
+        // `use-construction-overview.ts`): start = when the record was
+        // created, end = actual completion if set, else the planned
+        // target, else last-touched.
+        targetDate: item.estimateAt ?? item.createdAt,
+        startDate: item.createdAt,
+        endDate: item.actualAt ?? item.estimateAt ?? item.updatedAt,
         lead: "",
         tasks: itemTasks.map((t) => t.name),
         blockerCount: 0,
@@ -254,21 +332,45 @@ export default function MilestoneManagementPage() {
   }, [activeItem, tasksByItem]);
 
   // ── Task handlers ───────────────────────────────────────────────────────────
-  const handleToggleTask = async (itemId: number, taskIndex: number) => {
-    const task = activeTasks[taskIndex];
-    if (!task) return;
+  //
+  // Status toggles used to fire the moment the checkbox was clicked — one
+  // misclick and a task jumped forward with no way back (the backend only
+  // allows one-step-forward transitions, never backward, so "completed" is
+  // a dead end). `toggleConfirm` holds the pending toggle until the user
+  // confirms it in a dialog instead. Both entry points (the chip's inline
+  // circle and the task detail modal's button) route through
+  // `handleRequestToggleTask` so there's exactly one confirm dialog.
+  const [toggleConfirm, setToggleConfirm] = React.useState<{
+    open: boolean;
+    itemId: number | null;
+    taskIndex: number | null;
+  }>({ open: false, itemId: null, taskIndex: null });
 
-    let nextStatus: ConstructionStatus;
-    if (task.status === "completed") {
-      // completed → in_progress
-      nextStatus = "in_progress";
-    } else if (task.status === "in_progress") {
-      // in_progress → completed
-      nextStatus = "completed";
-    } else {
-      // pending → in_progress
-      nextStatus = "in_progress";
-    }
+  const pendingToggleTask =
+    toggleConfirm.itemId != null && toggleConfirm.taskIndex != null
+      ? (tasksByItem[toggleConfirm.itemId] ?? [])[toggleConfirm.taskIndex]
+      : undefined;
+  const pendingToggleNextStatus: ConstructionStatus | null =
+    pendingToggleTask == null
+      ? null
+      : pendingToggleTask.status === "in_progress"
+        ? "completed"
+        : "in_progress";
+
+  const handleRequestToggleTask = (itemId: number, taskIndex: number) => {
+    const task = (tasksByItem[itemId] ?? [])[taskIndex];
+    // The backend rejects reopening a completed task — there's no valid
+    // next status once a task is done, so there's nothing to confirm.
+    if (!task || task.status === "completed") return;
+    setToggleConfirm({ open: true, itemId, taskIndex });
+  };
+
+  const handleConfirmToggleTask = async () => {
+    const task = pendingToggleTask;
+    const nextStatus = pendingToggleNextStatus;
+    setToggleConfirm({ open: false, itemId: null, taskIndex: null });
+    setTaskDetail((prev) => ({ ...prev, open: false }));
+    if (!task || !nextStatus) return;
 
     await setTaskStatus.mutateAsync({
       id: task.id,
@@ -369,16 +471,47 @@ export default function MilestoneManagementPage() {
 
   const handleDeletePhase = async (phaseId: string) => {
     if (!window.confirm(t("phase.deleteConfirm"))) return;
-    await deleteItem.mutateAsync(Number(phaseId));
-    void refetchItems();
+    try {
+      await deleteItem.mutateAsync(Number(phaseId));
+      void refetchItems();
+    } catch (err) {
+      console.error("[MilestonePage] deleteItem error", err);
+      toast.error(t("phase.deleteError"));
+    }
   };
 
   const handleStatusChange = async (phaseId: string, status: string) => {
-    await setItemStatus.mutateAsync({
-      id: Number(phaseId),
-      payload: { status: unmapStatus(status) },
-    });
-    void refetchItems();
+    const target = unmapStatus(status);
+    const current = allItems.find((i) => i.id === Number(phaseId))?.status;
+
+    try {
+      // The backend only accepts one-step-forward transitions
+      // (pending → in_progress → completed) and never auto-advances a
+      // milestone when its tasks finish. A provider who ticked off every
+      // task therefore still had a "pending" milestone, and reporting the
+      // engagement complete kept failing with "Còn N hạng mục thi công
+      // chưa 'completed'". Walking the intermediate hop here lets one
+      // click close a finished milestone without weakening the server's
+      // rule (it still refuses if any task is unfinished).
+      if (target === "completed" && current === "pending") {
+        await setItemStatus.mutateAsync({
+          id: Number(phaseId),
+          payload: { status: "in_progress" },
+        });
+      }
+      await setItemStatus.mutateAsync({
+        id: Number(phaseId),
+        payload: { status: target },
+      });
+      toast.success(t("phase.statusSuccess"));
+    } catch (err) {
+      // The mutation hook already surfaced the server's own message.
+      console.error("[MilestonePage] setItemStatus error", err);
+    } finally {
+      // Refetch either way: the intermediate hop may have landed even when
+      // the second call failed, so the UI must not keep showing "pending".
+      void refetchItems();
+    }
   };
 
   const handleAddPhase = async (input: { name: string; category?: string; description?: string; estimateAt?: string }) => {
@@ -386,7 +519,7 @@ export default function MilestoneManagementPage() {
       return;
     }
     try {
-      const result = await createItem.mutateAsync({
+      await createItem.mutateAsync({
         projectWorkingId,
         name: input.name,
         category: input.category,
@@ -396,6 +529,8 @@ export default function MilestoneManagementPage() {
       void refetchItems();
     } catch (err) {
       console.error("[MilestonePage] createItem error", err);
+      toast.error(t("addPhase.error"));
+      throw err;
     }
   };
 
@@ -466,6 +601,7 @@ export default function MilestoneManagementPage() {
           taskCount={0}
           doneTaskCount={0}
           onAddPhase={() => setAddPhaseOpen(true)}
+          addPhaseDisabled
         />
         <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-sm text-muted-foreground">
           No construction engagement found for this project.
@@ -490,7 +626,13 @@ export default function MilestoneManagementPage() {
           taskCount={0}
           doneTaskCount={0}
           onAddPhase={() => setAddPhaseOpen(true)}
+          addPhaseDisabled={!canAddPhase}
         />
+        {blockedReason ? (
+          <p className="mt-3 rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
+            {blockedReason}
+          </p>
+        ) : null}
         <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-sm text-muted-foreground">
           {t("errorEmpty")}
         </p>
@@ -503,8 +645,6 @@ export default function MilestoneManagementPage() {
     );
   }
 
-  const lastIndex = phases.length - 1;
-
   return (
     <>
       <MilestoneManagementToolbar
@@ -513,7 +653,13 @@ export default function MilestoneManagementPage() {
         taskCount={totalTasks}
         doneTaskCount={doneTaskCount}
         onAddPhase={() => setAddPhaseOpen(true)}
+        addPhaseDisabled={!canAddPhase}
       />
+      {blockedReason ? (
+        <p className="mt-3 rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
+          {blockedReason}
+        </p>
+      ) : null}
 
       <div className="mt-3 flex flex-col gap-3">
         {phases.map((phase, idx) => {
@@ -525,21 +671,18 @@ export default function MilestoneManagementPage() {
               key={phase.id}
               phase={phase}
               index={idx}
-              lastIndex={lastIndex}
               taskMeta={{}} // Not used with API
-              taskDone={Object.fromEntries(
-                itemTasks.map((t, i) => [`${phase.id}:${i}`, t.status === "completed"])
+              taskStatus={Object.fromEntries(
+                itemTasks.map((t, i) => [`${phase.id}:${i}`, t.status])
               )}
               resolveAssignee={() => undefined}
               highlight={highlightId === phase.id}
-              onToggleTask={(phaseId, taskIndex) => handleToggleTask(Number(phaseId), taskIndex)}
+              onToggleTask={(phaseId, taskIndex) => handleRequestToggleTask(Number(phaseId), taskIndex)}
               onOpenTask={(_, taskIndex) => handleOpenTask(itemId, taskIndex)}
               onRequestAddTask={() => handleStartAddTask(itemId)}
               onRename={handleRenamePhase}
               onEditMeta={handleEditMeta}
               onDelete={handleDeletePhase}
-              onMoveLeft={() => {}} // Not supported in API
-              onMoveRight={() => {}} // Not supported in API
               onStatusChange={handleStatusChange}
             />
           );
@@ -628,8 +771,7 @@ export default function MilestoneManagementPage() {
         }}
         onToggleStatus={() => {
           if (taskDetail.itemId == null || taskDetail.taskIndex == null) return;
-          handleToggleTask(taskDetail.itemId, taskDetail.taskIndex);
-          setTaskDetail((prev) => ({ ...prev, open: false }));
+          handleRequestToggleTask(taskDetail.itemId, taskDetail.taskIndex);
         }}
         onReportIssue={() => {
           router.push(`/projects/${projectIdParam}/issues`);
@@ -661,6 +803,25 @@ export default function MilestoneManagementPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Task status toggle confirmation */}
+      <ConfirmDialog
+        open={toggleConfirm.open}
+        onOpenChange={(open) => {
+          if (!open) setToggleConfirm({ open: false, itemId: null, taskIndex: null });
+        }}
+        title={t("task.confirmToggleTitle")}
+        description={
+          pendingToggleTask
+            ? pendingToggleNextStatus === "completed"
+              ? t("task.confirmToggleToCompleted", { title: pendingToggleTask.name })
+              : t("task.confirmToggleToInProgress", { title: pendingToggleTask.name })
+            : ""
+        }
+        confirmLabel={t("task.confirmCta")}
+        cancelLabel={t("task.confirmCancel")}
+        onConfirm={() => void handleConfirmToggleTask()}
+      />
     </>
   );
 }

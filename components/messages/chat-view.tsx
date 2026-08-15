@@ -14,6 +14,7 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 import { ThreadContextRail } from "@/components/messages/thread-context-rail";
@@ -30,24 +31,40 @@ import type {
   MessageThread,
 } from "@/features/projects/messages-types";
 
-import type { ConversationDetailResponse, ConversationSummary } from "@/features/chat";
+import type {
+  ConversationListResponse,
+  ConversationSummary,
+  MessageResponse,
+} from "@/features/chat";
 
 import {
   apiConversationToThread,
   apiMessageToDisplay,
   useChatPolling,
+  useConversation,
+  useConversations,
   useCreateConversation,
   useDeleteConversation,
   useDeleteMessage,
   useSendMessage,
-  getConversationApi,
-  getConversationsApi,
 } from "@/features/chat";
+
+import { queryKeys } from "@/lib/react-query/keys";
 
 interface ChatViewProps {
   /** Rendered inside the project layout — `id` is the projectShopOwner id. */
   projectId: string;
 }
+
+/**
+ * Paging for the conversation list. Module-scope so the object identity is
+ * stable — it feeds both the query key and the cache patcher's dependencies.
+ */
+const CONVERSATIONS_PAGE = { pageNumber: 1, pageSize: 100 } as const;
+
+/** Same, for a single thread's message page. Must match `useConversation`'s
+ *  defaults so the query key lines up with what its mutations invalidate. */
+const CONVERSATION_PAGE = { pageNumber: 1, pageSize: 50 } as const;
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -57,64 +74,83 @@ export function ChatView({ projectId }: ChatViewProps) {
   const searchParams = useSearchParams();
   const { project } = useProjectDetail(projectId);
   const { account } = useCurrentUser();
+  const queryClient = useQueryClient();
 
   // Current user's account id — used for ownership checks
   const currentAccountId = account?.id ?? null;
 
+  // Narrowed to a primitive up front, same as `currentAccountId` above. The
+  // memo below used to depend on the `account?.serviceProvider` OBJECT and then
+  // dereference it with a non-null assertion inside the callback. That reads
+  // `account` while declaring a narrower dependency, which the React Compiler
+  // can't reconcile — it bailed out of the whole component rather than trust
+  // the hand-written memo. A number also can't change identity on an
+  // `/api/auth/me` refetch the way the profile object can.
+  const serviceProviderId = account?.serviceProvider?.id ?? null;
+
   // projectWorkingId: find the engagement whose providerId matches the current
   // user's serviceProviderProfile.id on THIS project.
   const projectWorkingId = React.useMemo(() => {
-    if (!account?.serviceProvider) return null;
+    if (serviceProviderId === null) return null;
     const provider = project.providers.find(
-      (p) => p.providerId === account.serviceProvider!.id,
+      (p) => p.providerId === serviceProviderId,
     );
     return provider?.projectWorkingId ?? null;
-  }, [project.providers, account?.serviceProvider]);
+  }, [project.providers, serviceProviderId]);
 
   // ── Conversation list ─────────────────────────────────────────────────────
 
-  const [conversations, setConversations] = React.useState<
-    (ConversationSummary | ConversationDetailResponse)[]
-  >([]);
-  const [conversationsLoading, setConversationsLoading] = React.useState(false);
+  // `useConversations` already existed in `features/chat/hooks.ts` and was
+  // unused; this component hand-rolled the same fetch with useState + useEffect,
+  // which is what produced the cascading-render warning (the loader flag was set
+  // synchronously inside the effect). React Query also gives us caching and
+  // request cancellation the manual version didn't have.
+  const conversationsQuery = useConversations({
+    projectWorkingId,
+    ...CONVERSATIONS_PAGE,
+  });
 
-  const loadConversations = React.useCallback(async () => {
-    if (!projectWorkingId) return;
-    setConversationsLoading(true);
-    try {
-      const result = await getConversationsApi({
-        projectWorkingId,
-        pageNumber: 1,
-        pageSize: 100,
-      });
-      setConversations(result.items);
-    } catch {
-      // Keep existing conversations on error — don't lose the list
-    } finally {
-      setConversationsLoading(false);
-    }
-  }, [projectWorkingId]);
+  // The list endpoint returns summaries, not full details — `ConversationSummary`
+  // is what the cache holds, so the patcher below stays assignable to it.
+  const conversations: ConversationSummary[] = React.useMemo(
+    () => conversationsQuery.data?.items ?? [],
+    [conversationsQuery.data],
+  );
+  const conversationsLoading = conversationsQuery.isLoading;
+  const refetchConversations = conversationsQuery.refetch;
 
-  React.useEffect(() => {
-    loadConversations();
-  }, [loadConversations]);
+  // Patch the cached list in place — used to move a thread's snippet forward
+  // when a message arrives, without waiting for a refetch.
+  const patchConversations = React.useCallback(
+    (update: (prev: ConversationSummary[]) => ConversationSummary[]) => {
+      queryClient.setQueryData<ConversationListResponse>(
+        queryKeys.chat.conversations(
+          projectWorkingId ?? 0,
+          CONVERSATIONS_PAGE.pageNumber,
+          CONVERSATIONS_PAGE.pageSize,
+        ),
+        (prev) =>
+          prev ? { ...prev, items: update(prev.items) } : prev,
+      );
+    },
+    [queryClient, projectWorkingId],
+  );
 
   // ── Thread ↔ Conversation bridge ─────────────────────────────────────────
 
   // The existing UI expects `MessageThread[]`. We build them from conversations.
   // messages + attachments are populated lazily when a thread is opened.
-  const [threads, setThreads] = React.useState<MessageThread[]>([]);
-  const [threadMessages, setThreadMessages] = React.useState<
-    Map<number, Message[]>
-  >(new Map());
-
-  React.useEffect(() => {
-    setThreads(
+  //
+  // Derived, not stored: this used to be state written from an effect, which
+  // rendered once with the previous thread list before the effect caught up.
+  // Nothing else ever set it, so a memo is equivalent and one render shorter.
+  const threads = React.useMemo<MessageThread[]>(
+    () =>
       conversations.map((conv) =>
         apiConversationToThread(conv, parseInt(projectId, 10) || 0),
       ),
-    );
-  }, [conversations, projectId]);
+    [conversations, projectId],
+  );
 
   // ── Active thread selection ───────────────────────────────────────────────
 
@@ -163,47 +199,36 @@ export function ChatView({ projectId }: ChatViewProps) {
 
   // ── Load messages for active thread ─────────────────────────────────────
 
-  const [loadedMessages, setLoadedMessages] = React.useState<Message[]>([]);
+  // Messages for the active thread. `useConversation` is the sibling of
+  // `useConversations` — also already present and also unused, while this
+  // component reimplemented it as a `Map<threadId, Message[]>` kept warm by a
+  // fetch-on-miss effect. React Query caches per conversation id, so the map
+  // and the effect were duplicating it by hand; the effect was the second
+  // cascading-render warning.
+  const conversationQuery = useConversation({
+    conversationId: effectiveThreadId,
+    ...CONVERSATION_PAGE,
+  });
 
-  // Optimistic messages per thread — shown immediately on send, replaced
-  // when the server-side message arrives (via polling or mutation success).
-  const [optimisticMessages, setOptimisticMessages] = React.useState<
-    Map<number, Message[]>
-  >(new Map());
+  const refetchConversation = conversationQuery.refetch;
 
-  const loadMessages = React.useCallback(async (conversationId: number) => {
-    try {
-      const detail = await getConversationApi(conversationId);
-      const mapped: Message[] = detail.messages.map((msg) =>
-        apiMessageToDisplay(msg, conversationId),
-      );
-      setLoadedMessages(mapped);
-      setThreadMessages((prev) => {
-        const next = new Map(prev);
-        next.set(conversationId, mapped);
-        return next;
-      });
-    } catch {
-      setLoadedMessages([]);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (effectiveThreadId != null) {
-      const cached = threadMessages.get(effectiveThreadId);
-      if (cached) {
-        setLoadedMessages(cached);
-      } else {
-        loadMessages(effectiveThreadId);
-      }
-    } else {
-      setLoadedMessages([]);
-    }
-  }, [effectiveThreadId, threadMessages, loadMessages]);
+  const baseMessages = React.useMemo<Message[]>(() => {
+    if (effectiveThreadId == null) return [];
+    const detail = conversationQuery.data;
+    if (!detail) return [];
+    return detail.messages.map((msg: MessageResponse) =>
+      apiMessageToDisplay(msg, effectiveThreadId),
+    );
+  }, [conversationQuery.data, effectiveThreadId]);
 
   // ── Polling ───────────────────────────────────────────────────────────────
 
-  const initialSinceId = loadedMessages.at(-1)?.id ?? null;
+  // Cursor for the first poll after a thread switch. `useChatPolling` reads this
+  // only when `conversationId` changes and owns the cursor afterwards, so it
+  // wants "newest message already loaded", not "newest message known" — which
+  // is why deriving from the cache rather than from polled results is correct
+  // (and why there's no feedback loop with `newMessages`).
+  const initialSinceId = baseMessages.at(-1)?.id ?? null;
 
   const { newMessages } = useChatPolling({
     conversationId: effectiveThreadId,
@@ -211,13 +236,9 @@ export function ChatView({ projectId }: ChatViewProps) {
     intervalMs: 3000,
     onMessages: (msgs) => {
       if (!effectiveThreadId) return;
-      const mapped: Message[] = msgs.map((msg) =>
-        apiMessageToDisplay(msg, effectiveThreadId),
-      );
-      setLoadedMessages((prev) => [...prev, ...mapped]);
       if (msgs.length > 0) {
         const latest = msgs[msgs.length - 1];
-        setConversations((prev) =>
+        patchConversations((prev) =>
           prev.map((conv) =>
             conv.id === effectiveThreadId
               ? { ...conv, lastMessage: latest, updatedAt: latest.sentAt }
@@ -228,50 +249,30 @@ export function ChatView({ projectId }: ChatViewProps) {
     },
   });
 
-  // Effective messages: merge loaded + polled new + optimistic pending,
-// then dedupe by id and sort by `createdAt` ASC so the newest message
-// is always at the BOTTOM of the list (matches chat convention and
-// keeps auto-scroll behaviour predictable).
-//
-// Optimistic bubbles are kept until the matching real message arrives
-// (matched by id when the mutation response lands, or by author+body
-// when polling pulls it in earlier). Once matched, the optimistic is
-// dropped to avoid showing the same text twice.
-const effectiveMessages: Message[] = React.useMemo(() => {
+  // Effective messages: merge the loaded page with anything polling has pulled
+  // in since, dedupe by id, and sort by `createdAt` ASC so the newest message
+  // is always at the BOTTOM of the list (matches chat convention and keeps
+  // auto-scroll behaviour predictable).
+  //
+  // There is no optimistic layer to reconcile. Optimistic sending was built and
+  // then deliberately removed (see `handleSend`) because a client-side
+  // `new Date()` could sort a pending bubble above older real messages. The
+  // fingerprint-matching that used to drop superseded bubbles lived here and
+  // has gone with it — `optimisticMessages` was only ever written as an empty
+  // map, so the branch had been unreachable rather than merely unused.
+  const effectiveMessages: Message[] = React.useMemo(() => {
     if (!selectedThread) return [];
-    const base: Message[] = threadMessages.get(selectedThread.id) ?? [];
-    const baseIds = new Set(base.map((m) => m.id));
+    const baseIds = new Set(baseMessages.map((m) => m.id));
     const newOnes = newMessages
       .map((msg) => apiMessageToDisplay(msg, selectedThread.id))
       .filter((m) => !baseIds.has(m.id));
 
-    const realMessages = [...base, ...newOnes];
-
-    // Drop optimistic bubbles already represented by a real message
-    // (same author + body). FIFO so the most-recent user send stays
-    // visible until its own server response lands.
-    const realFingerprints = new Set(
-      realMessages.map((m) => `${m.author.id}|${m.body}`),
-    );
-    const pendingList = optimisticMessages.get(selectedThread.id) ?? [];
-    let droppedOne = false;
-    const pending = pendingList.filter((m) => {
-      if (m.id >= 0) return true;
-      const fp = `${m.author.id}|${m.body}`;
-      if (!droppedOne && realFingerprints.has(fp)) {
-        droppedOne = true;
-        return false;
-      }
-      return true;
-    });
-
-    // Final dedupe by id (a real message could appear in both `base`
-    // and `pending` after the mutation's optimistic drop), then sort
-    // by `createdAt` ASC — newest at the bottom.
-    const all = [...realMessages, ...pending];
+    // `baseMessages` can already contain a message polling also returned: a send
+    // invalidates the conversation query, so a refetch and a poll tick can both
+    // deliver it. The id dedupe still earns its keep.
     const deduped: Message[] = [];
     const seenIds = new Set<number>();
-    for (const m of all) {
+    for (const m of [...baseMessages, ...newOnes]) {
       if (seenIds.has(m.id)) continue;
       seenIds.add(m.id);
       deduped.push(m);
@@ -279,7 +280,7 @@ const effectiveMessages: Message[] = React.useMemo(() => {
     return deduped.sort(
       (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
     );
-  }, [selectedThread, threadMessages, newMessages, optimisticMessages]);
+  }, [selectedThread, baseMessages, newMessages]);
 
   // ── Send message ─────────────────────────────────────────────────────────
 
@@ -291,65 +292,38 @@ const effectiveMessages: Message[] = React.useMemo(() => {
       const trimmedBody = body.trim();
       if (!trimmedBody && (!files || files.length === 0)) return;
 
-      // ── Optimistic update removed ────────────────────────────────────
-      // We no longer inject a pending bubble on send. Reasons:
+      // No optimistic bubble on send, deliberately:
       //  - Sorting by createdAt was unreliable: client `new Date()` can
       //    sit before older real messages, pushing the optimistic ABOVE
       //    them and confusing the user.
       //  - The server response arrives in <500 ms typically; the user
       //    perceives it as instant anyway.
-      //  - The mutation's `setSending(true)` below still disables the
-      //    composer so the user gets clear feedback that their send is
-      //    in flight.
-      void effectiveThreadId;
-
+      //  - `sendMutation.isPending` still disables the composer, so the
+      //    user gets clear feedback that their send is in flight.
       try {
-        const realMessage = await sendMutation.mutateAsync({
+        // No manual cache writes here: `useSendMessage` already invalidates
+        // both ["chat","conversation",id] and ["chat","conversations"] on
+        // success, so the thread and its sidebar snippet refetch themselves.
+        // Hand-patching them as well is what the old `threadMessages` map and
+        // the snippet patch were doing, and it drifted from the server.
+        await sendMutation.mutateAsync({
           conversationId: effectiveThreadId,
           payload: { body: trimmedBody || undefined, files },
         });
-
-        // Inject the real message straight into threadMessages. Polling
-        // will dedupe via the `seenIds` check in `effectiveMessages`.
-        const realDisplay = apiMessageToDisplay(realMessage, effectiveThreadId);
-        setThreadMessages((prev) => {
-          const next = new Map(prev);
-          const list = next.get(effectiveThreadId) ?? [];
-          if (!list.some((m) => m.id === realDisplay.id)) {
-            next.set(effectiveThreadId, [...list, realDisplay]);
-          }
-          return next;
-        });
-        // Update the conversation list's snippet immediately so the
-        // thread-list sidebar reflects the new last message without
-        // waiting for the conversations refetch.
-        setConversations((prev) =>
-          prev.map((conv) =>
-            conv.id === effectiveThreadId
-              ? {
-                  ...conv,
-                  lastMessage: realMessage,
-                  updatedAt: realMessage.sentAt,
-                }
-              : conv,
-          ),
-        );
       } catch {
         toast.error("Failed to send message.");
-      } finally {
-        // Make sure we never leave a stuck optimistic bubble behind
-        // (e.g. if a previous code path still had one in state).
-        setOptimisticMessages((prev) => {
-          const next = new Map(prev);
-          next.set(effectiveThreadId, []);
-          return next;
-        });
       }
     },
     [effectiveThreadId, sendMutation],
   );
 
   // ── Create conversation ───────────────────────────────────────────────────
+
+  // Declared here, not next to the dialog markup further down: `handleCreateThread`
+  // closes the dialog on success, and a `const` referenced ~130 lines above its
+  // declaration is a temporal-dead-zone hazard. It only worked because the
+  // callback never runs during the first render.
+  const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
 
   const createMutation = useCreateConversation();
 
@@ -376,13 +350,13 @@ const effectiveMessages: Message[] = React.useMemo(() => {
         next.set("threadId", String(conversation.id));
         router.replace(`/projects/${projectId}/messages?${next.toString()}`);
         toast.success("Thread created.");
-        await loadConversations();
+        await refetchConversations();
       } catch (err) {
         console.error("[chat] Failed to create thread:", err);
         toast.error("Failed to create thread.");
       }
     },
-    [projectWorkingId, createMutation, projectId, router, loadConversations],
+    [projectWorkingId, createMutation, projectId, router, refetchConversations],
   );
 
   // ── Delete thread ────────────────────────────────────────────────────────
@@ -404,7 +378,7 @@ const effectiveMessages: Message[] = React.useMemo(() => {
           if (effectiveThreadId === threadId) {
             router.replace(`/projects/${projectId}/messages`);
           }
-          loadConversations();
+          refetchConversations();
           projectActionToast("Thread deleted.");
         },
       });
@@ -416,7 +390,7 @@ const effectiveMessages: Message[] = React.useMemo(() => {
       effectiveThreadId,
       projectId,
       router,
-      loadConversations,
+      refetchConversations,
     ],
   );
 
@@ -429,11 +403,14 @@ const effectiveMessages: Message[] = React.useMemo(() => {
       if (currentAccountId === null) return;
       deleteMessageMutation.mutate(messageId, {
         onSuccess: () => {
-          if (effectiveThreadId) loadMessages(effectiveThreadId);
+          // Re-read the thread so the deleted message disappears. Polling only
+          // ever appends (it fetches `sinceId` forward), so it can't notice a
+          // removal on its own.
+          void refetchConversation();
         },
       });
     },
-    [currentAccountId, deleteMessageMutation, effectiveThreadId, loadMessages],
+    [currentAccountId, deleteMessageMutation, refetchConversation],
   );
 
   // ── Build thread with messages ───────────────────────────────────────────
@@ -480,8 +457,6 @@ const effectiveMessages: Message[] = React.useMemo(() => {
   );
 
   // ── Create thread dialog ──────────────────────────────────────────────────
-
-  const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
 
   const handleOpenCreateDialog = () => {
     if (!projectWorkingId) {

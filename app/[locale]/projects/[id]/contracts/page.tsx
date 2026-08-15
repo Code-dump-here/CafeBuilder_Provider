@@ -40,7 +40,10 @@ import { useCurrentUser } from "@/features/auth/user-context";
 import { uploadFileApi } from "@/lib/http/file-upload-api";
 import { useContracts, useCreateContractMutation, useUpdateContractMutation, useSendContractOtpMutation, useConfirmContractOtpMutation, useCancelContractMutation } from "@/features/projects/use-contracts";
 import { useEngagements } from "@/features/projects/use-engagements";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import type { Contract } from "@/features/projects/contract-types";
+import { ErrorState } from "@/components/ui/error-state";
+import { EmptyState } from "@/components/ui/empty-state";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -69,23 +72,59 @@ export default function ContractsPage() {
   const projectIdParam = params?.id ?? "";
 
   const { account } = useCurrentUser();
+  const isProvider = account?.role === "provider";
+  const isOwner = account?.role === "owner";
 
-  // Fetch engagements for this project
+  // Fetch engagements for this project. Providers are scoped to their own
+  // providerId so another provider's engagement on the same project (e.g.
+  // the constructor when this viewer is the designer) can never drive
+  // this page. Owners own the project itself rather than a specific
+  // engagement, so they aren't scoped by providerId — every engagement on
+  // the project comes back and the right one is picked in `myEngagement`
+  // below.
+  //
+  // No `status` filter here (this used to hardcode `status: "accepted"`,
+  // which meant a provider whose engagement had ended lost contract
+  // access entirely — including their own confirmed contract history).
+  // Status-based access is handled per-role below instead.
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const {
     engagements,
     isLoading: isLoadingEngagements,
     isError: isEngagementsError,
   } = useEngagements({
     projectId: projectIdParam,
-    status: "accepted",
+    providerId: isProvider ? (viewerProfileId ?? undefined) : undefined,
     pageSize: 10,
+    enabled: isProvider ? viewerProfileId != null : isOwner,
   });
 
-  // Find the engagement for this provider (if they are a provider)
+  // Find the engagement whose contracts this viewer should see.
   const myEngagement = React.useMemo(() => {
-    if (!account || account.role !== "provider") return null;
-    return engagements[0] ?? null;
-  }, [engagements, account]);
+    if (isProvider) {
+      // A provider keeps contract access regardless of how the
+      // engagement ended — it's still their own history, not the
+      // owner's to revoke.
+      return (
+        engagements.find((e) => e.status === "accepted") ??
+        engagements.find((e) => e.status === "completed") ??
+        engagements.find((e) => e.status === "terminated") ??
+        null
+      );
+    }
+    if (isOwner) {
+      // An owner loses contract access once the engagement is
+      // terminated — the relationship (and the paperwork tied to it) is
+      // over from their side. A completed engagement's contract stays
+      // visible for their records.
+      return (
+        engagements.find((e) => e.status === "accepted") ??
+        engagements.find((e) => e.status === "completed") ??
+        null
+      );
+    }
+    return null;
+  }, [engagements, isProvider, isOwner]);
 
   const projectWorkingId = myEngagement?.id ?? null;
 
@@ -156,6 +195,9 @@ export default function ContractsPage() {
   if (isContractsError) {
     return (
       <ErrorState
+        title={t("errors.title")}
+        subtitle={t("errors.subtitle")}
+        retryLabel={t("errors.retry")}
         message={contractsError?.message ?? "Failed to load contracts."}
         onRetry={() => { void refetch(); }}
       />
@@ -189,7 +231,12 @@ export default function ContractsPage() {
 
       {/* Contract List */}
       {contracts.length === 0 ? (
-        <EmptyState onCreateNew={handleCreateNew} />
+        <EmptyState
+            title={t("empty.title")}
+            description={t("empty.description")}
+            actionLabel={t("createFirst")}
+            onAction={handleCreateNew}
+          />
       ) : (
         <div className="flex flex-col gap-4">
           {contracts
@@ -313,7 +360,10 @@ function ContractCard({
   const status = statusConfig[contract.status];
   const StatusIcon = status.icon;
 
-  const canSendOtp = accountRole === "provider" && contract.status === "drafted";
+  // Backend now requires the owner to trigger OTP send (the code always
+  // emails the owner's own account regardless of who calls the endpoint,
+  // so only the owner can meaningfully send it to themselves).
+  const canSendOtp = accountRole === "owner" && contract.status === "drafted";
   const canEdit = accountRole === "provider" && contract.status === "drafted";
   const canCancel = accountRole === "provider" && (contract.status === "drafted" || contract.status === "pending_otp");
   const canConfirm = accountRole === "owner" && contract.status === "pending_otp";
@@ -377,9 +427,15 @@ function ContractCard({
         <CardDescription>
           {t("createdAt", { date: formattedDate, time: formattedTime })}
           {" • "}
-          {t("value", {
-            value: contract.agreedValue.toLocaleString("vi-VN"),
-          })}
+          {/* The backend treats the agreed value as optional ("tham khảo"),
+              so say so explicitly rather than implying a figure of zero.
+              This used to call `.toLocaleString()` straight on the value,
+              which threw on any contract drafted without one. */}
+          {contract.agreedValue !== null
+            ? t("value", {
+                value: contract.agreedValue.toLocaleString("vi-VN"),
+              })
+            : t("valueNotSet")}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -507,7 +563,7 @@ function CreateContractDialog({
   const [isUploading, setIsUploading] = React.useState(false);
 
   // Reset form when dialog opens
-  React.useEffect(() => {
+  useResetOnChange(open, () => {
     if (open) {
       setTitle("");
       setTerms("");
@@ -515,7 +571,7 @@ function CreateContractDialog({
       setDocumentUrl("");
       setDocumentFile(null);
     }
-  }, [open]);
+  });
 
   const createMutation = useCreateContractMutation({
     onSuccessMessage: null,
@@ -738,12 +794,12 @@ function OtpConfirmDialog({
   const [step, setStep] = React.useState<"send" | "confirm">("send");
 
   // Reset when dialog opens
-  React.useEffect(() => {
+  useResetOnChange(open && contract ? `${contract.id}:${contract.status}` : null, () => {
     if (open && contract) {
       setOtpCode("");
       setStep(contract.status === "drafted" ? "send" : "confirm");
     }
-  }, [open, contract]);
+  });
 
   const sendOtpMutation = useSendContractOtpMutation({
     onSuccessMessage: null,
@@ -1006,71 +1062,5 @@ function ContractsLoadingSkeleton() {
 // ---------------------------------------------------------------------------
 // Empty state
 
-interface EmptyStateProps {
-  onCreateNew: () => void;
-}
-
-function EmptyState({ onCreateNew }: EmptyStateProps) {
-  const t = useTranslations("Contracts");
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card/40 px-6 py-16 text-center">
-      <div className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
-        <FileText className="size-5" aria-hidden />
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-base font-semibold text-foreground">
-          {t("empty.title")}
-        </p>
-        <p className="max-w-md text-sm text-muted-foreground">
-          {t("empty.description")}
-        </p>
-      </div>
-      <Button onClick={onCreateNew} className="mt-2">
-        <Plus aria-hidden />
-        {t("createFirst")}
-      </Button>
-    </div>
-  );
-}
-
 // ---------------------------------------------------------------------------
 // Error state
-
-interface ErrorStateProps {
-  message: string;
-  onRetry: () => void;
-}
-
-function ErrorState({ message, onRetry }: ErrorStateProps) {
-  const t = useTranslations("Contracts.errors");
-  return (
-    <div
-      role="alert"
-      className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-16 text-center"
-    >
-      <div className="grid size-12 place-items-center rounded-full bg-destructive/10 text-destructive">
-        <AlertTriangle className="size-5" aria-hidden />
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-base font-semibold text-foreground">{t("title")}</p>
-        <p className="max-w-md text-sm text-muted-foreground">
-          {t("subtitle")}
-        </p>
-        {message ? (
-          <p className="mt-1 font-mono text-[11px] text-muted-foreground/80">
-            {message}
-          </p>
-        ) : null}
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        onClick={onRetry}
-        className="mt-1"
-      >
-        {t("retry")}
-      </Button>
-    </div>
-  );
-}

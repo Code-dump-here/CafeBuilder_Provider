@@ -18,7 +18,6 @@ export * from "./project-application-types";
 export * from "./messages-types";
 export * from "./design-brief-types";
 export * from "./design-brief-list-types";
-export * from "./technical-drawing-types";
 
 // API functions
 export * from "./project-detail-api";
@@ -51,6 +50,5 @@ export * from "./use-design-briefs";
 export * from "./use-design-brief";
 export * from "./use-ai-recommendations";
 export * from "./use-is-project-owner";
-export * from "./use-version-comments";
-export * from "./use-technical-drawings";
+export * from "./use-design-comments";
 export * from "./use-message-threads";

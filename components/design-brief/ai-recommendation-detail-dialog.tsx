@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { formatVndMillions } from "@/lib/format-currency";
 
 import type {
   AiRecommendation,
@@ -310,14 +311,14 @@ function RecommendationBody({
                   <MetaField
                     icon={Coins}
                     label={tDetails("designCost")}
-                    value={formatVnd(rec.estimatedDesignCost, format)}
+                    value={formatVndMillions(rec.estimatedDesignCost, format)}
                   />
                 ) : null}
                 {rec.estimatedConstructionCost != null ? (
                   <MetaField
                     icon={Coins}
                     label={tDetails("constructionCost")}
-                    value={formatVnd(rec.estimatedConstructionCost, format)}
+                    value={formatVndMillions(rec.estimatedConstructionCost, format)}
                   />
                 ) : null}
                 {rec.contingencyPercent != null ? (
@@ -593,15 +594,10 @@ function CostRangeField({
     <MetaField
       icon={Icon}
       label={label}
-      value={`${formatVnd(min, format)} – ${formatVnd(max, format)}`}
+      value={`${formatVndMillions(min, format)} – ${formatVndMillions(max, format)}`}
       emphasized
     />
   );
-}
-
-function formatVnd(value: number, format: ReturnType<typeof useFormatter>) {
-  const millions = value / 1_000_000;
-  return `${format.number(millions, { maximumFractionDigits: 0 })} tr VND`;
 }
 
 // ---------------------------------------------------------------------------

@@ -8,12 +8,20 @@ import { tokenStore } from "@/features/auth/token-store";
 import { AppError } from "@/lib/http/errors";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
 
-import { applyToPostApi, getAppliesApi } from "./project-application-api";
+import { useCurrentUser } from "@/features/auth/user-context";
+
+import {
+  applyToPostApi,
+  getAppliesApi,
+  updateApplyProposalApi,
+  withdrawApplyApi,
+} from "./project-application-api";
 import type {
   ApplyToPostPayload,
   ApplyResponse,
   AppliesListResponse,
   ProjectApplication,
+  UpdateApplyProposalPayload,
 } from "./project-application-types";
 
 // ─── Toast messages ─────────────────────────────────────────────────────────
@@ -37,6 +45,25 @@ const TOAST = {
   conflict: "Bạn đã ứng tuyển bài đăng này trước đó.",
   validation: "Thông tin ứng tuyển chưa hợp lệ.",
   generic: "Không thể gửi hồ sơ. Vui lòng thử lại sau.",
+} as const;
+
+/**
+ * Revise / withdraw share the shape of the apply toasts but not the copy —
+ * "Bạn đã ứng tuyển bài đăng này trước đó" makes no sense as the answer to
+ * a withdraw request. The 404/409 cases are the interesting ones: both mean
+ * the application moved on while the UI was showing a stale snapshot.
+ */
+const UPDATE_TOAST = {
+  success: "Đã cập nhật hồ sơ ứng tuyển.",
+  notFound: "Hồ sơ không còn tồn tại — có thể bạn đã rút trước đó.",
+  conflict: "Chủ dự án đã phản hồi hồ sơ này, không sửa được nữa.",
+  generic: "Không thể cập nhật hồ sơ. Vui lòng thử lại sau.",
+} as const;
+
+const WITHDRAW_TOAST = {
+  success: "Đã rút hồ sơ ứng tuyển.",
+  conflict: "Chủ dự án đã phản hồi hồ sơ này, không rút được nữa.",
+  generic: "Không thể rút hồ sơ. Vui lòng thử lại sau.",
 } as const;
 
 export interface ApplyToPostMutationOptions {
@@ -132,6 +159,136 @@ export function useApplyToPostMutation(options: ApplyToPostMutationOptions = {})
   });
 }
 
+// ─── Revise / withdraw ──────────────────────────────────────────────────────
+
+export interface UpdateApplyProposalVariables {
+  applyId: number;
+  payload: UpdateApplyProposalPayload;
+}
+
+export interface ApplyMutationOptions<TResult> {
+  /** Pass `null` to suppress the toast and render your own feedback. */
+  onSuccessMessage?: string | ((result: TResult) => string) | null;
+  /** Pass `null` to suppress the toast and render your own error UI. */
+  onErrorMessage?: string | ((error: AppError) => string) | null;
+  onSuccessSideEffect?: (result: TResult) => void;
+  onErrorSideEffect?: (error: AppError) => void;
+}
+
+/**
+ * Everything that can display an application is keyed under `["applies"]`
+ * (the provider list) or `["marketplace"]` (post cards showing an
+ * "applied" badge). Both go stale the moment an application is revised or
+ * withdrawn, so the two mutations below invalidate the same pair.
+ */
+function invalidateApplyCaches(queryClient: ReturnType<typeof useQueryClient>) {
+  void queryClient.invalidateQueries({ queryKey: ["applies"], exact: false });
+  void queryClient.invalidateQueries({
+    queryKey: ["marketplace"],
+    exact: false,
+  });
+}
+
+/**
+ * React Query mutation for `PUT /api/applies/{id}/proposal`.
+ *
+ * Only valid while the application is `pending` — the server returns 409
+ * once the owner has answered, which `resolveUpdateErrorMessage` turns
+ * into a "chủ dự án đã phản hồi" toast rather than a generic failure.
+ */
+export function useUpdateApplyProposalMutation(
+  options: ApplyMutationOptions<ApplyResponse> = {},
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation<ApplyResponse, AppError, UpdateApplyProposalVariables>({
+    mutationFn: ({ applyId, payload }) =>
+      updateApplyProposalApi(applyId, payload),
+
+    onSuccess: (application) => {
+      invalidateApplyCaches(queryClient);
+
+      if (options.onSuccessMessage !== null) {
+        const message =
+          typeof options.onSuccessMessage === "function"
+            ? options.onSuccessMessage(application)
+            : options.onSuccessMessage ?? UPDATE_TOAST.success;
+        projectActionToast(message);
+      }
+
+      options.onSuccessSideEffect?.(application);
+    },
+
+    onError: (error) => {
+      if (options.onErrorMessage !== null) {
+        const message =
+          typeof options.onErrorMessage === "function"
+            ? options.onErrorMessage(error)
+            : options.onErrorMessage ?? resolveUpdateErrorMessage(error);
+        projectActionToast(message);
+      }
+
+      options.onErrorSideEffect?.(error);
+    },
+  });
+}
+
+/**
+ * React Query mutation for `DELETE /api/applies/{id}/withdraw`.
+ *
+ * The endpoint hard-deletes the row, so there is no updated record to read
+ * back — success is signalled by the invalidation alone, after which the
+ * application simply stops appearing in the provider's list.
+ *
+ * A 404 is treated as success: the row is gone, which is exactly what the
+ * user asked for (they likely withdrew it in another tab).
+ */
+export function useWithdrawApplyMutation(
+  options: ApplyMutationOptions<number> = {},
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation<number, AppError, number>({
+    mutationFn: async (applyId) => {
+      try {
+        await withdrawApplyApi(applyId);
+      } catch (error) {
+        if (error instanceof AppError && error.status === 404) {
+          return applyId;
+        }
+        throw error;
+      }
+      return applyId;
+    },
+
+    onSuccess: (applyId) => {
+      invalidateApplyCaches(queryClient);
+
+      if (options.onSuccessMessage !== null) {
+        const message =
+          typeof options.onSuccessMessage === "function"
+            ? options.onSuccessMessage(applyId)
+            : options.onSuccessMessage ?? WITHDRAW_TOAST.success;
+        projectActionToast(message);
+      }
+
+      options.onSuccessSideEffect?.(applyId);
+    },
+
+    onError: (error) => {
+      if (options.onErrorMessage !== null) {
+        const message =
+          typeof options.onErrorMessage === "function"
+            ? options.onErrorMessage(error)
+            : options.onErrorMessage ?? resolveWithdrawErrorMessage(error);
+        projectActionToast(message);
+      }
+
+      options.onErrorSideEffect?.(error);
+    },
+  });
+}
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /**
@@ -158,7 +315,13 @@ function resolveErrorMessage(error: AppError): string {
     case 404:
       return TOAST.notFound;
     case 409:
-      return TOAST.conflict;
+      // 409 isn't only "you already applied" — a capability mismatch or a
+      // slot that filled up between browse and submit hits this same
+      // status. The backend's own message names the real reason; falling
+      // back to a generic "already applied" here previously made those
+      // failures look like a harmless duplicate instead of the actual
+      // problem.
+      return preferServerMessage(error, TOAST.conflict);
     default:
       // Use the server's own message when it looks meaningful (non-empty,
       // not axios's boilerplate "Request failed with status code XXX").
@@ -171,6 +334,56 @@ function resolveErrorMessage(error: AppError): string {
       }
       return TOAST.generic;
   }
+}
+
+/** Same preference order as `resolveErrorMessage`, revise-specific copy. */
+function resolveUpdateErrorMessage(error: AppError): string {
+  if (error.isNetworkError) return TOAST.network;
+  if (error.isTimeout) return TOAST.timeout;
+
+  switch (error.status) {
+    case 400:
+      return TOAST.validation;
+    case 401:
+      return TOAST.unauthorized;
+    case 404:
+      return UPDATE_TOAST.notFound;
+    case 409:
+      return preferServerMessage(error, UPDATE_TOAST.conflict);
+    default:
+      return preferServerMessage(error, UPDATE_TOAST.generic);
+  }
+}
+
+/** Same preference order as `resolveErrorMessage`, withdraw-specific copy. */
+function resolveWithdrawErrorMessage(error: AppError): string {
+  if (error.isNetworkError) return TOAST.network;
+  if (error.isTimeout) return TOAST.timeout;
+
+  switch (error.status) {
+    case 401:
+      return TOAST.unauthorized;
+    case 409:
+      return preferServerMessage(error, WITHDRAW_TOAST.conflict);
+    default:
+      return preferServerMessage(error, WITHDRAW_TOAST.generic);
+  }
+}
+
+/**
+ * Use the server's own message when it looks meaningful — non-empty and not
+ * axios's boilerplate "Request failed with status code XXX". The backend
+ * writes actionable Vietnamese for most 4xx cases, so it beats our fallback.
+ */
+function preferServerMessage(error: AppError, fallback: string): string {
+  if (
+    error.message &&
+    error.message.trim().length > 0 &&
+    !/^Request failed/i.test(error.message)
+  ) {
+    return error.message;
+  }
+  return fallback;
 }
 
 // ─── Query hooks ─────────────────────────────────────────────────────────────
@@ -215,13 +428,23 @@ export function useProviderApplies(
   options: UseProviderAppliesOptions = {},
 ): UseProviderAppliesResult {
   const hasToken = tokenStore.hasAccessToken();
+  const { account } = useCurrentUser();
+
+  // `GET /api/applies` filters on the `serviceProviderProfileId` QUERY
+  // PARAM — `ApplyService.GetAllAsync` never looks at the JWT. Omitting it
+  // returns *every provider's* applications, which made `hasAppliedToPost`
+  // fire on strangers' bids and would have offered this user a Withdraw
+  // button for an application that isn't theirs.
+  const serviceProviderProfileId =
+    account?.role === "provider" ? account.serviceProvider?.id ?? null : null;
 
   const {
     projectShopOwnerId,
     postId,
     status,
     pageSize = 50,
-    enabled = hasToken,
+    // Without a profile id the request can't be scoped, so don't make it.
+    enabled = hasToken && serviceProviderProfileId != null,
   } = options;
 
   const query = useQuery<AppliesListResponse, Error>({
@@ -229,6 +452,7 @@ export function useProviderApplies(
       "applies",
       "provider",
       {
+        serviceProviderProfileId,
         projectShopOwnerId,
         postId,
         status,
@@ -236,10 +460,9 @@ export function useProviderApplies(
       },
     ],
     queryFn: async ({ signal }) => {
-      // serviceProviderProfileId will be resolved by the API based on JWT
-      // We just need to filter by what we need
       return getAppliesApi(
         {
+          serviceProviderProfileId: serviceProviderProfileId ?? undefined,
           projectShopOwnerId:
             projectShopOwnerId !== undefined
               ? Number(projectShopOwnerId)

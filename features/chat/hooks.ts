@@ -227,14 +227,17 @@ export interface UseChatPollingResult {
    * Accumulated new messages received since the hook mounted.
    * Caller can display these in addition to the initial message list.
    */
-  newMessages: MessageResponse[];
-  /**
-   * The last `sinceId` used in the most recent poll.
-   * Caller can persist this to restore position on reconnect.
-   */
-  lastSinceId: number | null;
+  /** Owned by the hook — treat as immutable; consumers map/filter, never push. */
+  newMessages: readonly MessageResponse[];
   isPolling: boolean;
 }
+
+/**
+ * Returned when the accumulator holds another conversation's batches. A single
+ * frozen instance so `newMessages` keeps a stable identity across renders —
+ * consumers put it in `useMemo` dependency arrays.
+ */
+const NO_MESSAGES: readonly MessageResponse[] = Object.freeze([]);
 
 /**
  * Polls `GET /api/chat/messages?conversationId=&sinceId=` at `intervalMs`.
@@ -268,7 +271,24 @@ export function useChatPolling(
   const stoppedRef = React.useRef(false);
   const failureCountRef = React.useRef(0);
 
-  const [newMessages, setNewMessages] = React.useState<MessageResponse[]>([]);
+  // Polled batches, tagged with the conversation they belong to. Storing the id
+  // alongside them lets a thread switch clear the list by DERIVATION below,
+  // instead of an effect calling `setNewMessages([])` synchronously — which is
+  // what triggered the cascading-render error. It also closes a race the reset
+  // had: a poll for the old thread that resolved after the switch could append
+  // to the new thread's list, and `chat-view` re-tags whatever it gets with the
+  // active thread id, so those messages would have surfaced under the wrong
+  // conversation.
+  const [accumulated, setAccumulated] = React.useState<{
+    conversationId: number | null;
+    messages: MessageResponse[];
+  }>({ conversationId: null, messages: [] });
+
+  const newMessages =
+    accumulated.conversationId === conversationId
+      ? accumulated.messages
+      : NO_MESSAGES;
+
   const [isPolling, setIsPolling] = React.useState(false);
 
   const poll = React.useCallback(async () => {
@@ -293,7 +313,11 @@ export function useChatPolling(
         lastIdRef.current = messages[messages.length - 1].id;
         const skipAccumulate = onMessages?.(messages) === true;
         if (!skipAccumulate) {
-          setNewMessages((prev) => [...prev, ...messages]);
+          setAccumulated((prev) =>
+            prev.conversationId === conversationId
+              ? { conversationId, messages: [...prev.messages, ...messages] }
+              : { conversationId, messages },
+          );
         }
       }
       // Reset backoff after a clean round-trip.
@@ -329,7 +353,9 @@ export function useChatPolling(
     stoppedRef.current = false;
     failureCountRef.current = 0;
     lastIdRef.current = initialSinceId ?? null;
-    setNewMessages([]);
+    // No `setNewMessages([])` here — `newMessages` is derived from whether the
+    // accumulator's conversation id matches the active one, so the switch has
+    // already emptied it by the time this runs.
     timerRef.current = setTimeout(poll, 0);
 
     return () => {
@@ -341,17 +367,17 @@ export function useChatPolling(
     };
   }, [conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const pollMemo = React.useCallback(poll, [poll]);
-
-  // Keep `intervalMs` reactive without restarting the whole loop
-  React.useEffect(() => {
-    // no-op — interval changes are picked up on the next poll cycle
-  }, [intervalMs]);
+  // `pollMemo` used to sit here — `useCallback(poll, [poll])`, memoising an
+  // already-memoised callback, never read by anything. It carried its own
+  // eslint-disable and one of this file's compiler errors.
+  //
+  // The empty `useEffect` on [intervalMs] went with it: it ran no code, and
+  // the behaviour it documented (a changed interval is picked up on the next
+  // cycle) is a property of `poll` reading `intervalMs` when it reschedules,
+  // not of anything that effect did.
 
   return {
     newMessages,
-    lastSinceId: lastIdRef.current,
     isPolling,
   };
 }

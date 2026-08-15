@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { tokenStore } from "./token-store";
-import { queryKeys } from "@/lib/react-query/keys";
 import type { NormalizedAccount } from "./auth-me-types";
 import { fetchMe } from "./auth-me-api";
 
@@ -42,8 +41,6 @@ export interface UseMeResult {
  * when tokens change (login/logout).
  */
 export function useMe(): UseMeResult {
-  const queryClient = useQueryClient();
-
   // Subscribe to tokenStore changes to re-evaluate the query
   const hydrated = useAuthHydrated();
   const hasToken = React.useSyncExternalStore(
@@ -52,17 +49,10 @@ export function useMe(): UseMeResult {
     () => false, // SSR: assume no token
   );
 
-  // Force re-render when token changes so `enabled` re-evaluates
-  // and the query fires after login/logout.
-  const [, setTokenVersion] = React.useState(0);
-  React.useEffect(() => {
-    const unsubscribe = tokenStore.subscribe(() => {
-      setTokenVersion((v) => v + 1);
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  // The two `useSyncExternalStore` subscriptions above already re-render
+  // this hook whenever the token store changes, which is what makes
+  // `enabled` re-evaluate after login/logout. A third subscription driving
+  // a counter was doing the same job twice.
 
   const query = useQuery<NormalizedAccount, Error>({
     queryKey: ["auth", "me"],
@@ -71,16 +61,8 @@ export function useMe(): UseMeResult {
     staleTime: 5 * 60 * 1000, // 5 minutes — account data rarely changes
   });
 
-  // Sync full account data to auth session cache on success
-  React.useEffect(() => {
-    if (query.data) {
-      queryClient.setQueryData(queryKeys.auth.account(), {
-        accountId: query.data.id,
-        email: query.data.email,
-        role: query.data.role,
-      });
-    }
-  }, [query.data, queryClient]);
+  // No mirroring into a second cache: `useAuthSession` now derives its
+  // summary from this query directly, so there's nothing to keep in step.
 
   return {
     data: query.data ?? null,

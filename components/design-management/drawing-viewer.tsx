@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { OwnerAvatar } from "@/components/data-table";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
 import { cn } from "@/lib/utils";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 import type {
   DesignDrawing,
@@ -59,9 +60,9 @@ export function DrawingViewer({
   // Reset broken-image state whenever the active drawing changes,
   // otherwise opening a broken drawing would stick on the placeholder
   // for the next one too.
-  React.useEffect(() => {
+  useResetOnChange(drawing?.id, () => {
     setImgError(false);
-  }, [drawing?.id]);
+  });
 
   const currentIndex = drawing
     ? drawings.findIndex((d) => d.id === drawing.id)

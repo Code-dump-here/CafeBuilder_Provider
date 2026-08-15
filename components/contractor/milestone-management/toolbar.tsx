@@ -12,6 +12,12 @@ interface MilestoneManagementToolbarProps {
   taskCount: number;
   doneTaskCount: number;
   onAddPhase: () => void;
+  /**
+   * Disables the "Add phase" CTA. Creating a construction item requires an
+   * `accepted` engagement with a confirmed contract — the server refuses
+   * otherwise, so the button shouldn't invite the attempt.
+   */
+  addPhaseDisabled?: boolean;
 }
 
 /**
@@ -24,6 +30,7 @@ export function MilestoneManagementToolbar({
   taskCount,
   doneTaskCount,
   onAddPhase,
+  addPhaseDisabled = false,
 }: MilestoneManagementToolbarProps) {
   const t = useTranslations("MilestoneManagement.toolbar");
 
@@ -57,7 +64,12 @@ export function MilestoneManagementToolbar({
             {t("backToOverview")}
           </Link>
         </Button>
-        <Button type="button" size="sm" onClick={onAddPhase}>
+        <Button
+          type="button"
+          size="sm"
+          onClick={onAddPhase}
+          disabled={addPhaseDisabled}
+        >
           <Plus aria-hidden />
           {t("addPhase")}
         </Button>

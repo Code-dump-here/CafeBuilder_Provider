@@ -29,6 +29,7 @@ import type { ConstructionTask } from "@/features/projects/construction-types";
 import type { Issue } from "@/features/projects/issue-types";
 
 import type { MilestonePhase } from "@/lib/contractor/construction-overview-data";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 interface PhaseDetailDrawerProps {
   phase: MilestonePhase | null;
@@ -102,6 +103,10 @@ export function PhaseDetailDrawer({
   const tasksQuery = useConstructionTasks({
     constructionItemId: constructionItemId ?? undefined,
     enabled: constructionItemId != null && projectWorkingId != null,
+    // Already scoped to one milestone, so cross-project bleed isn't a
+    // risk here — but the backend still caps at 10 without this, which
+    // would quietly truncate a milestone that has more tasks than that.
+    pageSize: 200,
   });
   const issuesQuery = useIssues({
     constructionItemId: constructionItemId ?? undefined,
@@ -127,9 +132,9 @@ export function PhaseDetailDrawer({
   const [doneTaskIds, setDoneTaskIds] = React.useState<Record<number, boolean>>(
     {},
   );
-  React.useEffect(() => {
+  useResetOnChange(phase?.id, () => {
     setDoneTaskIds({});
-  }, [phase?.id]);
+  });
 
   if (!phase) return null;
 

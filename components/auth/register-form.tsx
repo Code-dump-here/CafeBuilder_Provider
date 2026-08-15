@@ -13,8 +13,9 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import {
   postAuthDestinationToPath,
-  resolvePostAuthDestination,
+  resolvePostAuthDestinationFromAccount,
 } from "@/features/auth/post-auth-redirect";
+import { fetchMe } from "@/features/auth/auth-me-api";
 import { AppError } from "@/lib/http/errors";
 
 interface RegisterFormData {
@@ -72,12 +73,14 @@ export function RegisterForm() {
       {
         onSuccess: async (session) => {
           queryClient.removeQueries({ queryKey: ["auth", "me"] });
-          const { destination, account } = await resolvePostAuthDestination();
-          // Seed `useMe` with the account we just fetched — see the same
-          // comment in login-form.tsx.
-          if (account) {
-            queryClient.setQueryData(["auth", "me"], account);
-          }
+          // Fetch through React Query so `useMe` is populated via its normal
+          // path — see the comment in login-form.tsx.
+          const account = await queryClient.fetchQuery({
+            queryKey: ["auth", "me"],
+            queryFn: () => fetchMe(),
+            staleTime: 5 * 60 * 1000,
+          });
+          const destination = resolvePostAuthDestinationFromAccount(account);
           const path =
             destination.kind === "onboarding"
               ? postAuthDestinationToPath(destination)

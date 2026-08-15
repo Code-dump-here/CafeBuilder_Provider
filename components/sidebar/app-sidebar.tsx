@@ -145,7 +145,10 @@ export function AppSidebar({
   }, [account, locale]);
 
   const secondaryItems = [
-    { title: t("Sidebar.common.shortcuts"), url: "/shortcuts", icon: Keyboard },
+    // Removed: "/shortcuts" and "/settings" have no matching page under
+    // app/[locale]/ — keeping the entries here (not deleting) so they're
+    // easy to re-enable once those pages exist.
+    // { title: t("Sidebar.common.shortcuts"), url: "/shortcuts", icon: Keyboard },
     {
       title: t("Sidebar.common.notifications"),
       url: "/notifications",
@@ -155,7 +158,7 @@ export function AppSidebar({
       // stay in sync without an extra request.
       badge: unreadCount > 0 ? (unreadCount > 99 ? "99+" : unreadCount) : undefined,
     },
-    { title: t("Sidebar.common.settings"), url: "/settings", icon: Settings },
+    // { title: t("Sidebar.common.settings"), url: "/settings", icon: Settings },
   ];
 
   return (
@@ -164,8 +167,13 @@ export function AppSidebar({
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
+              {/* "/workspace" never existed as a route — this used to point
+                  there and got disabled entirely, which meant no way back
+                  to home from inside a project. Points at "/" instead,
+                  matching how the marketing navbar's own logo behaves for
+                  every user, signed in or not (see components/navbar/navbar.tsx). */}
               <SidebarMenuButton size="lg" asChild>
-                <Link href="/workspace">
+                <Link href="/">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <AppWindow className="size-4" aria-hidden />
                   </div>

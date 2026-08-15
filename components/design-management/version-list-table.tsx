@@ -26,7 +26,10 @@ import { DataTable } from "@/components/data-table/data-table";
 
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
 import { VersionCommentsPanel } from "@/components/design-management/version-comments-panel";
-import { useVersionComments } from "@/features/projects/use-version-comments";
+import {
+  useCreateDesignCommentMutation,
+  useDesignComments,
+} from "@/features/projects/use-design-comments";
 import {
   NewVersionDialog,
   PublishRevisionDialog,
@@ -34,14 +37,13 @@ import {
 import type { DesignVersion } from "@/features/projects/design-version-types";
 import type { DesignType } from "@/features/projects/design-types";
 import { mapDesignTypeToCategory } from "@/features/projects/use-designs";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 interface VersionListTableProps {
   projectId: string;
   versions: DesignVersion[];
   /** Engagement id forwarded to `NewVersionDialog` for `POST /api/designs`. */
   projectWorkingId: number | null;
-  /** Callers account id (creator) — forwarded to `NewVersionDialog`. */
-  createdBy: number | null;
   /** Render the right-hand action buttons (New Version, Publish Revision). */
   showActions?: boolean;
   /**
@@ -117,7 +119,6 @@ const DEFAULT_TABS: ReadonlyArray<{
 export function VersionListTable({
   projectId,
   projectWorkingId,
-  createdBy,
   versions,
   showActions = true,
   titleKey = "pageTitle",
@@ -132,7 +133,6 @@ export function VersionListTable({
     <VersionListTableInner
       projectId={projectId}
       projectWorkingId={projectWorkingId}
-      createdBy={createdBy}
       versions={versions}
       showActions={showActions}
       titleKey={titleKey}
@@ -149,7 +149,6 @@ export function VersionListTable({
 function VersionListTableInner({
   projectId,
   projectWorkingId,
-  createdBy,
   versions,
   showActions = true,
   titleKey = "pageTitle",
@@ -217,7 +216,7 @@ function VersionListTableInner({
 
   // Reset selection when the active tab changes — otherwise the right
   // rail could end up showing comments for a version that's hidden.
-  React.useEffect(() => {
+  useResetOnChange(filtered, () => {
     if (filtered.length === 0) {
       setSelectedVersionId(null);
       return;
@@ -226,14 +225,25 @@ function VersionListTableInner({
     if (!stillVisible) {
       setSelectedVersionId(filtered[0]?.id ?? null);
     }
-  }, [filtered, selectedVersionId]);
+  });
 
   const selectedVersion: DesignVersion | null = React.useMemo(() => {
     if (selectedVersionId == null) return null;
     return filtered.find((v) => v.id === selectedVersionId) ?? null;
   }, [filtered, selectedVersionId]);
 
-  const comments = useVersionComments(selectedVersionId);
+  // A row's id *is* the design id (see use-designs.ts), so it doubles as the
+  // comment thread's targetId.
+  const { comments } = useDesignComments(selectedVersionId);
+  const createComment = useCreateDesignCommentMutation(selectedVersionId);
+
+  const handleAddComment = React.useCallback(
+    async (body: string) => {
+      if (selectedVersionId == null) return;
+      await createComment.mutateAsync(body);
+    },
+    [createComment, selectedVersionId],
+  );
 
   return (
     <section className="flex flex-col gap-4">
@@ -262,7 +272,6 @@ function VersionListTableInner({
             <NewVersionDialog
               nextCode={`V${(versions.length + 1).toFixed(1)}`}
               projectWorkingId={projectWorkingId}
-              createdBy={createdBy}
               onCreated={(design) =>
                 projectActionToast(
                   t("dialogs.newVersion.created", {
@@ -459,7 +468,11 @@ function VersionListTableInner({
         </div>
 
         <div className="flex min-h-0 flex-col lg:sticky lg:top-4 lg:self-start">
-          <VersionCommentsPanel version={selectedVersion} comments={comments} />
+          <VersionCommentsPanel
+            version={selectedVersion}
+            comments={comments}
+            onAddComment={handleAddComment}
+          />
         </div>
       </div>
 
@@ -467,7 +480,11 @@ function VersionListTableInner({
           cramming into the side rail on small viewports. The lg+ view
           already shows the panel in the right rail above. */}
       <div className="lg:hidden">
-        <VersionCommentsPanel version={selectedVersion} comments={comments} />
+        <VersionCommentsPanel
+            version={selectedVersion}
+            comments={comments}
+            onAddComment={handleAddComment}
+          />
       </div>
 
       {/* Background-refetch indicator — kept below the table so it doesn't

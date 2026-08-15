@@ -22,11 +22,16 @@ export default function DesignDetailRoutePage() {
   const projectId = params?.id ?? "";
   const { account } = useCurrentUser();
 
-  // Resolve projectWorkingId for the design API call.
+  // Resolve projectWorkingId for the design API call. Scoped by
+  // `providerId` so another provider's engagement on the same project
+  // can never drive this page.
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const { engagements } = useEngagements({
     projectId,
+    providerId: viewerProfileId ?? undefined,
     status: "accepted",
     pageSize: 1,
+    enabled: viewerProfileId != null,
   });
   const projectWorkingId = engagements[0]?.id ?? null;
 
@@ -34,7 +39,6 @@ export default function DesignDetailRoutePage() {
     <DesignDetailPage
       projectId={projectId}
       projectWorkingId={projectWorkingId}
-      currentUserId={account?.id ?? null}
     />
   );
 }

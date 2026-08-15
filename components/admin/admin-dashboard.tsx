@@ -359,12 +359,16 @@ export function AdminDashboard() {
             href="/admin/projects"
             icon={Briefcase}
           />
+          {/* Removed: "/admin/contracts" has no matching page under
+              app/[locale]/admin/ — keeping the card here (not deleting)
+              so it's easy to re-enable once that page exists.
           <QuickLinkCard
             title={t("dashboard.contracts")}
             count={data.contracts.total}
             href="/admin/contracts"
             icon={FileSignature}
           />
+          */}
         </div>
       </div>
     </div>

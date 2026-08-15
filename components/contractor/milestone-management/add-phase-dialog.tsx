@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { todayDateInputValue } from "@/lib/date-input";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { Field } from "@/components/ui/field";
 
 interface AddPhaseDialogProps {
   open: boolean;
@@ -23,7 +26,7 @@ interface AddPhaseDialogProps {
     category?: string;
     description?: string;
     estimateAt?: string;
-  }) => void;
+  }) => void | Promise<void>;
 }
 
 /**
@@ -40,30 +43,41 @@ export function AddPhaseDialog({
   const [category, setCategory] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [estimateAt, setEstimateAt] = React.useState("");
+  const [submitting, setSubmitting] = React.useState(false);
 
-  React.useEffect(() => {
-    if (!open) {
+  useResetOnChange(open, () => {
+    if (open) {
+      // Default to today rather than leaving the picker blank — a phase
+      // created just now most naturally starts today, and the user can
+      // still push it forward.
+      setEstimateAt(todayDateInputValue());
+    } else {
       setName("");
       setCategory("");
       setDescription("");
       setEstimateAt("");
+      setSubmitting(false);
     }
-  }, [open]);
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("[AddPhaseDialog] handleSubmit called", { name, category, description, estimateAt });
-    if (!name.trim()) {
-      console.log("[AddPhaseDialog] name is empty, aborting");
-      return;
+    if (!name.trim() || submitting) return;
+
+    setSubmitting(true);
+    try {
+      await onSubmit({
+        name: name.trim(),
+        category: category.trim() || undefined,
+        description: description.trim() || undefined,
+        estimateAt: estimateAt || undefined,
+      });
+      onOpenChange(false);
+    } catch {
+      // Caller surfaces the error (toast); keep the dialog open with the
+      // entered values so the user can retry instead of losing input.
+      setSubmitting(false);
     }
-    onSubmit({
-      name: name.trim(),
-      category: category.trim() || undefined,
-      description: description.trim() || undefined,
-      estimateAt: estimateAt || undefined,
-    });
-    onOpenChange(false);
   };
 
   return (
@@ -105,6 +119,7 @@ export function AddPhaseDialog({
               type="date"
               value={estimateAt}
               onChange={(e) => setEstimateAt(e.target.value)}
+              min={todayDateInputValue()}
             />
           </Field>
           <DialogFooter className="gap-2">
@@ -116,7 +131,7 @@ export function AddPhaseDialog({
             <Button
               type="submit"
               size="sm"
-              disabled={!name.trim()}
+              disabled={!name.trim() || submitting}
             >
               {t("create")}
             </Button>
@@ -124,20 +139,5 @@ export function AddPhaseDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="flex flex-col gap-1.5 text-xs">
-      <span className="font-medium text-muted-foreground">{label}</span>
-      {children}
-    </label>
   );
 }

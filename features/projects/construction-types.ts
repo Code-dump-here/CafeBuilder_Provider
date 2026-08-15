@@ -58,7 +58,6 @@ export interface CreateConstructionItemPayload {
   description?: string;
   category?: string;
   estimateAt?: string; // "yyyy-MM-dd"
-  createdBy: number;
 }
 
 /**
@@ -124,7 +123,6 @@ export interface CreateConstructionTaskPayload {
   description?: string;
   imageUrl?: string;
   estimateAt?: string; // "yyyy-MM-dd"
-  createdBy: number;
 }
 
 /**

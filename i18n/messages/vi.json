@@ -405,8 +405,10 @@
     "admin": "Quản trị viên"
   },
   "Breadcrumb": {
+    "myProjects": "Dự án của tôi",
     "projectFallback": "Dự án {id}",
-    "versionFallback": "Phiên bản {code}"
+    "versionFallback": "Phiên bản {code}",
+    "backToOverview": "Quay lại tổng quan dự án"
   },
   "ProjectsOverview": {
     "title": "Tổng quan",
@@ -431,6 +433,11 @@
       "invite": "Mời nhà cung cấp",
       "inviteComingSoon": "Tính năng mời nhà cung cấp sắp ra mắt.",
       "capabilities": {
+        "designer": "Thiết kế",
+        "constructor": "Thi công",
+        "both": "Thiết kế & Thi công"
+      },
+      "contractTypes": {
         "design": "Thiết kế",
         "construction": "Thi công",
         "both": "Thiết kế & Thi công"
@@ -438,10 +445,9 @@
       "providerStatus": {
         "requested": "Đã mời",
         "accepted": "Đã chấp nhận",
-        "active": "Đang hợp tác",
-        "paused": "Tạm dừng",
         "completed": "Hoàn thành",
-        "declined": "Từ chối"
+        "rejected": "Đã từ chối",
+        "terminated": "Đã huỷ ngang"
       },
       "providerActions": {
         "loading": "Đang tải…",
@@ -473,6 +479,25 @@
         "generic": "Không thể phản hồi lời mời. Vui lòng thử lại."
       }
     },
+    "terminationBanner": {
+      "titleFromOwner": "Chủ dự án đề nghị huỷ hợp tác",
+      "titleFromYou": "Đang chờ chủ dự án phản hồi",
+      "reasonLabel": "Lý do",
+      "stillRunningFromOwner": "Hợp tác vẫn đang chạy cho tới khi bạn phản hồi.",
+      "stillRunningFromYou": "Hợp tác vẫn đang chạy cho tới khi họ đồng ý.",
+      "approve": "Đồng ý huỷ",
+      "reject": "Từ chối",
+      "withdraw": "Rút lại đề nghị",
+      "request": "Đề nghị huỷ hợp tác",
+      "requestBody": "Hợp tác chỉ dừng khi bên còn lại đồng ý. Đề nghị của bạn sẽ được gửi cho chủ dự án để họ phản hồi.",
+      "reasonPlaceholder": "Lý do (tuỳ chọn)",
+      "cancel": "Không",
+      "send": "Gửi đề nghị",
+      "requestSent": "Đã gửi đề nghị huỷ — đang chờ chủ dự án phản hồi.",
+      "ended": "Hợp tác đã kết thúc.",
+      "declined": "Đã từ chối đề nghị huỷ — hợp tác tiếp tục.",
+      "withdrawn": "Đã rút lại đề nghị huỷ."
+    },
     "owner": {
       "title": "Chủ dự án",
       "subtitle": "Người đã tạo dự án này.",
@@ -494,11 +519,24 @@
       "applied": {
         "pending": "Đã gửi hồ sơ ứng tuyển",
         "accepted": "Hồ sơ được chấp nhận",
-        "rejected": "Hồ sơ bị từ chối"
+        "rejected": "Hồ sơ bị từ chối",
+        "edit": "Sửa hồ sơ",
+        "withdraw": "Rút hồ sơ"
+      },
+      "withdrawConfirm": {
+        "title": "Rút hồ sơ ứng tuyển?",
+        "description": "Đề xuất của bạn sẽ bị xoá vĩnh viễn và chủ dự án sẽ không còn thấy nữa. Bạn có thể ứng tuyển lại khi bài đăng còn mở.",
+        "cancel": "Giữ lại",
+        "confirm": "Rút hồ sơ",
+        "confirming": "Đang rút…"
       },
       "dialog": {
         "title": "Ứng tuyển vào \"{project}\"",
         "description": "Cho chủ dự án biết lý do bạn phù hợp và thời gian dự kiến hoàn thành.",
+        "editTitle": "Sửa hồ sơ ứng tuyển vào \"{project}\"",
+        "editDescription": "Cập nhật đề xuất hoặc thời lượng. Chủ dự án sẽ thấy bản mới ngay.",
+        "saveEdit": "Lưu thay đổi",
+        "savingEdit": "Đang lưu…",
         "proposalLabel": "Đề xuất của bạn",
         "proposalPlaceholder": "Mô tả cách tiếp cận, kinh nghiệm liên quan và lý do bạn phù hợp với dự án này…",
         "proposalHint": "Tối thiểu {min} ký tự.",
@@ -760,6 +798,7 @@
     "viewDocument": "Xem tài liệu",
     "refreshing": "Đang làm mới…",
     "value": "Giá trị: {value} VND",
+    "valueNotSet": "Giá trị: chưa có",
     "termsLabel": "Điều khoản",
     "createdAt": "Tạo {date} lúc {time}",
     "otpExpiresAt": "OTP hết hạn: {time}",
@@ -925,6 +964,10 @@
     "emptyNoEngagementCta": "Xem hợp đồng"
   },
   "MilestoneManagement": {
+    "gate": {
+      "notAccepted": "Hợp tác chưa được chấp nhận nên chưa tạo được hạng mục.",
+      "noContract": "Ký hợp đồng trước khi tạo hạng mục thi công."
+    },
     "title": "Quản lý mốc & công việc",
     "subtitle": "Sắp xếp lại mốc, sửa công việc và cân chỉnh tiến độ — thay đổi sẽ cập nhật ngay tổng quan thi công.",
     "toolbar": {
@@ -946,8 +989,7 @@
       "renameLabel": "Tên mốc",
       "delete": "Xoá mốc",
       "deleteConfirm": "Xoá mốc này và mọi công việc bên trong?",
-      "moveLeft": "Dịch trái",
-      "moveRight": "Dịch phải",
+      "deleteError": "Không thể xoá mốc. Vui lòng thử lại.",
       "editMeta": "Sửa chi tiết",
       "editMetaTitle": "Sửa chi tiết mốc",
       "lead": "Phụ trách",
@@ -957,6 +999,10 @@
       "endDate": "Ngày kết thúc",
       "progress": "Tiến độ",
       "setStatus": "Đặt trạng thái",
+      "statusMoveHint": "Trạng thái chỉ chuyển tiến — bước tiếp theo được đánh dấu bên dưới.",
+      "statusTerminalHint": "Hạng mục này đã hoàn thành và không thể thay đổi.",
+      "closeMilestone": "Đánh dấu hoàn thành",
+      "statusSuccess": "Đã cập nhật trạng thái hạng mục.",
       "statusCompleted": "Hoàn thành",
       "statusInProgress": "Đang chạy",
       "statusBlocked": "Bị chặn",
@@ -965,7 +1011,15 @@
       "addTaskPlaceholder": "Cần làm gì?",
       "addTaskCta": "Thêm",
       "noTasks": "Chưa có việc nào — thêm việc đầu tiên.",
-      "tasksDone": "{done}/{total} đã xong"
+      "tasksDone": "{done}/{total} đã xong",
+      "confirmStatusTitle": "Đổi trạng thái mốc?",
+      "confirmStatusToCompleted": "Đánh dấu \"{name}\" là hoàn thành? Không thể hoàn tác — mốc đã hoàn thành sẽ không thể mở lại.",
+      "confirmStatusToInProgress": "Chuyển \"{name}\" sang đang chạy?",
+      "confirmCta": "Xác nhận",
+      "confirmCancel": "Huỷ",
+      "blockedTasksTitle": "Còn công việc chưa xong",
+      "blockedTasksBody": "\"{name}\" còn {count, plural, =1 {1 việc} other {# việc}} chưa hoàn thành. Hoàn tất chúng trước khi đánh dấu mốc này là hoàn thành.",
+      "blockedTasksCta": "Đã hiểu"
     },
     "task": {
       "edit": "Sửa việc",
@@ -976,7 +1030,14 @@
       "deleteSuccess": "Đã xoá công việc",
       "markDone": "Đánh dấu đã xong",
       "markUndone": "Đánh dấu chưa xong",
+      "markInProgress": "Đánh dấu đang thực hiện",
+      "taskCompleted": "Đã hoàn thành — không thể mở lại",
       "noAssignee": "Chưa giao",
+      "confirmToggleTitle": "Đổi trạng thái công việc?",
+      "confirmToggleToCompleted": "Đánh dấu \"{title}\" là hoàn thành? Không thể hoàn tác — công việc đã hoàn thành sẽ không thể mở lại.",
+      "confirmToggleToInProgress": "Đánh dấu \"{title}\" là đang thực hiện?",
+      "confirmCta": "Xác nhận",
+      "confirmCancel": "Huỷ",
       "detail": {
         "title": "Chi tiết công việc",
         "close": "Đóng",
@@ -1029,9 +1090,7 @@
       "loadingTypes": "Đang tải loại…",
       "selectType": "Chọn loại",
       "noCause": "(Chưa có mô tả)",
-      "delete": "Xóa",
       "deleteConfirm": "Xóa vấn đề này?",
-      "edit": "Sửa",
       "byId": "Vấn đề #{id}",
       "advanceStatus": "Chuyển trạng thái",
       "changeStatus": "Đổi trạng thái",
@@ -1141,7 +1200,8 @@
       "startDate": "Ngày bắt đầu",
       "endDate": "Ngày kết thúc",
       "create": "Tạo mốc",
-      "cancel": "Huỷ"
+      "cancel": "Huỷ",
+      "error": "Không thể tạo mốc. Vui lòng thử lại."
     },
     "errorEmpty": "Chưa có mốc nào. Thêm mốc đầu tiên để bắt đầu.",
     "summaryError": "Không cập nhật được trạng thái mốc."
@@ -1242,7 +1302,7 @@
       "label": "Danh sách cuộc trò chuyện",
       "heading": "Tin nhắn",
       "title": "Các thread",
-      "newMessage": "Tin nhắn mới",
+      "newMessage": "Thread mới",
       "searchPlaceholder": "Tìm thread hoặc người…",
       "empty": "Không có thread nào khớp bộ lọc.",
       "pinned": "Đã ghim",
@@ -1310,7 +1370,18 @@
       "awaitingOwnerReview": "Đang chờ chủ dự án phê duyệt.",
       "noActionsAvailable": "Không có thao tác nào tại thời điểm này.",
       "submitSuccess": "Đã gửi thiết kế để phê duyệt.",
-      "approveSuccess": "Đã phê duyệt thiết kế."
+      "approveSuccess": "Đã phê duyệt thiết kế.",
+      "confirmSubmitTitle": "Gửi để phê duyệt?",
+      "confirmSubmitBody": "Chủ dự án sẽ được thông báo để xem xét thiết kế này. Bạn sẽ không thể chỉnh sửa thêm cho đến khi họ phản hồi.",
+      "confirmApproveTitle": "Phê duyệt thiết kế này?",
+      "confirmApproveBody": "Thao tác này sẽ khoá thiết kế — không thể chỉnh sửa hoặc tải file lên sau khi đã phê duyệt.",
+      "confirmStartRevisionTitle": "Bắt đầu chỉnh sửa mới?",
+      "confirmStartRevisionBody": "Thao tác này sẽ mở một phiên bản làm việc mới dựa trên phản hồi của chủ dự án.",
+      "confirmDeleteImageTitle": "Xoá hình ảnh này?",
+      "confirmDeleteImageBody": "Không thể hoàn tác.",
+      "confirmCta": "Xác nhận",
+      "confirmCancel": "Huỷ",
+      "deleteCta": "Xoá"
     },
     "tabs": {
       "all": "Tất cả",
@@ -1652,7 +1723,7 @@
         "all": "Tất cả",
         "open": "Đang mở",
         "closed": "Đã đóng",
-        "draft": "Nháp"
+        "cancelled": "Đã huỷ"
       },
       "sort": {
         "label": "Sắp xếp",
@@ -1686,7 +1757,7 @@
       "status": {
         "open": "Đang mở",
         "closed": "Đã đóng",
-        "draft": "Nháp"
+        "cancelled": "Đã huỷ"
       },
       "budget": "Ngân sách",
       "area": "Diện tích",
@@ -1732,7 +1803,8 @@
       "viewAria": "Mở dự án {name}",
       "contractType": {
         "design": "Thiết kế",
-        "construction": "Thi công"
+        "construction": "Thi công",
+        "both": "Thiết kế & Thi công"
       },
       "status": {
         "requested": "Đã mời",

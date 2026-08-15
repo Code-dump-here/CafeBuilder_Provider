@@ -83,14 +83,30 @@ function normalizeServiceProvider(raw: NonNullable<AccountWithProfile["servicePr
           minProjectBudget: raw.designer.minProjectBudget,
         }
       : null,
-    constructor: raw.constructor
-      ? {
-          licenseNo: raw.constructor.licenseNo,
-          teamSize: raw.constructor.teamSize,
-          equipment: raw.constructor.equipment,
-          maxProjectValue: raw.constructor.maxProjectValue,
-          warrantyPolicy: raw.constructor.warrantyPolicy,
-        }
-      : null,
+    // NOTE: there is deliberately no `constructor` key here.
+    //
+    // This used to read `raw.constructor ? {...} : null`. Every object inherits
+    // `Object.prototype.constructor`, so that was ALWAYS truthy and produced a
+    // sub-profile of all-undefined fields for every user, designers included.
+    //
+    // The damaging part was the key itself. Putting `constructor` on the
+    // returned account shadows the built-in, and React Query's structural
+    // sharing reads `data.constructor.prototype` when diffing a refetch against
+    // cached data. That threw:
+    //
+    //   Structural sharing requires data to be JSON serializable...
+    //   [["auth","me"]]: TypeError: Cannot read properties of null
+    //                    (reading 'prototype')
+    //
+    // React Query then marked the query errored and dropped the account. The
+    // first fetch after login succeeded (nothing to diff against) and the first
+    // refetch destroyed it — so the app looked signed-in but empty until a
+    // manual reload, and every screen deriving `account.serviceProvider.id`
+    // rendered as "nothing here".
+    //
+    // Setting it to `null` would not help: the key would still shadow the
+    // built-in and `null.prototype` throws just the same. The backend does not
+    // return this sub-profile at all (ServiceProviderProfileResponse has no
+    // licenseNo/teamSize/equipment), and nothing reads it, so it is gone.
   };
 }

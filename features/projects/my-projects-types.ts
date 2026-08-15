@@ -10,12 +10,15 @@
  * navigation — it maps 1-1 to the existing `useProjectDetail({id})` hook).
  */
 
+import { isVisibleEngagementStatus } from "./engagement-visibility";
+
 // ─── Status / contract type ─────────────────────────────────────────────────
 
 /**
  * Lifecycle of a single provider ↔ project engagement row, as returned
- * by the backend. Narrows on the way in; unknown values fall back to
- * `requested` so the UI never has to render an unhandled label.
+ * by the backend, narrowed to the states this list renders. Rows with any
+ * other status — `rejected`, `terminated`, or anything added later — are
+ * dropped by `normalizeStatus` rather than coerced into one of these.
  *
  *   - `requested` — owner invited the provider, no decision yet
  *   - `accepted`  — provider accepted, work ongoing / pending contract
@@ -24,17 +27,32 @@
 export type MyProjectStatus = "requested" | "accepted" | "completed";
 
 /**
- * What this provider is hired to do on this engagement. Backend sends
- * "design" / "construction" today; other values land in the `unknown`
- * bucket so the UI degrades gracefully.
+ * What this provider is hired to do on this engagement. Mirrors the backend
+ * `ServiceKind` enum, which `project_provider.contract_type` uses — all three
+ * members, including the turnkey `both`.
+ *
+ * `both` used to be missing here, and `normalizeContractType` funnelled
+ * everything that wasn't `"construction"` into `"design"`. A design-and-build
+ * engagement therefore rendered as "Design" with a pen icon, hiding the
+ * construction half of the job from the provider's own dashboard.
  */
-export type MyProjectContractType = "design" | "construction";
+export type MyProjectContractType = "design" | "construction" | "both";
 
 /**
- * Confirmed-contract status. `null` means no contract has been created
- * for this engagement yet. Other values match `contract.status`.
+ * Contract status. Mirrors the backend `ContractStatus` enum:
+ * `drafted → pending_otp → confirmed`, or `cancelled`.
+ *
+ * This used to read `"draft" | "confirmed" | "signed" | string`. Two of those
+ * three literals were wrong — the backend sends `drafted`, not `draft`, and
+ * has never had a `signed` state (a contract is sealed by OTP, which lands it
+ * on `confirmed`). The trailing `| string` widened the union back to `string`
+ * and hid all of it from the compiler.
  */
-export type MyProjectContractStatus = "draft" | "confirmed" | "signed" | string;
+export type MyProjectContractStatus =
+  | "drafted"
+  | "pending_otp"
+  | "confirmed"
+  | "cancelled";
 
 /**
  * Slim contract denormalized onto each engagement row. `null` when no
@@ -44,8 +62,12 @@ export type MyProjectContractStatus = "draft" | "confirmed" | "signed" | string;
 export interface MyProjectContract {
   id: number;
   title: string;
-  /** VND, as agreed at the time of contract creation. */
-  agreedValue: number;
+  /**
+   * VND, as agreed at the time of contract creation. `null` when no value has
+   * been agreed yet — the backend's `AgreedValue` is `decimal?`, and coercing
+   * that to `0` rendered an unpriced contract as a confident "0 ₫".
+   */
+  agreedValue: number | null;
   /** Optional URL to the signed PDF — `null` if not yet uploaded. */
   documentViewUrl: string | null;
   status: MyProjectContractStatus;
@@ -114,8 +136,10 @@ export interface RawMyProjectWorking {
 export interface RawMyProjectContract {
   id: number;
   title: string;
-  agreedValue: number;
+  /** `decimal?` server-side — absent until the two sides agree a figure. */
+  agreedValue?: number | null;
   documentViewUrl?: string | null;
+  /** `drafted` | `pending_otp` | `confirmed` | `cancelled` */
   status: string;
   confirmedAt?: string | null;
   createdAt: string;
@@ -157,13 +181,62 @@ interface RawPagedResponse {
 
 // ─── Normalization ──────────────────────────────────────────────────────────
 
-function normalizeStatus(raw: string): MyProjectStatus {
-  if (raw === "accepted" || raw === "completed") return raw;
-  return "requested";
+/**
+ * Narrows the wire status to what "My projects" renders, or `null` when the
+ * row shouldn't be listed at all.
+ *
+ * `rejected` and `terminated` are real backend statuses that this list has no
+ * place for: the provider has already declined the invitation, or the
+ * engagement is over. They used to fall through a catch-all `return
+ * "requested"`, which showed a *declined* project back to the provider as a
+ * pending invitation — including under the "Requested" filter tab.
+ *
+ * Unknown values are dropped rather than guessed at, so a status added to the
+ * backend later can't silently reappear as a fake invite.
+ */
+function normalizeStatus(raw: string): MyProjectStatus | null {
+  // Same rule as the members card — see `engagement-visibility`. The two
+  // lists disagreeing about who counts as engaged is exactly the drift that
+  // shared constant exists to prevent.
+  return isVisibleEngagementStatus(raw) ? raw : null;
 }
 
 function normalizeContractType(raw: string): MyProjectContractType {
-  return raw === "construction" ? "construction" : "design";
+  if (raw === "design" || raw === "construction" || raw === "both") {
+    return raw;
+  }
+  // Unlike `normalizeStatus`, an unfamiliar contract type is no reason to hide
+  // the engagement — it's a label, not a filter. Fall back to the most
+  // inclusive value (so nothing the provider is entitled to gets hidden) and
+  // say so, matching `features/projects/project-detail-types.ts`.
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      `[my-projects] unrecognised contractType "${raw}" from the API — ` +
+        `falling back to "both". Add it to MyProjectContractType.`,
+    );
+  }
+  return "both";
+}
+
+function normalizeContractStatus(raw: string): MyProjectContractStatus {
+  if (
+    raw === "drafted" ||
+    raw === "pending_otp" ||
+    raw === "confirmed" ||
+    raw === "cancelled"
+  ) {
+    return raw;
+  }
+  // `drafted` is the backend's initial state, so it's the safe assumption for
+  // anything unfamiliar: it claims the least about where the contract has got
+  // to. The old fallback was `"draft"`, a value the server never sends.
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      `[my-projects] unrecognised contract status "${raw}" from the API — ` +
+        `falling back to "drafted". Add it to MyProjectContractStatus.`,
+    );
+  }
+  return "drafted";
 }
 
 function normalizeContract(raw: RawMyProjectContract | null | undefined): MyProjectContract | null {
@@ -171,10 +244,12 @@ function normalizeContract(raw: RawMyProjectContract | null | undefined): MyProj
   return {
     id: raw.id,
     title: typeof raw.title === "string" ? raw.title : "",
-    agreedValue: typeof raw.agreedValue === "number" ? raw.agreedValue : 0,
+    // `null`, not `0`: "no figure agreed yet" and "agreed to nothing" are
+    // different claims, and the card must not make the second one.
+    agreedValue: typeof raw.agreedValue === "number" ? raw.agreedValue : null,
     documentViewUrl:
       typeof raw.documentViewUrl === "string" ? raw.documentViewUrl : null,
-    status: typeof raw.status === "string" ? raw.status : "draft",
+    status: normalizeContractStatus(raw.status),
     confirmedAt:
       typeof raw.confirmedAt === "string" && raw.confirmedAt
         ? new Date(raw.confirmedAt)
@@ -183,13 +258,19 @@ function normalizeContract(raw: RawMyProjectContract | null | undefined): MyProj
   };
 }
 
-function normalizeMyProjectWorking(raw: RawMyProjectWorking): MyProjectWorking {
+/** Returns `null` for rows this list shouldn't show — see `normalizeStatus`. */
+function normalizeMyProjectWorking(
+  raw: RawMyProjectWorking,
+): MyProjectWorking | null {
+  const status = normalizeStatus(raw.status);
+  if (status == null) return null;
+
   return {
     id: raw.id,
     projectShopOwnerId: raw.projectShopOwnerId,
     projectName: raw.projectName ?? "",
     contractType: normalizeContractType(raw.contractType),
-    status: normalizeStatus(raw.status),
+    status,
     requestMessage: typeof raw.requestMessage === "string" ? raw.requestMessage : "",
     providerDisplayName:
       typeof raw.providerDisplayName === "string" ? raw.providerDisplayName : "",
@@ -208,19 +289,38 @@ function normalizeMyProjectWorking(raw: RawMyProjectWorking): MyProjectWorking {
 export function normalizeMyProjectsPage(
   raw: RawPagedResponse,
 ): import("./marketplace-types").PagedResponse<MyProjectWorking> {
+  const items = raw.items
+    .map(normalizeMyProjectWorking)
+    .filter((item): item is MyProjectWorking => item !== null);
+
+  // The "All" tab sends no `status`, and the backend's list query excludes
+  // only soft-deleted rows — so declined and finished engagements arrive here
+  // and get dropped above.
+  //
+  // `totalItems` still counts them, so it's corrected by however many this
+  // page discarded. That's approximate: rows dropped on *other* pages are
+  // still in the server's total. Filtering server-side would fix it properly,
+  // but the endpoint takes a single `status` value, so "every live status"
+  // isn't expressible without a backend change.
+  const dropped = raw.items.length - items.length;
+
   return {
-    items: raw.items.map(normalizeMyProjectWorking),
+    items,
     pageNumber: raw.pageNumber,
     pageSize: raw.pageSize,
-    totalItems: raw.totalItems,
+    totalItems: Math.max(0, raw.totalItems - dropped),
     totalPages: raw.totalPages,
     hasPrevious: raw.hasPrevious,
     hasNext: raw.hasNext,
   };
 }
 
+/**
+ * Single-row variant. `null` when the row is a status this list doesn't show
+ * (see `normalizeStatus`).
+ */
 export function normalizeRawMyProjectWorking(
   raw: RawMyProjectWorking,
-): MyProjectWorking {
+): MyProjectWorking | null {
   return normalizeMyProjectWorking(raw);
 }

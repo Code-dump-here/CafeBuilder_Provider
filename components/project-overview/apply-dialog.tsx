@@ -14,7 +14,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useApplyToPostMutation } from "@/features/projects/use-project-applications";
+import {
+  useApplyToPostMutation,
+  useUpdateApplyProposalMutation,
+} from "@/features/projects/use-project-applications";
+import type { ApplyResponse } from "@/features/projects/project-application-types";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 /**
  * Bounds for the apply form. Mirrors typical backend column limits
@@ -32,6 +37,13 @@ interface ApplyDialogProps {
   postId: number;
   providerId: number;
   projectName: string;
+  /**
+   * When present the dialog edits this application instead of creating a
+   * new one: fields prefill from it and submit calls
+   * `PUT /api/applies/{id}/proposal`. Only pass a `pending` application —
+   * the server rejects edits once the owner has answered.
+   */
+  existingApply?: ApplyResponse | null;
 }
 
 /**
@@ -39,6 +51,10 @@ interface ApplyDialogProps {
  * a free-form `proposal` and an `estimatedDurationDays`. Validation runs
  * client-side (length / range) before firing the mutation; the backend
  * remains the source of truth for everything else.
+ *
+ * Doubles as the revise form — see `existingApply`. Both modes share the
+ * validation rules because both hit the same columns; only the endpoint,
+ * the prefill and the labels differ.
  *
  * Mounted by `ProjectApplyCard`. State (open / values) lives in the
  * parent so the card can disable its CTA while a request is in flight.
@@ -49,8 +65,10 @@ export function ApplyDialog({
   postId,
   providerId,
   projectName,
+  existingApply = null,
 }: ApplyDialogProps) {
   const t = useTranslations("ProjectsOverview.apply.dialog");
+  const isEditing = existingApply != null;
 
   const [proposal, setProposal] = React.useState("");
   const [duration, setDuration] = React.useState<string>(
@@ -59,12 +77,17 @@ export function ApplyDialog({
 
   // Reset form whenever the dialog re-opens so a previous (failed) attempt
   // doesn't bleed into the next one. Cheap because both inputs are tiny.
-  React.useEffect(() => {
+  // In edit mode "reset" means "back to what the server currently holds".
+  useResetOnChange(open, () => {
     if (open) {
-      setProposal("");
-      setDuration(String(DURATION_DEFAULT_DAYS));
+      setProposal(existingApply?.proposal ?? "");
+      setDuration(
+        String(existingApply?.estimatedDurationDays ?? DURATION_DEFAULT_DAYS),
+      );
     }
-  }, [open]);
+  });
+
+  const closeDialog = () => onOpenChange(false);
 
   const apply = useApplyToPostMutation({
     // Success is suppressed because the dialog closes, which is feedback
@@ -74,10 +97,16 @@ export function ApplyDialog({
     // unbuilt feature — and routed it through `projectActionToast`, which
     // renders success styling.
     onSuccessMessage: null,
-    onSuccessSideEffect: () => {
-      onOpenChange(false);
-    },
+    onSuccessSideEffect: closeDialog,
   });
+
+  // Revise keeps its success toast: unlike apply, the dialog closing back to
+  // an unchanged-looking card is not obvious feedback that the edit landed.
+  const update = useUpdateApplyProposalMutation({
+    onSuccessSideEffect: closeDialog,
+  });
+
+  const isPending = apply.isPending || update.isPending;
 
   const durationNumber = Number.parseInt(duration, 10);
   const durationValid =
@@ -88,15 +117,36 @@ export function ApplyDialog({
   const proposalTrimmed = proposal.trim();
   const proposalValid = proposalTrimmed.length >= PROPOSAL_MIN_LENGTH;
 
+  // Nothing to send when the user reopened the form and changed nothing.
+  const isUnchanged =
+    isEditing &&
+    proposalTrimmed === (existingApply?.proposal ?? "").trim() &&
+    durationNumber === existingApply?.estimatedDurationDays;
+
   const canSubmit =
-    !apply.isPending && proposalValid && durationValid && providerId > 0;
+    !isPending &&
+    proposalValid &&
+    durationValid &&
+    providerId > 0 &&
+    !isUnchanged;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canSubmit) return;
+
+    if (isEditing && existingApply) {
+      update.mutate({
+        applyId: existingApply.id,
+        payload: {
+          proposal: proposalTrimmed,
+          estimatedDurationDays: durationNumber,
+        },
+      });
+      return;
+    }
+
     apply.mutate({
       postId,
-      providerId,
       proposal: proposalTrimmed,
       estimatedDurationDays: durationNumber,
     });
@@ -106,8 +156,14 @@ export function ApplyDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("title", { project: projectName })}</DialogTitle>
-          <DialogDescription>{t("description")}</DialogDescription>
+          <DialogTitle>
+            {isEditing
+              ? t("editTitle", { project: projectName })
+              : t("title", { project: projectName })}
+          </DialogTitle>
+          <DialogDescription>
+            {isEditing ? t("editDescription") : t("description")}
+          </DialogDescription>
         </DialogHeader>
 
         <form
@@ -189,8 +245,8 @@ export function ApplyDialog({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={apply.isPending}
+            onClick={closeDialog}
+            disabled={isPending}
           >
             {t("cancel")}
           </Button>
@@ -198,10 +254,16 @@ export function ApplyDialog({
             type="submit"
             form="apply-dialog-form"
             disabled={!canSubmit}
-            aria-busy={apply.isPending}
+            aria-busy={isPending}
           >
             <Send aria-hidden />
-            {apply.isPending ? t("submitting") : t("submit")}
+            {isPending
+              ? isEditing
+                ? t("savingEdit")
+                : t("submitting")
+              : isEditing
+                ? t("saveEdit")
+                : t("submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

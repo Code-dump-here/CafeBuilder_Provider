@@ -73,9 +73,9 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
     .slice(0, 2);
 
   const capabilityLabel =
-    sp.capability === "design"
+    sp.capability === "designer"
       ? t("fields.capabilityDesigner")
-      : sp.capability === "construction"
+      : sp.capability === "constructor"
         ? t("fields.capabilityConstructor")
         : t("fields.capabilityBoth");
 

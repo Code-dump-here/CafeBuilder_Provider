@@ -6,6 +6,7 @@ import type {
   ApplyResponse,
   AppliesListResponse,
   ProjectApplication,
+  UpdateApplyProposalPayload,
 } from "./project-application-types";
 
 /**
@@ -100,4 +101,60 @@ export async function getApplyApi(
     config,
   );
   return response.data;
+}
+
+/**
+ * Revise a proposal the owner hasn't answered yet.
+ *
+ * Endpoint: `PUT /api/applies/{id}/proposal`
+ *
+ * Both payload fields are optional — the server writes only what's
+ * present, so this works as a partial update.
+ *
+ * Authorization:
+ *   Bearer access token required.
+ *
+ * Errors worth handling on the FE:
+ *   - 404 the application no longer exists (e.g. already withdrawn from
+ *     another tab).
+ *   - 409 "Apply đang ở trạng thái '…', chỉ sửa được khi pending." — the
+ *     owner accepted or rejected it while the dialog was open. Surface the
+ *     server's Vietnamese message and refetch.
+ */
+export async function updateApplyProposalApi(
+  applyId: number,
+  payload: UpdateApplyProposalPayload,
+  config?: RequestConfig,
+): Promise<ApplyResponse> {
+  const response = await api.put<ApplyResponse>(
+    `/api/applies/${applyId}/proposal`,
+    payload,
+    config,
+  );
+  return response.data;
+}
+
+/**
+ * Withdraw a pending application.
+ *
+ * Endpoint: `DELETE /api/applies/{id}/withdraw`
+ *
+ * Returns `204 No Content` and **hard-deletes** the row — there is no
+ * `withdrawn` status to read back afterwards, so callers must drop the
+ * application from their cache rather than expecting a status change.
+ *
+ * Authorization:
+ *   Bearer access token required.
+ *
+ * Errors worth handling on the FE:
+ *   - 404 already gone — safe to treat as success (the user's intent is
+ *     satisfied either way).
+ *   - 409 the owner already accepted or rejected it; only `pending`
+ *     applications can be withdrawn.
+ */
+export async function withdrawApplyApi(
+  applyId: number,
+  config?: RequestConfig,
+): Promise<void> {
+  await api.delete<void>(`/api/applies/${applyId}/withdraw`, config);
 }

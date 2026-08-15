@@ -106,8 +106,9 @@ function ProviderEngagementActionsInner({
     onSuccessMessage: null,
     onErrorMessage: (err) => err.message || tErrors("requestCompletion"),
   });
+  // See `project-hero-bar.tsx`: no `onSuccessMessage` override, so the hook
+  // reports whether the tap ended the engagement or only filed a request.
   const terminate = useTerminateEngagementMutation({
-    onSuccessMessage: null,
     onErrorMessage: (err) => err.message || tErrors("terminate"),
   });
 
@@ -142,10 +143,7 @@ function ProviderEngagementActionsInner({
     setPendingKind("terminate");
     terminate.mutate(
       { engagementId: engagement.id },
-      {
-        onSettled: () => setPendingKind(null),
-        onSuccess: () => toast.success(t("terminateSuccess")),
-      },
+      { onSettled: () => setPendingKind(null) },
     );
   }
 

@@ -9,9 +9,9 @@ import { AlertTriangle, ClipboardList, Loader2 } from "lucide-react";
 import { ConstructionOverviewHeader } from "@/components/contractor/construction-overview-header";
 import { MilestoneTrack } from "@/components/contractor/milestone-track";
 import { MilestoneDetailCard } from "@/components/contractor/milestone-detail-card";
-import { ContractorActionTiles } from "@/components/contractor/contractor-action-tiles";
 import { PhaseDetailDrawer } from "@/components/contractor/phase-detail-drawer";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/features/auth/user-context";
 import { useEngagements } from "@/features/projects/use-engagements";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
 import { useConstructionOverview } from "@/lib/contractor/use-construction-overview";
@@ -66,13 +66,17 @@ export default function ConstructionOverviewPage() {
   // 1. Project metadata for the header chip. Cheap call (cached).
   const { project, isLoading: isLoadingProject } = useProjectDetail(projectIdParam);
 
-  // 2. Resolve the accepted engagement. We take the first row — same
-  //    scoping rule as `design-management` so the two overview pages
-  //    agree on which engagement they're talking about.
+  // 2. Resolve the accepted engagement. Scoped by `providerId` so another
+  //    provider's engagement on the same project (e.g. the designer when
+  //    this viewer is the constructor) can never drive this page.
+  const { account } = useCurrentUser();
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const { engagements, isLoading: isLoadingEngagements } = useEngagements({
     projectId: projectIdParam,
+    providerId: viewerProfileId ?? undefined,
     status: "accepted",
     pageSize: 1,
+    enabled: viewerProfileId != null,
   });
   const engagementId = engagements[0]?.id ?? null;
 
@@ -132,23 +136,18 @@ export default function ConstructionOverviewPage() {
     return phases[0]!.id;
   }, [data.phases]);
 
+  // Empty until the user picks a phase; the auto-derived id fills in until
+  // then. Deriving beats copying `initialPhaseId` into state from an effect:
+  // no extra render, and no window where the list has loaded but the
+  // selection is still "".
   const [selectedPhaseId, setSelectedPhaseId] = React.useState<string>("");
-
-  // Push the auto-derived id into state once the list loads. Done in an
-  // effect (not during render) to keep the `useState` initializer
-  // side-effect-free — a state update during render would trigger a
-  // re-render warning in React 18+ strict mode.
-  React.useEffect(() => {
-    if (initialPhaseId && selectedPhaseId === "") {
-      setSelectedPhaseId(initialPhaseId);
-    }
-  }, [initialPhaseId, selectedPhaseId]);
+  const effectivePhaseId = selectedPhaseId || initialPhaseId;
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const selectedPhase = React.useMemo(
-    () => data.phases.find((p) => p.id === selectedPhaseId) ?? data.phases[0],
-    [data.phases, selectedPhaseId],
+    () => data.phases.find((p) => p.id === effectivePhaseId) ?? data.phases[0],
+    [data.phases, effectivePhaseId],
   );
 
   // Phase shown in the drawer — locked to whatever was selected when
@@ -258,7 +257,7 @@ export default function ConstructionOverviewPage() {
 
         <MilestoneTrack
           phases={data.phases}
-          selectedPhaseId={selectedPhaseId}
+          selectedPhaseId={effectivePhaseId}
           onSelect={setSelectedPhaseId}
         />
 
@@ -266,8 +265,6 @@ export default function ConstructionOverviewPage() {
           phase={selectedPhase}
           onOpenDetail={handleOpenDetail}
         />
-
-        <ContractorActionTiles projectId={projectIdParam} />
       </div>
 
       <PhaseDetailDrawer

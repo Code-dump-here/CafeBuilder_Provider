@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Coffee, Lock } from "lucide-react";
-import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { LoginForm } from "@/components/auth/login-form";
 
@@ -174,29 +173,9 @@ export default function LoginPage() {
           <LoginForm />
         </div>
 
-        {/* Footer links */}
-        <div className="mx-auto mt-10 flex items-center gap-4 text-xs text-muted-foreground">
-          <Link
-            href="/terms"
-            className="hover:text-foreground hover:underline underline-offset-2"
-          >
-            {t("footer.terms")}
-          </Link>
-          <span className="opacity-40">·</span>
-          <Link
-            href="/privacy"
-            className="hover:text-foreground hover:underline underline-offset-2"
-          >
-            {t("footer.privacy")}
-          </Link>
-          <span className="opacity-40">·</span>
-          <Link
-            href="/support"
-            className="hover:text-foreground hover:underline underline-offset-2"
-          >
-            {t("footer.support")}
-          </Link>
-        </div>
+        {/* Footer links removed: /terms, /privacy and /support have no routes,
+            so Next prefetched them on render and every visit logged three 404s
+            before the user clicked anything. Restore them alongside the pages. */}
       </div>
     </div>
   );

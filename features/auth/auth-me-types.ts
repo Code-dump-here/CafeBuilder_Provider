@@ -5,9 +5,14 @@ export type { UserRole } from "@/lib/http/auth";
 
 /**
  * The provider's self-declared capability level.
- * Used internally within the auth/me domain.
+ *
+ * These are the backend `Capability` enum members verbatim — `/api/auth/me`
+ * sends `sp.Capability.ToString()`, and `auth-me-api.ts` passes the value
+ * through unmapped. The role-oriented spelling (`designer` / `constructor`)
+ * is deliberate: it matches `features/service-provider-profiles/api.ts`, so
+ * reading a profile and writing one now speak the same vocabulary.
  */
-export type ProviderCapability = "design" | "construction" | "both";
+export type ProviderCapability = "designer" | "constructor" | "both";
 
 /**
  * The type of service provider.
@@ -53,7 +58,13 @@ export interface NormalizedServiceProviderProfile {
   createdAt: Date;
   updatedAt: Date;
   designer: NormalizedDesignerProfile | null;
-  constructor: NormalizedConstructorProfile | null;
+  /**
+   * No `constructor` field: naming a property `constructor` shadows the
+   * built-in, and React Query's structural sharing reads
+   * `data.constructor.prototype` when diffing a refetch — which throws and
+   * makes the query error out, silently discarding the account.
+   * See the note in `normalizeAccount`.
+   */
 }
 
 export interface NormalizedAccount {

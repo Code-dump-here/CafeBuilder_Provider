@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AlertTriangle, FileText, Loader2, Plus, Upload } from "lucide-react";
+import { FileText, Loader2, Plus, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +30,9 @@ import { uploadFileApi } from "@/lib/http/file-upload-api";
 import { useSurveys, useCreateSurveyMutation, useUpdateSurveyMutation } from "@/features/projects/use-surveys";
 import { useEngagements } from "@/features/projects/use-engagements";
 import type { Survey } from "@/features/projects/survey-types";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { ErrorState } from "@/components/ui/error-state";
+import { EmptyState } from "@/components/ui/empty-state";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -52,23 +55,25 @@ export default function SurveyPage() {
 
   const { account } = useCurrentUser();
 
-  // Fetch engagements for this project
+  // Fetch engagements for this project, scoped to the viewer's own
+  // providerId so another provider's engagement on the same project
+  // can never drive this page.
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
   const {
     engagements,
     isLoading: isLoadingEngagements,
     isError: isEngagementsError,
   } = useEngagements({
     projectId: projectIdParam,
+    providerId: viewerProfileId ?? undefined,
     status: "accepted", // Only get accepted engagements
     pageSize: 10,
+    enabled: viewerProfileId != null,
   });
 
   // Find the engagement for this provider (if they are a provider)
   const myEngagement = React.useMemo(() => {
     if (!account || account.role !== "provider") return null;
-    // Find engagement where this provider's profile matches
-    // Note: In real implementation, we'd need to match by serviceProviderProfileId
-    // For now, we'll use the first accepted engagement
     return engagements[0] ?? null;
   }, [engagements, account]);
 
@@ -129,6 +134,9 @@ export default function SurveyPage() {
   if (isSurveysError) {
     return (
       <ErrorState
+        title={t("errors.title")}
+        subtitle={t("errors.subtitle")}
+        retryLabel={t("errors.retry")}
         message={surveysError?.message ?? "Failed to load surveys."}
         onRetry={() => { void refetch(); }}
       />
@@ -161,7 +169,12 @@ export default function SurveyPage() {
 
       {/* Survey List */}
       {surveys.length === 0 ? (
-        <EmptyState onCreateNew={handleCreateNew} />
+        <EmptyState
+            title={t("empty.title")}
+            description={t("empty.description")}
+            actionLabel={t("createFirst")}
+            onAction={handleCreateNew}
+          />
       ) : (
         <div className="flex flex-col gap-4">
           {/* Latest Survey Card */}
@@ -221,7 +234,6 @@ export default function SurveyPage() {
         onOpenChange={setDialogOpen}
         survey={editingSurvey}
         projectWorkingId={projectWorkingId}
-        accountId={account?.id ?? 0}
         onSuccess={() => {
           setDialogOpen(false);
           void refetch();
@@ -291,14 +303,16 @@ function SurveyCard({ survey, isLatest, onEdit, canEdit }: SurveyCardProps) {
           <p className="text-sm whitespace-pre-wrap">{survey.conditionNote}</p>
         </div>
 
-        {/* Report File */}
-        {survey.reportUrl && (
+        {/* Report File — `reportUrl` is just the storage object name, not a
+            browsable link (that's what 404'd here before); `reportViewUrl`
+            is the resolved public URL the backend hands back alongside it. */}
+        {(survey.reportViewUrl ?? survey.reportUrl) && (
           <div className="flex flex-col gap-1.5">
             <h4 className="text-xs font-medium text-muted-foreground">
               {t("reportFile")}
             </h4>
             <a
-              href={survey.reportUrl}
+              href={survey.reportViewUrl ?? survey.reportUrl!}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-primary hover:underline"
@@ -321,7 +335,6 @@ interface SurveyDialogProps {
   onOpenChange: (open: boolean) => void;
   survey: Survey | null;
   projectWorkingId: number;
-  accountId: number;
   onSuccess: () => void;
 }
 
@@ -330,7 +343,6 @@ function SurveyDialog({
   onOpenChange,
   survey,
   projectWorkingId,
-  accountId,
   onSuccess,
 }: SurveyDialogProps) {
   const t = useTranslations("Survey.dialog");
@@ -342,14 +354,18 @@ function SurveyDialog({
   const [uploadError, setUploadError] = React.useState<string | null>(null);
 
   // Reset form when dialog opens/closes or survey changes
-  React.useEffect(() => {
+  useResetOnChange(`${open}:${survey?.id ?? "new"}`, () => {
     if (open) {
       setConditionNote(survey?.conditionNote ?? "");
-      setReportUrl(survey?.reportUrl ?? "");
+      // Prefer the resolved public URL — `survey.reportUrl` is just the
+      // storage object name and isn't directly browsable. The backend
+      // accepts either form back on submit (it re-normalizes whatever we
+      // send), so reusing this same state for the submit payload is safe.
+      setReportUrl(survey?.reportViewUrl ?? survey?.reportUrl ?? "");
       setReportFile(null);
       setUploadError(null);
     }
-  }, [open, survey]);
+  });
 
   const createMutation = useCreateSurveyMutation({
     onSuccessMessage: null,
@@ -407,7 +423,6 @@ function SurveyDialog({
         projectWorkingId,
         conditionNote: trimmedNote,
         reportUrl: reportUrl || undefined,
-        createdBy: accountId,
       });
     }
   };
@@ -580,71 +595,5 @@ function SurveyLoadingSkeleton() {
 // ---------------------------------------------------------------------------
 // Empty state
 
-interface EmptyStateProps {
-  onCreateNew: () => void;
-}
-
-function EmptyState({ onCreateNew }: EmptyStateProps) {
-  const t = useTranslations("Survey");
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card/40 px-6 py-16 text-center">
-      <div className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
-        <FileText className="size-5" aria-hidden />
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-base font-semibold text-foreground">
-          {t("empty.title")}
-        </p>
-        <p className="max-w-md text-sm text-muted-foreground">
-          {t("empty.description")}
-        </p>
-      </div>
-      <Button onClick={onCreateNew} className="mt-2">
-        <Plus aria-hidden />
-        {t("createFirst")}
-      </Button>
-    </div>
-  );
-}
-
 // ---------------------------------------------------------------------------
 // Error state
-
-interface ErrorStateProps {
-  message: string;
-  onRetry: () => void;
-}
-
-function ErrorState({ message, onRetry }: ErrorStateProps) {
-  const t = useTranslations("Survey.errors");
-  return (
-    <div
-      role="alert"
-      className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-16 text-center"
-    >
-      <div className="grid size-12 place-items-center rounded-full bg-destructive/10 text-destructive">
-        <AlertTriangle className="size-5" aria-hidden />
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-base font-semibold text-foreground">{t("title")}</p>
-        <p className="max-w-md text-sm text-muted-foreground">
-          {t("subtitle")}
-        </p>
-        {message ? (
-          <p className="mt-1 font-mono text-[11px] text-muted-foreground/80">
-            {message}
-          </p>
-        ) : null}
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        onClick={onRetry}
-        className="mt-1"
-      >
-        {t("retry")}
-      </Button>
-    </div>
-  );
-}

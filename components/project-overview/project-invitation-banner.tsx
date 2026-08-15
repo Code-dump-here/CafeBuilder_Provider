@@ -22,9 +22,9 @@ import { useRespondToInvitationMutation } from "@/features/projects/use-respond-
 import { getEngagementsApi } from "@/features/projects/engagement-api";
 import { queryKeys } from "@/lib/react-query/keys";
 import {
+  type ProjectContractType,
   type ProjectDetail,
   type ProjectProvider,
-  type ProjectProviderCapability,
 } from "@/features/projects/project-detail-types";
 
 // ---------------------------------------------------------------------------
@@ -61,8 +61,8 @@ export function ProjectInvitationBanner({
   project,
 }: ProjectInvitationBannerProps) {
   const t = useTranslations("ProjectsOverview.invitationBanner");
-  const tCapabilities = useTranslations(
-    "ProjectsOverview.members.capabilities",
+  const tContractTypes = useTranslations(
+    "ProjectsOverview.members.contractTypes",
   );
   const tErrors = useTranslations("ProjectsOverview.invitationBanner.errors");
 
@@ -190,7 +190,12 @@ export function ProjectInvitationBanner({
     );
   };
 
-  const capabilityLabel = labelForCapability(invitation.capability, tCapabilities);
+  // What the owner is inviting them to do here — NOT the viewer's own
+  // capability, which is the same on every invitation and tells them nothing.
+  const capabilityLabel = labelForContractType(
+    invitation.contractType,
+    tContractTypes,
+  );
   const ownerName = project.owner?.fullName ?? t("ownerLabel");
 
   return (
@@ -297,11 +302,11 @@ export function ProjectInvitationBanner({
 // Helpers
 //
 
-function labelForCapability(
-  cap: ProjectProviderCapability,
-  tCapabilities: ReturnType<typeof useTranslations>,
+function labelForContractType(
+  contractType: ProjectContractType,
+  tContractTypes: ReturnType<typeof useTranslations>,
 ): string {
-  return cap === "design"
-    ? tCapabilities("design")
-    : tCapabilities("construction");
+  // Keys mirror the backend `ServiceKind` members exactly, so the lookup is
+  // total — no branch can silently fall through to the wrong label.
+  return tContractTypes(contractType);
 }

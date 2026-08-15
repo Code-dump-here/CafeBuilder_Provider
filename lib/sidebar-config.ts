@@ -131,12 +131,6 @@ const DESIGNER_PROJECT_INFO: NavSection = {
       keepOnCompletion: true,
     },
     {
-      titleKey: "Sidebar.designer.survey",
-      url: "/survey",
-      icon: Map,
-      scope: "project",
-    },
-    {
       titleKey: "Sidebar.designer.contracts",
       url: "/contracts",
       icon: FileCheck,
@@ -150,8 +144,22 @@ const DESIGNER_PROJECT_INFO: NavSection = {
 
 const DESIGNER_DESIGN_WORK: NavSection = {
   labelKey: "Sidebar.designer.designWork",
-  projectScope: ["design", "construction"],
+  // Design scope only. `DesignService` rejects a design on a 'construction'
+  // engagement, so showing these to a constructor offered work the server
+  // would refuse. A 'both' engagement still matches — see `filterSection`.
+  projectScope: ["design"],
   items: [
+    {
+      // Site survey — the condition report a designer files before designing.
+      // It used to sit in `DESIGNER_PROJECT_INFO`, which is `member`-scoped, so
+      // it rendered for constructors too even though the work isn't theirs.
+      // Here it inherits the section's `design` scope and disappears from a
+      // construction-only engagement's nav.
+      titleKey: "Sidebar.designer.survey",
+      url: "/survey",
+      icon: Map,
+      scope: "project",
+    },
     {
       titleKey: "Sidebar.designer.designManagement",
       url: "/design-management",
@@ -175,16 +183,18 @@ const DESIGNER_MESSAGES: NavSection = {
       titleKey: "Sidebar.designer.messages",
       url: "/messages",
       icon: MessageCircle,
-      badge: 3,
       scope: "project",
       keepOnCompletion: true,
     },
-    { titleKey: "Sidebar.designer.progress", url: "/progress", icon: BarChart },
-    {
-      titleKey: "Sidebar.designer.constructionSupport",
-      url: "/workspace/construction-support",
-      icon: Wrench,
-    },
+    // Removed: "/progress" and "/workspace/construction-support" have no
+    // matching page under app/[locale]/ — keeping the entries here (not
+    // deleting) so they're easy to re-enable once those pages exist.
+    // { titleKey: "Sidebar.designer.progress", url: "/progress", icon: BarChart },
+    // {
+    //   titleKey: "Sidebar.designer.constructionSupport",
+    //   url: "/workspace/construction-support",
+    //   icon: Wrench,
+    // },
   ],
 };
 
@@ -197,7 +207,10 @@ const DESIGNER_MESSAGES: NavSection = {
 
 const CONSTRUCTION_WORK_SECTION: NavSection = {
   labelKey: "Sidebar.contractor.workspace",
-  projectScope: ["design", "construction"],
+  // Construction scope only. `ConstructionItemService` rejects items on a
+  // 'design' engagement, so a designer clicking Milestones could fill in a
+  // phase and only then be refused by the server.
+  projectScope: ["construction"],
   items: [
     {
       titleKey: "Sidebar.contractor.constructionOverview",
@@ -211,30 +224,25 @@ const CONSTRUCTION_WORK_SECTION: NavSection = {
       icon: ClipboardCheck,
       scope: "project",
     },
-    {
-      titleKey: "Sidebar.contractor.issuesAndRFI",
-      url: "/issues",
-      icon: AlertTriangle,
-      badge: 3,
-      scope: "project",
-    },
   ],
 };
 
-// ─── Contractor Section ───────────────────────────────────────────────────────
+// ─── Issues ──────────────────────────────────────────────────────────────────
 //
-// Standalone contractor config kept for completeness — currently unused
-// because role-based sidebar switching is paused, but the data is here
-// when it's wired back in.
+// Its own section rather than part of the construction workspace, because
+// issues aren't construction-only: `Issue.ConstructionItemId` is nullable and
+// `IssueService` has no contract-type gate, so a design-only provider can
+// raise one against their engagement. Folding it into the construction
+// section would have hidden a feature that genuinely works for them.
 
-const CONTRACTOR_SECTION: NavSection = {
-  labelKey: "Sidebar.contractor.workspace",
+const ISSUES_SECTION: NavSection = {
+  labelKey: "Sidebar.contractor.issuesAndRFI",
+  projectScope: ["design", "construction"],
   items: [
     {
       titleKey: "Sidebar.contractor.issuesAndRFI",
       url: "/issues",
       icon: AlertTriangle,
-      badge: 3,
       scope: "project",
     },
   ],
@@ -245,11 +253,16 @@ const CONTRACTOR_SECTION: NavSection = {
 const OWNER_WORKSPACE_SECTION: NavSection = {
   labelKey: "Sidebar.shopOwner.workspace",
   items: [
-    {
-      titleKey: "Sidebar.shopOwner.overview",
-      url: "/workspace",
-      icon: LayoutDashboard,
-    },
+    // Removed: "/workspace" has no matching page under app/[locale]/ —
+    // keeping the entry here (not deleting) so it's easy to re-enable
+    // once that page exists. Not referenced in ROLE_SIDEBAR_CONFIG below
+    // while this is the only item (an empty section would still render
+    // its label with nothing under it).
+    // {
+    //   titleKey: "Sidebar.shopOwner.overview",
+    //   url: "/workspace",
+    //   icon: LayoutDashboard,
+    // },
   ],
 };
 
@@ -278,45 +291,52 @@ const OWNER_PROJECT_SECTION: NavSection = {
       icon: FileCheck,
       scope: "project",
     },
-    {
-      titleKey: "Sidebar.shopOwner.documents",
-      url: "/documents",
-      icon: FileText,
-      scope: "project",
-    },
-    {
-      titleKey: "Sidebar.shopOwner.quotations",
-      url: "/quotation-selection",
-      icon: DollarSign,
-      badge: 2,
-    },
-    {
-      titleKey: "Sidebar.shopOwner.approvals",
-      url: "/progress",
-      icon: CheckCircle,
-      badge: 3,
-    },
-    {
-      titleKey: "Sidebar.shopOwner.progress",
-      url: "/progress",
-      icon: TrendingUp,
-    },
+    // Removed: "/documents", "/quotation-selection", and "/progress" have
+    // no matching page under app/[locale]/ — keeping the entries here
+    // (not deleting) so they're easy to re-enable once those pages exist.
+    // {
+    //   titleKey: "Sidebar.shopOwner.documents",
+    //   url: "/documents",
+    //   icon: FileText,
+    //   scope: "project",
+    // },
+    // {
+    //   titleKey: "Sidebar.shopOwner.quotations",
+    //   url: "/quotation-selection",
+    //   icon: DollarSign,
+    // },
+    // {
+    //   titleKey: "Sidebar.shopOwner.approvals",
+    //   url: "/progress",
+    //   icon: CheckCircle,
+    // },
+    // {
+    //   titleKey: "Sidebar.shopOwner.progress",
+    //   url: "/progress",
+    //   icon: TrendingUp,
+    // },
   ],
 };
 
 const OWNER_CONTRACTS_SECTION: NavSection = {
   labelKey: "Sidebar.shopOwner.contracts",
   items: [
-    {
-      titleKey: "Sidebar.shopOwner.createContract",
-      url: "/contract-create",
-      icon: FileCheck,
-    },
-    {
-      titleKey: "Sidebar.shopOwner.contractHistory",
-      url: "/workspace/contracts",
-      icon: FileText,
-    },
+    // Removed: "/contract-create" and "/workspace/contracts" have no
+    // matching page under app/[locale]/ — keeping the entries here (not
+    // deleting) so they're easy to re-enable once those pages exist. Not
+    // referenced in ROLE_SIDEBAR_CONFIG below while both items are out
+    // (an empty section would still render its label with nothing
+    // under it).
+    // {
+    //   titleKey: "Sidebar.shopOwner.createContract",
+    //   url: "/contract-create",
+    //   icon: FileCheck,
+    // },
+    // {
+    //   titleKey: "Sidebar.shopOwner.contractHistory",
+    //   url: "/workspace/contracts",
+    //   icon: FileText,
+    // },
   ],
 };
 
@@ -355,17 +375,22 @@ const ADMIN_MANAGEMENT_SECTION: NavSection = {
 const ADMIN_PLATFORM_SECTION: NavSection = {
   labelKey: "Sidebar.admin.platform",
   items: [
-    {
-      titleKey: "Sidebar.admin.legacyDisputes",
-      url: "/admin/disputes",
-      icon: AlertTriangle,
-      badge: 2,
-    },
-    {
-      titleKey: "Sidebar.admin.legacyAnalytics",
-      url: "/admin/analytics",
-      icon: BarChart3,
-    },
+    // Removed: "/admin/disputes" and "/admin/analytics" have no matching
+    // page under app/[locale]/admin/ — keeping the entries here (not
+    // deleting) so they're easy to re-enable once those pages exist. Not
+    // referenced in ROLE_SIDEBAR_CONFIG below while both items are out
+    // (an empty section would still render its label with nothing
+    // under it).
+    // {
+    //   titleKey: "Sidebar.admin.legacyDisputes",
+    //   url: "/admin/disputes",
+    //   icon: AlertTriangle,
+    // },
+    // {
+    //   titleKey: "Sidebar.admin.legacyAnalytics",
+    //   url: "/admin/analytics",
+    //   icon: BarChart3,
+    // },
   ],
 };
 
@@ -375,9 +400,13 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
   SHOP_OWNER: {
     brand: { name: "Smart Cafe", labelKey: "Roles.shopOwner" },
     sections: [
-      OWNER_WORKSPACE_SECTION,
+      // OWNER_WORKSPACE_SECTION and OWNER_CONTRACTS_SECTION are commented
+      // out above — every item they held pointed at a page that doesn't
+      // exist yet, so both sections are empty. Re-add them here once
+      // either section has at least one real item again.
+      // OWNER_WORKSPACE_SECTION,
       OWNER_PROJECT_SECTION,
-      OWNER_CONTRACTS_SECTION,
+      // OWNER_CONTRACTS_SECTION,
     ],
     projects: [],
     secondaryItems: [],
@@ -388,6 +417,7 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
       CONSTRUCTION_WORK_SECTION,
+      ISSUES_SECTION,
       DESIGNER_MESSAGES,
     ],
     projects: [],
@@ -402,6 +432,7 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
       CONSTRUCTION_WORK_SECTION,
+      ISSUES_SECTION,
       DESIGNER_MESSAGES,
     ],
     projects: [],
@@ -412,7 +443,10 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
     sections: [
       ADMIN_OVERVIEW_SECTION,
       ADMIN_MANAGEMENT_SECTION,
-      ADMIN_PLATFORM_SECTION,
+      // ADMIN_PLATFORM_SECTION is commented out above — both of its
+      // items pointed at pages that don't exist yet. Re-add here once
+      // it has at least one real item again.
+      // ADMIN_PLATFORM_SECTION,
     ],
     projects: [],
     secondaryItems: [],
@@ -499,15 +533,23 @@ function filterSection(
 
     const visibleByScope = scopes.some((scope) => {
       switch (scope) {
+        // Capability scopes gate on `isActive` as well as `contractType`.
+        // `contractType` alone is not enough: `useActiveProjectMembership`
+        // falls back to a "representative" engagement even when none are
+        // live, so a rejected or terminated engagement still reports its
+        // contractType — which let a provider who is no longer on the
+        // project keep seeing Design Work / Construction sections.
         case "design":
           return (
-            membership.contractType === "design" ||
-            membership.contractType === "both"
+            membership.isActive &&
+            (membership.contractType === "design" ||
+              membership.contractType === "both")
           );
         case "construction":
           return (
-            membership.contractType === "construction" ||
-            membership.contractType === "both"
+            membership.isActive &&
+            (membership.contractType === "construction" ||
+              membership.contractType === "both")
           );
         case "member":
           return membership.isActive || membership.isCompleted;

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 interface TaskEditDialogProps {
   open: boolean;
@@ -37,9 +38,9 @@ export function TaskEditDialog({
   const tCommon = useTranslations("MilestoneManagement.common");
   const [title, setTitle] = React.useState(initialTitle);
 
-  React.useEffect(() => {
+  useResetOnChange(`${open}:${initialTitle}`, () => {
     if (open) setTitle(initialTitle);
-  }, [open, initialTitle]);
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
