@@ -1430,7 +1430,6 @@
       "published": "Đã phát hành"
     },
     "table": {
-      "owner": "Người tạo",
       "version": "Phiên bản",
       "status": "Trạng thái",
       "drawings": "Bản vẽ",
@@ -1567,8 +1566,6 @@
         "description": "Tạo bản nháp mới. Bạn có thể đổi tên sau.",
         "nameLabel": "Tên phiên bản",
         "namePlaceholder": "VD: Chỉnh sửa theo chủ dự án",
-        "codeLabel": "Mã phiên bản",
-        "codeHint": "Để trống để tự tạo (V{next}).",
         "categoryLabel": "Loại bản vẽ",
         "notesLabel": "Ghi chú (tuỳ chọn)",
         "notesPlaceholder": "Mục tiêu của phiên bản này là gì?",
@@ -1576,7 +1573,7 @@
         "create": "Tạo phiên bản",
         "creating": "Đang tạo…",
         "created": "Đã tạo phiên bản {code}.",
-        "createSubmitted": "Đang gửi phiên bản {code}…",
+        "createSubmitted": "Đang tạo phiên bản…",
         "createComingSoon": "Tính năng tạo phiên bản sẽ hoạt động khi backend sẵn sàng.",
         "engagementMissing": "Chỉ tạo được thiết kế khi engagement đã được chấp nhận. Vui lòng tải lại sau khi hợp đồng được xác nhận."
       },
@@ -1586,12 +1583,10 @@
         "selectLabel": "Phiên bản cần phát hành",
         "selectPlaceholder": "Chọn một phiên bản đang làm",
         "noWorking": "Không có phiên bản đang làm nào để phát hành.",
-        "notesLabel": "Ghi chú phát hành (tuỳ chọn)",
-        "notesPlaceholder": "Bản chỉnh sửa này thay đổi gì?",
         "cancel": "Huỷ",
         "publish": "Phát hành",
-        "published": "Đã phát hành {code}.",
-        "publishComingSoon": "Tính năng phát hành sẽ hoạt động khi backend sẵn sàng."
+        "publishing": "Đang phát hành…",
+        "published": "Đã phát hành {code}."
       },
       "addCategory": {
         "title": "Thêm loại bản vẽ tuỳ chỉnh",

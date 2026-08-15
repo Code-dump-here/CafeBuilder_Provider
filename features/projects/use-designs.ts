@@ -27,7 +27,6 @@ import type {
   RequestRevisionPayload,
   UpdateDesignPayload,
 } from "./design-types";
-import type { NormalizedAccount } from "@/features/auth/auth-me-types";
 import type { DesignVersion, DrawingCategory } from "./design-version-types";
 import { notifySuccess, notifyError } from "@/lib/notify";
 
@@ -116,20 +115,6 @@ export function mapCategoryToDesignType(
   }
 }
 
-function deterministicAvatarColor(seed: number): string {
-  const palette = [
-    "#A07B5A",
-    "#3B5BA9",
-    "#5A8F7B",
-    "#8E5A3B",
-    "#7B5A9B",
-    "#5A7B8F",
-    "#A95A8E",
-    "#9B8B5A",
-  ] as const;
-  return palette[Math.abs(seed * 13) % palette.length];
-}
-
 function statusToVersionStatus(
   status: Design["status"],
 ): DesignVersion["status"] {
@@ -158,14 +143,8 @@ function statusToVersionStatus(
  * `DesignVersion` shape consumed by `VersionListTable`.
  *
  * @param design  Backend record.
- * @param owner   Optional fallback owner when the API doesn't ship one.
- *                We default to the caller's account so the row never
- *                renders with a blank avatar.
  */
-export function mapDesignToVersion(
-  design: Design,
-  owner: NormalizedAccount,
-): DesignVersion {
+export function mapDesignToVersion(design: Design): DesignVersion {
   const createdAt = new Date(design.createdAt);
   const updatedAt = new Date(design.updatedAt);
   return {
@@ -176,14 +155,6 @@ export function mapDesignToVersion(
     description: design.reason,
     status: statusToVersionStatus(design.status),
     category: mapDesignTypeToCategory(design.type),
-    owner: {
-      id: owner.id,
-      fullName:
-        owner.shopOwner?.fullName ??
-        owner.serviceProvider?.displayName ??
-        owner.email,
-      avatarColor: deterministicAvatarColor(design.createdBy || design.id),
-    },
     drawingCount: design.images.length,
     createdAt,
     updatedAt,
@@ -264,28 +235,9 @@ export function useDesigns(options: UseDesignsOptions): UseDesignsResult {
   const designs = query.data?.items ?? [];
 
   // Map every Design → DesignVersion for consumers that haven't migrated.
-  // The mapping only needs the caller's account; pass `null` when the
-  // hook is used outside an authenticated context (today every caller
-  // is) and fall back to a synthetic owner so the avatar still renders.
-  const fallbackOwner: NormalizedAccount = React.useMemo(
-    () => ({
-      id: 0,
-      email: "system@example.com",
-      phone: null,
-      role: "provider",
-      status: "active",
-      emailVerifiedAt: null,
-      createdAt: new Date(0),
-      updatedAt: new Date(0),
-      shopOwner: null,
-      serviceProvider: null,
-    }),
-    [],
-  );
-
   const versions = React.useMemo(
-    () => designs.map((d) => mapDesignToVersion(d, fallbackOwner)),
-    [designs, fallbackOwner],
+    () => designs.map((d) => mapDesignToVersion(d)),
+    [designs],
   );
 
   return {
