@@ -645,8 +645,6 @@ export default function MilestoneManagementPage() {
     );
   }
 
-  const lastIndex = phases.length - 1;
-
   return (
     <>
       <MilestoneManagementToolbar
@@ -673,7 +671,6 @@ export default function MilestoneManagementPage() {
               key={phase.id}
               phase={phase}
               index={idx}
-              lastIndex={lastIndex}
               taskMeta={{}} // Not used with API
               taskStatus={Object.fromEntries(
                 itemTasks.map((t, i) => [`${phase.id}:${i}`, t.status])
@@ -686,8 +683,6 @@ export default function MilestoneManagementPage() {
               onRename={handleRenamePhase}
               onEditMeta={handleEditMeta}
               onDelete={handleDeletePhase}
-              onMoveLeft={() => {}} // Not supported in API
-              onMoveRight={() => {}} // Not supported in API
               onStatusChange={handleStatusChange}
             />
           );

@@ -5,8 +5,6 @@ import { useFormatter, useTranslations } from "next-intl";
 import {
   ArrowRight,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   ClipboardList,
   Loader2,
   MoreHorizontal,
@@ -42,13 +40,10 @@ import type { MilestonePhase, MilestoneStatus } from "@/lib/contractor/construct
 interface PhaseRowHeaderProps {
   phase: MilestonePhase;
   index: number;
-  lastIndex: number;
   doneCount: number;
   onRename: (phaseId: string) => void;
   onEditMeta: (phaseId: string) => void;
   onDelete: (phaseId: string) => void;
-  onMoveLeft: (phaseId: string) => void;
-  onMoveRight: (phaseId: string) => void;
   /** May be async — awaited so the row can show a busy state while the
    *  status change (which can take two requests) is in flight. */
   onStatusChange: (
@@ -93,13 +88,10 @@ const VALID_NEXT_STATUS: Record<MilestoneStatus, MilestoneStatus | null> = {
 export function PhaseRowHeader({
   phase,
   index,
-  lastIndex,
   doneCount,
   onRename,
   onEditMeta,
   onDelete,
-  onMoveLeft,
-  onMoveRight,
   onStatusChange,
 }: PhaseRowHeaderProps) {
   const t = useTranslations("MilestoneManagement.phase");
@@ -271,15 +263,10 @@ export function PhaseRowHeader({
                 {t("statusUpcoming")}
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => onMoveLeft(phase.id)} disabled={index === 0}>
-              <ChevronLeft aria-hidden />
-              {t("moveLeft")}
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onMoveRight(phase.id)} disabled={index === lastIndex}>
-              <ChevronRight aria-hidden />
-              {t("moveRight")}
-            </DropdownMenuItem>
+            {/* "Move left/right" used to sit here. There is no reorder
+                endpoint — both handlers were `() => {}`, so the items did
+                nothing but look enabled. Removed rather than disabled: a
+                greyed-out control still implies the feature exists. */}
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => onDelete(phase.id)} variant="destructive">
               <Trash2 aria-hidden />

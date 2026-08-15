@@ -20,7 +20,6 @@ import { PhaseRowHeader } from "@/components/contractor/milestone-management/pha
 interface PhaseRowProps {
   phase: MilestonePhase;
   index: number;
-  lastIndex: number;
   taskMeta: Record<string, MilestoneTask>;
   taskStatus: Record<string, ConstructionStatus>;
   resolveAssignee: (id: string | undefined) => { initials: string; name: string } | undefined;
@@ -30,14 +29,12 @@ interface PhaseRowProps {
   onRename: (phaseId: string) => void;
   onEditMeta: (phaseId: string) => void;
   onDelete: (phaseId: string) => void;
-  onMoveLeft: (phaseId: string) => void;
-  onMoveRight: (phaseId: string) => void;
   onStatusChange: (phaseId: string, status: MilestoneStatus) => void;
   highlight?: boolean;
 }
 
 export function PhaseRow(props: PhaseRowProps) {
-  const { phase, index, lastIndex, taskMeta, taskStatus, resolveAssignee, highlight, onToggleTask, onOpenTask, onRequestAddTask, onRename, onEditMeta, onDelete, onMoveLeft, onMoveRight, onStatusChange } = props;
+  const { phase, index, taskMeta, taskStatus, resolveAssignee, highlight, onToggleTask, onOpenTask, onRequestAddTask, onRename, onEditMeta, onDelete, onStatusChange } = props;
   const t = useTranslations("MilestoneManagement.phase");
 
   const doneCount = phase.tasks.reduce(
@@ -56,13 +53,10 @@ export function PhaseRow(props: PhaseRowProps) {
       <PhaseRowHeader
         phase={phase}
         index={index}
-        lastIndex={lastIndex}
         doneCount={doneCount}
         onRename={onRename}
         onEditMeta={onEditMeta}
         onDelete={onDelete}
-        onMoveLeft={onMoveLeft}
-        onMoveRight={onMoveRight}
         onStatusChange={onStatusChange}
       />
 
