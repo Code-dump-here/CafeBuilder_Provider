@@ -12,6 +12,7 @@ import {
   useEngagementOverview,
   useEngagements,
 } from "@/features/projects/use-engagements";
+import { useCurrentUser } from "@/features/auth/user-context";
 
 /**
  * `/projects/[id]/technical-drawings` — read-only index of approved
@@ -49,14 +50,26 @@ export default function TechnicalDrawingsPage() {
   const t = useTranslations("TechnicalDrawings");
   const errorT = useTranslations("TechnicalDrawings.errorBanner");
 
-  // Pick the viewer's first accepted engagement on the project. For
-  // callers without an engagement (rare — owners on a fresh project
-  // hit this before any engagement is opened), the overview query
-  // stays disabled and we render empty state without firing.
+  const { account } = useCurrentUser();
+  const isProvider = account?.role === "provider";
+  const viewerProfileId = account?.serviceProvider?.id ?? null;
+
+  // Pick the viewer's first accepted engagement on the project.
+  //
+  // Providers are scoped to their OWN providerId: without it this query
+  // returned every accepted engagement on the project and took the first
+  // row, so a provider with no engagement here (or a rejected one) was
+  // shown another provider's approved drawings. Owners and admins aren't
+  // scoped — they're entitled to the project's drawings regardless of
+  // which engagement produced them — but a provider who isn't engaged
+  // gets no engagement id, so the overview query never fires and the
+  // page renders its empty state.
   const { engagements, isLoading: isLoadingEngagements } = useEngagements({
     projectId: projectIdParam,
+    providerId: isProvider ? (viewerProfileId ?? undefined) : undefined,
     status: "accepted",
     pageSize: 10,
+    enabled: isProvider ? viewerProfileId != null : true,
   });
   const engagementId = engagements[0]?.id ?? null;
 

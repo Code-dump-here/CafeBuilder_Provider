@@ -407,7 +407,8 @@
   "Breadcrumb": {
     "myProjects": "Dự án của tôi",
     "projectFallback": "Dự án {id}",
-    "versionFallback": "Phiên bản {code}"
+    "versionFallback": "Phiên bản {code}",
+    "backToOverview": "Quay lại tổng quan dự án"
   },
   "ProjectsOverview": {
     "title": "Tổng quan",

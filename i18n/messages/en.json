@@ -407,7 +407,8 @@
   "Breadcrumb": {
     "myProjects": "My Projects",
     "projectFallback": "Project {id}",
-    "versionFallback": "Version {code}"
+    "versionFallback": "Version {code}",
+    "backToOverview": "Back to project overview"
   },
   "ProjectsOverview": {
     "title": "Overview",

@@ -528,15 +528,23 @@ function filterSection(
 
     const visibleByScope = scopes.some((scope) => {
       switch (scope) {
+        // Capability scopes gate on `isActive` as well as `contractType`.
+        // `contractType` alone is not enough: `useActiveProjectMembership`
+        // falls back to a "representative" engagement even when none are
+        // live, so a rejected or terminated engagement still reports its
+        // contractType — which let a provider who is no longer on the
+        // project keep seeing Design Work / Construction sections.
         case "design":
           return (
-            membership.contractType === "design" ||
-            membership.contractType === "both"
+            membership.isActive &&
+            (membership.contractType === "design" ||
+              membership.contractType === "both")
           );
         case "construction":
           return (
-            membership.contractType === "construction" ||
-            membership.contractType === "both"
+            membership.isActive &&
+            (membership.contractType === "construction" ||
+              membership.contractType === "both")
           );
         case "member":
           return membership.isActive || membership.isCompleted;

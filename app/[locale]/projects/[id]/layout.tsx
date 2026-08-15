@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { ArrowLeft } from "lucide-react";
 
 import { ProjectHeroBar } from "@/components/project-overview/project-hero-bar";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
@@ -27,9 +30,11 @@ export default function ProjectLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const params = useParams<{ id: string }>();
+  const params = useParams<{ locale?: string; id: string }>();
   const projectIdParam = params?.id ?? "";
+  const locale = params?.locale ?? "";
   const pathname = usePathname();
+  const t = useTranslations("Breadcrumb");
 
   const { project, isLoading, isError } = useProjectDetail(projectIdParam);
 
@@ -53,8 +58,23 @@ export default function ProjectLayout({
 
   const showHero = PROJECT_INFO_SEGMENTS.has(firstSegment);
 
+  // Anywhere below the project root, offer an explicit way back up. The
+  // breadcrumb's project-name crumb already links here, but it reads as a
+  // trail rather than an action — easy to miss when you're several
+  // sub-pages deep and just want out.
+  const isProjectRoot = firstSegment === "";
+
   return (
     <div className="flex flex-col gap-6">
+      {!isProjectRoot ? (
+        <Link
+          href={`/${locale}/projects/${projectIdParam}`}
+          className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" aria-hidden />
+          {t("backToOverview")}
+        </Link>
+      ) : null}
       {showHero && !isError && !isLoading ? (
         <ProjectHeroBar project={project} />
       ) : null}
