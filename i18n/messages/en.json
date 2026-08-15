@@ -987,8 +987,6 @@
       "delete": "Delete phase",
       "deleteConfirm": "Delete this phase and all its tasks?",
       "deleteError": "Couldn't delete the phase. Please try again.",
-      "moveLeft": "Move left",
-      "moveRight": "Move right",
       "editMeta": "Edit details",
       "editMetaTitle": "Edit phase details",
       "lead": "Lead",

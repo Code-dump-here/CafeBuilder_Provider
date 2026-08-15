@@ -990,8 +990,6 @@
       "delete": "Xoá mốc",
       "deleteConfirm": "Xoá mốc này và mọi công việc bên trong?",
       "deleteError": "Không thể xoá mốc. Vui lòng thử lại.",
-      "moveLeft": "Dịch trái",
-      "moveRight": "Dịch phải",
       "editMeta": "Sửa chi tiết",
       "editMetaTitle": "Sửa chi tiết mốc",
       "lead": "Phụ trách",
