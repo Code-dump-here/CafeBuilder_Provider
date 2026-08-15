@@ -261,7 +261,7 @@ interface RawDesignVersionImage {
 interface RawDesignVersionSnapshot {
   id: number;
   designId: number;
-  snapshotKind: "submitted" | "approved";
+  snapshotKind: "submitted" | "approved" | "revision";
   version: string;
   title: string | null;
   type: Design["type"];
