@@ -157,11 +157,17 @@ export async function createConstructionTaskApi(
 /**
  * Get construction tasks.
  *
- * Endpoint: `GET /api/construction-tasks?constructionItemId=&status=`
+ * Endpoint: `GET /api/construction-tasks?constructionItemId=&projectWorkingId=&status=`
+ *
+ * A task carries no engagement id of its own — the backend reaches it
+ * through the parent milestone — so `projectWorkingId` is the only way to
+ * ask for "this project's tasks". Without it the server's only filter is
+ * visibility, i.e. every task on every engagement the caller can see.
  */
 export async function getConstructionTasksApi(
   options?: {
     constructionItemId?: number;
+    projectWorkingId?: number;
     status?: string;
     pageNumber?: number;
     pageSize?: number;
@@ -171,6 +177,9 @@ export async function getConstructionTasksApi(
   const params = new URLSearchParams();
   if (options?.constructionItemId) {
     params.set("constructionItemId", String(options.constructionItemId));
+  }
+  if (options?.projectWorkingId) {
+    params.set("projectWorkingId", String(options.projectWorkingId));
   }
   if (options?.status) {
     params.set("status", options.status);

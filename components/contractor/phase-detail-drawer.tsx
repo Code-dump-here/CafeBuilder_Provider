@@ -103,6 +103,10 @@ export function PhaseDetailDrawer({
   const tasksQuery = useConstructionTasks({
     constructionItemId: constructionItemId ?? undefined,
     enabled: constructionItemId != null && projectWorkingId != null,
+    // Already scoped to one milestone, so cross-project bleed isn't a
+    // risk here — but the backend still caps at 10 without this, which
+    // would quietly truncate a milestone that has more tasks than that.
+    pageSize: 200,
   });
   const issuesQuery = useIssues({
     constructionItemId: constructionItemId ?? undefined,

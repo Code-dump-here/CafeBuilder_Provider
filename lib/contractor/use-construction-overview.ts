@@ -110,10 +110,15 @@ export function useConstructionOverview(
     enabled: projectWorkingId != null && Number(projectWorkingId) > 0,
   });
 
-  // Fetch all tasks to compute accurate progress per milestone
+  // Every task on this engagement, used to compute per-milestone progress.
+  // Both arguments matter: without `projectWorkingId` the server returns
+  // other projects' tasks too, and without `pageSize` it caps at its
+  // default of 10 — so progress could be computed from a slice that
+  // contained none of this project's tasks at all, showing 0%.
   const tasksQuery = useConstructionTasks({
-    constructionItemId: undefined, // fetch all
+    projectWorkingId: projectWorkingId ?? undefined,
     enabled: projectWorkingId != null && Number(projectWorkingId) > 0,
+    pageSize: 200,
   });
 
   const phases = React.useMemo(

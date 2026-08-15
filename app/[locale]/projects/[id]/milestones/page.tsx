@@ -185,16 +185,18 @@ export default function MilestoneManagementPage() {
   });
 
   // Fetch all tasks for these milestones. Same pageSize=10 default problem
-  // as above, made worse here since this endpoint has no project-level
-  // filter — without an explicit pageSize it pages across every task the
-  // account can see, not just this project's, so this project's tasks
-  // could be crowded out entirely by another project's.
+  // Scoped to this engagement: the toolbar counts (`totalTasks`,
+  // `doneTaskCount`) are derived straight off this list, so an unscoped
+  // fetch made them sum every task the provider could see across all their
+  // projects — the page then rendered only this project's, leaving the
+  // counter permanently disagreeing with the rows beneath it.
   const {
     items: allTasks,
     isLoading: isLoadingTasks,
     isFetching: isFetchingTasks,
     refetch: refetchTasks,
   } = useConstructionTasks({
+    projectWorkingId: projectWorkingId ?? undefined,
     enabled: Boolean(projectWorkingId),
     pageSize: 200,
   });

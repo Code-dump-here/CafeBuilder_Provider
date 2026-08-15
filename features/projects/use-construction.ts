@@ -196,14 +196,15 @@ export function useConstructionItem(
 
 export interface UseConstructionTasksOptions {
   constructionItemId?: number | string;
+  /** Scope to one engagement. Without this the server returns every task
+   * on every engagement the account can see, which made project-level
+   * counters (e.g. the milestones toolbar) sum other projects' tasks. */
+  projectWorkingId?: number | string;
   status?: ConstructionStatus;
   enabled?: boolean;
   /** The backend defaults to 10 when omitted, silently hiding every task
-   * past the first page — worse here than on items, since this call has no
-   * constructionItemId filter option at the milestones-page call site, so
-   * it's paging across every task the account can see, not just this
-   * project's. Callers that need the full list should pass something
-   * larger. */
+   * past the first page. Callers that need the full list should pass
+   * something larger. */
   pageSize?: number;
 }
 
@@ -219,15 +220,30 @@ export interface UseConstructionTasksResult {
 export function useConstructionTasks(
   options: UseConstructionTasksOptions,
 ): UseConstructionTasksResult {
-  const { constructionItemId, status, enabled = true, pageSize } = options;
+  const {
+    constructionItemId,
+    projectWorkingId,
+    status,
+    enabled = true,
+    pageSize,
+  } = options;
 
   const query = useQuery<ConstructionTaskListResponse, Error>({
-    queryKey: ["construction-tasks", { constructionItemId, status, pageSize }],
+    // `projectWorkingId` has to be part of the key: it changes the response,
+    // so leaving it out would serve one project's tasks from cache while
+    // viewing another.
+    queryKey: [
+      "construction-tasks",
+      { constructionItemId, projectWorkingId, status, pageSize },
+    ],
     queryFn: async ({ signal }) =>
       getConstructionTasksApi(
         {
           constructionItemId: constructionItemId
             ? Number(constructionItemId)
+            : undefined,
+          projectWorkingId: projectWorkingId
+            ? Number(projectWorkingId)
             : undefined,
           status,
           pageSize,
