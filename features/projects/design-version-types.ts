@@ -51,7 +51,9 @@ export interface DesignVersion {
   description: string | null;
   status: VersionStatus;
   category: DrawingCategory;
-  owner: DesignVersionOwner;
+  // No `owner`: the designs list API doesn't return an author, so the table
+  // used to render a synthetic placeholder account for every row. The column
+  // was removed rather than keep showing invented data.
   drawingCount: number;
   createdAt: Date;
   updatedAt: Date;
