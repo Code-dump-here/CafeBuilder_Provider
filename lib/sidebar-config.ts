@@ -131,12 +131,6 @@ const DESIGNER_PROJECT_INFO: NavSection = {
       keepOnCompletion: true,
     },
     {
-      titleKey: "Sidebar.designer.survey",
-      url: "/survey",
-      icon: Map,
-      scope: "project",
-    },
-    {
       titleKey: "Sidebar.designer.contracts",
       url: "/contracts",
       icon: FileCheck,
@@ -155,6 +149,17 @@ const DESIGNER_DESIGN_WORK: NavSection = {
   // would refuse. A 'both' engagement still matches — see `filterSection`.
   projectScope: ["design"],
   items: [
+    {
+      // Site survey — the condition report a designer files before designing.
+      // It used to sit in `DESIGNER_PROJECT_INFO`, which is `member`-scoped, so
+      // it rendered for constructors too even though the work isn't theirs.
+      // Here it inherits the section's `design` scope and disappears from a
+      // construction-only engagement's nav.
+      titleKey: "Sidebar.designer.survey",
+      url: "/survey",
+      icon: Map,
+      scope: "project",
+    },
     {
       titleKey: "Sidebar.designer.designManagement",
       url: "/design-management",
