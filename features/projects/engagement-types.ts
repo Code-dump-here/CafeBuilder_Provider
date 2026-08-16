@@ -154,6 +154,17 @@ export interface EngagementAiSummary {
   id: number;
   conceptSummary: string;
   state: string;
+  /**
+   * The generated concept image, and the prompt behind it.
+   *
+   * `GET /api/project-workings/{id}/overview` fills `aiRecommendations` with
+   * whole `AiRecommendationResponse` objects, so these ride along with the
+   * fields above — providers get the picture without needing
+   * `GET /api/ai-recommendations`, which is owner+admin only. Optional
+   * because a job that hasn't finished (or failed) has no artifact yet.
+   */
+  imageArtifactUrl?: string | null;
+  imagePrompt?: string | null;
 }
 
 /**

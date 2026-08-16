@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { ConceptImage } from "@/components/design-brief/concept-image";
 import type { EngagementAiSummary } from "@/features/projects/engagement-types";
 
 interface AiRecommendationsSummaryListProps {
@@ -30,12 +31,15 @@ function isKnownState(state: string): state is KnownState {
  * Read-only "AI Design Iterations" summary for providers.
  *
  * Providers can't call `GET /api/ai-recommendations` (owner+admin only —
- * see BE_CHANGES_FOR_FE.md §1.5), so this renders the thinner
- * `EngagementAiSummary[]` (id, conceptSummary, state) that
- * `GET /api/project-workings/{id}/overview` already returns, scoped to
- * the viewer's own engagement. There's no cost/layout/image detail here
- * — that data simply isn't in this endpoint's response shape, unlike the
- * full `AiRecommendationsList` the owner sees.
+ * see BE_CHANGES_FOR_FE.md §1.5), so this reads what
+ * `GET /api/project-workings/{id}/overview` returns, scoped to the
+ * viewer's own engagement.
+ *
+ * That overview embeds whole recommendation objects, so the generated
+ * concept image arrives with them and is shown here — the provider is the
+ * one building to it, so withholding the picture helped nobody. The rest
+ * of the owner's card (cost bands, zone layout, risk notes) stays out:
+ * this is a read-only digest, not the full `AiRecommendationsList`.
  */
 export function AiRecommendationsSummaryList({
   recommendations,
@@ -103,6 +107,14 @@ function SummaryRow({ rec }: { rec: EngagementAiSummary }) {
           <SummaryStateBadge stateKey={stateKey} label={t(`states.${stateKey}`)} />
         ) : null}
       </div>
+      {rec.imageArtifactUrl ? (
+        <ConceptImage
+          src={rec.imageArtifactUrl}
+          prompt={rec.imagePrompt ?? null}
+          promptLabel={t("imagePromptLabel")}
+          imageLabel={t("image")}
+        />
+      ) : null}
       <p className="font-mono text-[11px] text-muted-foreground">#{rec.id}</p>
     </article>
   );
