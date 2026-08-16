@@ -159,7 +159,13 @@ export function mapDesignToVersion(design: Design): DesignVersion {
     createdAt,
     updatedAt,
     publishedAt: design.status === "approved" ? updatedAt : null,
-    latestNote: design.reason,
+    // The row subtitle, shown under the version name. `reason` is the owner's
+    // revision request and the backend keeps it on the row after the designer
+    // resubmits, so carrying it across left an old "change the counter height"
+    // note sitting under a version that had already been redone. Only surface
+    // it while the revision is still outstanding; the approval-history panel
+    // keeps every past reason.
+    latestNote: design.status === "revision" ? design.reason : null,
     drawings: design.images.map((img) => ({
       id: img.id,
       versionId: design.id,

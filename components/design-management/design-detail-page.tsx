@@ -1008,7 +1008,12 @@ function VersionInfoRail({
         <p className="text-xs text-muted-foreground">
           {t("version.uploadedBy")} {format.dateTime(version.createdAt, { dateStyle: "medium" })}
         </p>
-        {design.reason && (
+        {/* Only while the revision is actually outstanding. `reason` stays on
+            the row after the designer resubmits, so showing it unconditionally
+            left the amber "please change this" banner sitting on the new
+            version — it read as a second revision request for work already
+            redone. Past reasons remain in the approval history panel. */}
+        {design.status === "revision" && design.reason && (
           <p className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1.5 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
             <span className="font-semibold">{t("version.revisionReason")}:</span>{" "}
             {design.reason}
