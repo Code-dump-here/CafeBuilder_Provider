@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Loader2,
+  MessageSquareText,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -44,6 +45,8 @@ interface PhaseRowHeaderProps {
   onRename: (phaseId: string) => void;
   onEditMeta: (phaseId: string) => void;
   onDelete: (phaseId: string) => void;
+  /** Opens the owner's note thread for this milestone. */
+  onOpenNotes: (phaseId: string) => void;
   /** May be async — awaited so the row can show a busy state while the
    *  status change (which can take two requests) is in flight. */
   onStatusChange: (
@@ -92,10 +95,12 @@ export function PhaseRowHeader({
   onRename,
   onEditMeta,
   onDelete,
+  onOpenNotes,
   onStatusChange,
 }: PhaseRowHeaderProps) {
   const t = useTranslations("MilestoneManagement.phase");
   const tStatus = useTranslations("ConstructionOverview.status");
+  const tNotes = useTranslations("MilestoneManagement.notes");
   const format = useFormatter();
   const nextStatus = VALID_NEXT_STATUS[phase.status];
 
@@ -214,6 +219,19 @@ export function PhaseRowHeader({
         >
           {tStatus(phase.status)}
         </span>
+        {/* The owner writes notes against a milestone from the mobile app.
+            Kept as a visible control rather than a menu entry — buried in the
+            kebab, a note nobody knows about is the same as no note. */}
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="ghost"
+          aria-label={tNotes("open")}
+          title={tNotes("open")}
+          onClick={() => onOpenNotes(phase.id)}
+        >
+          <MessageSquareText aria-hidden />
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button type="button" size="icon-sm" variant="ghost" aria-label="Phase actions">

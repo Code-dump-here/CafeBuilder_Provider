@@ -17,8 +17,13 @@ import { Button } from "@/components/ui/button";
 export interface EmptyStateProps {
   title: string;
   description: string;
-  actionLabel: string;
-  onAction: () => void;
+  /**
+   * Omit both to render the panel without a button — for a viewer who may not
+   * create the thing that is missing, an action they cannot complete is worse
+   * than none at all.
+   */
+  actionLabel?: string;
+  onAction?: () => void;
   /** Defaults to a document glyph. */
   icon?: LucideIcon;
 }
@@ -39,10 +44,12 @@ export function EmptyState({
         <p className="text-base font-semibold text-foreground">{title}</p>
         <p className="max-w-md text-sm text-muted-foreground">{description}</p>
       </div>
-      <Button onClick={onAction} className="mt-2">
-        <Plus aria-hidden />
-        {actionLabel}
-      </Button>
+      {actionLabel && onAction && (
+        <Button onClick={onAction} className="mt-2">
+          <Plus aria-hidden />
+          {actionLabel}
+        </Button>
+      )}
     </div>
   );
 }

@@ -25,7 +25,7 @@ export interface MilestoneState {
    */
   taskDone: Record<string, boolean>;
   /**
-   * Rich task metadata (description / due date / assignee). Keyed by
+   * Rich task metadata (description / due date / photos). Keyed by
    * `<phaseId>:<taskIndex>`. Sparse — missing entries mean "just a
    * title".
    */
@@ -46,7 +46,6 @@ export type MilestoneAction =
       title: string;
       description?: string;
       dueDate?: string;
-      assigneeId?: string;
       images?: string[];
     }
   | { type: "edit_task"; phaseId: string; taskIndex: number; title: string }
@@ -56,7 +55,6 @@ export type MilestoneAction =
       taskIndex: number;
       description?: string;
       dueDate?: string;
-      assigneeId?: string | null;
       images?: string[];
       createdAt?: string;
     }
@@ -160,7 +158,6 @@ export function milestoneReducer(
       const hasRich =
         action.description ||
         action.dueDate ||
-        action.assigneeId ||
         (action.images && action.images.length > 0);
       if (hasRich) {
         nextMeta[realKey] = {
@@ -168,7 +165,6 @@ export function milestoneReducer(
           title: action.title,
           description: action.description,
           dueDate: action.dueDate,
-          assigneeId: action.assigneeId,
           images: action.images,
           createdAt: new Date().toISOString(),
         };
@@ -197,17 +193,12 @@ export function milestoneReducer(
         title,
         description: action.description ?? existing?.description,
         dueDate: action.dueDate ?? existing?.dueDate,
-        assigneeId:
-          action.assigneeId === null
-            ? undefined
-            : (action.assigneeId ?? existing?.assigneeId),
         images: action.images ?? existing?.images,
         createdAt: action.createdAt ?? existing?.createdAt ?? new Date().toISOString(),
       };
       const isEmpty =
         !nextEntry.description &&
         !nextEntry.dueDate &&
-        !nextEntry.assigneeId &&
         (!nextEntry.images || nextEntry.images.length === 0);
       const nextMeta = { ...state.taskMeta };
       if (isEmpty) {

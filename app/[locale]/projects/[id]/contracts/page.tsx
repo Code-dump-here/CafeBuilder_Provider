@@ -132,6 +132,7 @@ export default function ContractsPage() {
     contracts,
     latestContract,
     confirmedContract,
+    activeContract,
     isLoading: isLoadingContracts,
     isFetching,
     isError: isContractsError,
@@ -147,7 +148,26 @@ export default function ContractsPage() {
   const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
   const [selectedContract, setSelectedContract] = React.useState<Contract | null>(null);
 
+  // One live contract per provider per project: a draft, one awaiting the
+  // owner's OTP, and a signed one all hold the slot. The server refuses a
+  // second one with a 409, so offering the button here would only produce a
+  // rejection the provider can't act on without being told what to do.
+  const canCreateContract = isProvider && !activeContract;
+
+  const BLOCKED_KEY = {
+    confirmed: "blocked.confirmed",
+    pending_otp: "blocked.pendingOtp",
+    drafted: "blocked.drafted",
+    cancelled: "blocked.drafted", // unreachable: cancelled never occupies the slot
+  } as const;
+
+  const createBlockedReason =
+    isProvider && activeContract
+      ? t(BLOCKED_KEY[activeContract.status], { title: activeContract.title })
+      : null;
+
   const handleCreateNew = () => {
+    if (!canCreateContract) return;
     setCreateDialogOpen(true);
   };
 
@@ -207,7 +227,7 @@ export default function ContractsPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">
             {t("title")}
@@ -215,9 +235,18 @@ export default function ContractsPage() {
           <p className="text-sm text-muted-foreground">
             {t("subtitle")}
           </p>
+          {createBlockedReason && (
+            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+              {createBlockedReason}
+            </p>
+          )}
         </div>
-        {account?.role === "provider" && (
-          <Button onClick={handleCreateNew}>
+        {isProvider && (
+          <Button
+            onClick={handleCreateNew}
+            disabled={!canCreateContract}
+            title={createBlockedReason ?? undefined}
+          >
             <Plus aria-hidden />
             {t("createNew")}
           </Button>
@@ -234,8 +263,9 @@ export default function ContractsPage() {
         <EmptyState
             title={t("empty.title")}
             description={t("empty.description")}
-            actionLabel={t("createFirst")}
-            onAction={handleCreateNew}
+            {...(canCreateContract
+              ? { actionLabel: t("createFirst"), onAction: handleCreateNew }
+              : {})}
           />
       ) : (
         <div className="flex flex-col gap-4">

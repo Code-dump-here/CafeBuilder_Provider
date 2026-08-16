@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
-import { CalendarDays, CheckCircle2, Circle, CircleDot, User } from "lucide-react";
+import { CalendarDays, CheckCircle2, Circle, CircleDot } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -13,8 +13,6 @@ interface TaskChipProps {
   taskIndex: number;
   task: MilestoneTask;
   status: ConstructionStatus;
-  assigneeInitials?: string;
-  assigneeName?: string;
   onClick: () => void;
   onToggle: () => void;
 }
@@ -23,7 +21,7 @@ interface TaskChipProps {
  * Pill-shaped, horizontally-laid task card. Lives inside a `PhaseRow`
  * and renders as a horizontal-scroll-friendly chip:
  *
- *   [ ○  Stud framing on north+west walls     Khoi  Jul 24 ]
+ *   [ ○  Stud framing on north+west walls     Jul 24 ]
  *
  * Clicking the title opens the task detail modal. The leading circle
  * toggles status inline (a separate click target so the modal doesn't pop
@@ -41,8 +39,6 @@ export function TaskChip({
   taskIndex,
   task,
   status,
-  assigneeInitials,
-  assigneeName,
   onClick,
   onToggle,
 }: TaskChipProps) {
@@ -105,25 +101,6 @@ export function TaskChip({
         </span>
 
         <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] text-muted-foreground">
-          {assigneeInitials ? (
-            <span className="inline-flex items-center gap-1">
-              <span
-                aria-hidden
-                className="flex size-4 items-center justify-center rounded-full bg-primary/15 text-[8px] font-semibold uppercase text-primary"
-                title={assigneeName}
-              >
-                {assigneeInitials}
-              </span>
-              {assigneeName ? (
-                <span className="max-w-[80px] truncate">{assigneeName}</span>
-              ) : null}
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1">
-              <User className="size-2.5" aria-hidden />
-              {t("noAssignee")}
-            </span>
-          )}
           {task.dueDate ? (
             <span className="inline-flex items-center gap-0.5">
               <CalendarDays className="size-2.5" aria-hidden />

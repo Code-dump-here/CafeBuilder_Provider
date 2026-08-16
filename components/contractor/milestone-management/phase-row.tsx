@@ -22,19 +22,19 @@ interface PhaseRowProps {
   index: number;
   taskMeta: Record<string, MilestoneTask>;
   taskStatus: Record<string, ConstructionStatus>;
-  resolveAssignee: (id: string | undefined) => { initials: string; name: string } | undefined;
   onToggleTask: (phaseId: string, taskIndex: number) => void;
   onOpenTask: (phaseId: string, taskIndex: number) => void;
   onRequestAddTask: (phaseId: string) => void;
   onRename: (phaseId: string) => void;
   onEditMeta: (phaseId: string) => void;
   onDelete: (phaseId: string) => void;
+  onOpenNotes: (phaseId: string) => void;
   onStatusChange: (phaseId: string, status: MilestoneStatus) => void;
   highlight?: boolean;
 }
 
 export function PhaseRow(props: PhaseRowProps) {
-  const { phase, index, taskMeta, taskStatus, resolveAssignee, highlight, onToggleTask, onOpenTask, onRequestAddTask, onRename, onEditMeta, onDelete, onStatusChange } = props;
+  const { phase, index, taskMeta, taskStatus, highlight, onToggleTask, onOpenTask, onRequestAddTask, onRename, onEditMeta, onDelete, onOpenNotes, onStatusChange } = props;
   const t = useTranslations("MilestoneManagement.phase");
 
   const doneCount = phase.tasks.reduce(
@@ -57,6 +57,7 @@ export function PhaseRow(props: PhaseRowProps) {
         onRename={onRename}
         onEditMeta={onEditMeta}
         onDelete={onDelete}
+        onOpenNotes={onOpenNotes}
         onStatusChange={onStatusChange}
       />
 
@@ -70,7 +71,6 @@ export function PhaseRow(props: PhaseRowProps) {
           phase.tasks.map((_title, idx) => {
             const key = `${phase.id}:${idx}`;
             const meta = taskMeta[key];
-            const assignee = resolveAssignee(meta?.assigneeId);
             return (
               <TaskChip
                 key={key}
@@ -78,8 +78,6 @@ export function PhaseRow(props: PhaseRowProps) {
                 taskIndex={idx}
                 task={meta ?? { id: key, title: phase.tasks[idx] ?? "" }}
                 status={taskStatus[key] ?? "pending"}
-                assigneeInitials={assignee?.initials}
-                assigneeName={assignee?.name}
                 onClick={() => onOpenTask(phase.id, idx)}
                 onToggle={() => onToggleTask(phase.id, idx)}
               />

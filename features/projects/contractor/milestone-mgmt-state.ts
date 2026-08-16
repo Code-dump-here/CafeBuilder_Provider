@@ -4,7 +4,7 @@
  * The overview / drawer still render from the lighter
  * `MilestonePhase.tasks: string[]` so we don't have to migrate every
  * reader. The management page, on the other hand, needs richer task
- * info (description, assignee, due date) — so it holds its own state
+ * info (description, due date, photos) — so it holds its own state
  * parallel to `MILESTONE_PHASES`, keyed by `<phaseId>:<taskIndex>`.
  *
  * When a real backend lands, both layers collapse back into one
@@ -19,8 +19,6 @@ export interface MilestoneTask {
   description?: string;
   /** ISO date the task is targeted to complete by. */
   dueDate?: string;
-  /** Crew member id from the parent phase's `phaseExtras.crew[]`. */
-  assigneeId?: string;
   /**
    * Image URLs (or data: URIs) shown as a gallery in the task detail
    * view. Mock-only — when the backend lands this becomes a list of

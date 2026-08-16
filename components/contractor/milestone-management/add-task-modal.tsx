@@ -20,16 +20,6 @@ import { todayDateInputValue } from "@/lib/date-input";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { Field } from "@/components/ui/field";
 
-interface CrewOption {
-  id: string;
-  name: string;
-  initials: string;
-}
-
-// CrewOption kept exported so future assignee selection can reuse the type
-// without re-declaring it.
-export type { CrewOption };
-
 interface AddTaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

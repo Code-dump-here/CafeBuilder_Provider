@@ -27,6 +27,7 @@ import { TaskEditDialog } from "@/components/contractor/milestone-management/tas
 import { AddPhaseDialog } from "@/components/contractor/milestone-management/add-phase-dialog";
 import { TaskDetailView } from "@/components/contractor/milestone-management/task-detail-view";
 import { AddTaskModal } from "@/components/contractor/milestone-management/add-task-modal";
+import { MilestoneNotesDialog } from "@/components/contractor/milestone-management/milestone-notes-dialog";
 
 import { useCurrentUser } from "@/features/auth/user-context";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
@@ -306,6 +307,8 @@ export default function MilestoneManagementPage() {
 
   // Hash-based highlighting
   const [highlightId, setHighlightId] = React.useState<string | null>(null);
+  /** Construction item whose owner-note thread is open, null when closed. */
+  const [notesPhaseId, setNotesPhaseId] = React.useState<number | null>(null);
   React.useEffect(() => {
     const hash = window.location.hash.replace(/^#/, "");
     if (hash && phases.some((p) => p.id === hash)) {
@@ -675,7 +678,6 @@ export default function MilestoneManagementPage() {
               taskStatus={Object.fromEntries(
                 itemTasks.map((t, i) => [`${phase.id}:${i}`, t.status])
               )}
-              resolveAssignee={() => undefined}
               highlight={highlightId === phase.id}
               onToggleTask={(phaseId, taskIndex) => handleRequestToggleTask(Number(phaseId), taskIndex)}
               onOpenTask={(_, taskIndex) => handleOpenTask(itemId, taskIndex)}
@@ -683,6 +685,7 @@ export default function MilestoneManagementPage() {
               onRename={handleRenamePhase}
               onEditMeta={handleEditMeta}
               onDelete={handleDeletePhase}
+              onOpenNotes={(phaseId) => setNotesPhaseId(Number(phaseId))}
               onStatusChange={handleStatusChange}
             />
           );
@@ -728,6 +731,17 @@ export default function MilestoneManagementPage() {
         onSubmit={handleSubmitTaskEdit}
       />
 
+      <MilestoneNotesDialog
+        open={notesPhaseId != null}
+        onOpenChange={(open) => {
+          if (!open) setNotesPhaseId(null);
+        }}
+        milestoneId={notesPhaseId}
+        milestoneLabel={
+          phases.find((p) => Number(p.id) === notesPhaseId)?.label
+        }
+      />
+
       <AddTaskModal
         open={addTaskTarget !== null}
         onOpenChange={(o) => {
@@ -747,7 +761,6 @@ export default function MilestoneManagementPage() {
           title: activeTasks[taskDetail.taskIndex]!.name,
           description: activeTasks[taskDetail.taskIndex]!.description ?? undefined,
           dueDate: activeTasks[taskDetail.taskIndex]!.estimateAt ?? undefined,
-          assigneeId: undefined,
           images: activeTasks[taskDetail.taskIndex]!.imageViewUrl
           ? [activeTasks[taskDetail.taskIndex]!.imageViewUrl!]
           : activeTasks[taskDetail.taskIndex]!.imageUrl
@@ -757,7 +770,6 @@ export default function MilestoneManagementPage() {
           status: activeTasks[taskDetail.taskIndex]!.status,
         } : null}
         phaseLabel={activeItem?.name}
-        crewOptions={[]}
         onEdit={handleEditTaskFromDetail}
         onDelete={() => {
           if (taskDetail.itemId == null || taskDetail.taskIndex == null) return;

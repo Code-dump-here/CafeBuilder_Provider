@@ -192,16 +192,20 @@ export default function SurveyPage() {
             <Card className="border-border/60">
               <CardHeader>
                 <CardTitle className="text-base">
-                  {t("previousVersions")}
+                  {t("previousSurveys")}
                 </CardTitle>
                 <CardDescription>
-                  {t("previousVersionsCount", { count: surveys.length - 1 })}
+                  {t("previousSurveysCount", { count: surveys.length - 1 })}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
                 {surveys
                   .filter((s) => s.id !== latestSurvey?.id)
-                  .sort((a, b) => b.version - a.version)
+                  .sort(
+                    (a, b) =>
+                      new Date(b.createdAt).getTime() -
+                      new Date(a.createdAt).getTime(),
+                  )
                   .map((survey) => (
                     <SurveyCard
                       key={survey.id}
@@ -269,7 +273,7 @@ function SurveyCard({ survey, isLatest, onEdit, canEdit }: SurveyCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CardTitle className="text-base">
-              {t("versionLabel", { version: survey.version.toFixed(1) })}
+              {t("surveyLabel")}
             </CardTitle>
             {isLatest && (
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">

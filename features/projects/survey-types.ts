@@ -36,7 +36,11 @@ export interface UpdateSurveyPayload {
 export interface Survey {
   id: number;
   projectWorkingId: number;
-  version: number;
+  /**
+   * Being retired backend-side, and no longer shown or sorted on anywhere.
+   * Optional so this type stays honest once the API stops sending it.
+   */
+  version?: number;
   conditionNote: string;
   /** Storage object name — not a browsable URL. Use `reportViewUrl` to link/preview. */
   reportUrl: string | null;

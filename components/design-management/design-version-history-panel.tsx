@@ -10,6 +10,7 @@ import {
   FileText,
   History,
   Loader2,
+  RotateCcw,
   Send,
 } from "lucide-react";
 
@@ -59,7 +60,7 @@ const SNAPSHOT_TONE: Record<
   {
     icon: React.ComponentType<{ className?: string }>;
     dotClass: string;
-    labelKey: "snapshotSubmitted" | "snapshotApproved";
+    labelKey: "snapshotSubmitted" | "snapshotApproved" | "snapshotRevision";
   }
 > = {
   submitted: {
@@ -71,6 +72,11 @@ const SNAPSHOT_TONE: Record<
     icon: CheckCircle2,
     dotClass: "text-emerald-500",
     labelKey: "snapshotApproved",
+  },
+  revision: {
+    icon: RotateCcw,
+    dotClass: "text-rose-500",
+    labelKey: "snapshotRevision",
   },
 };
 
@@ -244,6 +250,15 @@ function SnapshotRow({
             <span className="line-clamp-1 text-xs font-medium text-foreground">
               {snapshot.title ?? t("unnamedVersion")}
             </span>
+            {/* The revision reason frozen into this snapshot. Only rendered on
+                `revision` rows: `submitted` / `approved` snapshots copy whatever
+                reason happened to be on the design at the time, which belongs to
+                the PREVIOUS round and reads as if it applied to this one. */}
+            {snapshot.snapshotKind === "revision" && snapshot.reason ? (
+              <span className="mt-0.5 rounded-sm border-l-2 border-rose-400/60 bg-rose-50/60 py-0.5 pl-1.5 text-[10px] leading-relaxed text-foreground/80 dark:bg-rose-950/20">
+                {snapshot.reason}
+              </span>
+            ) : null}
             <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
               <Clock aria-hidden className="size-2.5" />
               {format.dateTime(snapshot.snapshottedAt, {

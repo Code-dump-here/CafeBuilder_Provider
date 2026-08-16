@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { CalendarDays, Clock, User, ImageIcon, Trash2, Pencil, TriangleAlert, CheckCircle, Circle } from "lucide-react";
+import { CalendarDays, Clock, ImageIcon, Trash2, Pencil, TriangleAlert, CheckCircle, Circle } from "lucide-react";
 
 import {
   Dialog,
@@ -14,18 +14,11 @@ import { Button } from "@/components/ui/button";
 import type { MilestoneTask } from "@/lib/contractor/milestone-mgmt-state";
 import type { ConstructionStatus } from "@/features/projects/construction-types";
 
-interface CrewMember {
-  id: string;
-  name: string;
-  initials: string;
-}
-
 interface TaskDetailViewProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task: MilestoneTask | null;
   phaseLabel?: string;
-  crewOptions: CrewMember[];
   onEdit: () => void;
   onDelete: () => void;
   /** Toggle task completion status */
@@ -38,16 +31,12 @@ interface TaskDetailViewProps {
 }
 
 export function TaskDetailView(props: TaskDetailViewProps) {
-  const { open, onOpenChange, task, phaseLabel, crewOptions, onEdit, onDelete, onToggleStatus, onReportIssue } = props;
+  const { open, onOpenChange, task, phaseLabel, onEdit, onDelete, onToggleStatus, onReportIssue } = props;
   const t = useTranslations("MilestoneManagement.task.detail");
   const tIssue = useTranslations("MilestoneManagement.issue");
   const format = useFormatter();
 
   if (!task) return null;
-
-  const assignee = task.assigneeId
-    ? crewOptions.find((c) => c.id === task.assigneeId)
-    : undefined;
 
   const handleDelete = () => {
     onDelete();
@@ -96,19 +85,6 @@ export function TaskDetailView(props: TaskDetailViewProps) {
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="size-3.5" aria-hidden />
                 <span>{t("created", { date: format.dateTime(new Date(task.createdAt ?? new Date().toISOString()), { dateStyle: "medium" }) })}</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <User className="size-3.5" aria-hidden />
-                {assignee ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <span aria-hidden className="flex size-5 items-center justify-center rounded-full bg-primary/15 text-[10px] font-semibold uppercase text-primary">
-                      {assignee.initials}
-                    </span>
-                    <span className="font-medium text-foreground">{assignee.name}</span>
-                  </span>
-                ) : (
-                  <span>{t("noAssigneeOption")}</span>
-                )}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDays className="size-3.5" aria-hidden />

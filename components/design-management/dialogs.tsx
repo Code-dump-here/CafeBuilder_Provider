@@ -27,7 +27,10 @@ import type {
   DesignVersion,
 } from "@/features/projects/design-version-types";
 import type { Design, DesignType } from "@/features/projects/design-types";
-import { useCreateDesignMutation } from "@/features/projects/use-designs";
+import {
+  useCreateDesignMutation,
+  useSubmitDesignMutation,
+} from "@/features/projects/use-designs";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 
 // ---------------------------------------------------------------------------
@@ -39,14 +42,12 @@ import { useResetOnChange } from "@/hooks/use-reset-on-change";
 // resulting `Design` via `onCreated` so the parent can refresh its
 // version list.
 //
-// `nextCode` is retained as a UX hint (the user can still override the
-// generated code). Today the backend assigns `version = "0.1"` on
-// create; the FE doesn't ship the custom code to the API.
+// There is no version-code input: the backend owns the number. It assigns
+// `version = 0.1` on create and bumps it by 0.1 on each `start-revision`,
+// and `POST /api/designs` has no field to override it. Asking the user for a
+// code only produced a value that was silently thrown away.
 
 interface NewVersionDialogProps {
-  /** Pre-populated next code, e.g. "V4.0". Used when the user leaves the
-   * code field empty. */
-  nextCode: string;
   /** Engagement id the new design belongs to. When null, the submit
    *  button stays disabled — the parent hasn't resolved the engagement
    *  yet. */
@@ -68,7 +69,6 @@ const NEW_VERSION_CATEGORIES: Array<{
 ];
 
 export function NewVersionDialog({
-  nextCode,
   projectWorkingId,
   onCreated,
   renderTrigger,
@@ -76,14 +76,12 @@ export function NewVersionDialog({
   const t = useTranslations("DesignManagement");
   const [open, setOpen] = React.useState(false);
   const [name, setName] = React.useState("");
-  const [code, setCode] = React.useState("");
   const [category, setCategory] = React.useState<DesignType>("concept");
   const [notes, setNotes] = React.useState("");
 
   useResetOnChange(open, () => {
     if (!open) {
       setName("");
-      setCode("");
       setCategory("concept");
       setNotes("");
     }
@@ -117,8 +115,9 @@ export function NewVersionDialog({
 
     // Lightweight UX hint — the real toast/error message is rendered by
     // the mutation once the API resolves. We still call `onCreated` only
-    // on success so the parent doesn't refetch twice.
-    projectActionToast(t("dialogs.newVersion.createSubmitted", { code: code.trim() || nextCode }));
+    // on success so the parent doesn't refetch twice. No code in this
+    // message: the version number only exists once the backend replies.
+    projectActionToast(t("dialogs.newVersion.createSubmitted"));
   };
 
   return (
@@ -139,17 +138,6 @@ export function NewVersionDialog({
               onChange={(e) => setName(e.target.value)}
               placeholder={t("dialogs.newVersion.namePlaceholder")}
               required
-              disabled={isPending}
-            />
-          </Field>
-          <Field
-            label={t("dialogs.newVersion.codeLabel")}
-            hint={t("dialogs.newVersion.codeHint", { next: nextCode.replace(/^V/, "") })}
-          >
-            <Input
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder={nextCode}
               disabled={isPending}
             />
           </Field>
@@ -206,6 +194,12 @@ export function NewVersionDialog({
 
 // ---------------------------------------------------------------------------
 // PublishRevisionDialog
+//
+// "Publish" maps onto `POST /api/designs/{id}/submit` — the backend moves the
+// design `in_progress` → `submitted`, snapshots it into design_versions, and
+// notifies the owner for review. There is no separate publish endpoint, and
+// submit takes no request body: that is why this dialog has no release-notes
+// field (see API_FLOW_FE.md §6).
 
 interface PublishRevisionDialogProps {
   versions: DesignVersion[];
@@ -219,21 +213,20 @@ export function PublishRevisionDialog({
   renderTrigger,
 }: PublishRevisionDialogProps) {
   const t = useTranslations("DesignManagement");
-  // Same gating as the trigger button: skip `submitted` (still awaiting
-  // review) and `approved` (locked). See `version-list-table` for the
-  // matching `publishableCount` derivation.
+  // Only `in_progress` is publishable. The backend's submit guard is
+  // `status == in_progress` — `revision` designs must first go through
+  // `POST /start-revision` (which bumps the version and returns them to
+  // `in_progress`), and `submitted` / `approved` are already past this
+  // step. Offering a `revision` row here would just 409.
+  // `version-list-table` derives `publishableCount` with the same rule.
   const publishable = React.useMemo(
-    () =>
-      versions.filter(
-        (v) => v.status === "in_progress" || v.status === "revision",
-      ),
+    () => versions.filter((v) => v.status === "in_progress"),
     [versions],
   );
   const [open, setOpen] = React.useState(false);
   const [versionId, setVersionId] = React.useState<string | null>(
     publishable[0]?.id.toString() ?? null,
   );
-  const [notes, setNotes] = React.useState("");
 
   // Token carries the first publishable id too: the original effect also
   // re-ran when the list changed while closed, so the default selection
@@ -241,19 +234,33 @@ export function PublishRevisionDialog({
   useResetOnChange(`${open}:${publishable[0]?.id ?? ""}`, () => {
     if (!open) {
       setVersionId(publishable[0]?.id.toString() ?? null);
-      setNotes("");
     }
   });
 
   const selected =
     publishable.find((v) => v.id.toString() === versionId) ?? null;
 
+  // A row's id *is* the design id (see use-designs.ts `mapDesignToVersion`),
+  // so the selected version can be submitted directly.
+  const submitMutation = useSubmitDesignMutation({
+    // The parent renders the success toast through `onPublished` so we don't
+    // stack two toasts for the same action.
+    onSuccessMessage: null,
+    onSuccessSideEffect: (design) => {
+      onPublished(`V${design.version}`);
+      setOpen(false);
+    },
+  });
+
+  const isPending = submitMutation.isPending;
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selected) return;
-    projectActionToast(t("dialogs.publish.publishComingSoon"));
-    onPublished(selected.code);
-    setOpen(false);
+    if (!selected || isPending) return;
+    // Errors surface as a toast from the mutation (e.g. 400 when the design
+    // has no uploaded file yet) and the dialog stays open so the user can fix
+    // it without re-picking a version.
+    submitMutation.mutate(selected.id);
   };
 
   return (
@@ -276,6 +283,7 @@ export function PublishRevisionDialog({
               <Select
                 value={versionId ?? undefined}
                 onValueChange={setVersionId}
+                disabled={isPending}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue
@@ -291,23 +299,16 @@ export function PublishRevisionDialog({
                 </SelectContent>
               </Select>
             </Field>
-            <Field label={t("dialogs.publish.notesLabel")}>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder={t("dialogs.publish.notesPlaceholder")}
-                rows={3}
-                className="min-h-16 w-full rounded-md border border-input bg-input/20 px-2 py-1.5 text-xs/relaxed text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:outline-none dark:bg-input/30"
-              />
-            </Field>
             <DialogFooter className="mt-2">
               <DialogClose asChild>
-                <Button type="button" variant="outline">
+                <Button type="button" variant="outline" disabled={isPending}>
                   {t("dialogs.publish.cancel")}
                 </Button>
               </DialogClose>
-              <Button type="submit" disabled={!selected}>
-                {t("dialogs.publish.publish")}
+              <Button type="submit" disabled={!selected || isPending}>
+                {isPending
+                  ? t("dialogs.publish.publishing")
+                  : t("dialogs.publish.publish")}
               </Button>
             </DialogFooter>
           </form>
