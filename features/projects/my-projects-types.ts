@@ -165,8 +165,20 @@ export interface MyProjectsQueryParams {
   pageSize: number;
   /** Required — the authenticated provider's `serviceProvider.id`. */
   serviceProviderProfileId: number;
-  /** Optional `project-workings` status filter. */
-  status?: MyProjectStatus;
+  /**
+   * Statuses to return, sent as the CSV `statuses` param. Always supply the
+   * full visible set for the "All" tab rather than omitting it: the endpoint
+   * reads an empty value as "no status filter" and would hand back declined
+   * and terminated engagements for the client to throw away again.
+   */
+  statuses?: readonly MyProjectStatus[];
+  /**
+   * Restrict to one kind of work. Matched exactly by the backend
+   * (`e.ContractType == kind`), so `design` does NOT subsume `both` — a
+   * design-and-build engagement answers only to `both`. The filter UI lists
+   * all three separately for exactly that reason.
+   */
+  contractType?: MyProjectContractType;
 }
 
 interface RawPagedResponse {
@@ -293,15 +305,12 @@ export function normalizeMyProjectsPage(
     .map(normalizeMyProjectWorking)
     .filter((item): item is MyProjectWorking => item !== null);
 
-  // The "All" tab sends no `status`, and the backend's list query excludes
-  // only soft-deleted rows — so declined and finished engagements arrive here
-  // and get dropped above.
-  //
-  // `totalItems` still counts them, so it's corrected by however many this
-  // page discarded. That's approximate: rows dropped on *other* pages are
-  // still in the server's total. Filtering server-side would fix it properly,
-  // but the endpoint takes a single `status` value, so "every live status"
-  // isn't expressible without a backend change.
+  // Nothing should be dropped any more: the request names the exact statuses
+  // it wants via `statuses`, so the server pages over the visible rows only.
+  // This stays as a guard against a status added to the backend later, and
+  // `totalItems` is corrected by whatever it catches — approximate, since
+  // rows dropped on *other* pages are still in the server's total, but the
+  // correction is only ever exercised by a wire value we don't yet know.
   const dropped = raw.items.length - items.length;
 
   return {

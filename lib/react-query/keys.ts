@@ -160,6 +160,7 @@ export const queryKeys = {
       pageNumber: number;
       pageSize: number;
       status?: string;
+      contractType?: string;
     }) =>
       [
         "myProjects",
@@ -168,6 +169,10 @@ export const queryKeys = {
         params.pageNumber,
         params.pageSize,
         params.status ?? "all",
+        // Part of the identity: a provider who does both kinds of work can
+        // narrow the same status tab to design or construction, and those
+        // are different result sets.
+        params.contractType ?? "all",
       ] as const,
     /**
      * Prefix key for invalidating every `myProjects.list` entry for a

@@ -1839,6 +1839,13 @@
         "invitations": "Lời mời",
         "active": "Đang chạy",
         "completed": "Hoàn tất"
+      },
+      "service": {
+        "label": "Lọc theo loại công việc",
+        "all": "Tất cả công việc",
+        "design": "Thiết kế",
+        "construction": "Thi công",
+        "both": "Thiết kế & Thi công"
       }
     },
     "invitations": {

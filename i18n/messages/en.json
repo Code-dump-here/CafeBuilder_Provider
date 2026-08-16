@@ -1838,6 +1838,13 @@
         "invitations": "Invitations",
         "active": "Active",
         "completed": "Completed"
+      },
+      "service": {
+        "label": "Filter by work type",
+        "all": "All work",
+        "design": "Design",
+        "construction": "Construction",
+        "both": "Design + Build"
       }
     },
     "invitations": {

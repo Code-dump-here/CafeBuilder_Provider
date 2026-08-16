@@ -8,7 +8,9 @@ import { tokenStore } from "@/features/auth/token-store";
 import { useCurrentUser } from "@/features/auth/user-context";
 
 import { fetchMyProjectWorkings } from "./my-projects-api";
+import { VISIBLE_ENGAGEMENT_STATUSES } from "./engagement-visibility";
 import type {
+  MyProjectContractType,
   MyProjectStatus,
   MyProjectWorking,
   MyProjectsQueryParams,
@@ -46,6 +48,8 @@ export interface UseMyProjectWorkingsOptions {
   serviceProviderProfileId?: number;
   /** Optional `project-workings` status filter (e.g. `requested`). */
   status?: MyProjectStatus;
+  /** Optional kind-of-work filter — design, construction, or design-and-build. */
+  contractType?: MyProjectContractType;
 }
 
 /**
@@ -81,7 +85,13 @@ function useAuthHydrated(): boolean {
 export function useMyProjectWorkings(
   options: UseMyProjectWorkingsOptions = {},
 ): UseMyProjectWorkingsResult {
-  const { pageNumber = 1, pageSize = 10, serviceProviderProfileId, status } = options;
+  const {
+    pageNumber = 1,
+    pageSize = 10,
+    serviceProviderProfileId,
+    status,
+    contractType,
+  } = options;
   const hydrated = useAuthHydrated();
   const { account, isLoading: isAccountLoading } = useCurrentUser();
 
@@ -96,7 +106,11 @@ export function useMyProjectWorkings(
           serviceProviderProfileId: effectiveProfileId,
           pageNumber,
           pageSize,
-          ...(status ? { status } : {}),
+          // One tab = one status; the "All" tab names every status this list
+          // shows, so the server excludes declined and terminated rows
+          // instead of the browser dropping them after the page was cut.
+          statuses: status ? [status] : VISIBLE_ENGAGEMENT_STATUSES,
+          ...(contractType ? { contractType } : {}),
         }
       : null;
 
@@ -105,7 +119,19 @@ export function useMyProjectWorkings(
 
   const query = useQuery<PagedResponse<MyProjectWorking>, Error>({
     queryKey: queryParams
-      ? [...queryKeys.myProjects.list(queryParams), accountLoadVersion]
+      ? [
+          // Keyed on the tab's `status`, not the `statuses` list sent to the
+          // server — they carry the same meaning, and the scalar keeps the
+          // key readable and stable against how the wire param is spelled.
+          ...queryKeys.myProjects.list({
+            serviceProviderProfileId: queryParams.serviceProviderProfileId,
+            pageNumber,
+            pageSize,
+            status,
+            contractType,
+          }),
+          accountLoadVersion,
+        ]
       : ["myProjects", "list", "pending"],
     queryFn: ({ signal }) => {
       if (!queryParams) {
