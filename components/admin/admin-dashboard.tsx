@@ -40,17 +40,12 @@ function RevenueCard({
   currency: string;
 }) {
   const t = useTranslations("Admin");
-  const formattedTotal = new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: currency || "VND",
-    maximumFractionDigits: 0,
-  }).format(total);
-
-  const formattedMonth = new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: currency || "VND",
-    maximumFractionDigits: 0,
-  }).format(thisMonth);
+  // Suffixed rather than `style: "currency"`, which renders the ₫ symbol —
+  // the rest of this app and the mobile app both spell the currency out.
+  const nf = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 });
+  const unit = currency || "VND";
+  const formattedTotal = `${nf.format(total)} ${unit}`;
+  const formattedMonth = `${nf.format(thisMonth)} ${unit}`;
 
   return (
     <div className="rounded-xl border border-border bg-linear-to-br from-emerald-500/10 to-teal-500/10 p-5">

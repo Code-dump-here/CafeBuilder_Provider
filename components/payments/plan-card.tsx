@@ -79,20 +79,18 @@ function PriceDisplay({
   durationLabel,
   approxPerDayLabel,
 }: PriceDisplayProps) {
-  const formatted = format.number(amount, {
-    style: "currency",
-    currency,
+  // Suffixed rather than `style: "currency"`, which renders ₫ — the rest of
+  // this app and the mobile app both spell the currency out.
+  const formatted = `${format.number(amount, {
     maximumFractionDigits: 0,
-  });
+  })} ${currency}`;
 
   // Per-day cost is a nice "about" hint that anchors the price against
   // the day count. Floor to two decimals — VND rarely needs more.
   const perDay = amount / Math.max(durationInDays, 1);
-  const formattedPerDay = format.number(perDay, {
-    style: "currency",
-    currency,
+  const formattedPerDay = `${format.number(perDay, {
     maximumFractionDigits: 0,
-  });
+  })} ${currency}`;
 
   return (
     <div className="flex flex-col gap-1">

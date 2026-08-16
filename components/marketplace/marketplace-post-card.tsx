@@ -26,8 +26,6 @@ import type { MarketplacePost } from "@/features/projects/marketplace-types";
 // figure with a compact fallback for narrow viewports.
 
 const NF_VND_FULL_VI = new Intl.NumberFormat("vi-VN", {
-  style: "currency",
-  currency: "VND",
   maximumFractionDigits: 0,
 });
 const NF_VND_COMPACT_VI = new Intl.NumberFormat("vi-VN", {
@@ -35,8 +33,6 @@ const NF_VND_COMPACT_VI = new Intl.NumberFormat("vi-VN", {
   maximumFractionDigits: 1,
 });
 const NF_VND_FULL_EN = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "VND",
   maximumFractionDigits: 0,
 });
 const NF_VND_COMPACT_EN = new Intl.NumberFormat("en-US", {
@@ -58,7 +54,7 @@ const NF_DATE_VI = new Intl.DateTimeFormat("vi-VN", {
 function formatBudget(post: MarketplacePost, locale: string) {
   const isVi = locale.startsWith("vi");
   return {
-    full: (isVi ? NF_VND_FULL_VI : NF_VND_FULL_EN).format(post.projectBudget),
+    full: `${(isVi ? NF_VND_FULL_VI : NF_VND_FULL_EN).format(post.projectBudget)} VND`,
     compact: (isVi ? NF_VND_COMPACT_VI : NF_VND_COMPACT_EN).format(
       post.projectBudget,
     ),
