@@ -1429,7 +1429,6 @@
       "published": "Published"
     },
     "table": {
-      "owner": "Owner",
       "version": "Version",
       "status": "Status",
       "drawings": "Drawings",
@@ -1526,12 +1525,13 @@
       "totalBadge": "{count, plural, =0 {no designs} one {# design} other {# designs}}",
       "snapshotHeading": "Approval history",
       "snapshotTitle": "All snapshots",
-      "snapshotSubtitle": "{count, plural, one {# checkpoint} other {# checkpoints}} — submit/approve over time",
+      "snapshotSubtitle": "{count, plural, one {# checkpoint} other {# checkpoints}} — submit/approve/revision over time",
       "snapshotSubmitted": "Submitted",
       "snapshotApproved": "Approved",
+      "snapshotRevision": "Revision requested",
       "unnamedVersion": "(untitled)",
       "imageCount": "{count, plural, =0 {no images} one {# image} other {# images}}",
-      "snapshotEmpty": "No snapshots yet — submit or approve the design to create the first checkpoint.",
+      "snapshotEmpty": "No snapshots yet — submit, approve or send back the design to create the first checkpoint.",
       "snapshotErrorTitle": "Couldn't load snapshot history",
       "snapshotErrorSubtitle": "Something went wrong fetching the approval timeline. Please retry.",
       "snapshotErrorRetry": "Retry",
@@ -1566,8 +1566,6 @@
         "description": "Create a new draft version. You can rename it later.",
         "nameLabel": "Version name",
         "namePlaceholder": "e.g. Owner Revisions",
-        "codeLabel": "Version code",
-        "codeHint": "Leave empty to auto-generate (V{next}).",
         "categoryLabel": "Drawing type",
         "notesLabel": "Notes (optional)",
         "notesPlaceholder": "What's the goal of this version?",
@@ -1575,7 +1573,7 @@
         "create": "Create version",
         "creating": "Creating…",
         "created": "Version {code} created.",
-        "createSubmitted": "Sending version {code}…",
+        "createSubmitted": "Creating version…",
         "createComingSoon": "Version creation will be available once the backend is wired.",
         "engagementMissing": "Designs can only be created once the engagement has been accepted. Please refresh once the contract is confirmed."
       },
@@ -1585,12 +1583,10 @@
         "selectLabel": "Version to publish",
         "selectPlaceholder": "Pick a working version",
         "noWorking": "No working versions to publish.",
-        "notesLabel": "Release notes (optional)",
-        "notesPlaceholder": "What changed in this revision?",
         "cancel": "Cancel",
         "publish": "Publish",
-        "published": "{code} published.",
-        "publishComingSoon": "Publish flow will be available once the backend is wired."
+        "publishing": "Publishing…",
+        "published": "{code} published."
       },
       "addCategory": {
         "title": "Add custom category",

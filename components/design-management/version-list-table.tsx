@@ -17,11 +17,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  CodeBadge,
-  OwnerAvatar,
-  StatusDot,
-} from "@/components/data-table";
+import { CodeBadge, StatusDot } from "@/components/data-table";
 import { DataTable } from "@/components/data-table/data-table";
 
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
@@ -201,16 +197,12 @@ function VersionListTableInner({
     return versions.filter((v) => v.category === targetCategory);
   }, [versions, activeTab]);
 
-  // `Publish Revision` applies to drafts that are either still being
-  // worked on (`in_progress`) or were sent back by the owner for a
-  // revision (`revision`). Designs waiting for owner review (`submitted`)
-  // and approved/locked designs (`approved`) are excluded so we don't
-  // start a new revision on top of a still-pending review.
+  // `Publish Revision` submits a design for owner review, and the backend
+  // only accepts that from `in_progress`. `revision` rows need
+  // `POST /start-revision` first; `submitted` is already awaiting review and
+  // `approved` is locked. Keep this in sync with `PublishRevisionDialog`.
   const publishableCount = React.useMemo(
-    () =>
-      versions.filter(
-        (v) => v.status === "in_progress" || v.status === "revision",
-      ).length,
+    () => versions.filter((v) => v.status === "in_progress").length,
     [versions],
   );
 
@@ -270,7 +262,6 @@ function VersionListTableInner({
             aria-label={t("actions.newVersion")}
           >
             <NewVersionDialog
-              nextCode={`V${(versions.length + 1).toFixed(1)}`}
               projectWorkingId={projectWorkingId}
               onCreated={(design) =>
                 projectActionToast(
@@ -351,7 +342,7 @@ function VersionListTableInner({
                   id: "code",
                   header: t("table.version"),
                   accessor: "code",
-                  widthClass: "w-[36%]",
+                  widthClass: "w-[54%]",
                   primary: true,
                   cell: (row) => (
                     <span className="flex items-center gap-2.5 min-w-0">
@@ -370,23 +361,6 @@ function VersionListTableInner({
                             {row.latestNote}
                           </span>
                         ) : null}
-                      </span>
-                    </span>
-                  ),
-                },
-                {
-                  id: "owner",
-                  header: t("table.owner"),
-                  accessor: (row) => row.owner.fullName,
-                  widthClass: "w-[18%]",
-                  cell: (row) => (
-                    <span className="flex items-center gap-2">
-                      <OwnerAvatar
-                        name={row.owner.fullName}
-                        color={row.owner.avatarColor}
-                      />
-                      <span className="truncate text-xs text-foreground/90">
-                        {row.owner.fullName}
                       </span>
                     </span>
                   ),

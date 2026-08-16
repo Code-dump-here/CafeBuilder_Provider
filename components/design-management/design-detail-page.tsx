@@ -68,11 +68,6 @@ function designToVersion(d: Design): DesignVersion {
     description: d.reason ?? null,
     status: mapDesignStatus(d.status),
     category: mapDesignTypeToCategory(d.type),
-    owner: {
-      id: d.createdBy,
-      fullName: "",
-      avatarColor: null,
-    },
     drawingCount: d.images.length,
     createdAt,
     updatedAt,

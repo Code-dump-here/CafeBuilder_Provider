@@ -51,7 +51,9 @@ export interface DesignVersion {
   description: string | null;
   status: VersionStatus;
   category: DrawingCategory;
-  owner: DesignVersionOwner;
+  // No `owner`: the designs list API doesn't return an author, so the table
+  // used to render a synthetic placeholder account for every row. The column
+  // was removed rather than keep showing invented data.
   drawingCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -115,8 +117,14 @@ export interface DesignVersionComment {
 // The new endpoint paginates (`pageNumber`, `pageSize`) and orders by
 // `snapshottedAt DESC` so the freshest snapshot surfaces first.
 
-/** Snapshot trigger — what produced this row. */
-export type DesignVersionSnapshotKind = "submitted" | "approved";
+/**
+ * Snapshot trigger — what produced this row.
+ *
+ * `revision` snapshots are the only place a past revision reason survives:
+ * `designs.reason` holds a single value that the next revision round
+ * overwrites, so historical reasons can only be read back from here.
+ */
+export type DesignVersionSnapshotKind = "submitted" | "approved" | "revision";
 
 export interface DesignVersionImage {
   id: number;
