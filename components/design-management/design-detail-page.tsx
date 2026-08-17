@@ -422,16 +422,17 @@ export function DesignDetailPage({
         ) : null}
       </nav>
 
-      {/* Four-column layout (current) / three-column layout (snapshot view).
-          When the viewer is showing a historical snapshot, we collapse
-          the image-list + actions column into a single info column so
-          the snapshot drawer has room to breathe. */}
+      {/* Three-column layout (current) / two-column layout (snapshot view).
+          In default mode the right column stacks version info + actions on
+          top of the history panel inside a single 300px rail. In snapshot
+          mode the version info is hidden (no actions apply to historical
+          state) and the history panel takes the full right column. */}
       <div
         className={cn(
           "grid min-h-[calc(100vh-12rem)] grid-cols-1 gap-3",
           selectedSnapshotId != null
             ? "lg:grid-cols-[minmax(0,1fr)_300px]"
-            : "lg:grid-cols-[260px_minmax(0,1fr)_280px_300px]",
+            : "lg:grid-cols-[260px_minmax(0,1fr)_300px]",
         )}
       >
         {/* Left: image list — hidden when viewing a snapshot (the
@@ -463,57 +464,62 @@ export function DesignDetailPage({
           isHistorical={selectedSnapshotId != null}
         />
 
-        {/* Right: version info + actions — hidden when viewing a
-            snapshot (no actions apply to historical state). */}
-        {selectedSnapshotId == null ? (
-          <div className="overflow-hidden rounded-xl border border-border/60 bg-card p-4">
-            <VersionInfoRail
-              design={design}
-              version={version}
-              statusCfg={statusCfg}
-              format={format}
-              t={t}
-              onSubmit={() => setPendingAction("submit")}
-              onApprove={() => setPendingAction("approve")}
-              onRequestRevision={() => {
-                const reason = window.prompt(t("actions.requestRevisionPrompt"));
-                if (!reason?.trim()) return;
-                requestRevisionMutation.mutate({ designId, payload: { reason } });
-              }}
-              onStartRevision={() => setPendingAction("startRevision")}
-              canSubmit={canSubmit}
-              canApprove={canApprove}
-              canRequestRevision={canRequestRevision}
-              canStartRevision={canStartRevision}
-              isSubmitting={submitMutation.isPending}
-              isApproving={approveMutation.isPending}
-              isRequestingRevision={requestRevisionMutation.isPending}
-              isStartingRevision={startRevisionMutation.isPending}
+        {/* Right: combined rail — version info + actions on top,
+            snapshot history panel below. In snapshot mode the version
+            info is hidden but the rail itself stays so the history
+            panel keeps its 300px width. */}
+        <div className="flex h-full min-h-0 flex-col gap-3">
+          {selectedSnapshotId == null ? (
+            <div className="overflow-hidden rounded-xl border border-border/60 bg-card p-4">
+              <VersionInfoRail
+                design={design}
+                version={version}
+                statusCfg={statusCfg}
+                format={format}
+                t={t}
+                onSubmit={() => setPendingAction("submit")}
+                onApprove={() => setPendingAction("approve")}
+                onRequestRevision={() => {
+                  const reason = window.prompt(t("actions.requestRevisionPrompt"));
+                  if (!reason?.trim()) return;
+                  requestRevisionMutation.mutate({ designId, payload: { reason } });
+                }}
+                onStartRevision={() => setPendingAction("startRevision")}
+                canSubmit={canSubmit}
+                canApprove={canApprove}
+                canRequestRevision={canRequestRevision}
+                canStartRevision={canStartRevision}
+                isSubmitting={submitMutation.isPending}
+                isApproving={approveMutation.isPending}
+                isRequestingRevision={requestRevisionMutation.isPending}
+                isStartingRevision={startRevisionMutation.isPending}
+              />
+            </div>
+          ) : null}
+
+          <div className="flex-1 min-h-0">
+            <DesignVersionHistoryPanel
+              snapshots={history.data.items}
+              isLoading={history.isLoading}
+              isFetching={history.isFetching}
+              isError={history.isError}
+              hasNextPage={history.data.hasNext}
+              hasPreviousPage={history.data.hasPrevious}
+              pageNumber={history.data.pageNumber}
+              totalItems={history.data.totalItems}
+              pageSize={history.data.pageSize}
+              onRetry={() => void history.refetch()}
+              onNextPage={() => setHistoryPageNumber((p) => p + 1)}
+              onPreviousPage={() => setHistoryPageNumber((p) => Math.max(1, p - 1))}
+              selectedSnapshotId={selectedSnapshotId}
+              onSelectSnapshot={(snapshot) =>
+                setSelectedSnapshotId((current) =>
+                  current === snapshot.id ? null : snapshot.id,
+                )
+              }
             />
           </div>
-        ) : null}
-
-        {/* Far right: snapshot history panel — always visible. */}
-        <DesignVersionHistoryPanel
-          snapshots={history.data.items}
-          isLoading={history.isLoading}
-          isFetching={history.isFetching}
-          isError={history.isError}
-          hasNextPage={history.data.hasNext}
-          hasPreviousPage={history.data.hasPrevious}
-          pageNumber={history.data.pageNumber}
-          totalItems={history.data.totalItems}
-          pageSize={history.data.pageSize}
-          onRetry={() => void history.refetch()}
-          onNextPage={() => setHistoryPageNumber((p) => p + 1)}
-          onPreviousPage={() => setHistoryPageNumber((p) => Math.max(1, p - 1))}
-          selectedSnapshotId={selectedSnapshotId}
-          onSelectSnapshot={(snapshot) =>
-            setSelectedSnapshotId((current) =>
-              current === snapshot.id ? null : snapshot.id,
-            )
-          }
-        />
+        </div>
       </div>
 
       {/* Footer note */}
