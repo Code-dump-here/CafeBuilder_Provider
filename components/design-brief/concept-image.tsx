@@ -3,15 +3,22 @@
 import * as React from "react";
 import { ImageOff } from "lucide-react";
 
+import { proxiedImageSrc } from "@/lib/image-proxy";
+
 /**
  * The AI-generated concept image for a recommendation.
  *
- * `src` comes from the generator via `imageArtifactUrl` and is used as-is —
- * the backend stores whatever the image job returned, so a value that isn't
- * a browsable URL simply fails to load. That's what the placeholder is for:
- * a broken artifact degrades to a labelled box rather than a broken-image
- * glyph. Shared by the owner's full card and the provider's summary row so
- * both sides show the same picture with the same fallback.
+ * `src` comes from the generator via `imageArtifactUrl`. The generator serves
+ * artifacts over plain HTTP, which an HTTPS page refuses to load, so the URL
+ * goes through `proxiedImageSrc` before it reaches the tag — see
+ * `lib/image-proxy.ts`. Anything already loadable passes through unchanged.
+ *
+ * Beyond that the value is used as-is: the backend stores whatever the image
+ * job returned, so a value that isn't a browsable URL simply fails to load.
+ * That's what the placeholder is for — a broken artifact degrades to a
+ * labelled box rather than a broken-image glyph. Shared by the owner's full
+ * card and the provider's summary row so both sides show the same picture
+ * with the same fallback.
  */
 export function ConceptImage({
   src,
@@ -42,7 +49,7 @@ export function ConceptImage({
   return (
     <figure className="flex flex-col gap-2 overflow-hidden rounded-md border border-border/60">
       <img
-        src={src}
+        src={proxiedImageSrc(src)}
         alt={imageLabel}
         loading="lazy"
         onError={() => setError(true)}
