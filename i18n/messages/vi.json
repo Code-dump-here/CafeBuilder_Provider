@@ -410,7 +410,8 @@
     "myProjects": "Dự án của tôi",
     "projectFallback": "Dự án {id}",
     "versionFallback": "Phiên bản {code}",
-    "backToOverview": "Quay lại tổng quan dự án"
+    "backToOverview": "Quay lại tổng quan dự án",
+    "projectLoading": "Đang tải tên dự án"
   },
   "ProjectsOverview": {
     "title": "Tổng quan",
@@ -679,6 +680,55 @@
     "empty": {
       "title": "Chưa có brief thiết kế",
       "subtitle": "Khi chủ dự án gửi brief, bạn sẽ thấy nội dung tại đây — bao gồm khách hàng mục tiêu, phong cách, cảm xúc và tiến độ."
+    },
+    "nextSteps": {
+      "title": "Việc cần làm tiếp",
+      "subtitle": "Phần việc đang chờ bạn ở dự án này.",
+      "allDone": {
+        "title": "Không còn việc tồn",
+        "subtitle": "Mọi giai đoạn đã xong hoặc đang chờ chủ quán. Họ sẽ nghiệm thu khi sẵn sàng."
+      },
+      "steps": {
+        "contractMissing": {
+          "title": "Thoả thuận hợp đồng",
+          "detail": "Chưa ký hợp đồng thì chưa làm được thiết kế hay thi công.",
+          "cta": "Mở hợp đồng"
+        },
+        "contractUnsigned": {
+          "title": "Ký nốt hợp đồng",
+          "detail": "Hợp đồng đã lập nhưng chưa xác nhận. Mọi việc khác phải chờ bước này.",
+          "cta": "Mở hợp đồng"
+        },
+        "designStart": {
+          "title": "Bắt đầu thiết kế",
+          "detail": "Tạo bản thiết kế và tải ý tưởng đầu tiên để chủ quán xem.",
+          "cta": "Mở thiết kế"
+        },
+        "designSubmit": {
+          "title": "Gửi thiết kế để duyệt",
+          "detail": "Bản thiết kế vẫn đang là nháp. Gửi đi để chủ quán duyệt.",
+          "cta": "Mở thiết kế"
+        },
+        "designRevise": {
+          "title": "Chỉnh theo yêu cầu",
+          "detail": "Chủ quán yêu cầu sửa. Cập nhật bản thiết kế rồi gửi lại.",
+          "cta": "Mở thiết kế"
+        },
+        "designWaiting": {
+          "title": "Đang chờ chủ quán",
+          "detail": "Thiết kế đã gửi. Chưa có việc gì ở đây cho tới khi họ duyệt hoặc yêu cầu sửa."
+        },
+        "milestonesPlan": {
+          "title": "Lập các hạng mục",
+          "detail": "Chia phần thi công thành các hạng mục kèm mốc thời gian để chủ quán theo dõi.",
+          "cta": "Mở hạng mục"
+        },
+        "milestonesProgress": {
+          "title": "Đẩy tiến độ thi công",
+          "detail": "Còn {count} hạng mục chưa xong. Hạng mục chỉ đóng khi task con và mục nghiệm thu bắt buộc đã đạt.",
+          "cta": "Mở hạng mục"
+        }
+      }
     }
   },
   "ConstructionLog": {

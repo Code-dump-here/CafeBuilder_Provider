@@ -5,7 +5,8 @@ import { hasLocale } from "next-intl";
 
 import Navbar from "@/components/navbar/navbar";
 import { ProfileGuard } from "@/components/auth/profile-guard";
-import { routing } from "@/i18n/routing";
+import { routing } from "@/i18n/routing";
+import { formats } from "@/i18n/formats";
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -29,7 +30,12 @@ export default async function PublicLayout({
   const messages = await getMessages();
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={messages}
+      timeZone="Asia/Ho_Chi_Minh"
+      formats={formats}
+    >
       <ProfileGuard>
         <div className="flex min-h-screen flex-col bg-background">
           <Navbar />

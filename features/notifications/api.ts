@@ -30,11 +30,26 @@ export type NotificationKind = string;
  * don't want to bake into the contract yet (e.g. an embedded `actorId`,
  * `contractId`, or `submissionId`).
  */
+/** Exactly what `GET /api/notifications` puts on the wire. */
+interface RawNotification {
+  id: string;
+  accountId: string;
+  type: string;
+  title: string;
+  /** The body. Named `content` server-side — see `NotificationResponse`. */
+  content: string;
+  referenceType?: string | null;
+  referenceId?: string | null;
+  isRead: boolean;
+  emailSentAt?: string | null;
+  createdAt: string;
+}
+
 export interface NotificationItem {
   id: string;
   /** Short headline — what the bell badge should surface. */
   title: string;
-  /** Long-form description, optionally with HTML. Render as plain text. */
+  /** Long-form description. Comes across as `content`. */
   message: string;
   /** Channel / category tag. */
   type: NotificationKind;
@@ -51,8 +66,38 @@ export interface NotificationItem {
   meta: Record<string, unknown> | null;
   /** ISO timestamp. */
   createdAt: string;
-  /** ISO timestamp — populated when the user marks the item read. */
+  /**
+   * ISO timestamp for when the item was read.
+   *
+   * The API does not send one — it only sends `isRead` — so this is null on
+   * anything that came off the wire, and set locally by the optimistic update
+   * so a just-read row can show "read a moment ago" without a refetch.
+   */
   readAt: string | null;
+}
+
+/**
+ * Map a wire notification onto the shape the UI renders.
+ *
+ * The body arrives as `content`; the list item reads `message`, so without
+ * this every notification rendered with a blank body. `actionUrl` and `meta`
+ * are not sent at all — `deriveNotificationHref` falls back to
+ * `referenceType`/`referenceId`, which are.
+ */
+function toNotificationItem(raw: RawNotification): NotificationItem {
+  return {
+    id: raw.id,
+    title: raw.title ?? "",
+    message: raw.content ?? "",
+    type: raw.type ?? "",
+    isRead: Boolean(raw.isRead),
+    actionUrl: null,
+    referenceType: raw.referenceType ?? null,
+    referenceId: raw.referenceId ?? null,
+    meta: null,
+    createdAt: raw.createdAt,
+    readAt: null,
+  };
 }
 
 /**
@@ -77,8 +122,14 @@ export function deriveNotificationHref(item: NotificationItem): string {
   if (typeof refId === "string" && refId !== "") {
     if (refType === "project_provider") return `/my-projects`;
     if (refType === "project") return `/projects/${refId}`;
+    // The backend emits this for every apply-lifecycle notification
+    // (submitted / accepted / rejected). The id is the application's, which
+    // has no page of its own — the engagement list is where the provider
+    // picks the work up.
+    if (refType === "project_application") return `/my-projects`;
   }
-  // return `/notifications/${item.id}`;
+  // No per-notification detail page exists (`/notifications/{id}` was never
+  // built), so the inbox is the honest destination.
   return `/notifications`;
 }
 
@@ -123,7 +174,7 @@ export async function fetchNotificationsApi(
   params: FetchNotificationsParams,
   config?: RequestConfig,
 ): Promise<PagedNotifications> {
-  const response = await api.get<PagedNotifications>("/api/notifications", {
+  const response = await api.get<Omit<PagedNotifications, "items"> & { items: RawNotification[] }>("/api/notifications", {
     ...config,
     params: {
       accountId: params.accountId,
@@ -134,7 +185,10 @@ export async function fetchNotificationsApi(
       ...(params.isRead === undefined ? {} : { isRead: params.isRead }),
     },
   });
-  return response.data;
+  return {
+    ...response.data,
+    items: (response.data.items ?? []).map(toNotificationItem),
+  };
 }
 
 // ─── Unread count ────────────────────────────────────────────────────────────

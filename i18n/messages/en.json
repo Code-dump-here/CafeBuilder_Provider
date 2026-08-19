@@ -410,7 +410,8 @@
     "myProjects": "My Projects",
     "projectFallback": "Project {id}",
     "versionFallback": "Version {code}",
-    "backToOverview": "Back to project overview"
+    "backToOverview": "Back to project overview",
+    "projectLoading": "Loading project name"
   },
   "ProjectsOverview": {
     "title": "Overview",
@@ -679,6 +680,55 @@
     "empty": {
       "title": "No design brief yet",
       "subtitle": "Once the owner submits the brief, you'll see it here — including target customers, style, mood, and timeline."
+    },
+    "nextSteps": {
+      "title": "Next steps",
+      "subtitle": "What this job needs from you right now.",
+      "allDone": {
+        "title": "Nothing outstanding",
+        "subtitle": "Every stage is done or waiting on the shop owner. They'll accept the work when they're ready."
+      },
+      "steps": {
+        "contractMissing": {
+          "title": "Agree the contract",
+          "detail": "Design and construction work stay locked until a contract is signed by both sides.",
+          "cta": "Open contracts"
+        },
+        "contractUnsigned": {
+          "title": "Finish signing the contract",
+          "detail": "A contract is drawn up but not confirmed yet. Nothing else can start until it is.",
+          "cta": "Open contracts"
+        },
+        "designStart": {
+          "title": "Start the design",
+          "detail": "Create a design and upload your first concept for the owner to look at.",
+          "cta": "Open design"
+        },
+        "designSubmit": {
+          "title": "Submit the design for review",
+          "detail": "Your design is still a draft. Submit it so the owner can approve it.",
+          "cta": "Open design"
+        },
+        "designRevise": {
+          "title": "Make the requested changes",
+          "detail": "The owner asked for revisions. Update the design and resubmit it.",
+          "cta": "Open design"
+        },
+        "designWaiting": {
+          "title": "Waiting on the owner",
+          "detail": "Your design is submitted. Nothing to do here until they approve it or ask for changes."
+        },
+        "milestonesPlan": {
+          "title": "Plan the milestones",
+          "detail": "Break the build into milestones with target dates so the owner can follow progress.",
+          "cta": "Open milestones"
+        },
+        "milestonesProgress": {
+          "title": "Move the build along",
+          "detail": "{count} milestone(s) still open. A milestone closes once its tasks and required checklist items pass.",
+          "cta": "Open milestones"
+        }
+      }
     }
   },
   "ConstructionLog": {
