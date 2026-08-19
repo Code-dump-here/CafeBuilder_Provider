@@ -79,13 +79,13 @@ export async function getAccounts(
   return response.data;
 }
 
-export async function getAccount(id: number): Promise<Account> {
+export async function getAccount(id: string): Promise<Account> {
   const response = await api.get<Account>(`/api/admin/accounts/${id}`, requestConfig());
   return response.data;
 }
 
 export async function updateAccountStatus(
-  id: number,
+  id: string,
   payload: UpdateAccountStatusPayload
 ): Promise<Account> {
   const response = await api.patch<Account>(
@@ -96,7 +96,7 @@ export async function updateAccountStatus(
   return response.data;
 }
 
-export async function deleteAccount(id: number): Promise<void> {
+export async function deleteAccount(id: string): Promise<void> {
   await api.delete(`/api/admin/accounts/${id}`, requestConfig());
 }
 

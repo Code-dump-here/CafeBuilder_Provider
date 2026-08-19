@@ -24,7 +24,7 @@ interface MilestoneNotesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Construction item id, or null when no milestone is open. */
-  milestoneId: number | null;
+  milestoneId: string | null;
   /** Milestone name, shown so the thread is clearly about one milestone. */
   milestoneLabel?: string;
 }

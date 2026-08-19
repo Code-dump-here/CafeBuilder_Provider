@@ -239,7 +239,11 @@
         "description": "Your email has been confirmed. Click Continue to set up your profile."
       },
       "errors": {
-        "wrongCode": "The verification code is incorrect. Please try again."
+        "wrongCode": "The verification code is incorrect. Please try again.",
+        "tooManyRequests": "Too many attempts. Please wait a moment before requesting another code.",
+        "serverError": "Something went wrong on our side. Please try again shortly.",
+        "sendFailed": "We couldn't send the verification code. Please check the address and try again.",
+        "verifyFailed": "We couldn't verify that code. Please try again."
       }
     },
     "completeProfile": {
@@ -417,7 +421,10 @@
       "area": "Area",
       "location": "Location",
       "millionShort": "M VND",
-      "areaUnit": "m²"
+      "areaUnit": "m²",
+      "priority": "Priority",
+      "priorityUrgent": "Urgent",
+      "priorityStandard": "Standard"
     },
     "members": {
       "title": "Providers",
@@ -516,7 +523,14 @@
         "accepted": "Application accepted",
         "rejected": "Application declined",
         "edit": "Edit",
-        "withdraw": "Withdraw"
+        "withdraw": "Withdraw",
+        "surveyRequired": "Survey the site to be considered",
+        "surveyRequiredHint": "This project includes design work, so the owner can only accept you after you have visited and recorded the site survey.",
+        "surveyBooked": "Site visit booked, not yet recorded",
+        "surveyBookedHint": "The owner can accept you once you have made the visit and filled in the survey.",
+        "surveyDone": "Site survey recorded",
+        "surveyStartCta": "Record site survey",
+        "surveyRecordCta": "Record the visit"
       },
       "withdrawConfirm": {
         "title": "Withdraw your application?",
@@ -656,6 +670,10 @@
           "rawRequest": "Request payload",
           "rawRequestHint": "Raw JSON sent to the AI worker — useful for debugging."
         }
+      },
+      "empty": {
+        "title": "No brief yet",
+        "subtitle": "The owner hasn't filled in the design brief for this project. Once they do, their requirements appear here."
       }
     },
     "empty": {
@@ -732,8 +750,8 @@
     "title": "Site Survey",
     "subtitle": "Document site conditions before work begins.",
     "noEngagement": {
-      "title": "No engagement found",
-      "description": "You need an accepted project engagement before you can create a survey."
+      "title": "Nothing to attach a survey to",
+      "description": "Apply to this project, or be taken on for it, and you can file your site survey here."
     },
     "createNew": "New Survey",
     "createFirst": "Create first survey",
@@ -769,7 +787,9 @@
       "cancel": "Cancel",
       "create": "Create Survey",
       "saveChanges": "Save Changes",
-      "submitting": "Saving…"
+      "submitting": "Saving…",
+      "surveyedOnLabel": "Date you visited",
+      "surveyedOnHint": "The owner sees this date. A survey with no visit date counts as booked only, and does not unlock their decision."
     },
     "errors": {
       "title": "Couldn't load surveys",
@@ -1001,6 +1021,7 @@
       "setStatus": "Set status",
       "statusMoveHint": "Status only moves forward — the next step is highlighted below.",
       "statusTerminalHint": "This phase is completed and can't be changed.",
+      "paid": "Paid",
       "closeMilestone": "Mark completed",
       "statusSuccess": "Phase status updated.",
       "statusCompleted": "Completed",
@@ -1085,6 +1106,66 @@
       "unknownAuthor": "Unknown",
       "placeholder": "Write a note…",
       "send": "Post note"
+    },
+    "checklist": {
+      "open": "Acceptance checklist",
+      "title": "Acceptance checklist",
+      "subtitleWithPhase": "What the shop owner signs off on for “{phase}”.",
+      "loading": "Loading checklist…",
+      "error": "Couldn't load the checklist.",
+      "empty": "No checklist yet. Add what the owner should sign off on.",
+      "addTitle": "Add an item",
+      "namePlaceholder": "e.g. Walls flat, no cracks",
+      "descriptionPlaceholder": "Optional detail",
+      "required": "Required",
+      "requiredHint": "Required items must pass before this milestone can close.",
+      "optional": "Optional",
+      "add": "Add item",
+      "delete": "Remove",
+      "status": {
+        "pending": "Not checked",
+        "passed": "Passed",
+        "failed": "Failed"
+      },
+      "ownerNote": "Owner's note",
+      "checkedAt": "Checked {date}",
+      "progress": "{passed} of {total} required items passed",
+      "blocked": "{count, plural, one {# required item} other {# required items}} still blocking sign-off.",
+      "satisfied": "All required items passed — this milestone can be closed.",
+      "noRequired": "No required items, so nothing is blocking sign-off."
+    },
+    "materials": {
+      "open": "Materials",
+      "title": "Materials & cost",
+      "subtitleWithPhase": "Quantities and cost for “{phase}”, including its tasks.",
+      "loading": "Loading materials…",
+      "error": "Couldn't load materials.",
+      "priceList": "Price list",
+      "priceListHint": "Published rates for this project. Agree them before work starts.",
+      "priceListEmpty": "No materials published yet.",
+      "addMaterial": "Add to price list",
+      "materialName": "Material",
+      "materialNamePlaceholder": "e.g. Floor tile 60x60",
+      "unit": "Unit",
+      "unitPrice": "Price per unit",
+      "usage": "Used by this milestone",
+      "usageEmpty": "No materials assigned yet.",
+      "addUsage": "Add material",
+      "pickMaterial": "Choose from the price list",
+      "estimated": "Planned",
+      "actual": "Actual",
+      "actualPlaceholder": "Record after the work is done",
+      "actualLocked": "Recordable once the work has started.",
+      "save": "Save",
+      "remove": "Remove",
+      "estimatedCost": "Planned cost",
+      "actualCost": "Actual cost",
+      "ownLines": "This milestone",
+      "taskLines": "From tasks",
+      "total": "Total",
+      "actualPending": "{count, plural, one {# line} other {# lines}} still need an actual quantity",
+      "actualUnavailable": "—",
+      "priceNote": "The rate is captured when a material is picked, so repricing later doesn't restate work already costed."
     },
     "issue": {
       "pageTitle": "Issues",
@@ -1215,7 +1296,8 @@
       "error": "Couldn't create the phase. Please try again."
     },
     "errorEmpty": "No phases yet. Add the first one to start tracking.",
-    "summaryError": "Couldn't update milestone state."
+    "summaryError": "Couldn't update milestone state.",
+    "retry": "Try again"
   },
   "Sidebar": {
     "common": {
@@ -1393,7 +1475,8 @@
       "confirmDeleteImageBody": "This can't be undone.",
       "confirmCta": "Confirm",
       "confirmCancel": "Cancel",
-      "deleteCta": "Delete"
+      "deleteCta": "Delete",
+      "revisionStarted": "Revision started."
     },
     "tabs": {
       "all": "All",
@@ -1511,7 +1594,8 @@
         "share": "Share",
         "print": "Print",
         "download": "Download"
-      }
+      },
+      "downloadComingSoon": "Downloading drawings isn't available yet."
     },
     "history": {
       "label": "Version history",
@@ -1824,11 +1908,11 @@
     },
     "pagination": {
       "label": "Pagination",
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {page} of {total}",
-    "first": "First",
-    "last": "Last"
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {page} of {total}",
+      "first": "First",
+      "last": "Last"
     },
     "refreshing": "Refreshing…",
     "filters": {

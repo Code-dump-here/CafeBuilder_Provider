@@ -7,11 +7,14 @@ import {
   CheckCircle2,
   ClipboardList,
   Loader2,
+  ListChecks,
   MessageSquareText,
   MoreHorizontal,
+  Package,
   Pencil,
   Trash2,
   User,
+  Wallet,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -47,6 +50,10 @@ interface PhaseRowHeaderProps {
   onDelete: (phaseId: string) => void;
   /** Opens the owner's note thread for this milestone. */
   onOpenNotes: (phaseId: string) => void;
+  /** Opens the acceptance checklist that gates closing this milestone. */
+  onOpenChecklist: (phaseId: string) => void;
+  /** Opens materials and cost for this milestone. */
+  onOpenMaterials: (phaseId: string) => void;
   /** May be async — awaited so the row can show a busy state while the
    *  status change (which can take two requests) is in flight. */
   onStatusChange: (
@@ -96,11 +103,15 @@ export function PhaseRowHeader({
   onEditMeta,
   onDelete,
   onOpenNotes,
+  onOpenChecklist,
+  onOpenMaterials,
   onStatusChange,
 }: PhaseRowHeaderProps) {
   const t = useTranslations("MilestoneManagement.phase");
   const tStatus = useTranslations("ConstructionOverview.status");
   const tNotes = useTranslations("MilestoneManagement.notes");
+  const tChecklist = useTranslations("MilestoneManagement.checklist");
+  const tMaterials = useTranslations("MilestoneManagement.materials");
   const format = useFormatter();
   const nextStatus = VALID_NEXT_STATUS[phase.status];
 
@@ -219,6 +230,36 @@ export function PhaseRowHeader({
         >
           {tStatus(phase.status)}
         </span>
+        {/* Payment state comes from confirmed payment batches, so it moves
+            independently of the work status — a phase can be finished and
+            unpaid, or paid while still running. Only shown when true: an
+            "unpaid" badge on every phase would be noise. */}
+        {phase.isPaid ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+            <Wallet className="size-3" aria-hidden />
+            {t("paid")}
+          </span>
+        ) : null}
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="ghost"
+          aria-label={tChecklist("open")}
+          title={tChecklist("open")}
+          onClick={() => onOpenChecklist(phase.id)}
+        >
+          <ListChecks aria-hidden />
+        </Button>
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="ghost"
+          aria-label={tMaterials("open")}
+          title={tMaterials("open")}
+          onClick={() => onOpenMaterials(phase.id)}
+        >
+          <Package aria-hidden />
+        </Button>
         {/* The owner writes notes against a milestone from the mobile app.
             Kept as a visible control rather than a menu entry — buried in the
             kebab, a note nobody knows about is the same as no note. */}

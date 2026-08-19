@@ -72,7 +72,7 @@ export interface NotificationListItemProps {
    * preview where the mark-as-read action is fired directly.
    */
   variant: "preview" | "page";
-  onMarkRead: (id: number) => void;
+  onMarkRead: (id: string) => void;
   isMarkingRead: boolean;
 }
 

@@ -30,8 +30,8 @@ export type ContractStatus =
  * `documentUrl` only if the backend omits the public link (older rows).
  */
 export interface Contract {
-  id: number;
-  projectWorkingId: number;
+  id: string;
+  projectWorkingId: string;
   title: string;
   partyInfo: string | null;
   terms: string | null;
@@ -46,7 +46,7 @@ export interface Contract {
   documentViewUrl: string | null;
   otpExpiresAt: string | null;
   confirmedAt: string | null;
-  confirmedBy: number | null;
+  confirmedBy: string | null;
   status: ContractStatus;
   createdAt: string;
   updatedAt: string;
@@ -69,7 +69,7 @@ export interface ContractListResponse {
  * Request body for POST /contracts (create contract).
  */
 export interface CreateContractPayload {
-  projectWorkingId: number;
+  projectWorkingId: string;
   title: string;
   partyInfo?: string;
   terms?: string;
@@ -95,5 +95,5 @@ export interface UpdateContractPayload {
  */
 export interface ConfirmOtpPayload {
   otpCode: string;
-  confirmedBy: number;
+  confirmedBy: string;
 }

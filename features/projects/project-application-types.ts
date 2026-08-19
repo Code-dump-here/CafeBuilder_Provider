@@ -21,7 +21,7 @@
  * admin apply-on-behalf-of hook — no such path exists on the backend.)
  */
 export interface ApplyToPostPayload {
-  postId: number;
+  postId: string;
   proposal: string;
   estimatedDurationDays?: number;
 }
@@ -60,11 +60,11 @@ export type ApplicationStatus = "pending" | "accepted" | "rejected";
  * `estimatedDurationDays` is `int?` server-side.
  */
 export interface ApplyResponse {
-  id: number;
-  postId: number;
+  id: string;
+  postId: string;
   postTitle: string | null;
-  projectShopOwnerId: number | null;
-  serviceProviderProfileId: number;
+  projectShopOwnerId: string | null;
+  serviceProviderProfileId: string;
   providerDisplayName: string | null;
   proposal: string;
   estimatedDurationDays: number | null;
@@ -72,6 +72,21 @@ export interface ApplyResponse {
   submittedAt: string | null;
   createdAt: string;
   updatedAt: string;
+
+  /**
+   * Site surveys attached to this application.
+   *
+   * On a post that carries a design phase (`design` / `both`) the owner
+   * cannot accept the application until the provider has actually walked the
+   * site — `hasCompletedSurvey` is the flag that gate reads. A booked but
+   * unattended visit leaves it `false`. Construction-only posts have no
+   * survey step, so the rule never applies there.
+   */
+  surveyCount: number;
+  latestSurveyId: string | null;
+  latestSurveyScheduledAt: string | null;
+  latestSurveyedAt: string | null;
+  hasCompletedSurvey: boolean;
 }
 
 /**

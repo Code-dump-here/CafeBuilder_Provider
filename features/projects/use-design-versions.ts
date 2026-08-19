@@ -32,8 +32,8 @@ const T = (iso: string) => new Date(iso);
 
 const VERSIONS: DesignVersion[] = [
   {
-    id: 1,
-    projectId: 1042,
+    id: "1",
+    projectId: "1042",
     code: "V3.0",
     name: "Construction Set",
     description:
@@ -47,8 +47,8 @@ const VERSIONS: DesignVersion[] = [
     latestNote: "Coordinated HVAC returns with the ceiling grid on A-201.",
     drawings: [
       {
-        id: 101,
-        versionId: 1,
+        id: "101",
+        versionId: "1",
         name: "Ground Floor Plan",
         code: "A-101",
         category: "FLOOR_PLAN",
@@ -60,8 +60,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Nguyen Hoa My",
       },
       {
-        id: 102,
-        versionId: 1,
+        id: "102",
+        versionId: "1",
         name: "Mezzanine Plan",
         code: "A-102",
         category: "FLOOR_PLAN",
@@ -73,8 +73,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Nguyen Hoa My",
       },
       {
-        id: 103,
-        versionId: 1,
+        id: "103",
+        versionId: "1",
         name: "Roof Plan",
         code: "A-103",
         category: "FLOOR_PLAN",
@@ -86,8 +86,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Tran Quoc Viet",
       },
       {
-        id: 201,
-        versionId: 1,
+        id: "201",
+        versionId: "1",
         name: "Front Elevation",
         code: "A-201",
         category: "ELEVATION",
@@ -99,8 +99,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Nguyen Hoa My",
       },
       {
-        id: 301,
-        versionId: 1,
+        id: "301",
+        versionId: "1",
         name: "Section A-A",
         code: "A-301",
         category: "SECTION",
@@ -112,8 +112,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Tran Quoc Viet",
       },
       {
-        id: 401,
-        versionId: 1,
+        id: "401",
+        versionId: "1",
         name: "Isometric Render",
         code: "R-401",
         category: "3D",
@@ -127,8 +127,8 @@ const VERSIONS: DesignVersion[] = [
     ],
   },
   {
-    id: 2,
-    projectId: 1042,
+    id: "2",
+    projectId: "1042",
     code: "V2.3",
     name: "Owner Revisions",
     description:
@@ -142,8 +142,8 @@ const VERSIONS: DesignVersion[] = [
     latestNote: "Owner asked for a larger pickup counter and softer banquette.",
     drawings: [
       {
-        id: 110,
-        versionId: 2,
+        id: "110",
+        versionId: "2",
         name: "Ground Floor Plan (Rev. C)",
         code: "A-101-R3",
         category: "FLOOR_PLAN",
@@ -155,8 +155,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Nguyen Hoa My",
       },
       {
-        id: 111,
-        versionId: 2,
+        id: "111",
+        versionId: "2",
         name: "Seating Layout (Rev. C)",
         code: "A-104-R3",
         category: "FLOOR_PLAN",
@@ -168,8 +168,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Nguyen Hoa My",
       },
       {
-        id: 210,
-        versionId: 2,
+        id: "210",
+        versionId: "2",
         name: "Front Elevation (Rev. C)",
         code: "A-201-R3",
         category: "ELEVATION",
@@ -181,8 +181,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Tran Quoc Viet",
       },
       {
-        id: 310,
-        versionId: 2,
+        id: "310",
+        versionId: "2",
         name: "Section A-A (Rev. C)",
         code: "A-301-R3",
         category: "SECTION",
@@ -194,8 +194,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Tran Quoc Viet",
       },
       {
-        id: 410,
-        versionId: 2,
+        id: "410",
+        versionId: "2",
         name: "Isometric Render (Rev. C)",
         code: "R-401-R3",
         category: "3D",
@@ -209,8 +209,8 @@ const VERSIONS: DesignVersion[] = [
     ],
   },
   {
-    id: 3,
-    projectId: 1042,
+    id: "3",
+    projectId: "1042",
     code: "V2.2",
     name: "MEP Coordination",
     description:
@@ -224,8 +224,8 @@ const VERSIONS: DesignVersion[] = [
     latestNote: "Awaiting HVAC contractor input on the pickup ceiling return.",
     drawings: [
       {
-        id: 120,
-        versionId: 3,
+        id: "120",
+        versionId: "3",
         name: "MEP Overlay — Ground",
         code: "M-101",
         category: "FLOOR_PLAN",
@@ -237,8 +237,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Tran Quoc Viet",
       },
       {
-        id: 121,
-        versionId: 3,
+        id: "121",
+        versionId: "3",
         name: "MEP Overlay — Mezz",
         code: "M-102",
         category: "FLOOR_PLAN",
@@ -250,8 +250,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Tran Quoc Viet",
       },
       {
-        id: 220,
-        versionId: 3,
+        id: "220",
+        versionId: "3",
         name: "RCP — Ground",
         code: "M-201",
         category: "ELEVATION",
@@ -263,8 +263,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Tran Quoc Viet",
       },
       {
-        id: 320,
-        versionId: 3,
+        id: "320",
+        versionId: "3",
         name: "Section — MEP",
         code: "M-301",
         category: "SECTION",
@@ -278,8 +278,8 @@ const VERSIONS: DesignVersion[] = [
     ],
   },
   {
-    id: 4,
-    projectId: 1042,
+    id: "4",
+    projectId: "1042",
     code: "V2.1",
     name: "Schematic Update",
     description: "Earlier schematic pass — superseded by V2.2.",
@@ -292,8 +292,8 @@ const VERSIONS: DesignVersion[] = [
     latestNote: null,
     drawings: [
       {
-        id: 130,
-        versionId: 4,
+        id: "130",
+        versionId: "4",
         name: "Schematic Plan",
         code: "A-101-S1",
         category: "FLOOR_PLAN",
@@ -305,8 +305,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Tran Quoc Viet",
       },
       {
-        id: 131,
-        versionId: 4,
+        id: "131",
+        versionId: "4",
         name: "Schematic Sections",
         code: "A-301-S1",
         category: "SECTION",
@@ -318,8 +318,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Tran Quoc Viet",
       },
       {
-        id: 430,
-        versionId: 4,
+        id: "430",
+        versionId: "4",
         name: "Schematic 3D",
         code: "R-401-S1",
         category: "3D",
@@ -333,8 +333,8 @@ const VERSIONS: DesignVersion[] = [
     ],
   },
   {
-    id: 5,
-    projectId: 1042,
+    id: "5",
+    projectId: "1042",
     code: "V2.0",
     name: "Owner Review Snapshot",
     description:
@@ -348,8 +348,8 @@ const VERSIONS: DesignVersion[] = [
     latestNote: null,
     drawings: [
       {
-        id: 140,
-        versionId: 5,
+        id: "140",
+        versionId: "5",
         name: "Snapshot Plan",
         code: "A-101-S0",
         category: "FLOOR_PLAN",
@@ -361,8 +361,8 @@ const VERSIONS: DesignVersion[] = [
         updatedBy: "Nguyen Hoa My",
       },
       {
-        id: 440,
-        versionId: 5,
+        id: "440",
+        versionId: "5",
         name: "Snapshot 3D",
         code: "R-401-S0",
         category: "3D",
@@ -386,7 +386,7 @@ export function useLegacyDesignVersions(projectId: string): DesignVersion[] {
 
 export function useLegacyDesignVersion(
   projectId: string,
-  versionId: number,
+  versionId: string,
 ): DesignVersion | null {
   return React.useMemo(() => {
     const all = (OVERRIDE ?? (() => VERSIONS))(projectId);

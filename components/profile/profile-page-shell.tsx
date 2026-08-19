@@ -315,12 +315,12 @@ function TabNavigation({
 function PostsGrid() {
   // Mock posts data
   const posts = [
-    { id: 1, title: "Modern Cafe Design Concept", likes: 24, comments: 5 },
-    { id: 2, title: "Industrial Kitchen Layout", likes: 18, comments: 3 },
-    { id: 3, title: "Minimalist Space Planning", likes: 32, comments: 8 },
-    { id: 4, title: "Color Theory in Cafe Design", likes: 15, comments: 2 },
-    { id: 5, title: "Lighting Design Tips", likes: 28, comments: 6 },
-    { id: 6, title: "Budget-Friendly Renovations", likes: 41, comments: 12 },
+    { id: "1", title: "Modern Cafe Design Concept", likes: 24, comments: 5 },
+    { id: "2", title: "Industrial Kitchen Layout", likes: 18, comments: 3 },
+    { id: "3", title: "Minimalist Space Planning", likes: 32, comments: 8 },
+    { id: "4", title: "Color Theory in Cafe Design", likes: 15, comments: 2 },
+    { id: "5", title: "Lighting Design Tips", likes: 28, comments: 6 },
+    { id: "6", title: "Budget-Friendly Renovations", likes: 41, comments: 12 },
   ];
 
   return (
@@ -358,9 +358,9 @@ function ProjectsList() {
   const t = useTranslations("Profile");
   
   const projects = [
-    { id: 1, name: "District Coffee House", status: "completed", rating: 5 },
-    { id: 2, name: "Urban Beans Cafe", status: "ongoing", rating: null },
-    { id: 3, name: "Morning Glory Bistro", status: "completed", rating: 4 },
+    { id: "1", name: "District Coffee House", status: "completed", rating: 5 },
+    { id: "2", name: "Urban Beans Cafe", status: "ongoing", rating: null },
+    { id: "3", name: "Morning Glory Bistro", status: "completed", rating: 4 },
   ];
 
   const statusColors: Record<string, string> = {
@@ -418,7 +418,7 @@ function ReviewsList() {
   
   const reviews = [
     {
-      id: 1,
+      id: "1",
       author: "Nguyen Van A",
       project: "District Coffee House",
       rating: 5,
@@ -426,7 +426,7 @@ function ReviewsList() {
       date: "2 weeks ago",
     },
     {
-      id: 2,
+      id: "2",
       author: "Tran Thi B",
       project: "Urban Beans Cafe",
       rating: 4,

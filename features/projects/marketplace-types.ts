@@ -22,8 +22,8 @@ export type ServiceKind = "design" | "construction" | "both";
 export type PostStatus = "open" | "closed" | "cancelled";
 
 export interface MarketplacePost {
-  id: number;
-  projectShopOwnerId: number;
+  id: string;
+  projectShopOwnerId: string;
   projectName: string;
   projectAddress: string;
   /** Budget in VND. */
@@ -60,7 +60,7 @@ export interface MarketplaceFilters {
   /** Free-text search over title / address / project name. */
   query: string;
   /** Optional project filter — null means "all projects". */
-  projectShopOwnerId: number | null;
+  projectShopOwnerId: string | null;
   pageNumber: number;
   pageSize: number;
 }
@@ -89,7 +89,7 @@ export const DEFAULT_FILTERS: MarketplaceFilters = {
 export interface MarketplaceQueryParams {
   pageNumber: number;
   pageSize: number;
-  projectShopOwnerId?: number;
+  projectShopOwnerId?: string;
   serviceKind?: Exclude<ServiceKind, "all">;
   status?: Exclude<PostStatus, "all">;
   search?: string;

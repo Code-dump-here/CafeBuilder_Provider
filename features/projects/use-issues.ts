@@ -69,8 +69,8 @@ function resolveErrorMessage(error: AppError): string {
 // ─── Get Issues ───────────────────────────────────────────────────────────────
 
 export interface UseIssuesOptions {
-  projectWorkingId?: number | string;
-  constructionItemId?: number | string;
+  projectWorkingId?: string;
+  constructionItemId?: string;
   status?: IssueStatus;
   enabled?: boolean;
 }
@@ -96,9 +96,9 @@ export function useIssues(options: UseIssuesOptions = {}): UseIssuesResult {
     queryFn: async ({ signal }) =>
       getIssuesApi(
         {
-          projectWorkingId: projectWorkingId ? Number(projectWorkingId) : undefined,
+          projectWorkingId: projectWorkingId ? projectWorkingId : undefined,
           constructionItemId: constructionItemId
-            ? Number(constructionItemId)
+            ? constructionItemId
             : undefined,
           status,
         },
@@ -121,7 +121,7 @@ export function useIssues(options: UseIssuesOptions = {}): UseIssuesResult {
 // ─── Get Single Issue ─────────────────────────────────────────────────────────
 
 export interface UseIssueOptions {
-  id: number | string;
+  id: string;
   enabled?: boolean;
 }
 
@@ -139,7 +139,7 @@ export function useIssue(options: UseIssueOptions): UseIssueResult {
 
   const query = useQuery<Issue, Error>({
     queryKey: ["issues", "detail", { id }],
-    queryFn: async ({ signal }) => getIssueApi(Number(id), { signal }),
+    queryFn: async ({ signal }) => getIssueApi(id, { signal }),
     enabled: enabled && Boolean(id),
     staleTime: 30 * 1000,
   });
@@ -204,7 +204,7 @@ export function useCreateIssueMutation(
 
   return useMutation<Issue, AppError, Omit<CreateIssuePayload, "createdBy">>({
     mutationFn: (payload) =>
-      createIssueApi({ ...payload, createdBy: me?.id ?? 0 }),
+      createIssueApi({ ...payload, createdBy: me?.id ?? "" }),
 
     onSuccess: (issue) => {
       if (options.onSuccessMessage !== null) {
@@ -242,7 +242,7 @@ export function useUpdateIssueMutation(
   return useMutation<
     Issue,
     AppError,
-    { id: number; payload: UpdateIssuePayload }
+    { id: string; payload: UpdateIssuePayload }
   >({
     mutationFn: ({ id, payload }) => updateIssueApi(id, payload),
 
@@ -282,7 +282,7 @@ export function useSetIssueStatusMutation(
   return useMutation<
     Issue,
     AppError,
-    { id: number; payload: SetIssueStatusPayload }
+    { id: string; payload: SetIssueStatusPayload }
   >({
     mutationFn: ({ id, payload }) => setIssueStatusApi(id, payload),
 
@@ -319,7 +319,7 @@ export interface UseDeleteIssueOptions {
 export function useDeleteIssueMutation(
   options: UseDeleteIssueOptions = {},
 ) {
-  return useMutation<void, AppError, number>({
+  return useMutation<void, AppError, string>({
     mutationFn: (id) => deleteIssueApi(id),
 
     onSuccess: () => {

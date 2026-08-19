@@ -43,7 +43,7 @@ const TOAST = {
 // ─── Get Contracts Query ─────────────────────────────────────────────────────
 
 export interface UseContractsOptions {
-  projectWorkingId: number | string;
+  projectWorkingId: string;
   enabled?: boolean;
 }
 
@@ -69,7 +69,7 @@ export function useContracts(options: UseContractsOptions): UseContractsResult {
   const query = useQuery<ContractListResponse, Error>({
     queryKey: ["contracts", { projectWorkingId }],
     queryFn: async ({ signal }) => {
-      return getContractsApi(Number(projectWorkingId), { signal });
+      return getContractsApi(projectWorkingId, { signal });
     },
     enabled: enabled && Boolean(projectWorkingId),
     staleTime: 30 * 1000,
@@ -77,10 +77,17 @@ export function useContracts(options: UseContractsOptions): UseContractsResult {
 
   const contracts = query.data?.items ?? [];
 
-  // Get the latest contract (highest id)
+  // Newest contract by creation time.
+  //
+  // This used to take the highest id, which worked only while ids were an
+  // incrementing sequence. Uuids carry no ordering, so "latest" has to come
+  // from `createdAt` — otherwise the pick is effectively random and the page
+  // can show a superseded contract as the current one.
   const latestContract = React.useMemo(() => {
     if (contracts.length === 0) return null;
-    return [...contracts].sort((a, b) => b.id - a.id)[0];
+    return [...contracts].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )[0];
   }, [contracts]);
 
   // Get the confirmed contract if any
@@ -105,7 +112,10 @@ export function useContracts(options: UseContractsOptions): UseContractsResult {
       contracts.find((c) => c.status === "pending_otp") ??
       [...contracts]
         .filter((c) => c.status === "drafted")
-        .sort((a, b) => b.id - a.id)[0] ??
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        )[0] ??
       null
     );
   }, [contracts]);
@@ -126,7 +136,7 @@ export function useContracts(options: UseContractsOptions): UseContractsResult {
 // ─── Get Single Contract Query ───────────────────────────────────────────────
 
 export interface UseContractOptions {
-  contractId: number | string;
+  contractId: string;
   enabled?: boolean;
 }
 
@@ -145,7 +155,7 @@ export function useContract(options: UseContractOptions): UseContractResult {
   const query = useQuery<Contract, Error>({
     queryKey: ["contracts", "detail", { contractId }],
     queryFn: async ({ signal }) => {
-      return getContractApi(Number(contractId), { signal });
+      return getContractApi(contractId, { signal });
     },
     enabled: enabled && Boolean(contractId),
     staleTime: 30 * 1000,
@@ -212,7 +222,7 @@ export function useUpdateContractMutation(
   return useMutation<
     Contract,
     AppError,
-    { contractId: number; payload: UpdateContractPayload }
+    { contractId: string; payload: UpdateContractPayload }
   >({
     mutationFn: ({ contractId, payload }) =>
       updateContractApi(contractId, payload),
@@ -250,7 +260,7 @@ export interface SendContractOtpOptions {
 export function useSendContractOtpMutation(
   options: SendContractOtpOptions = {},
 ) {
-  return useMutation<Contract, AppError, number>({
+  return useMutation<Contract, AppError, string>({
     mutationFn: (contractId) => sendContractOtpApi(contractId),
 
     onSuccess: (contract) => {
@@ -289,7 +299,7 @@ export function useConfirmContractOtpMutation(
   return useMutation<
     Contract,
     AppError,
-    { contractId: number; payload: ConfirmOtpPayload }
+    { contractId: string; payload: ConfirmOtpPayload }
   >({
     mutationFn: ({ contractId, payload }) =>
       confirmContractOtpApi(contractId, payload),
@@ -327,7 +337,7 @@ export interface CancelContractOptions {
 export function useCancelContractMutation(
   options: CancelContractOptions = {},
 ) {
-  return useMutation<Contract, AppError, number>({
+  return useMutation<Contract, AppError, string>({
     mutationFn: (contractId) => cancelContractApi(contractId),
 
     onSuccess: (contract) => {

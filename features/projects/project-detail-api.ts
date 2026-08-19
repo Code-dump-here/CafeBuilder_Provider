@@ -23,7 +23,7 @@ import {
  * the global refresh-token retry logic + `auth:expired` broadcast.
  */
 export async function fetchProjectDetail(
-  projectId: string | number,
+  projectId: string,
   config?: RequestConfig,
 ): Promise<ProjectDetail> {
   const response = await api.get<RawProjectDetail>(
@@ -55,7 +55,7 @@ export async function fetchProjectDetail(
  *     `cancelled`.
  */
 export async function completeProjectApi(
-  projectId: string | number,
+  projectId: string,
   config?: RequestConfig,
 ): Promise<ProjectDetail> {
   const response = await api.post<RawProjectDetail>(
@@ -84,7 +84,7 @@ export async function completeProjectApi(
  *   - 409: "Không thể huỷ dự án đã hoàn thành" (or similar).
  */
 export async function cancelProjectApi(
-  projectId: string | number,
+  projectId: string,
   config?: RequestConfig,
 ): Promise<ProjectDetail> {
   const response = await api.post<RawProjectDetail>(

@@ -82,8 +82,8 @@ function resolveErrorMessage(error: AppError): string {
 // ─── Get Construction Items (Milestones) ─────────────────────────────────────
 
 export interface UseConstructionItemsOptions {
-  projectWorkingId: number | string;
-  parentId?: number | null;
+  projectWorkingId: string;
+  parentId?: string | null;
   status?: ConstructionStatus;
   enabled?: boolean;
   /** The backend defaults to 10 when omitted, silently hiding every
@@ -95,7 +95,7 @@ export interface UseConstructionItemsOptions {
 export interface UseConstructionItemsResult {
   items: ConstructionItem[];
   topLevelItems: ConstructionItem[];
-  subItemsByParent: Record<number, ConstructionItem[]>;
+  subItemsByParent: Record<string, ConstructionItem[]>;
   isLoading: boolean;
   isFetching: boolean;
   isError: boolean;
@@ -112,7 +112,7 @@ export function useConstructionItems(
     queryKey: ["construction-items", { projectWorkingId, status, pageSize }],
     queryFn: async ({ signal }) =>
       getConstructionItemsApi(
-        Number(projectWorkingId),
+        projectWorkingId,
         { status, pageSize, ...(parentId !== undefined ? { parentId } : {}) },
         { signal },
       ),
@@ -130,7 +130,7 @@ export function useConstructionItems(
 
   // Group sub-items by parentId
   const subItemsByParent = React.useMemo(() => {
-    const grouped: Record<number, ConstructionItem[]> = {};
+    const grouped: Record<string, ConstructionItem[]> = {};
     for (const item of items) {
       if (item.parentId !== null) {
         if (!grouped[item.parentId]) {
@@ -157,7 +157,7 @@ export function useConstructionItems(
 // ─── Get Single Construction Item ─────────────────────────────────────────────
 
 export interface UseConstructionItemOptions {
-  id: number | string;
+  id: string;
   enabled?: boolean;
 }
 
@@ -177,7 +177,7 @@ export function useConstructionItem(
 
   const query = useQuery<ConstructionItem, Error>({
     queryKey: ["construction-items", "detail", { id }],
-    queryFn: async ({ signal }) => getConstructionItemApi(Number(id), { signal }),
+    queryFn: async ({ signal }) => getConstructionItemApi(id, { signal }),
     enabled: enabled && Boolean(id),
     staleTime: 30 * 1000,
   });
@@ -195,11 +195,11 @@ export function useConstructionItem(
 // ─── Get Construction Tasks ───────────────────────────────────────────────────
 
 export interface UseConstructionTasksOptions {
-  constructionItemId?: number | string;
+  constructionItemId?: string;
   /** Scope to one engagement. Without this the server returns every task
    * on every engagement the account can see, which made project-level
    * counters (e.g. the milestones toolbar) sum other projects' tasks. */
-  projectWorkingId?: number | string;
+  projectWorkingId?: string;
   status?: ConstructionStatus;
   enabled?: boolean;
   /** The backend defaults to 10 when omitted, silently hiding every task
@@ -240,10 +240,10 @@ export function useConstructionTasks(
       getConstructionTasksApi(
         {
           constructionItemId: constructionItemId
-            ? Number(constructionItemId)
+            ? constructionItemId
             : undefined,
           projectWorkingId: projectWorkingId
-            ? Number(projectWorkingId)
+            ? projectWorkingId
             : undefined,
           status,
           pageSize,
@@ -316,7 +316,7 @@ export function useUpdateConstructionItemMutation(
   return useMutation<
     ConstructionItem,
     AppError,
-    { id: number; payload: UpdateConstructionItemPayload }
+    { id: string; payload: UpdateConstructionItemPayload }
   >({
     mutationFn: ({ id, payload }) => updateConstructionItemApi(id, payload),
 
@@ -356,7 +356,7 @@ export function useSetConstructionItemStatusMutation(
   return useMutation<
     ConstructionItem,
     AppError,
-    { id: number; payload: SetConstructionItemStatusPayload }
+    { id: string; payload: SetConstructionItemStatusPayload }
   >({
     mutationFn: ({ id, payload }) => setConstructionItemStatusApi(id, payload),
 
@@ -393,7 +393,7 @@ export interface UseDeleteConstructionItemOptions {
 export function useDeleteConstructionItemMutation(
   options: UseDeleteConstructionItemOptions = {},
 ) {
-  return useMutation<void, AppError, number>({
+  return useMutation<void, AppError, string>({
     mutationFn: (id) => deleteConstructionItemApi(id),
 
     onSuccess: () => {
@@ -468,7 +468,7 @@ export function useUpdateConstructionTaskMutation(
   return useMutation<
     ConstructionTask,
     AppError,
-    { id: number; payload: UpdateConstructionTaskPayload }
+    { id: string; payload: UpdateConstructionTaskPayload }
   >({
     mutationFn: ({ id, payload }) => updateConstructionTaskApi(id, payload),
 
@@ -508,7 +508,7 @@ export function useSetConstructionTaskStatusMutation(
   return useMutation<
     ConstructionTask,
     AppError,
-    { id: number; payload: SetConstructionTaskStatusPayload }
+    { id: string; payload: SetConstructionTaskStatusPayload }
   >({
     mutationFn: ({ id, payload }) => setConstructionTaskStatusApi(id, payload),
 
@@ -545,7 +545,7 @@ export interface UseDeleteConstructionTaskOptions {
 export function useDeleteConstructionTaskMutation(
   options: UseDeleteConstructionTaskOptions = {},
 ) {
-  return useMutation<void, AppError, number>({
+  return useMutation<void, AppError, string>({
     mutationFn: (id) => deleteConstructionTaskApi(id),
 
     onSuccess: () => {

@@ -62,7 +62,7 @@ export async function getConversationsApi(
  * Messages are in SentAt ASC order (oldest → newest).
  */
 export async function getConversationApi(
-  conversationId: number,
+  conversationId: string,
   params: ConversationDetailParams = {},
   config?: RequestConfig,
 ): Promise<ConversationDetailResponse> {
@@ -77,7 +77,7 @@ export async function getConversationApi(
     );
   // Backend may return flat object or wrapped response
   const result = (response.data as ApiSuccessResponse<ConversationDetailResponse>).data ?? (response.data as ConversationDetailResponse);
-  if (!result || typeof result.id !== "number") {
+  if (!result || typeof result.id !== "string") {
     console.error("[chat] getConversationApi: unexpected response shape", { response, result });
     throw new Error("Invalid response from server");
   }
@@ -105,7 +105,7 @@ export async function createConversationApi(
   // { data: ConversationDetailResponse } vs ConversationDetailResponse directly
   const result = (response.data as ApiSuccessResponse<ConversationDetailResponse>).data ?? (response.data as ConversationDetailResponse);
   
-  if (!result || typeof result.id !== "number") {
+  if (!result || typeof result.id !== "string") {
     console.error("[chat] createConversationApi: unexpected response shape", { response, result });
     throw new Error("Invalid response from server");
   }
@@ -119,7 +119,7 @@ export async function createConversationApi(
  * Updates conversation metadata. Sending `{}` or `null` leaves topic unchanged.
  */
 export async function patchConversationApi(
-  conversationId: number,
+  conversationId: string,
   payload: PatchConversationPayload,
   config?: RequestConfig,
 ): Promise<ConversationSummary> {
@@ -131,7 +131,7 @@ export async function patchConversationApi(
     );
   // Backend may return flat object or wrapped response
   const result = (response.data as ApiSuccessResponse<ConversationSummary>).data ?? (response.data as ConversationSummary);
-  if (!result || typeof result.id !== "number") {
+  if (!result || typeof result.id !== "string") {
     console.error("[chat] patchConversationApi: unexpected response shape", { response, result });
     throw new Error("Invalid response from server");
   }
@@ -147,7 +147,7 @@ export async function patchConversationApi(
  * Only the thread creator (`createdBy`) can delete.
  */
 export async function deleteConversationApi(
-  conversationId: number,
+  conversationId: string,
   config?: RequestConfig,
 ): Promise<void> {
   await api.delete(`/api/chat/conversations/${conversationId}`, config);
@@ -203,7 +203,7 @@ export async function getMessagesApi(
  * Returns the persisted `MessageResponse` with resolved attachment URLs.
  */
 export async function sendMessageApi(
-  conversationId: number,
+  conversationId: string,
   payload: SendMessagePayload,
   config?: RequestConfig,
 ): Promise<MessageResponse> {
@@ -238,7 +238,7 @@ export async function sendMessageApi(
 
   // Backend may return flat object or wrapped response
   const result = (response.data as ApiSuccessResponse<MessageResponse>).data ?? (response.data as MessageResponse);
-  if (!result || typeof result.id !== "number") {
+  if (!result || typeof result.id !== "string") {
     console.error("[chat] sendMessageApi: unexpected response shape", { response, result });
     throw new Error("Invalid response from server");
   }
@@ -254,7 +254,7 @@ export async function sendMessageApi(
  * Only the message sender (`senderId`) can delete.
  */
 export async function deleteMessageApi(
-  messageId: number,
+  messageId: string,
   config?: RequestConfig,
 ): Promise<void> {
   await api.delete(`/api/chat/messages/${messageId}`, config);

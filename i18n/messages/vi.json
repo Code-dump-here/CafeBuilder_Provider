@@ -239,7 +239,11 @@
         "description": "Email của bạn đã được xác nhận. Nhấn Tiếp tục để thiết lập hồ sơ."
       },
       "errors": {
-        "wrongCode": "Mã xác minh không chính xác. Vui lòng thử lại."
+        "wrongCode": "Mã xác minh không chính xác. Vui lòng thử lại.",
+        "tooManyRequests": "Bạn thử quá nhiều lần. Vui lòng đợi một lát rồi yêu cầu mã mới.",
+        "serverError": "Hệ thống đang gặp sự cố. Vui lòng thử lại sau ít phút.",
+        "sendFailed": "Không gửi được mã xác thực. Vui lòng kiểm tra lại địa chỉ email và thử lại.",
+        "verifyFailed": "Không xác thực được mã này. Vui lòng thử lại."
       }
     },
     "completeProfile": {
@@ -519,7 +523,14 @@
         "accepted": "Hồ sơ được chấp nhận",
         "rejected": "Hồ sơ bị từ chối",
         "edit": "Sửa hồ sơ",
-        "withdraw": "Rút hồ sơ"
+        "withdraw": "Rút hồ sơ",
+        "surveyRequired": "Cần khảo sát hiện trường",
+        "surveyRequiredHint": "Dự án này có phần thiết kế, nên chủ quán chỉ chọn được bạn sau khi bạn đã đi khảo sát và ghi nhận hiện trạng.",
+        "surveyBooked": "Đã hẹn lịch, chưa đi khảo sát",
+        "surveyBookedHint": "Chủ quán chọn được bạn sau khi bạn đi khảo sát và điền kết quả.",
+        "surveyDone": "Đã khảo sát hiện trường",
+        "surveyStartCta": "Nộp khảo sát hiện trường",
+        "surveyRecordCta": "Ghi nhận buổi khảo sát"
       },
       "withdrawConfirm": {
         "title": "Rút hồ sơ ứng tuyển?",
@@ -659,6 +670,10 @@
           "rawRequest": "Payload yêu cầu",
           "rawRequestHint": "JSON thô gửi tới AI worker — hữu ích khi debug."
         }
+      },
+      "empty": {
+        "title": "Chưa có yêu cầu thiết kế",
+        "subtitle": "Chủ quán chưa điền bản yêu cầu thiết kế cho dự án này. Khi có, nội dung sẽ hiển thị ở đây."
       }
     },
     "empty": {
@@ -735,8 +750,8 @@
     "title": "Khảo sát công trường",
     "subtitle": "Ghi nhận điều kiện công trường trước khi bắt đầu thi công.",
     "noEngagement": {
-      "title": "Không tìm thấy hợp đồng",
-      "description": "Bạn cần có hợp đồng dự án đã được chấp nhận trước khi tạo khảo sát."
+      "title": "Chưa có chỗ để gắn bản khảo sát",
+      "description": "Hãy ứng tuyển vào dự án này, hoặc được chọn làm dự án, rồi bạn có thể nộp khảo sát hiện trường ở đây."
     },
     "createNew": "Khảo sát mới",
     "createFirst": "Tạo khảo sát đầu tiên",
@@ -772,7 +787,9 @@
       "cancel": "Hủy",
       "create": "Tạo khảo sát",
       "saveChanges": "Lưu thay đổi",
-      "submitting": "Đang lưu…"
+      "submitting": "Đang lưu…",
+      "surveyedOnLabel": "Ngày bạn đi khảo sát",
+      "surveyedOnHint": "Chủ quán nhìn thấy ngày này. Bản khảo sát chưa có ngày đi thực tế chỉ tính là đã hẹn lịch, chưa mở khoá quyết định của họ."
     },
     "errors": {
       "title": "Không thể tải khảo sát",
@@ -1004,6 +1021,7 @@
       "setStatus": "Đặt trạng thái",
       "statusMoveHint": "Trạng thái chỉ chuyển tiến — bước tiếp theo được đánh dấu bên dưới.",
       "statusTerminalHint": "Hạng mục này đã hoàn thành và không thể thay đổi.",
+      "paid": "Đã thanh toán",
       "closeMilestone": "Đánh dấu hoàn thành",
       "statusSuccess": "Đã cập nhật trạng thái hạng mục.",
       "statusCompleted": "Hoàn thành",
@@ -1088,6 +1106,66 @@
       "unknownAuthor": "Không rõ",
       "placeholder": "Viết ghi chú…",
       "send": "Gửi ghi chú"
+    },
+    "checklist": {
+      "open": "Checklist nghiệm thu",
+      "title": "Checklist nghiệm thu",
+      "subtitleWithPhase": "Những mục chủ quán sẽ nghiệm thu cho “{phase}”.",
+      "loading": "Đang tải checklist…",
+      "error": "Không thể tải checklist.",
+      "empty": "Chưa có checklist. Thêm các mục cần chủ quán nghiệm thu.",
+      "addTitle": "Thêm mục nghiệm thu",
+      "namePlaceholder": "vd: Tường phẳng, không nứt",
+      "descriptionPlaceholder": "Mô tả thêm (không bắt buộc)",
+      "required": "Bắt buộc",
+      "requiredHint": "Mục bắt buộc phải đạt thì mới đóng được hạng mục.",
+      "optional": "Không bắt buộc",
+      "add": "Thêm mục",
+      "delete": "Xoá",
+      "status": {
+        "pending": "Chưa chấm",
+        "passed": "Đạt",
+        "failed": "Chưa đạt"
+      },
+      "ownerNote": "Ghi chú của chủ quán",
+      "checkedAt": "Chấm ngày {date}",
+      "progress": "{passed}/{total} mục bắt buộc đã đạt",
+      "blocked": "Còn {count} mục bắt buộc chưa xong — chưa nghiệm thu được.",
+      "satisfied": "Mọi mục bắt buộc đã đạt — có thể đóng hạng mục này.",
+      "noRequired": "Không có mục bắt buộc nào, nghiệm thu không bị chặn."
+    },
+    "materials": {
+      "open": "Vật tư",
+      "title": "Vật tư & chi phí",
+      "subtitleWithPhase": "Khối lượng và chi phí của “{phase}”, gồm cả các task con.",
+      "loading": "Đang tải vật tư…",
+      "error": "Không thể tải vật tư.",
+      "priceList": "Bảng giá vật tư",
+      "priceListHint": "Đơn giá công bố cho dự án này. Chốt trước khi thi công.",
+      "priceListEmpty": "Chưa công bố vật tư nào.",
+      "addMaterial": "Thêm vào bảng giá",
+      "materialName": "Vật tư",
+      "materialNamePlaceholder": "vd: Gạch men 60x60",
+      "unit": "Đơn vị",
+      "unitPrice": "Đơn giá",
+      "usage": "Vật tư của hạng mục",
+      "usageEmpty": "Chưa gắn vật tư nào.",
+      "addUsage": "Thêm vật tư",
+      "pickMaterial": "Chọn từ bảng giá",
+      "estimated": "Dự tính",
+      "actual": "Thực tế",
+      "actualPlaceholder": "Điền sau khi thi công xong",
+      "actualLocked": "Ghi được khi công việc đã bắt đầu.",
+      "save": "Lưu",
+      "remove": "Gỡ",
+      "estimatedCost": "Chi phí dự tính",
+      "actualCost": "Chi phí thực tế",
+      "ownLines": "Riêng hạng mục",
+      "taskLines": "Từ các task",
+      "total": "Tổng",
+      "actualPending": "Còn {count} dòng chưa có khối lượng thực tế",
+      "actualUnavailable": "—",
+      "priceNote": "Đơn giá được chốt lúc chọn vật tư, nên sửa bảng giá về sau không làm đổi số của phần đã tính."
     },
     "issue": {
       "pageTitle": "Vấn đề",
@@ -1198,7 +1276,8 @@
           "confirmImage": "Ảnh sau xử lý",
           "status": "Trạng thái"
         }
-      }
+      },
+      "reportCta": "Báo sự cố"
     },
     "addPhase": {
       "title": "Thêm mốc",
@@ -1217,7 +1296,8 @@
       "error": "Không thể tạo mốc. Vui lòng thử lại."
     },
     "errorEmpty": "Chưa có mốc nào. Thêm mốc đầu tiên để bắt đầu.",
-    "summaryError": "Không cập nhật được trạng thái mốc."
+    "summaryError": "Không cập nhật được trạng thái mốc.",
+    "retry": "Thử lại"
   },
   "Sidebar": {
     "common": {
@@ -1239,7 +1319,8 @@
       "revisions": "Chỉnh sửa",
       "messages": "Tin nhắn",
       "progress": "Tiến độ",
-      "constructionSupport": "Hỗ trợ thi công"
+      "constructionSupport": "Hỗ trợ thi công",
+      "brief": "Yêu cầu thiết kế"
     },
     "contractor": {
       "workspace": "Không gian làm việc",
@@ -1394,7 +1475,8 @@
       "confirmDeleteImageBody": "Không thể hoàn tác.",
       "confirmCta": "Xác nhận",
       "confirmCancel": "Huỷ",
-      "deleteCta": "Xoá"
+      "deleteCta": "Xoá",
+      "revisionStarted": "Đã bắt đầu bản chỉnh sửa."
     },
     "tabs": {
       "all": "Tất cả",
@@ -1512,7 +1594,8 @@
         "share": "Chia sẻ",
         "print": "In",
         "download": "Tải xuống"
-      }
+      },
+      "downloadComingSoon": "Chưa hỗ trợ tải bản vẽ."
     },
     "history": {
       "label": "Lịch sử phiên bản",

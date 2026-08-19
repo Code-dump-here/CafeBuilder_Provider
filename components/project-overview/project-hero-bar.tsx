@@ -53,7 +53,7 @@ function ProviderHeroActions({ project }: ProviderHeroActionsProps) {
         (p) =>
           p.providerId === viewerProfileId &&
           p.status === "accepted" &&
-          p.projectWorkingId > 0,
+          p.projectWorkingId !== "",
       ) ?? null
     );
   }, [project.providers, isProvider, viewerProfileId]);
@@ -70,7 +70,7 @@ function ProviderHeroActions({ project }: ProviderHeroActionsProps) {
 }
 
 interface ProviderEngagementHeroInnerProps {
-  engagementId: number;
+  engagementId: string;
   t: ReturnType<
     typeof useTranslations<"ProjectsOverview.members.providerActions">
   >;
@@ -87,7 +87,7 @@ function ProviderEngagementHeroInner({
   const { data: engagement, isLoading } = useQuery({
     queryKey: ["engagements", "detail", engagementId],
     queryFn: ({ signal }) => getEngagementApi(engagementId, { signal }),
-    enabled: engagementId > 0,
+    enabled: engagementId !== "",
     staleTime: 15_000,
   });
 

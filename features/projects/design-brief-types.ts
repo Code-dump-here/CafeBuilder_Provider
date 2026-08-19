@@ -6,8 +6,8 @@
  */
 
 export interface DesignBrief {
-  id: number;
-  projectId: number;
+  id: string;
+  projectId: string;
 
   targetCustomer: string;
   style: string;
@@ -83,8 +83,8 @@ export type AiRecommendationState =
  * should prefer the typed fields below.
  */
 export interface AiRecommendation {
-  id: number;
-  briefId: number;
+  id: string;
+  briefId: string;
   conceptSummary: string;
 
   /** Raw JSON request payload (stringified). Use typed fields when possible. */

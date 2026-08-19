@@ -21,7 +21,7 @@ import { queryKeys } from "@/lib/react-query/keys";
 // list endpoint.
 
 async function respondToInvitation(
-  id: number,
+  id: string,
   action: "accept" | "reject",
   config?: RequestConfig,
 ): Promise<void> {
@@ -46,14 +46,14 @@ async function respondToInvitation(
  * the same invalidation handles both.
  */
 export function useRespondToInvitationMutation(
-  serviceProviderProfileId: number | null,
+  serviceProviderProfileId: string | null,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation<
     void,
     Error,
-    { id: number; action: "accept" | "reject" }
+    { id: string; action: "accept" | "reject" }
   >({
     mutationFn: ({ id, action }) => respondToInvitation(id, action),
     onSuccess: async () => {

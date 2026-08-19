@@ -25,19 +25,33 @@ export async function createSurveyApi(
 }
 
 /**
- * Get surveys for an engagement (paginated).
+ * Which record the surveys hang off. Exactly one, mirroring the server's
+ * `ck_surveys_target` check:
+ *   - `applyId` — surveys done while bidding, before any engagement exists.
+ *   - `projectWorkingId` — surveys done once the provider is engaged.
+ */
+export type SurveyAnchor =
+  | { applyId: string; projectWorkingId?: never }
+  | { projectWorkingId: string; applyId?: never };
+
+/**
+ * Get surveys for one anchor (paginated).
  *
- * Endpoint: `GET /api/surveys?projectWorkingId=`
+ * Endpoint: `GET /api/surveys?projectWorkingId=` or `?applyId=`
  *
  * Authorization:
  *   Bearer access token required.
  */
 export async function getSurveysApi(
-  projectWorkingId: number,
+  anchor: SurveyAnchor,
   config?: RequestConfig,
 ): Promise<SurveyListResponse> {
+  const query =
+    "applyId" in anchor && anchor.applyId
+      ? `applyId=${anchor.applyId}`
+      : `projectWorkingId=${anchor.projectWorkingId}`;
   const response = await api.get<SurveyListResponse>(
-    `/api/surveys?projectWorkingId=${projectWorkingId}`,
+    `/api/surveys?${query}`,
     config,
   );
   return response.data;
@@ -52,7 +66,7 @@ export async function getSurveysApi(
  *   Bearer access token required.
  */
 export async function getSurveyApi(
-  surveyId: number,
+  surveyId: string,
   config?: RequestConfig,
 ): Promise<Survey> {
   const response = await api.get<Survey>(`/api/surveys/${surveyId}`, config);
@@ -68,7 +82,7 @@ export async function getSurveyApi(
  *   Bearer access token required (provider who created the survey).
  */
 export async function updateSurveyApi(
-  surveyId: number,
+  surveyId: string,
   payload: UpdateSurveyPayload,
   config?: RequestConfig,
 ): Promise<Survey> {

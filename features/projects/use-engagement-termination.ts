@@ -26,7 +26,7 @@ import type { Engagement } from "./engagement-types";
 // which step actually happened.
 
 export async function requestTerminationApi(
-  id: number,
+  id: string,
   reason?: string,
   config?: RequestConfig,
 ): Promise<Engagement> {
@@ -39,7 +39,7 @@ export async function requestTerminationApi(
 }
 
 export async function respondToTerminationApi(
-  id: number,
+  id: string,
   approve: boolean,
   note?: string,
   config?: RequestConfig,
@@ -53,7 +53,7 @@ export async function respondToTerminationApi(
 }
 
 export async function cancelTerminationRequestApi(
-  id: number,
+  id: string,
   config?: RequestConfig,
 ): Promise<Engagement> {
   const response = await api.delete<Engagement>(
@@ -81,7 +81,7 @@ function useInvalidateEngagements() {
 export function useRequestTerminationMutation() {
   const invalidate = useInvalidateEngagements();
 
-  return useMutation<Engagement, AppError, { id: number; reason?: string }>({
+  return useMutation<Engagement, AppError, { id: string; reason?: string }>({
     mutationFn: ({ id, reason }) => requestTerminationApi(id, reason),
     onSuccess: () => {
       void invalidate();
@@ -99,7 +99,7 @@ export function useRespondToTerminationMutation() {
   return useMutation<
     Engagement,
     AppError,
-    { id: number; approve: boolean; note?: string }
+    { id: string; approve: boolean; note?: string }
   >({
     mutationFn: ({ id, approve, note }) =>
       respondToTerminationApi(id, approve, note),
@@ -116,7 +116,7 @@ export function useRespondToTerminationMutation() {
 export function useCancelTerminationRequestMutation() {
   const invalidate = useInvalidateEngagements();
 
-  return useMutation<Engagement, AppError, { id: number }>({
+  return useMutation<Engagement, AppError, { id: string }>({
     mutationFn: ({ id }) => cancelTerminationRequestApi(id),
     onSuccess: () => {
       void invalidate();

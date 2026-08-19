@@ -58,7 +58,7 @@ export function useAccounts(params?: AccountListParams) {
   });
 }
 
-export function useAccount(id: number | null) {
+export function useAccount(id: string | null) {
   return useQuery({
     queryKey: queryKeys.admin.account(id),
     queryFn: () => getAccount(id!),
@@ -71,7 +71,7 @@ export function useUpdateAccountStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: UpdateAccountStatusPayload }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateAccountStatusPayload }) =>
       updateAccountStatus(id, payload),
     onSuccess: (_, variables) => {
       // Invalidate accounts list
@@ -88,7 +88,7 @@ export function useDeleteAccount() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => deleteAccount(id),
+    mutationFn: (id: string) => deleteAccount(id),
     onSuccess: () => {
       // Invalidate accounts list
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.accounts() });

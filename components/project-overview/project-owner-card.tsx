@@ -1,5 +1,6 @@
 "use client";
 
+import { paletteIndexFor } from "@/lib/id-hash";
 import * as React from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -43,8 +44,8 @@ const OWNER_AVATAR_PALETTE = [
 
 function ownerAvatarColorFor(owner: ProjectOwner): string {
   const palette = OWNER_AVATAR_PALETTE;
-  const idx = (owner.id * 11 + 3) % palette.length;
-  return palette[Math.abs(idx)];
+  // Uuid ids: hash instead of multiply, same stable-colour behaviour.
+  return palette[paletteIndexFor(owner.id, palette.length)];
 }
 
 // ---------------------------------------------------------------------------

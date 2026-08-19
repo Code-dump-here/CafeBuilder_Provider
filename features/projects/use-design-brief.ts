@@ -41,8 +41,8 @@ const RAW_RECOMMENDATIONS: Array<
   }
 > = [
   {
-    id: 29,
-    briefId: 1,
+    id: "29",
+    briefId: "1",
     conceptSummary: "AI Design: An's Coffee House - Chi nhánh Quận 1",
     payload:
       '{"briefId": 1, "request": {"Notes": null, "BriefId": 1, "ImageView": null, "DetailLevel": null, "GenerateImage": true, "MustHaveZones": null, "NiceToHaveZones": null, "AlternativesCount": 1, "ReferenceImageUrls": null}, "projectId": 1}',
@@ -155,8 +155,8 @@ const RAW_RECOMMENDATIONS: Array<
     seatCapacityRecommendation: 24,
   },
   {
-    id: 28,
-    briefId: 1,
+    id: "28",
+    briefId: "1",
     conceptSummary: "AI Design: An's Coffee House - Chi nhánh Quận 1",
     payload:
       '{"briefId": 1, "request": {"Notes": null, "BriefId": 1, "ImageView": null, "DetailLevel": null, "GenerateImage": true, "MustHaveZones": null, "NiceToHaveZones": null, "AlternativesCount": 1, "ReferenceImageUrls": null}, "projectId": 1}',
@@ -256,8 +256,8 @@ const RAW_RECOMMENDATIONS: Array<
     seatCapacityRecommendation: 24,
   },
   {
-    id: 19,
-    briefId: 1,
+    id: "19",
+    briefId: "1",
     conceptSummary: "AI Design: An's Coffee House - Chi nhánh Quận 1",
     payload:
       '{"briefId": 1, "request": {"Notes": null, "BriefId": 1, "ImageView": null, "DetailLevel": null, "GenerateImage": true, "MustHaveZones": null, "NiceToHaveZones": null, "AlternativesCount": 1, "ReferenceImageUrls": null}, "projectId": 1}',
@@ -299,8 +299,8 @@ const RAW_RECOMMENDATIONS: Array<
 ];
 
 const LEGACY_ROW = {
-  id: 1,
-  briefId: 1,
+  id: "1",
+  briefId: "1",
   conceptSummary:
     "Bố trí quầy bar trung tâm, khu vực seating linh hoạt, tận dụng ánh sáng tự nhiên từ mặt tiền kính.",
   payload:
@@ -344,20 +344,20 @@ const LEGACY_ROW = {
 // carry `id` + `state` + a derived `createdAt` for these so the list reads
 // as 29 entries, matching the real API. Components rely on `state` to
 // decide how much to render per row.
-const PADDED_IDS_AND_STATES: Array<{ id: number; state: string | null }> = [
-  { id: 27, state: "queued" },
-  { id: 26, state: "queued" },
-  { id: 25, state: "queued" },
-  { id: 24, state: "queued" },
-  { id: 23, state: "queued" },
-  { id: 22, state: "queued" },
-  { id: 21, state: "queued" },
-  { id: 20, state: "queued" },
-  { id: 18, state: "queued" },
-  { id: 17, state: "queued" },
-  { id: 16, state: "completed" },
-  { id: 15, state: "completed" },
-  { id: 14, state: "completed" },
+const PADDED_IDS_AND_STATES: Array<{ id: string; state: string | null }> = [
+  { id: "27", state: "queued" },
+  { id: "26", state: "queued" },
+  { id: "25", state: "queued" },
+  { id: "24", state: "queued" },
+  { id: "23", state: "queued" },
+  { id: "22", state: "queued" },
+  { id: "21", state: "queued" },
+  { id: "20", state: "queued" },
+  { id: "18", state: "queued" },
+  { id: "17", state: "queued" },
+  { id: "16", state: "completed" },
+  { id: "15", state: "completed" },
+  { id: "14", state: "completed" },
 ];
 
 function normalize(
@@ -379,13 +379,13 @@ function normalize(
 }
 
 function buildPaddedRec(
-  id: number,
+  id: string,
   state: string | null,
   createdAt: Date,
 ): AiRecommendation {
   return {
     id,
-    briefId: 1,
+    briefId: "1",
     conceptSummary: "AI Design: An's Coffee House - Chi nhánh Quận 1",
     payload:
       '{"briefId": 1, "request": {"Notes": null, "BriefId": 1, "ImageView": null, "DetailLevel": null, "GenerateImage": true, "MustHaveZones": null, "NiceToHaveZones": null, "AlternativesCount": 1, "ReferenceImageUrls": null}, "projectId": 1}',
@@ -435,8 +435,8 @@ const MOCK_RECS: AiRecommendation[] = [
 ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
 const MOCK_BRIEF: DesignBrief = {
-  id: 1,
-  projectId: 1042,
+  id: "1",
+  projectId: "1042",
   targetCustomer:
     "Office workers and tourists in District 1 seeking a quiet third-wave coffee experience between meetings.",
   style: "Industrial pha Scandinavian",

@@ -45,7 +45,7 @@ export interface UseMyProjectWorkingsOptions {
   pageNumber?: number;
   pageSize?: number;
   /** Override the auto-detected serviceProviderProfileId (mostly for tests). */
-  serviceProviderProfileId?: number;
+  serviceProviderProfileId?: string;
   /** Optional `project-workings` status filter (e.g. `requested`). */
   status?: MyProjectStatus;
   /** Optional kind-of-work filter — design, construction, or design-and-build. */
@@ -98,10 +98,13 @@ export function useMyProjectWorkings(
   const profileIdFromAuth = account?.serviceProvider?.id ?? null;
   const effectiveProfileId = serviceProviderProfileId ?? profileIdFromAuth;
   const enabled =
-    hydrated && !isAccountLoading && typeof effectiveProfileId === "number" && effectiveProfileId > 0;
+    hydrated &&
+    !isAccountLoading &&
+    typeof effectiveProfileId === "string" &&
+    effectiveProfileId !== "";
 
   const queryParams: MyProjectsQueryParams | null =
-    typeof effectiveProfileId === "number" && effectiveProfileId > 0
+    typeof effectiveProfileId === "string" && effectiveProfileId !== ""
       ? {
           serviceProviderProfileId: effectiveProfileId,
           pageNumber,

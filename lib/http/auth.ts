@@ -23,7 +23,7 @@ export type AuthTokens = {
 };
 
 export type AccountSummary = {
-  accountId: number;
+  accountId: string;
   email: string;
   role: UserRole;
 };

@@ -31,7 +31,7 @@ export type NotificationKind = string;
  * `contractId`, or `submissionId`).
  */
 export interface NotificationItem {
-  id: number;
+  id: string;
   /** Short headline — what the bell badge should surface. */
   title: string;
   /** Long-form description, optionally with HTML. Render as plain text. */
@@ -46,7 +46,7 @@ export interface NotificationItem {
   /** Structured link target — see `referenceId`. */
   referenceType?: string | null;
   /** Numeric id the deep-link resolver uses (engagementId / projectId / …). */
-  referenceId?: number | null;
+  referenceId?: string | null;
   /** Free-form backend payload (actor, project id, contract id, …). */
   meta: Record<string, unknown> | null;
   /** ISO timestamp. */
@@ -74,7 +74,7 @@ export function deriveNotificationHref(item: NotificationItem): string {
   }
   const refType = item.referenceType ?? null;
   const refId = item.referenceId ?? null;
-  if (typeof refId === "number" && refId > 0) {
+  if (typeof refId === "string" && refId !== "") {
     if (refType === "project_provider") return `/my-projects`;
     if (refType === "project") return `/projects/${refId}`;
   }
@@ -104,7 +104,7 @@ export interface PagedNotifications {
  * optional field; the rest are required by the backend.
  */
 export interface FetchNotificationsParams {
-  accountId: number;
+  accountId: string;
   pageNumber: number;
   pageSize: number;
   /** When set, restrict the list to read or unread items. */
@@ -140,47 +140,47 @@ export async function fetchNotificationsApi(
 // ─── Unread count ────────────────────────────────────────────────────────────
 
 export interface FetchUnreadCountParams {
-  accountId: number;
+  accountId: string;
 }
 
 /**
- * GET /api/notifications/unread-count?accountId={id}.
+ * GET /api/notifications/unread-count.
  *
- * Returns the bare integer count. The endpoint is wrapped in the
- * standard success envelope (`{ data: number, message?, meta? }`)
- * per the rest of the codebase — the Swagger screenshot showed the
- * `200` response as a raw integer, but every other backend endpoint
- * uses the envelope, so we follow the convention here and adjust if
- * the real wire format is plain.
+ * The backend answers with `{ accountId, unreadCount }` — not the
+ * `ApiSuccessResponse` envelope the rest of this file assumes. Reading
+ * `response.data.data` here therefore yielded `undefined`, which React
+ * Query rejects outright ("Query data cannot be undefined").
+ *
+ * `accountId` is not sent: the controller takes the caller from the JWT
+ * and ignores any query parameter, so passing one would only suggest it
+ * could be used to read someone else's inbox.
  */
 export async function fetchUnreadCountApi(
-  params: FetchUnreadCountParams,
+  _params: FetchUnreadCountParams,
   config?: RequestConfig,
 ): Promise<number> {
-  const response = await api.get<ApiSuccessResponse<number>>(
+  const response = await api.get<{ accountId: string; unreadCount: number }>(
     "/api/notifications/unread-count",
-    {
-      ...config,
-      params: { accountId: params.accountId },
-    },
+    config,
   );
-  return response.data.data;
+  const count = response.data?.unreadCount;
+  return typeof count === "number" ? count : 0;
 }
 
 // ─── Mark as read ────────────────────────────────────────────────────────────
 
 /**
- * PUT /api/notifications/{id}/read — mark a single notification read.
+ * PATCH /api/notifications/{id}/read — mark a single notification read.
  *
  * Body is empty per the Swagger contract. We still type the second
  * argument so the endpoint can accept future fields (e.g. a
  * `readSource` for analytics) without breaking call sites.
  */
 export async function markNotificationReadApi(
-  notificationId: number,
+  notificationId: string,
   config?: RequestConfig,
 ): Promise<void> {
-  await api.put<ApiSuccessResponse<null>>(
+  await api.patch<ApiSuccessResponse<null>>(
     `/api/notifications/${notificationId}/read`,
     null,
     config,
@@ -190,7 +190,7 @@ export async function markNotificationReadApi(
 // ─── Mark all as read ────────────────────────────────────────────────────────
 
 export interface MarkAllNotificationsReadParams {
-  accountId: number;
+  accountId: string;
 }
 
 /**

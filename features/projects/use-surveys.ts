@@ -11,6 +11,8 @@ import {
   getSurveyApi,
   updateSurveyApi,
 } from "./survey-api";
+export type { SurveyAnchor } from "./survey-api";
+import type { SurveyAnchor } from "./survey-api";
 import type {
   CreateSurveyPayload,
   Survey,
@@ -76,7 +78,7 @@ export interface UpdateSurveyOptions {
 }
 
 export function useUpdateSurveyMutation(options: UpdateSurveyOptions = {}) {
-  return useMutation<Survey, AppError, { surveyId: number; payload: UpdateSurveyPayload }>({
+  return useMutation<Survey, AppError, { surveyId: string; payload: UpdateSurveyPayload }>({
     mutationFn: ({ surveyId, payload }) => updateSurveyApi(surveyId, payload),
 
     onSuccess: (survey) => {
@@ -103,7 +105,12 @@ export function useUpdateSurveyMutation(options: UpdateSurveyOptions = {}) {
 // ─── Get Surveys Query ───────────────────────────────────────────────────────
 
 export interface UseSurveysOptions {
-  projectWorkingId: number | string;
+  /**
+   * Which record the surveys hang off. A provider who has only bid on the
+   * project has no engagement yet, so their surveys hang off the application
+   * instead — see `SurveyAnchor`.
+   */
+  anchor: SurveyAnchor | null;
   enabled?: boolean;
 }
 
@@ -118,14 +125,15 @@ export interface UseSurveysResult {
 }
 
 export function useSurveys(options: UseSurveysOptions): UseSurveysResult {
-  const { projectWorkingId, enabled = true } = options;
+  const { anchor, enabled = true } = options;
 
   const query = useQuery<SurveyListResponse, Error>({
-    queryKey: ["surveys", { projectWorkingId }],
+    queryKey: ["surveys", anchor],
     queryFn: async ({ signal }) => {
-      return getSurveysApi(Number(projectWorkingId), { signal });
+      // `enabled` keeps this from firing without an anchor.
+      return getSurveysApi(anchor!, { signal });
     },
-    enabled: enabled && Boolean(projectWorkingId),
+    enabled: enabled && anchor !== null,
     staleTime: 30 * 1000,
   });
 
@@ -155,7 +163,7 @@ export function useSurveys(options: UseSurveysOptions): UseSurveysResult {
 // ─── Get Single Survey Query ─────────────────────────────────────────────────
 
 export interface UseSurveyOptions {
-  surveyId: number | string;
+  surveyId: string;
   enabled?: boolean;
 }
 
@@ -174,7 +182,7 @@ export function useSurvey(options: UseSurveyOptions): UseSurveyResult {
   const query = useQuery<Survey, Error>({
     queryKey: ["surveys", "detail", { surveyId }],
     queryFn: async ({ signal }) => {
-      return getSurveyApi(Number(surveyId), { signal });
+      return getSurveyApi(surveyId, { signal });
     },
     enabled: enabled && Boolean(surveyId),
     staleTime: 30 * 1000,

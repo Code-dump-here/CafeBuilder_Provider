@@ -14,8 +14,8 @@ import type { DesignBrief } from "./design-brief-types";
  * `design-briefs-api.ts`.
  */
 export interface RawDesignBrief {
-  id: number;
-  projectId: number;
+  id: string;
+  projectId: string;
   targetCustomer: string | null;
   style: string | null;
   mood: string | null;
