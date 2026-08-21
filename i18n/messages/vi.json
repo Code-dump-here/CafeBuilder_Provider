@@ -66,17 +66,32 @@
         {
           "role": "Chủ quán",
           "blurb": "Bạn đăng brief, duyệt bid và xem mọi mốc từ ngày kickoff đến cắt băng khai trương.",
-          "bullets": ["Đăng brief", "So sánh bid", "Duyệt design", "Theo dõi mốc"]
+          "bullets": [
+            "Đăng brief",
+            "So sánh bid",
+            "Duyệt design",
+            "Theo dõi mốc"
+          ]
         },
         {
           "role": "Designer",
           "blurb": "Ứng tuyển brief, version hoá design, bàn giao bộ bản vẽ sạch cho đội thi công.",
-          "bullets": ["Duyệt brief đang mở", "Nộp design", "Phản hồi yêu cầu chỉnh", "Chia sẻ bản vẽ"]
+          "bullets": [
+            "Duyệt brief đang mở",
+            "Nộp design",
+            "Phản hồi yêu cầu chỉnh",
+            "Chia sẻ bản vẽ"
+          ]
         },
         {
           "role": "Nhà thầu",
           "blurb": "Báo giá, lên lịch mốc, ghi nhật ký ngày, báo vấn đề trước khi thành trễ tiến độ.",
-          "bullets": ["Báo giá công việc", "Lên lịch mốc", "Đăng nhật ký ngày", "Xử lý vấn đề"]
+          "bullets": [
+            "Báo giá công việc",
+            "Lên lịch mốc",
+            "Đăng nhật ký ngày",
+            "Xử lý vấn đề"
+          ]
         }
       ]
     },
@@ -1370,7 +1385,9 @@
       "messages": "Tin nhắn",
       "progress": "Tiến độ",
       "constructionSupport": "Hỗ trợ thi công",
-      "brief": "Yêu cầu thiết kế"
+      "brief": "Yêu cầu thiết kế",
+      "siteProfile": "Hồ sơ mặt bằng",
+      "changeOrders": "Khoản phát sinh"
     },
     "contractor": {
       "workspace": "Không gian làm việc",
@@ -2009,7 +2026,9 @@
     "tabs": {
       "posts": "Bài đăng",
       "projects": "Dự án",
-      "reviews": "Đánh giá"
+      "reviews": "Đánh giá",
+      "portfolio": "Dự án mẫu",
+      "brand": "Thương hiệu"
     },
     "sections": {
       "basics": {
@@ -2291,6 +2310,401 @@
       "loadFailed": "Không tải được dữ liệu",
       "noData": "Không có dữ liệu",
       "tryAgain": "Vui lòng thử lại"
+    }
+  },
+  "SiteProfile": {
+    "title": "Hồ sơ mặt bằng",
+    "subtitle": "Số đo thật của mặt bằng: kích thước, hướng, tầng và các ô cửa.",
+    "notMeasured": "Chưa đo",
+    "metres": "{value} m",
+    "squareMetres": "{value} m²",
+    "ceilingValue": "Thông thuỷ {value} m",
+    "floorsValue": "{count, plural, other {# tầng}}",
+    "yes": "Có",
+    "no": "Không",
+    "error": {
+      "title": "Không tải được hồ sơ mặt bằng",
+      "subtitle": "Dữ liệu vẫn nằm trên máy chủ nhưng hiện chưa lấy được.",
+      "retry": "Thử lại"
+    },
+    "empty": {
+      "title": "Chưa ai đo mặt bằng này",
+      "description": "Ghi lại số đo thật để bản thiết kế bám theo hiện trạng chứ không phải phỏng đoán.",
+      "readOnly": "Chủ dự án hoặc nhà cung cấp đang thực hiện mới điền phần này. Bạn xem được khi đã có dữ liệu.",
+      "action": "Khai số đo mặt bằng"
+    },
+    "measurements": {
+      "title": "Kích thước và hướng",
+      "subtitle": "Đo tới đâu điền tới đó — mọi ô đều không bắt buộc.",
+      "edit": "Sửa"
+    },
+    "fields": {
+      "lengthM": "Chiều sâu",
+      "widthM": "Chiều ngang",
+      "frontageWidthM": "Bề rộng mặt tiền",
+      "frontageHint": "Thường bằng chiều ngang, trừ lô góc, lô méo hoặc nhà lùi vào trong.",
+      "ceilingHeightM": "Chiều cao thông thuỷ",
+      "roadWidthM": "Bề rộng đường trước nhà",
+      "orientation": "Mặt tiền hướng",
+      "orientationPlaceholder": "Chưa xác định",
+      "floorCount": "Số tầng sử dụng",
+      "hasMezzanine": "Có gác lửng",
+      "structureNote": "Kết cấu",
+      "structurePlaceholder": "Nhà phố, shophouse, nhà cấp 4, mặt bằng thô…",
+      "existingConditionNote": "Hiện trạng bàn giao",
+      "conditionPlaceholder": "Đã có sẵn những gì, phải đập bỏ những gì.",
+      "derivedFootprintM2": "Diện tích lô",
+      "derivedFootprintHint": "Chiều sâu × chiều ngang",
+      "totalFloorAreaM2": "Tổng diện tích sàn",
+      "totalFloorAreaHint": "Cộng diện tích các tầng bên dưới"
+    },
+    "orientation": {
+      "north": "Bắc",
+      "northeast": "Đông bắc",
+      "east": "Đông",
+      "southeast": "Đông nam",
+      "south": "Nam",
+      "southwest": "Tây nam",
+      "west": "Tây",
+      "northwest": "Tây bắc"
+    },
+    "openingType": {
+      "main_door": "Cửa chính",
+      "secondary_door": "Cửa phụ",
+      "service_door": "Cửa kỹ thuật",
+      "window": "Cửa sổ",
+      "balcony": "Ban công",
+      "terrace": "Sân thượng",
+      "skylight": "Giếng trời"
+    },
+    "dialog": {
+      "createTitle": "Khai số đo mặt bằng",
+      "editTitle": "Sửa số đo",
+      "description": "Chưa đo được gì thì cứ để trống.",
+      "cancel": "Huỷ",
+      "save": "Lưu"
+    },
+    "floors": {
+      "title": "Các tầng",
+      "subtitle": "Mỗi tầng một diện tích riêng — tầng trệt lùi vào không giống tầng trên.",
+      "add": "Thêm tầng",
+      "empty": "Chưa khai tầng nào.",
+      "no": "Tầng {no}",
+      "unnamed": "Tầng chưa đặt tên",
+      "noDetail": "Chưa có thông tin",
+      "editFloor": "Sửa tầng",
+      "removeFloor": "Xoá tầng",
+      "addTitle": "Thêm một tầng",
+      "editTitle": "Sửa tầng",
+      "dialogDescription": "1 là trệt, 0 là gác lửng, số âm là hầm.",
+      "floorNo": "Số tầng",
+      "floorNoHint": "Không trùng trong cùng mặt bằng — chỉ có một tầng 2.",
+      "name": "Tên",
+      "namePlaceholder": "Trệt, Lầu 1, Gác lửng, Sân thượng…",
+      "areaM2": "Diện tích sàn",
+      "purpose": "Công năng dự kiến",
+      "purposePlaceholder": "Quầy pha chế, chỗ ngồi, kho, WC…",
+      "removeTitle": "Xoá tầng này?",
+      "removeDescription": "Các ô cửa gắn vào tầng vẫn còn nhưng mất thông tin tầng.",
+      "removeConfirm": "Xoá tầng"
+    },
+    "openings": {
+      "title": "Cửa, cửa sổ và ban công",
+      "subtitle": "Nơi ánh sáng và khách đi vào — quyết định đặt quầy ở đâu.",
+      "add": "Thêm ô cửa",
+      "empty": "Chưa khai ô cửa nào.",
+      "noFloor": "Chưa gán tầng",
+      "quantity": "×{count}",
+      "size": "{width} × {height} m",
+      "noDetail": "Chưa có thông tin",
+      "editOpening": "Sửa ô cửa",
+      "removeOpening": "Xoá ô cửa",
+      "addTitle": "Thêm một ô cửa",
+      "editTitle": "Sửa ô cửa",
+      "dialogDescription": "Các ô giống nhau gộp một dòng rồi điền số lượng.",
+      "type": "Loại",
+      "floor": "Tầng",
+      "widthM": "Rộng",
+      "heightM": "Cao",
+      "quantityLabel": "Số lượng",
+      "quantityHint": "Bốn cửa sổ cùng quy cách là một dòng, số lượng 4.",
+      "note": "Ghi chú",
+      "removeTitle": "Xoá ô cửa này?",
+      "removeDescription": "Nó biến mất khỏi hồ sơ mặt bằng.",
+      "removeConfirm": "Xoá ô cửa"
+    }
+  },
+  "ChangeOrders": {
+    "title": "Khoản phát sinh",
+    "subtitle": "Tiền thoả thuận sau hợp đồng — bên kia phải duyệt mới có hiệu lực.",
+    "create": "Lập khoản phát sinh",
+    "noEngagement": {
+      "title": "Chưa có hợp tác trên dự án này",
+      "description": "Khoản phát sinh gắn với công việc bạn đã được nhận."
+    },
+    "summary": {
+      "title": "Công việc này hiện tốn bao nhiêu",
+      "subtitle": "Giá trị hợp đồng cộng mọi khoản đã duyệt.",
+      "contractValue": "Giá trị hợp đồng",
+      "noContract": "Chưa ký hợp đồng",
+      "accepted": "Phát sinh đã duyệt",
+      "acceptedCount": "{count, plural, other {# khoản}}",
+      "pending": "Đang chờ duyệt",
+      "pendingCount": "{count, plural, other {# khoản}}",
+      "totalCommitted": "Tổng cam kết",
+      "totalCommittedHint": "Hợp đồng + phát sinh đã duyệt",
+      "revisionFees": "Trong đó phí sửa",
+      "revisionFeesHint": "Các vòng sửa thiết kế vượt hạn mức miễn phí",
+      "billed": "Đã ra đợt thu",
+      "billedHint": "Phát sinh đã duyệt và đã có đợt thanh toán",
+      "paid": "Đã nhận",
+      "paidHint": "Đợt bạn đã xác nhận nhận được tiền",
+      "unbilled": "{amount} đã thống nhất nhưng chưa đòi được",
+      "unbilledHint": "Hai bên đã đồng ý khoản này nhưng chưa có đợt thanh toán nào phủ nó — hoặc hợp tác chưa ký hợp đồng, hoặc khoản được duyệt từ trước khi hệ thống sinh đợt cho phát sinh."
+    },
+    "filters": {
+      "all": "Tất cả",
+      "pending": "Đang chờ duyệt",
+      "accepted": "Đã duyệt",
+      "rejected": "Đã từ chối"
+    },
+    "status": {
+      "pending": "Đang chờ duyệt",
+      "accepted": "Đã duyệt",
+      "rejected": "Đã từ chối"
+    },
+    "kind": {
+      "extra_revision": "Phí sửa thêm",
+      "scope_change": "Đổi phạm vi",
+      "material_change": "Đổi vật tư",
+      "other": "Khác"
+    },
+    "raisedByYou": "Bạn lập khoản này",
+    "raisedByOwner": "Chủ quán lập khoản này",
+    "revisionNo": "Vòng sửa {no}",
+    "rejectedBecause": "Bị từ chối: {reason}",
+    "actions": {
+      "edit": "Sửa",
+      "withdraw": "Rút lại",
+      "accept": "Duyệt",
+      "reject": "Từ chối",
+      "setPrice": "Điền đơn giá"
+    },
+    "empty": {
+      "title": "Chưa có khoản phát sinh",
+      "description": "Chưa có gì cộng thêm vào giá trị hợp đồng của công việc này."
+    },
+    "error": {
+      "title": "Không tải được danh sách phát sinh",
+      "subtitle": "Dữ liệu vẫn nằm trên máy chủ nhưng hiện chưa lấy được.",
+      "retry": "Thử lại"
+    },
+    "dialog": {
+      "createTitle": "Lập khoản phát sinh",
+      "editTitle": "Sửa khoản phát sinh",
+      "description": "Chủ quán đọc lý do rồi quyết định. Chỉ họ mới duyệt được.",
+      "kind": "Loại",
+      "titleLabel": "Tiêu đề",
+      "titlePlaceholder": "Bổ sung hệ thống hút mùi",
+      "amount": "Số tiền (VND)",
+      "amountHint": "Được phép để 0 khi thay đổi không phát sinh chi phí.",
+      "reason": "Lý do",
+      "reasonPlaceholder": "Hiện trường đổi thế nào, vì sao cần, ảnh hưởng tới đâu…",
+      "reasonHint": "Đây là toàn bộ căn cứ chủ quán đọc trước khi quyết.",
+      "cancel": "Huỷ",
+      "send": "Gửi duyệt"
+    },
+    "reject": {
+      "title": "Từ chối khoản phát sinh",
+      "description": "Bắt buộc có lý do — đó là thứ bên kia nhận lại.",
+      "placeholder": "Vì sao không chấp nhận…",
+      "confirm": "Từ chối"
+    },
+    "withdraw": {
+      "title": "Rút lại khoản phát sinh này?",
+      "description": "Nó biến mất hoàn toàn. Chỉ khoản còn chờ duyệt mới rút được.",
+      "confirm": "Rút lại"
+    },
+    "billing": {
+      "pending": "Đã ra đợt thu — chờ chủ quán chuyển khoản",
+      "proof_submitted": "Chủ quán báo đã chuyển — vào trang thanh toán đối chiếu",
+      "confirmed": "Đã nhận đủ",
+      "rejected": "Bạn đã bác minh chứng của chủ quán cho khoản này",
+      "notBilled": "Đã duyệt nhưng chưa có đợt thu nào phủ khoản này"
+    },
+    "needsPricing": {
+      "provider": "Chủ quán yêu cầu một vòng sửa vượt hạn mức miễn phí. Báo giá không công bố đơn giá sửa, nên bạn điền số vào đây — chủ quán chưa có gì để duyệt cho tới lúc đó.",
+      "owner": "Đang chờ nhà cung cấp báo giá vòng sửa này. Chưa có gì để bạn quyết."
+    },
+    "unpriced": "Chưa báo giá"
+  },
+  "CostSummary": {
+    "title": "Chi phí thi công",
+    "subtitle": "Nhân công và vật tư, kế hoạch so với thực tế.",
+    "estimatedTotal": "Tổng dự tính",
+    "actualTotal": "Tổng thực tế",
+    "pendingActuals": "{count, plural, other {còn # dòng chưa chốt}}",
+    "labour": "Nhân công và thiết bị",
+    "materials": "Vật tư",
+    "overBudget": "Vượt kế hoạch {amount}",
+    "underBudget": "Thấp hơn kế hoạch {amount}",
+    "plannedDays": "{count, plural, other {# ngày theo kế hoạch}}",
+    "actualDays": "{count, plural, other {# ngày thực tế}}",
+    "actualPending": "Chưa chốt thực tế",
+    "actualIs": "Thực tế {amount}",
+    "status": {
+      "pending": "Chưa bắt đầu",
+      "in_progress": "Đang làm",
+      "completed": "Đã xong"
+    },
+    "acceptedChangeOrders": "Phát sinh đã duyệt",
+    "pendingChangeOrders": "Đang chờ duyệt",
+    "totalWithChangeOrders": "Tổng gồm phát sinh",
+    "changeOrdersHint": "Khoản thống nhất thêm sau hợp đồng. Đây là chi phí thật của dự án nhưng nằm ngoài cây hạng mục ở trên."
+  },
+  "ProviderBrand": {
+    "unavailable": "Nhà cung cấp này chưa công bố trang thương hiệu.",
+    "verified": "Nhà cung cấp đã xác minh",
+    "notSet": "Chưa có",
+    "common": {
+      "cancel": "Huỷ",
+      "save": "Lưu",
+      "add": "Thêm",
+      "remove": "Xoá"
+    },
+    "identity": {
+      "subtitle": "Những gì chủ quán đọc trước khi quyết định thuê bạn.",
+      "edit": "Sửa thương hiệu",
+      "foundedYear": "Thành lập",
+      "employeeCount": "Quy mô",
+      "people": "{count, plural, other {# người}}",
+      "yearsExperience": "Kinh nghiệm",
+      "years": "{count, plural, other {# năm}}",
+      "rating": "Đánh giá",
+      "ratingValue": "{rating} từ {count, plural, other {# đánh giá}}",
+      "noReviews": "Chưa có đánh giá",
+      "story": "Câu chuyện thương hiệu",
+      "storyPlaceholder": "Bạn bắt đầu thế nào, mạnh ở đâu, làm việc ra sao…",
+      "website": "Website",
+      "introVideo": "Video giới thiệu",
+      "dialogTitle": "Sửa thương hiệu",
+      "dialogDescription": "Dán liên kết tới media bạn đang lưu ở nơi khác.",
+      "logoUrl": "Link logo",
+      "coverImageUrl": "Link ảnh bìa",
+      "introVideoUrl": "Link video giới thiệu",
+      "companyAddress": "Địa chỉ công ty"
+    },
+    "links": {
+      "title": "Kênh liên hệ",
+      "subtitle": "Mỗi nền tảng một liên kết.",
+      "empty": "Chưa có liên kết nào.",
+      "add": "Thêm liên kết",
+      "dialogTitle": "Thêm một liên kết",
+      "dialogDescription": "Mỗi nền tảng chỉ xuất hiện một lần.",
+      "platform": "Nền tảng",
+      "url": "Đường dẫn",
+      "label": "Nhãn hiển thị",
+      "removeTitle": "Xoá liên kết này?",
+      "removeDescription": "Nó biến mất khỏi trang thương hiệu công khai."
+    },
+    "platform": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "youtube": "YouTube",
+      "linkedin": "LinkedIn",
+      "zalo": "Zalo",
+      "website": "Website",
+      "other": "Khác"
+    },
+    "areas": {
+      "title": "Khu vực nhận việc",
+      "subtitle": "Tỉnh, thành và quận huyện bạn nhận công trình.",
+      "empty": "Chưa khai khu vực nào.",
+      "add": "Thêm khu vực",
+      "dialogTitle": "Thêm khu vực nhận việc",
+      "dialogDescription": "Bắt buộc có tỉnh/thành; quận huyện để thu hẹp thêm.",
+      "province": "Tỉnh / thành phố",
+      "district": "Quận / huyện",
+      "note": "Ghi chú",
+      "removeTitle": "Xoá khu vực này?",
+      "removeDescription": "Nó biến mất khỏi trang thương hiệu công khai."
+    },
+    "certificates": {
+      "title": "Giấy phép và chứng chỉ",
+      "subtitle": "Chỉ quản trị viên mới đánh dấu là đã xác minh.",
+      "empty": "Chưa có chứng chỉ nào.",
+      "add": "Thêm chứng chỉ",
+      "verified": "Đã xác minh",
+      "expired": "Đã hết hạn",
+      "noDetail": "Chưa có thông tin",
+      "remove": "Xoá chứng chỉ",
+      "removeTitle": "Xoá chứng chỉ này?",
+      "removeDescription": "Nó biến mất khỏi trang thương hiệu công khai.",
+      "dialogTitle": "Thêm chứng chỉ",
+      "dialogDescription": "Giấy phép, chứng chỉ, giải thưởng hoặc tư cách hội viên.",
+      "kind": "Loại",
+      "name": "Tên",
+      "issuer": "Nơi cấp",
+      "number": "Số hiệu",
+      "issuedAt": "Ngày cấp",
+      "expiresAt": "Hết hạn",
+      "fileUrl": "Link bản scan",
+      "verifyNote": "Chứng chỉ mới thêm chưa được xác minh. Quản trị viên sẽ kiểm tra — bạn không tự xác minh được."
+    },
+    "certificateKind": {
+      "license": "Giấy phép",
+      "certificate": "Chứng chỉ",
+      "award": "Giải thưởng",
+      "membership": "Hội viên",
+      "other": "Khác"
+    }
+  },
+  "Portfolio": {
+    "add": "Thêm dự án mẫu",
+    "edit": "Sửa",
+    "delete": "Xoá",
+    "cancel": "Huỷ",
+    "save": "Lưu",
+    "addImage": "Thêm ảnh",
+    "addImageDescription": "Dán liên kết tới ảnh bạn đang lưu ở nơi khác.",
+    "removeImage": "Xoá ảnh",
+    "watchVideo": "Xem video công trình",
+    "noDetail": "Chưa có thông tin",
+    "areaValue": "{value} m²",
+    "durationValue": "{count, plural, other {# ngày}}",
+    "editTitle": "Sửa dự án mẫu",
+    "addTitle": "Thêm dự án mẫu",
+    "dialogDescription": "Công trình đã làm để chủ quán đọc khi so sánh các hồ sơ.",
+    "deleteTitle": "Xoá dự án mẫu này?",
+    "deleteDescription": "Dự án và toàn bộ ảnh kèm theo bị xoá hẳn.",
+    "empty": {
+      "title": "Chưa có dự án mẫu",
+      "description": "Trưng ra công trình giúp bạn thắng hồ sơ tiếp theo.",
+      "readOnly": "Nhà cung cấp này chưa đăng dự án mẫu nào."
+    },
+    "role": {
+      "design": "Thiết kế",
+      "construction": "Thi công",
+      "both": "Thiết kế và thi công"
+    },
+    "fields": {
+      "title": "Tên công trình",
+      "titlePlaceholder": "Cà phê Nhà Gỗ — Quận 3",
+      "role": "Bạn làm phần nào",
+      "style": "Phong cách",
+      "location": "Địa điểm",
+      "areaM2": "Diện tích (m²)",
+      "contractValue": "Giá trị hợp đồng (VND)",
+      "durationDays": "Thời gian (ngày)",
+      "completedAt": "Hoàn thành ngày",
+      "videoUrl": "Link video",
+      "coverImageUrl": "Link ảnh bìa",
+      "isFeatured": "Ghim lên đầu hồ sơ",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Đề bài là gì, bạn làm gì, kết quả ra sao…",
+      "imageUrl": "Link ảnh",
+      "caption": "Chú thích"
     }
   }
 }

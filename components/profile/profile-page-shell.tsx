@@ -23,6 +23,8 @@ import {
   Check,
   Loader2,
   TriangleAlert,
+  Images,
+  Sparkles,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -36,6 +38,8 @@ import type { NormalizedAccount } from "@/features/auth/auth-me-types";
 import { AppError } from "@/lib/http/errors";
 
 import { ProviderProfileEditor } from "./provider-profile-editor";
+import { BrandTab } from "./brand-tab";
+import { PortfolioTab } from "./portfolio-tab";
 
 // ─── Profile Header ───────────────────────────────────────────────────────────
 
@@ -265,7 +269,7 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
 
 // ─── Tab Navigation ─────────────────────────────────────────────────────────────
 
-type TabType = "posts" | "projects" | "reviews";
+type TabType = "posts" | "portfolio" | "brand" | "projects" | "reviews";
 
 function TabNavigation({
   activeTab,
@@ -278,6 +282,8 @@ function TabNavigation({
   
   const tabs: { id: TabType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: "posts", label: t("tabs.posts"), icon: Grid3X3 },
+    { id: "portfolio", label: t("tabs.portfolio"), icon: Images },
+    { id: "brand", label: t("tabs.brand"), icon: Sparkles },
     { id: "projects", label: t("tabs.projects"), icon: Briefcase },
     { id: "reviews", label: t("tabs.reviews"), icon: Star },
   ];
@@ -546,6 +552,15 @@ export function ProfilePageShell() {
       
       <div className="mt-6">
         {activeTab === "posts" && <PostsGrid />}
+        {activeTab === "portfolio" && (
+          <PortfolioTab
+            serviceProviderProfileId={account.serviceProvider.id}
+            editable
+          />
+        )}
+        {activeTab === "brand" && (
+          <BrandTab serviceProviderProfileId={account.serviceProvider.id} editable />
+        )}
         {activeTab === "projects" && <ProjectsList />}
         {activeTab === "reviews" && <ReviewsList />}
       </div>
