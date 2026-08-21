@@ -1057,10 +1057,28 @@
     "subtitle": "Sắp xếp lại mốc, sửa công việc và cân chỉnh tiến độ — thay đổi sẽ cập nhật ngay tổng quan thi công.",
     "toolbar": {
       "addPhase": "Thêm mốc",
+      "applyTemplate": "Áp mẫu quy trình",
       "totalPhases": "{count, plural, =0 {Chưa có mốc} =1 {1 mốc} other {# mốc}}",
       "totalTasks": "{count, plural, =0 {Chưa có việc} =1 {1 việc} other {# việc}}",
       "doneTasks": "{done}/{total} đã xong",
       "backToOverview": "Về tổng quan"
+    },
+    "applyTemplate": {
+      "title": "Áp mẫu quy trình thi công",
+      "subtitle": "Sinh sẵn các hạng mục và công việc của một quy trình chuẩn vào dự án này. Áp xong vẫn sửa lại được toàn bộ.",
+      "loading": "Đang tải mẫu quy trình…",
+      "loadError": "Không tải được danh sách mẫu. Vui lòng thử lại.",
+      "empty": "Chưa có mẫu quy trình thi công nào.",
+      "systemBadge": "Hệ thống",
+      "counts": "{phases, plural, =1 {1 hạng mục} other {# hạng mục}} · khoảng {days} ngày",
+      "days": "{days} ngày",
+      "showDetail": "Xem các hạng mục",
+      "hideDetail": "Ẩn các hạng mục",
+      "startDate": "Ngày bắt đầu",
+      "summary": "Sẽ tạo {phases, plural, =1 {1 hạng mục} other {# hạng mục}} và {tasks, plural, =1 {1 công việc} other {# công việc}}, kéo dài khoảng {days} ngày.",
+      "appendWarning": "Dự án đã có hạng mục. Áp mẫu sẽ THÊM các hạng mục của mẫu vào bên cạnh, không thay thế cái đang có.",
+      "cancel": "Huỷ",
+      "apply": "Áp vào dự án"
     },
     "common": {
       "close": "Đóng",

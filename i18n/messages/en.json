@@ -1057,10 +1057,28 @@
     "subtitle": "Drag phases, edit tasks, and rebalance progress — changes apply to the construction overview immediately.",
     "toolbar": {
       "addPhase": "Add phase",
+      "applyTemplate": "Apply template",
       "totalPhases": "{count, plural, =0 {No phases} =1 {1 phase} other {# phases}}",
       "totalTasks": "{count, plural, =0 {No tasks} =1 {1 task} other {# tasks}}",
       "doneTasks": "{done}/{total} done",
       "backToOverview": "Back to overview"
+    },
+    "applyTemplate": {
+      "title": "Apply a process template",
+      "subtitle": "Generates the phases and tasks of a standard process onto this project. You can edit everything afterwards.",
+      "loading": "Loading templates…",
+      "loadError": "Couldn't load the templates. Please try again.",
+      "empty": "No construction template available yet.",
+      "systemBadge": "System",
+      "counts": "{phases, plural, =1 {1 phase} other {# phases}} · about {days} days",
+      "days": "{days} days",
+      "showDetail": "See the phases",
+      "hideDetail": "Hide the phases",
+      "startDate": "Start date",
+      "summary": "Creates {phases, plural, =1 {1 phase} other {# phases}} and {tasks, plural, =1 {1 task} other {# tasks}}, running about {days} days.",
+      "appendWarning": "This project already has phases. Applying adds the template's phases alongside them — it doesn't replace anything.",
+      "cancel": "Cancel",
+      "apply": "Apply to project"
     },
     "common": {
       "close": "Close",
