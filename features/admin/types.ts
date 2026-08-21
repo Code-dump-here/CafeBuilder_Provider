@@ -75,8 +75,8 @@ export type TransactionStatus = "pending" | "paid" | "cancelled" | "failed";
 export type TransactionPurpose = "subscription" | "post_boost";
 
 export interface Transaction {
-  id: number;
-  accountId: number;
+  id: string;
+  accountId: string;
   purpose: TransactionPurpose;
   status: TransactionStatus;
   platform: "web" | "mobile";
@@ -100,7 +100,7 @@ export type AccountRole = "owner" | "provider" | "admin";
 export type AccountStatus = "active" | "inactive" | "banned" | "pending";
 
 export interface Account {
-  id: number;
+  id: string;
   email: string;
   phone: string | null;
   role: AccountRole;
@@ -111,12 +111,12 @@ export interface Account {
   deletedAt: string | null;
   // Role-specific data
   shopOwner?: {
-    id: number;
+    id: string;
     displayName: string;
     businessName: string | null;
   } | null;
   serviceProvider?: {
-    id: number;
+    id: string;
     displayName: string;
     providerType: string;
     capability: string;

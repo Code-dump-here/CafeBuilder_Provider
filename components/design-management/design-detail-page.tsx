@@ -171,7 +171,7 @@ const STATUS_CONFIG: Record<
 interface DesignDetailPageProps {
   projectId: string;
   /** `projectWorkingId` — needed to fetch the engagement for account resolution. */
-  projectWorkingId: number | null;
+  projectWorkingId: string | null;
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────
@@ -182,7 +182,9 @@ export function DesignDetailPage({
 }: DesignDetailPageProps) {
   const params = useParams<{ id: string; designId: string }>();
   const designIdRaw = params?.designId ?? "";
-  const designId = Number.parseInt(designIdRaw, 10);
+  // Ids are uuids, so the route segment is already the id — nothing to parse.
+  // Parsing it produced NaN, which then failed every downstream guard.
+  const designId = designIdRaw;
 
   const t = useTranslations("DesignManagement");
   const format = useFormatter();
@@ -256,12 +258,10 @@ export function DesignDetailPage({
   const [historyPageNumber, setHistoryPageNumber] = React.useState(
     DEFAULT_DESIGN_VERSIONS_PAGE_NUMBER,
   );
-  const [selectedSnapshotId, setSelectedSnapshotId] = React.useState<
-    number | null
-  >(null);
+  const [selectedSnapshotId, setSelectedSnapshotId] = React.useState<string | null>(null);
 
   const historyEnabled =
-    !Number.isNaN(designId) && Number.isFinite(designId) && designId > 0;
+    designId !== "";
   const history = useDesignVersions({
     designId: historyEnabled ? designId : null,
     pageNumber: historyPageNumber,
@@ -321,7 +321,7 @@ export function DesignDetailPage({
   // when the snapshot id changes, the previous selection is dropped
   // automatically by the state reset we do at render time below.
   const [selectedDrawingIdBySnapshot, setSelectedDrawingIdBySnapshot] =
-    React.useState<{ snapshotId: number | null; drawingId: number | null }>({
+    React.useState<{ snapshotId: string | null; drawingId: string | null }>({
       snapshotId: null,
       drawingId: null,
     });
@@ -340,7 +340,7 @@ export function DesignDetailPage({
   // Selection setter — keeps the snapshot context alongside the
   // drawing id so we can detect a context switch without an effect.
   const setSelectedDrawingId = React.useCallback(
-    (id: number | null) => {
+    (id: string | null) => {
       setSelectedDrawingIdBySnapshot({
         snapshotId: selectedSnapshotId,
         drawingId: id,
@@ -590,7 +590,7 @@ export function DesignDetailPage({
 
 interface ImageListPanelProps {
   images: DesignImage[];
-  selectedId: number | null;
+  selectedId: string | null;
   onSelect: (img: DesignImage) => void;
   canDelete: boolean;
   onDelete: (img: DesignImage) => void;

@@ -20,7 +20,7 @@ export type ProviderCapability = "designer" | "constructor" | "both";
 export type ProviderType = "individual" | "company";
 
 export interface NormalizedShopOwnerProfile {
-  id: number;
+  id: string;
   fullName: string;
   shopName: string;
   phone: string;
@@ -45,7 +45,7 @@ export interface NormalizedConstructorProfile {
 }
 
 export interface NormalizedServiceProviderProfile {
-  id: number;
+  id: string;
   displayName: string;
   providerType: ProviderType;
   capability: ProviderCapability;
@@ -68,7 +68,7 @@ export interface NormalizedServiceProviderProfile {
 }
 
 export interface NormalizedAccount {
-  id: number;
+  id: string;
   email: string;
   phone: string | null;
   role: UserRole;
@@ -83,7 +83,7 @@ export interface NormalizedAccount {
 // ─── Raw API shapes ───────────────────────────────────────────────────────────
 
 export interface AccountWithProfile {
-  id: number;
+  id: string;
   email: string;
   phone: string | null;
   role: UserRole;
@@ -96,7 +96,7 @@ export interface AccountWithProfile {
 }
 
 export interface ShopOwnerProfile {
-  id: number;
+  id: string;
   fullName: string;
   shopName: string;
   phone: string;
@@ -121,7 +121,7 @@ export interface ConstructorProfile {
 }
 
 export interface ServiceProviderProfile {
-  id: number;
+  id: string;
   displayName: string;
   providerType: ProviderType;
   capability: ProviderCapability;

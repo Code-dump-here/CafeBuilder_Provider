@@ -125,7 +125,7 @@ export function ChatView({ projectId }: ChatViewProps) {
     (update: (prev: ConversationSummary[]) => ConversationSummary[]) => {
       queryClient.setQueryData<ConversationListResponse>(
         queryKeys.chat.conversations(
-          projectWorkingId ?? 0,
+          projectWorkingId ?? "",
           CONVERSATIONS_PAGE.pageNumber,
           CONVERSATIONS_PAGE.pageSize,
         ),
@@ -147,19 +147,19 @@ export function ChatView({ projectId }: ChatViewProps) {
   const threads = React.useMemo<MessageThread[]>(
     () =>
       conversations.map((conv) =>
-        apiConversationToThread(conv, parseInt(projectId, 10) || 0),
+        apiConversationToThread(conv, projectId || ""),
       ),
     [conversations, projectId],
   );
 
   // ── Active thread selection ───────────────────────────────────────────────
 
+  // The query string already carries the thread's uuid, so it is used as-is.
+  // It used to be parsed to a number, which is why this needed a validity
+  // check for NaN.
   const rawThreadId = searchParams?.get("threadId") ?? null;
-  const numericThreadId = rawThreadId ? Number.parseInt(rawThreadId, 10) : NaN;
   const isThreadIdValid =
-    rawThreadId !== null &&
-    !Number.isNaN(numericThreadId) &&
-    threads.some((thread) => thread.id === numericThreadId);
+    rawThreadId !== null && threads.some((thread) => thread.id === rawThreadId);
 
   const fallbackId = React.useMemo(() => {
     const unread = threads.find((th) => th.unreadCount > 0);
@@ -170,7 +170,7 @@ export function ChatView({ projectId }: ChatViewProps) {
   }, [threads]);
 
   const effectiveThreadId =
-    (isThreadIdValid ? numericThreadId : null) ?? fallbackId;
+    (isThreadIdValid ? rawThreadId : null) ?? fallbackId;
 
   // Canonicalize URL when landing without threadId
   React.useEffect(() => {
@@ -271,7 +271,7 @@ export function ChatView({ projectId }: ChatViewProps) {
     // invalidates the conversation query, so a refetch and a poll tick can both
     // deliver it. The id dedupe still earns its keep.
     const deduped: Message[] = [];
-    const seenIds = new Set<number>();
+    const seenIds = new Set<string>();
     for (const m of [...baseMessages, ...newOnes]) {
       if (seenIds.has(m.id)) continue;
       seenIds.add(m.id);
@@ -340,7 +340,7 @@ export function ChatView({ projectId }: ChatViewProps) {
         });
         // conversation may be undefined if the API returns 201 but the response
         // body is empty or doesn't match the expected ApiSuccessResponse shape
-        if (!conversation || typeof conversation.id !== "number") {
+        if (!conversation || typeof conversation.id !== "string") {
           console.error("[chat] Unexpected conversation response:", conversation);
           toast.error("Thread created but failed to open. Please refresh.");
           return;
@@ -362,11 +362,11 @@ export function ChatView({ projectId }: ChatViewProps) {
   // ── Delete thread ────────────────────────────────────────────────────────
 
   const deleteConversationMutation = useDeleteConversation(
-    projectWorkingId ?? 0,
+    projectWorkingId ?? "",
   );
 
   const handleDeleteThread = React.useCallback(
-    (threadId: number) => {
+    (threadId: string) => {
       if (currentAccountId === null) return;
       const conv = conversations.find((c) => c.id === threadId);
       if (conv && conv.createdBy.accountId !== currentAccountId) {
@@ -396,10 +396,10 @@ export function ChatView({ projectId }: ChatViewProps) {
 
   // ── Delete message ───────────────────────────────────────────────────────
 
-  const deleteMessageMutation = useDeleteMessage(effectiveThreadId ?? 0);
+  const deleteMessageMutation = useDeleteMessage(effectiveThreadId ?? "");
 
   const handleDeleteMessage = React.useCallback(
-    (messageId: number) => {
+    (messageId: string) => {
       if (currentAccountId === null) return;
       deleteMessageMutation.mutate(messageId, {
         onSuccess: () => {
@@ -423,7 +423,7 @@ export function ChatView({ projectId }: ChatViewProps) {
     // polling — there is no realtime presence channel to pull from, and
     // faking a green dot would be misleading. The list shows everyone
     // who has actually participated in this thread.
-    const memberMap = new Map<number, MessageAuthor>();
+    const memberMap = new Map<string, MessageAuthor>();
     for (const message of effectiveMessages) {
       const author = message.author;
       if (!memberMap.has(author.id)) {

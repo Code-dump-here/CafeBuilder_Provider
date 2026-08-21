@@ -29,7 +29,7 @@ import type {
  * we always send it explicitly from the FE.
  */
 export interface ListDesignsParams {
-  projectWorkingId: number;
+  projectWorkingId: string;
   status?: string;
   type?: string;
   pageNumber?: number;
@@ -63,7 +63,7 @@ export async function getDesignsApi(
  * Endpoint: `GET /api/designs/{id}`
  */
 export async function getDesignApi(
-  designId: number,
+  designId: string,
   config?: RequestConfig,
 ): Promise<Design> {
   const response = await api.get<Design>(
@@ -100,7 +100,7 @@ export async function createDesignApi(
  * Endpoint: `PUT /api/designs/{id}`
  */
 export async function updateDesignApi(
-  designId: number,
+  designId: string,
   payload: UpdateDesignPayload,
   config?: RequestConfig,
 ): Promise<Design> {
@@ -121,7 +121,7 @@ export async function updateDesignApi(
  *   Design must have ≥1 uploaded file. Otherwise the backend returns 400.
  */
 export async function submitDesignApi(
-  designId: number,
+  designId: string,
   config?: RequestConfig,
 ): Promise<Design> {
   const response = await api.post<Design>(
@@ -138,7 +138,7 @@ export async function submitDesignApi(
  * Endpoint: `POST /api/designs/{id}/approve`
  */
 export async function approveDesignApi(
-  designId: number,
+  designId: string,
   config?: RequestConfig,
 ): Promise<Design> {
   const response = await api.post<Design>(
@@ -157,7 +157,7 @@ export async function approveDesignApi(
  * Body: `{ reason }`
  */
 export async function requestRevisionApi(
-  designId: number,
+  designId: string,
   payload: RequestRevisionPayload,
   config?: RequestConfig,
 ): Promise<Design> {
@@ -175,7 +175,7 @@ export async function requestRevisionApi(
  * Endpoint: `POST /api/designs/{id}/start-revision`
  */
 export async function startRevisionApi(
-  designId: number,
+  designId: string,
   config?: RequestConfig,
 ): Promise<Design> {
   const response = await api.post<Design>(
@@ -194,7 +194,7 @@ export async function startRevisionApi(
  * Content-Type: `multipart/form-data`
  */
 export async function uploadDesignImageApi(
-  designId: number,
+  designId: string,
   file: File,
   fields: DesignImageUploadFields,
   config?: RequestConfig,
@@ -228,8 +228,8 @@ export async function uploadDesignImageApi(
  * Returns 204 on success (empty body).
  */
 export async function deleteDesignImageApi(
-  designId: number,
-  fileId: number,
+  designId: string,
+  fileId: string,
   config?: RequestConfig,
 ): Promise<void> {
   await api.delete(`/api/designs/${designId}/files/${fileId}`, config);
@@ -250,25 +250,25 @@ export async function deleteDesignImageApi(
 // ─── Wire types ─────────────────────────────────────────────────────────────
 
 interface RawDesignVersionImage {
-  id: number;
-  originalImageId: number | null;
+  id: string;
+  originalImageId: string | null;
   imageUrl: string;
   caption: string | null;
-  uploadedBy: number;
+  uploadedBy: string;
   uploadedAt: string;
 }
 
 interface RawDesignVersionSnapshot {
-  id: number;
-  designId: number;
+  id: string;
+  designId: string;
   snapshotKind: "submitted" | "approved" | "revision";
   version: string;
   title: string | null;
   type: Design["type"];
   status: Design["status"];
   reason: string | null;
-  createdBy: number | null;
-  snapshottedBy: number | null;
+  createdBy: string | null;
+  snapshottedBy: string | null;
   createdAt: string;
   snapshottedAt: string;
   images: RawDesignVersionImage[];
@@ -330,7 +330,7 @@ function normalizeSnapshotPage(
 // ─── Public API ─────────────────────────────────────────────────────────────
 
 export interface ListDesignVersionsParams {
-  designId: number;
+  designId: string;
   pageNumber?: number;
   pageSize?: number;
 }
@@ -370,8 +370,8 @@ export async function getDesignVersionsApi(
  * further, the backend enforces it.
  */
 export async function getDesignVersionApi(
-  designId: number,
-  versionId: number,
+  designId: string,
+  versionId: string,
   config?: RequestConfig,
 ): Promise<DesignVersionSnapshot> {
   const response = await api.get<RawDesignVersionSnapshot>(

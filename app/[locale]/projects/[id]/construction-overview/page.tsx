@@ -10,6 +10,7 @@ import { ConstructionOverviewHeader } from "@/components/contractor/construction
 import { MilestoneTrack } from "@/components/contractor/milestone-track";
 import { MilestoneDetailCard } from "@/components/contractor/milestone-detail-card";
 import { PhaseDetailDrawer } from "@/components/contractor/phase-detail-drawer";
+import { CostSummaryCard } from "@/components/contractor/cost-summary-card";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/features/auth/user-context";
 import { useEngagements } from "@/features/projects/use-engagements";
@@ -265,6 +266,9 @@ export default function ConstructionOverviewPage() {
           phase={selectedPhase}
           onOpenDetail={handleOpenDetail}
         />
+
+        {/* Money view of the same track: planned vs actual, labour vs materials. */}
+        <CostSummaryCard projectWorkingId={engagementId} />
       </div>
 
       <PhaseDetailDrawer

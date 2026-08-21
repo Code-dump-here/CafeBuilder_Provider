@@ -68,11 +68,11 @@ export interface NotificationListItemProps {
   /**
    * When `page` the row deep-links via `item.actionUrl` (when set) or
    * the `referenceType`/`referenceId` pair (see `deriveNotificationHref`).
-   * When `preview` it renders as a static row — used by the dropdown
-   * preview where the mark-as-read action is fired directly.
+   * `preview` is the dropdown's denser row. Both variants deep-link and
+   * both mark the item read on open.
    */
   variant: "preview" | "page";
-  onMarkRead: (id: number) => void;
+  onMarkRead: (id: string) => void;
   isMarkingRead: boolean;
 }
 
@@ -136,15 +136,31 @@ export function NotificationListItem({
     </div>
   );
 
+  // Opening a notification is reading it. Without this the badge only ever
+  // cleared via the small check button, so it sat at the same count no matter
+  // how many times the row was opened.
+  const markReadOnOpen = () => {
+    if (!item.isRead) onMarkRead(item.id);
+  };
+
   if (variant === "page") {
     return (
       <Link
         href={deriveNotificationHref(item)}
+        onClick={markReadOnOpen}
         className="block rounded-md px-2 transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
       >
         {content}
       </Link>
     );
   }
-  return <div className="px-2">{content}</div>;
+  return (
+    <Link
+      href={deriveNotificationHref(item)}
+      onClick={markReadOnOpen}
+      className="block px-2 transition-colors"
+    >
+      {content}
+    </Link>
+  );
 }

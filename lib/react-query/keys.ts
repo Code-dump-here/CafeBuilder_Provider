@@ -8,7 +8,7 @@ export const queryKeys = {
     revenue: (params?: unknown) => ["admin", "revenue", params] as const,
     transactions: (params?: unknown) => ["admin", "transactions", params] as const,
     accounts: (params?: unknown) => ["admin", "accounts", params] as const,
-    account: (id: number | null) => ["admin", "account", id] as const,
+    account: (id: string | null) => ["admin", "account", id] as const,
   },
   users: {
     detail: (id: string) => ["users", "detail", id] as const,
@@ -20,7 +20,7 @@ export const queryKeys = {
      * Used by the public provider detail page and any screen that
      * needs the canonical profile record outside of `auth.me`.
      */
-    detail: (id: number) => ["serviceProviderProfiles", "detail", id] as const,
+    detail: (id: string) => ["serviceProviderProfiles", "detail", id] as const,
   },
   payments: {
     /**
@@ -44,7 +44,7 @@ export const queryKeys = {
      * "all" query (or vice-versa).
      */
     list: (params: {
-      accountId: number;
+      accountId: string;
       pageNumber: number;
       pageSize: number;
       isRead?: boolean;
@@ -63,7 +63,7 @@ export const queryKeys = {
      * One cached entry per account. Invalidated whenever a
      * "mark as read" mutation succeeds.
      */
-    unreadCount: (accountId: number) =>
+    unreadCount: (accountId: string) =>
       ["notifications", "unreadCount", accountId] as const,
   },
   projects: {
@@ -86,7 +86,7 @@ export const queryKeys = {
      * callers with different page sizes don't collide in the cache.
      */
     aiRecommendations: (
-      briefId: number,
+      briefId: string,
       page: { pageNumber: number; pageSize: number },
     ) => ["projects", "aiRecommendations", briefId, page.pageNumber, page.pageSize] as const,
   },
@@ -103,7 +103,7 @@ export const queryKeys = {
      * request-revision mutation on the same `designId`.
      */
     versions: (
-      designId: number,
+      designId: string,
       page: { pageNumber: number; pageSize: number },
     ) =>
       [
@@ -120,7 +120,7 @@ export const queryKeys = {
      * snapshot (independent of any later edits / deletions to the
      * source design images).
      */
-    versionSnapshot: (designId: number, versionId: number) =>
+    versionSnapshot: (designId: string, versionId: string) =>
       ["designs", "versionSnapshot", designId, versionId] as const,
   },
   comments: {
@@ -130,7 +130,7 @@ export const queryKeys = {
      * unique within a target type. Invalidate after posting or deleting a
      * comment on the same target.
      */
-    list: (targetType: string, targetId: number) =>
+    list: (targetType: string, targetId: string) =>
       ["comments", targetType, targetId] as const,
   },
   marketplace: {
@@ -156,7 +156,7 @@ export const queryKeys = {
      * invitations tab).
      */
     list: (params: {
-      serviceProviderProfileId: number;
+      serviceProviderProfileId: string;
       pageNumber: number;
       pageSize: number;
       status?: string;
@@ -181,7 +181,7 @@ export const queryKeys = {
      * (accept / reject / status change) so the next visit pulls the
      * freshest rows.
      */
-    listAll: (serviceProviderProfileId: number) =>
+    listAll: (serviceProviderProfileId: string) =>
       ["myProjects", "list", serviceProviderProfileId] as const,
   },
   chat: {
@@ -192,7 +192,7 @@ export const queryKeys = {
      * Invalidation target after create/delete conversation mutations.
      */
     conversations: (
-      projectWorkingId: number,
+      projectWorkingId: string,
       pageNumber: number,
       pageSize: number,
     ) =>
@@ -209,7 +209,7 @@ export const queryKeys = {
      * Discriminators are `conversationId`, `pageNumber`, `pageSize`.
      */
     conversation: (
-      conversationId: number,
+      conversationId: string,
       pageNumber: number,
       pageSize: number,
     ) =>

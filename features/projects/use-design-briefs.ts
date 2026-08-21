@@ -101,9 +101,9 @@ export function useDesignBriefs(
 
   const hydrated = useAuthHydrated();
   const trimmedId = projectId.trim();
-  const parsedProjectId = Number.parseInt(trimmedId, 10);
-  const hasValidProjectId =
-    trimmedId.length > 0 && Number.isFinite(parsedProjectId);
+  // A uuid is usable when it is simply non-empty — there is nothing numeric
+  // left to validate.
+  const hasValidProjectId = trimmedId.length > 0;
   const enabled = hydrated && hasValidProjectId;
 
   const query = useQuery<PagedDesignBriefs, Error>({
@@ -114,7 +114,7 @@ export function useDesignBriefs(
     queryFn: ({ signal }) =>
       fetchDesignBriefs(
         {
-          projectId: parsedProjectId,
+          projectId: trimmedId,
           pageNumber,
           pageSize,
         },

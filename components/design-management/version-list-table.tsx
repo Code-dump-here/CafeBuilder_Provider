@@ -39,7 +39,7 @@ interface VersionListTableProps {
   projectId: string;
   versions: DesignVersion[];
   /** Engagement id forwarded to `NewVersionDialog` for `POST /api/designs`. */
-  projectWorkingId: number | null;
+  projectWorkingId: string | null;
   /** Render the right-hand action buttons (New Version, Publish Revision). */
   showActions?: boolean;
   /**
@@ -158,9 +158,7 @@ function VersionListTableInner({
   const t = useTranslations("DesignManagement");
   const format = useFormatter();
   const [activeTab, setActiveTab] = React.useState<TabValue>(DEFAULT_TABS[0].value);
-  const [selectedVersionId, setSelectedVersionId] = React.useState<
-    number | null
-  >(null);
+  const [selectedVersionId, setSelectedVersionId] = React.useState<string | null>(null);
 
   const basePath =
     detailBasePath ?? `/projects/${projectId}/design-management`;

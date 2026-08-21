@@ -50,10 +50,10 @@ export async function applyToPostApi(
  */
 export async function getAppliesApi(
   params: {
-    serviceProviderProfileId?: number;
-    postId?: number;
+    serviceProviderProfileId?: string;
+    postId?: string;
     status?: string;
-    projectShopOwnerId?: number;
+    projectShopOwnerId?: string;
     pageNumber?: number;
     pageSize?: number;
   } = {},
@@ -93,7 +93,7 @@ export async function getAppliesApi(
  * Endpoint: `GET /api/applies/{id}`
  */
 export async function getApplyApi(
-  applyId: number,
+  applyId: string,
   config?: RequestConfig,
 ): Promise<ApplyResponse> {
   const response = await api.get<ApplyResponse>(
@@ -122,7 +122,7 @@ export async function getApplyApi(
  *     server's Vietnamese message and refetch.
  */
 export async function updateApplyProposalApi(
-  applyId: number,
+  applyId: string,
   payload: UpdateApplyProposalPayload,
   config?: RequestConfig,
 ): Promise<ApplyResponse> {
@@ -153,7 +153,7 @@ export async function updateApplyProposalApi(
  *     applications can be withdrawn.
  */
 export async function withdrawApplyApi(
-  applyId: number,
+  applyId: string,
   config?: RequestConfig,
 ): Promise<void> {
   await api.delete<void>(`/api/applies/${applyId}/withdraw`, config);

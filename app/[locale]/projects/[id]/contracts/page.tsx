@@ -139,7 +139,7 @@ export default function ContractsPage() {
     error: contractsError,
     refetch,
   } = useContracts({
-    projectWorkingId: projectWorkingId ?? 0,
+    projectWorkingId: projectWorkingId ?? "",
     enabled: Boolean(projectWorkingId),
   });
 
@@ -269,8 +269,16 @@ export default function ContractsPage() {
           />
       ) : (
         <div className="flex flex-col gap-4">
-          {contracts
-            .sort((a, b) => b.id - a.id)
+          {/* Newest first. Was "highest id first", which only ordered
+              correctly while ids were sequential; uuids need the timestamp.
+              Copied before sorting — `sort` mutates, and this array comes
+              straight from the query cache. */}
+          {[...contracts]
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            )
             .map((contract) => (
               <ContractCard
                 key={contract.id}
@@ -573,7 +581,7 @@ function ConfirmedContractBanner({ contract }: ConfirmedContractBannerProps) {
 interface CreateContractDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  projectWorkingId: number;
+  projectWorkingId: string;
   onSuccess: () => void;
 }
 

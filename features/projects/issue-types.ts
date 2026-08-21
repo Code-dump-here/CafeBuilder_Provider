@@ -32,10 +32,10 @@ export const ISSUE_SEVERITIES: IssueSeverity[] = ["low", "medium", "high"];
  * milestone via `constructionItemId`; some issues are project-wide.
  */
 export interface Issue {
-  id: number;
-  projectWorkingId: number;
-  constructionItemId: number | null;
-  issueTypeId: number;
+  id: string;
+  projectWorkingId: string;
+  constructionItemId: string | null;
+  issueTypeId: string;
   /** Resolved type name — denormalized for display. */
   issueTypeName: string;
   cause: string | null;
@@ -50,7 +50,7 @@ export interface Issue {
   /** ISO date string — actual fix date. */
   actualAt: string | null;
   status: IssueStatus;
-  createdBy: number;
+  createdBy: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -75,23 +75,23 @@ export interface IssueListResponse {
  * mutation hook can pass `0` until `useMe` resolves.
  */
 export interface CreateIssuePayload {
-  projectWorkingId: number;
-  constructionItemId?: number | null;
-  issueTypeId: number;
+  projectWorkingId: string;
+  constructionItemId?: string | null;
+  issueTypeId: string;
   cause?: string;
   reason?: string;
   solution?: string;
   issueImage?: string;
   confirmImage?: string;
   estimateAt?: string; // "yyyy-MM-dd"
-  createdBy: number;
+  createdBy: string;
 }
 
 /**
  * Request body for PUT /issues/{id}.
  */
 export interface UpdateIssuePayload {
-  issueTypeId?: number;
+  issueTypeId?: string;
   cause?: string;
   reason?: string;
   solution?: string;
@@ -111,7 +111,7 @@ export interface SetIssueStatusPayload {
  * Catalog entry from GET /issue-types.
  */
 export interface IssueType {
-  id: number;
+  id: string;
   code: string;
   name: string;
 }

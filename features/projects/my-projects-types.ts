@@ -60,7 +60,7 @@ export type MyProjectContractStatus =
  * a "contract confirmed" badge without an extra round-trip.
  */
 export interface MyProjectContract {
-  id: number;
+  id: string;
   title: string;
   /**
    * VND, as agreed at the time of contract creation. `null` when no value has
@@ -86,9 +86,9 @@ export interface MyProjectContract {
  */
 export interface MyProjectWorking {
   /** Primary key of the project-working row. */
-  id: number;
+  id: string;
   /** Underlying project — use this for `/projects/{id}` navigation. */
-  projectShopOwnerId: number;
+  projectShopOwnerId: string;
   /** Project name (denormalized for list rendering). */
   projectName: string;
   /** What this provider does on the engagement. */
@@ -110,19 +110,19 @@ export interface MyProjectWorking {
   /** Convenience flag the backend denormalizes for the badge. */
   hasConfirmedContract: boolean;
   /** Original application id if this row came from a bid; otherwise null. */
-  applyId: number | null;
+  applyId: string | null;
 }
 
 // ─── Wire types ─────────────────────────────────────────────────────────────
 
 /** Raw JSON shape returned by `GET /api/project-workings`. */
 export interface RawMyProjectWorking {
-  id: number;
-  projectShopOwnerId: number;
+  id: string;
+  projectShopOwnerId: string;
   projectName: string;
-  serviceProviderProfileId: number;
+  serviceProviderProfileId: string;
   providerDisplayName: string;
-  applyId: number | null;
+  applyId: string | null;
   contractType: string;
   status: string;
   requestMessage?: string | null;
@@ -134,7 +134,7 @@ export interface RawMyProjectWorking {
 }
 
 export interface RawMyProjectContract {
-  id: number;
+  id: string;
   title: string;
   /** `decimal?` server-side — absent until the two sides agree a figure. */
   agreedValue?: number | null;
@@ -164,7 +164,7 @@ export interface MyProjectsQueryParams {
   pageNumber: number;
   pageSize: number;
   /** Required — the authenticated provider's `serviceProvider.id`. */
-  serviceProviderProfileId: number;
+  serviceProviderProfileId: string;
   /**
    * Statuses to return, sent as the CSV `statuses` param. Always supply the
    * full visible set for the "All" tab rather than omitting it: the endpoint
@@ -294,7 +294,7 @@ function normalizeMyProjectWorking(
     updatedAt: new Date(raw.updatedAt),
     contract: normalizeContract(raw.contract ?? null),
     hasConfirmedContract: !!raw.hasConfirmedContract,
-    applyId: typeof raw.applyId === "number" ? raw.applyId : null,
+    applyId: typeof raw.applyId === "string" && raw.applyId ? raw.applyId : null,
   };
 }
 

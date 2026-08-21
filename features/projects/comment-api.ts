@@ -12,11 +12,11 @@ export type CommentTargetType = "design" | "construction_item";
 
 /** Wire shape of `CommentResponse`. */
 export interface Comment {
-  id: number;
+  id: string;
   targetType: string;
-  targetId: number;
+  targetId: string;
   body: string | null;
-  createdBy: number | null;
+  createdBy: string | null;
   /**
    * Display name resolved server-side — ShopOwner.FullName for owners,
    * ServiceProviderProfile.DisplayName for providers, email for admins.
@@ -39,7 +39,7 @@ export interface CommentListResponse {
 
 export interface CreateCommentPayload {
   targetType: CommentTargetType;
-  targetId: number;
+  targetId: string;
   body: string;
 }
 
@@ -53,7 +53,7 @@ export interface CreateCommentPayload {
 export async function getCommentsApi(
   options: {
     targetType: CommentTargetType;
-    targetId: number;
+    targetId: string;
     pageNumber?: number;
     pageSize?: number;
   },
@@ -92,7 +92,7 @@ export async function createCommentApi(
  * Endpoint: `DELETE /api/comments/{id}`
  */
 export async function deleteCommentApi(
-  id: number,
+  id: string,
   config?: RequestConfig,
 ): Promise<void> {
   await api.delete(`/api/comments/${id}`, config);

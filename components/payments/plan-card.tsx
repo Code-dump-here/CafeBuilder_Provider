@@ -67,7 +67,12 @@ interface PriceDisplayProps {
   format: ReturnType<typeof useFormatter>;
   perUnitLabel: string;
   durationLabel: string;
-  approxPerDayLabel: string;
+  /**
+   * Renders the "about X/day" line. A callback rather than a finished
+   * string because the amount it interpolates is derived here, while the
+   * message it goes into lives with the translator in `PlanCard`.
+   */
+  renderApproxPerDay: (amount: string) => string;
 }
 
 function PriceDisplay({
@@ -77,7 +82,7 @@ function PriceDisplay({
   format,
   perUnitLabel,
   durationLabel,
-  approxPerDayLabel,
+  renderApproxPerDay,
 }: PriceDisplayProps) {
   // Suffixed rather than `style: "currency"`, which renders ₫ — the rest of
   // this app and the mobile app both spell the currency out.
@@ -104,7 +109,7 @@ function PriceDisplay({
       </div>
       <p className="text-xs text-muted-foreground">{durationLabel}</p>
       <p className="text-[11px] text-muted-foreground/80">
-        {approxPerDayLabel.replace("{amount}", formattedPerDay)}
+        {renderApproxPerDay(formattedPerDay)}
       </p>
     </div>
   );
@@ -155,9 +160,8 @@ export function PlanCard({
   const durationLabel = isYearly
     ? t("duration.year")
     : isMonthly
-      ? t("duration.months").replace("{count}", "1")
-      : t("duration.days").replace("{count}", String(plan.durationInDays));
-  const approxPerDayLabel = t("approx");
+      ? t("duration.months", { count: 1 })
+      : t("duration.days", { count: plan.durationInDays });
 
   return (
     <article
@@ -195,12 +199,12 @@ export function PlanCard({
         format={format}
         perUnitLabel={perUnitLabel}
         durationLabel={durationLabel}
-        approxPerDayLabel={approxPerDayLabel}
+        renderApproxPerDay={(amount) => t("approx", { amount })}
       />
 
       {highlighted && savingsPercent !== null && savingsPercent > 0 ? (
         <p className="-mt-3 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-          {t("savings").replace("{percent}", String(savingsPercent))}
+          {t("savings", { percent: savingsPercent })}
         </p>
       ) : null}
 

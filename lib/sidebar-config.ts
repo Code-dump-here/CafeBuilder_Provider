@@ -22,6 +22,8 @@ import {
   Map,
   Ruler,
   CheckCircle,
+  Home,
+  ReceiptText,
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
@@ -134,6 +136,24 @@ const DESIGNER_PROJECT_INFO: NavSection = {
       titleKey: "Sidebar.designer.contracts",
       url: "/contracts",
       icon: FileCheck,
+      scope: "project",
+    },
+    {
+      // Measured premises: dimensions, orientation, floors, openings. Sits in
+      // Project Info rather than Design Work because a constructor needs the
+      // same numbers a designer does — it is a fact about the building, not a
+      // design deliverable.
+      titleKey: "Sidebar.designer.siteProfile",
+      url: "/site-profile",
+      icon: Home,
+      scope: "project",
+    },
+    {
+      // Money agreed after the contract. Not scoped to design or build for the
+      // same reason: a scope change can land on either phase.
+      titleKey: "Sidebar.designer.changeOrders",
+      url: "/change-orders",
+      icon: ReceiptText,
       scope: "project",
     },
   ],
