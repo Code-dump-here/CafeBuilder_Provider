@@ -2356,7 +2356,14 @@
       "derivedFootprintM2": "Diện tích lô",
       "derivedFootprintHint": "Chiều sâu × chiều ngang",
       "totalFloorAreaM2": "Tổng diện tích sàn",
-      "totalFloorAreaHint": "Cộng diện tích các tầng bên dưới"
+      "totalFloorAreaHint": "Cộng diện tích các tầng bên dưới",
+      "projectAreaM2": "Diện tích dự án đang dùng",
+      "projectAreaHint": "Con số hiện trên màn hình dự án"
+    },
+    "areaSync": {
+      "syncedTitle": "Dự án đang dùng số đo này",
+      "pendingTitle": "Số đo chờ chủ dự án duyệt",
+      "pendingBody": "Bạn đã ghi {surveyed}, nhưng dự án vẫn đang chạy trên {inForce}. Chỉ chủ dự án mới duyệt được thay đổi này."
     },
     "orientation": {
       "north": "Bắc",

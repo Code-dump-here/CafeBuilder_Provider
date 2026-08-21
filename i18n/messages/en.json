@@ -2356,7 +2356,14 @@
       "derivedFootprintM2": "Footprint",
       "derivedFootprintHint": "Depth × width",
       "totalFloorAreaM2": "Total floor area",
-      "totalFloorAreaHint": "Sum of the floors below"
+      "totalFloorAreaHint": "Sum of the floors below",
+      "projectAreaM2": "Project area in force",
+      "projectAreaHint": "What the project screens use"
+    },
+    "areaSync": {
+      "syncedTitle": "The project uses these measurements",
+      "pendingTitle": "Measurements awaiting the owner",
+      "pendingBody": "You recorded {surveyed}, but the project still runs on {inForce}. Only the owner can approve the change."
     },
     "orientation": {
       "north": "North",
