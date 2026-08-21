@@ -1,3 +1,0 @@
-# Map the school account onto the personal one so history shows a single
-# contributor. The commits themselves are untouched - see git log --format=%ae.
-Code-dump-here <tranduynhan240903@gmail.com> <hiennpqse180072@fpt.edu.vn>
