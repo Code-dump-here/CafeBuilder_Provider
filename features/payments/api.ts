@@ -19,7 +19,7 @@ export type PaymentPlanTargetRole = 0 | 1;
  * union because the backend owns plan lifecycle — adding a new plan
  * shouldn't force a FE release.
  */
-export type PaymentPlanId = number;
+export type PaymentPlanId = string;
 
 /**
  * Response shape of `GET /api/payments/plans`. The endpoint returns an
@@ -77,8 +77,8 @@ export interface CreateSubscriptionPayload {
  * ...) the consumer can extend this type without touching call sites.
  */
 export interface SubscriptionCreated {
-  id: number;
-  accountId: number;
+  id: string;
+  accountId: string;
   planId: PaymentPlanId;
   platform: SubscriptionPlatform;
   status: SubscriptionStatus;
@@ -132,19 +132,21 @@ export function selectPaymentPlansForRole(
  * doesn't define mobile/desktop, but adding more values here is a
  * one-line change.
  *
- * The backend returns the standard `{ data, message?, meta? }`
- * envelope, so we unwrap `.data` before returning.
+ * The backend returns this DTO flat — there is no `{ data, … }` envelope
+ * anywhere in the API (no result filter wraps responses; `/api/auth/me`,
+ * `/api/posts` and the rest all answer with the bare object). Unwrapping
+ * `.data.data` therefore yielded `undefined`.
  */
 export async function createSubscriptionApi(
   payload: CreateSubscriptionPayload,
   config?: RequestConfig,
 ): Promise<SubscriptionCreated> {
-  const response = await api.post<ApiSuccessResponse<SubscriptionCreated>>(
+  const response = await api.post<SubscriptionCreated>(
     "/api/payments/subscriptions",
     payload,
     config,
   );
-  return response.data.data;
+  return response.data;
 }
 
 /**

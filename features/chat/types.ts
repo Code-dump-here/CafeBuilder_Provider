@@ -7,7 +7,7 @@
 // ─── Shared sub-types ────────────────────────────────────────────────────────
 
 export interface SenderInfo {
-  accountId: number;
+  accountId: string;
   displayName: string;
   role: "owner" | "provider" | "admin";
   /** Always null in v1 — reserved for future avatar CDN. */
@@ -15,8 +15,8 @@ export interface SenderInfo {
 }
 
 export interface MessageAttachmentResponse {
-  id: number;
-  messageId: number;
+  id: string;
+  messageId: string;
   /** Object name on GCS — internal only. */
   url: string;
   /** ✅ Public CDN URL — FE always uses this. */
@@ -28,9 +28,9 @@ export interface MessageAttachmentResponse {
 }
 
 export interface MessageResponse {
-  id: number;
-  conversationId: number;
-  senderId: number;
+  id: string;
+  conversationId: string;
+  senderId: string;
   sender: SenderInfo;
   /** null = message contains only attachments */
   body: string | null;
@@ -45,8 +45,8 @@ export interface MessageResponse {
  * `lastMessage` is null when the thread has no messages yet.
  */
 export interface ConversationSummary {
-  id: number;
-  projectWorkingId: number;
+  id: string;
+  projectWorkingId: string;
   /** null when the service auto-generated "Thread #N". */
   topic: string | null;
   createdBy: SenderInfo;
@@ -62,8 +62,8 @@ export interface ConversationSummary {
  * Includes the first page of messages (SentAt ASC = oldest → newest).
  */
 export interface ConversationDetailResponse {
-  id: number;
-  projectWorkingId: number;
+  id: string;
+  projectWorkingId: string;
   topic: string | null;
   createdBy: SenderInfo;
   createdAt: string;
@@ -74,7 +74,7 @@ export interface ConversationDetailResponse {
 // ─── API request/response shapes ─────────────────────────────────────────────
 
 export interface ConversationListParams {
-  projectWorkingId: number;
+  projectWorkingId: string;
   pageNumber?: number;
   pageSize?: number;
 }
@@ -93,7 +93,7 @@ export interface ConversationDetailParams {
 }
 
 export interface CreateConversationPayload {
-  projectWorkingId: number;
+  projectWorkingId: string;
   /** Optional — backend auto-generates "Thread #N" if empty. */
   topic?: string;
 }
@@ -104,12 +104,12 @@ export interface PatchConversationPayload {
 }
 
 export interface MessageListParams {
-  conversationId: number;
+  conversationId: string;
   /**
    * Primary cursor — returns messages with `id > sinceId`.
    * Omit for the initial load (no cursor, returns up to `limit` messages).
    */
-  sinceId?: number;
+  sinceId?: string;
   /**
    * Fallback cursor when `sinceId` is unavailable.
    * Returns messages with `sentAt > sinceSentAt`.

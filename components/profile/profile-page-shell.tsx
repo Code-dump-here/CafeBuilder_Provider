@@ -23,6 +23,8 @@ import {
   Check,
   Loader2,
   TriangleAlert,
+  Images,
+  Sparkles,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -36,6 +38,8 @@ import type { NormalizedAccount } from "@/features/auth/auth-me-types";
 import { AppError } from "@/lib/http/errors";
 
 import { ProviderProfileEditor } from "./provider-profile-editor";
+import { BrandTab } from "./brand-tab";
+import { PortfolioTab } from "./portfolio-tab";
 
 // ─── Profile Header ───────────────────────────────────────────────────────────
 
@@ -265,7 +269,7 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
 
 // ─── Tab Navigation ─────────────────────────────────────────────────────────────
 
-type TabType = "posts" | "projects" | "reviews";
+type TabType = "posts" | "portfolio" | "brand" | "projects" | "reviews";
 
 function TabNavigation({
   activeTab,
@@ -278,6 +282,8 @@ function TabNavigation({
   
   const tabs: { id: TabType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: "posts", label: t("tabs.posts"), icon: Grid3X3 },
+    { id: "portfolio", label: t("tabs.portfolio"), icon: Images },
+    { id: "brand", label: t("tabs.brand"), icon: Sparkles },
     { id: "projects", label: t("tabs.projects"), icon: Briefcase },
     { id: "reviews", label: t("tabs.reviews"), icon: Star },
   ];
@@ -315,12 +321,12 @@ function TabNavigation({
 function PostsGrid() {
   // Mock posts data
   const posts = [
-    { id: 1, title: "Modern Cafe Design Concept", likes: 24, comments: 5 },
-    { id: 2, title: "Industrial Kitchen Layout", likes: 18, comments: 3 },
-    { id: 3, title: "Minimalist Space Planning", likes: 32, comments: 8 },
-    { id: 4, title: "Color Theory in Cafe Design", likes: 15, comments: 2 },
-    { id: 5, title: "Lighting Design Tips", likes: 28, comments: 6 },
-    { id: 6, title: "Budget-Friendly Renovations", likes: 41, comments: 12 },
+    { id: "1", title: "Modern Cafe Design Concept", likes: 24, comments: 5 },
+    { id: "2", title: "Industrial Kitchen Layout", likes: 18, comments: 3 },
+    { id: "3", title: "Minimalist Space Planning", likes: 32, comments: 8 },
+    { id: "4", title: "Color Theory in Cafe Design", likes: 15, comments: 2 },
+    { id: "5", title: "Lighting Design Tips", likes: 28, comments: 6 },
+    { id: "6", title: "Budget-Friendly Renovations", likes: 41, comments: 12 },
   ];
 
   return (
@@ -358,9 +364,9 @@ function ProjectsList() {
   const t = useTranslations("Profile");
   
   const projects = [
-    { id: 1, name: "District Coffee House", status: "completed", rating: 5 },
-    { id: 2, name: "Urban Beans Cafe", status: "ongoing", rating: null },
-    { id: 3, name: "Morning Glory Bistro", status: "completed", rating: 4 },
+    { id: "1", name: "District Coffee House", status: "completed", rating: 5 },
+    { id: "2", name: "Urban Beans Cafe", status: "ongoing", rating: null },
+    { id: "3", name: "Morning Glory Bistro", status: "completed", rating: 4 },
   ];
 
   const statusColors: Record<string, string> = {
@@ -418,7 +424,7 @@ function ReviewsList() {
   
   const reviews = [
     {
-      id: 1,
+      id: "1",
       author: "Nguyen Van A",
       project: "District Coffee House",
       rating: 5,
@@ -426,7 +432,7 @@ function ReviewsList() {
       date: "2 weeks ago",
     },
     {
-      id: 2,
+      id: "2",
       author: "Tran Thi B",
       project: "Urban Beans Cafe",
       rating: 4,
@@ -546,6 +552,15 @@ export function ProfilePageShell() {
       
       <div className="mt-6">
         {activeTab === "posts" && <PostsGrid />}
+        {activeTab === "portfolio" && (
+          <PortfolioTab
+            serviceProviderProfileId={account.serviceProvider.id}
+            editable
+          />
+        )}
+        {activeTab === "brand" && (
+          <BrandTab serviceProviderProfileId={account.serviceProvider.id} editable />
+        )}
         {activeTab === "projects" && <ProjectsList />}
         {activeTab === "reviews" && <ReviewsList />}
       </div>

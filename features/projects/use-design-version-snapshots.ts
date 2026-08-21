@@ -56,7 +56,7 @@ function useAuthHydrated(): boolean {
 // ─── List snapshots ─────────────────────────────────────────────────────────
 
 export interface UseDesignVersionsOptions {
-  designId: number | null;
+  designId: string | null;
   pageNumber?: number;
   pageSize?: number;
   /** Skip the fetch (used when the design hasn't loaded yet). */
@@ -97,7 +97,7 @@ export function useDesignVersions(
   } = options;
 
   const hydrated = useAuthHydrated();
-  const hasDesignId = typeof designId === "number" && Number.isFinite(designId);
+  const hasDesignId = typeof designId === "string" && designId !== "";
 
   const query = useQuery<DesignVersionSnapshotPage, Error>({
     queryKey: hasDesignId
@@ -138,8 +138,8 @@ export function useDesignVersions(
 // ─── Single snapshot detail ─────────────────────────────────────────────────
 
 export interface UseDesignVersionSnapshotOptions {
-  designId: number | null;
-  versionId: number | null;
+  designId: string | null;
+  versionId: string | null;
   enabled?: boolean;
 }
 
@@ -166,10 +166,10 @@ export function useDesignVersionSnapshot(
   const enabledNow =
     hydrated &&
     enabled &&
-    typeof designId === "number" &&
-    Number.isFinite(designId) &&
-    typeof versionId === "number" &&
-    Number.isFinite(versionId);
+    typeof designId === "string" &&
+    designId !== "" &&
+    typeof versionId === "string" &&
+    versionId !== "";
 
   const query = useQuery<DesignVersionSnapshot, Error>({
     queryKey:

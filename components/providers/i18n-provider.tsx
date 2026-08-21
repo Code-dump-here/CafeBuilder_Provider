@@ -2,6 +2,8 @@
 
 import { NextIntlClientProvider } from "next-intl";
 
+import { formats } from "@/i18n/formats";
+
 interface I18nProviderProps {
   children: React.ReactNode;
   locale: string;
@@ -30,6 +32,7 @@ export function I18nProvider({ children, locale, messages }: I18nProviderProps) 
       locale={locale}
       messages={messages}
       timeZone={resolveTimeZone(locale)}
+      formats={formats}
     >
       {children}
     </NextIntlClientProvider>

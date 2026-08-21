@@ -21,7 +21,7 @@ import type {
 
 interface DrawingTreeProps {
   drawings: DesignDrawing[];
-  selectedId: number | null;
+  selectedId: string | null;
   onSelect: (drawing: DesignDrawing) => void;
   onPreview: (drawing: DesignDrawing | null) => void;
 }

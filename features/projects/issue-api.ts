@@ -33,8 +33,8 @@ export async function createIssueApi(
  */
 export async function getIssuesApi(
   options?: {
-    projectWorkingId?: number;
-    constructionItemId?: number;
+    projectWorkingId?: string;
+    constructionItemId?: string;
     status?: string;
     pageNumber?: number;
     pageSize?: number;
@@ -71,7 +71,7 @@ export async function getIssuesApi(
  * Endpoint: `GET /api/issues/{id}`
  */
 export async function getIssueApi(
-  id: number,
+  id: string,
   config?: RequestConfig,
 ): Promise<Issue> {
   const response = await api.get<Issue>(`/api/issues/${id}`, config);
@@ -84,7 +84,7 @@ export async function getIssueApi(
  * Endpoint: `PUT /api/issues/{id}`
  */
 export async function updateIssueApi(
-  id: number,
+  id: string,
   payload: UpdateIssuePayload,
   config?: RequestConfig,
 ): Promise<Issue> {
@@ -98,7 +98,7 @@ export async function updateIssueApi(
  * Endpoint: `PUT /api/issues/{id}/status`
  */
 export async function setIssueStatusApi(
-  id: number,
+  id: string,
   payload: SetIssueStatusPayload,
   config?: RequestConfig,
 ): Promise<Issue> {
@@ -116,7 +116,7 @@ export async function setIssueStatusApi(
  * Endpoint: `DELETE /api/issues/{id}`
  */
 export async function deleteIssueApi(
-  id: number,
+  id: string,
   config?: RequestConfig,
 ): Promise<void> {
   await api.delete(`/api/issues/${id}`, config);
@@ -142,7 +142,7 @@ export async function getIssueTypesApi(
  * Endpoint: `GET /api/issue-types/{id}`
  */
 export async function getIssueTypeApi(
-  id: number,
+  id: string,
   config?: RequestConfig,
 ): Promise<IssueType> {
   const response = await api.get<IssueType>(`/api/issue-types/${id}`, config);
@@ -172,7 +172,7 @@ export async function createIssueTypeApi(
  * Endpoint: `PUT /api/issue-types/{id}`
  */
 export async function updateIssueTypeApi(
-  id: number,
+  id: string,
   payload: { name: string },
   config?: RequestConfig,
 ): Promise<IssueType> {
@@ -190,7 +190,7 @@ export async function updateIssueTypeApi(
  * Endpoint: `DELETE /api/issue-types/{id}`
  */
 export async function deleteIssueTypeApi(
-  id: number,
+  id: string,
   config?: RequestConfig,
 ): Promise<void> {
   await api.delete(`/api/issue-types/${id}`, config);

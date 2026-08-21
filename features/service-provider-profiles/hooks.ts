@@ -62,7 +62,7 @@ export function useUpdateServiceProviderProfileMutation() {
   return useMutation<
     ServiceProviderProfileCreated,
     Error,
-    { id: number; payload: UpdateServiceProviderProfilePayload }
+    { id: string; payload: UpdateServiceProviderProfilePayload }
   >({
     mutationFn: ({ id, payload }) => updateServiceProviderProfileApi(id, payload),
     onSuccess: async (_data, variables) => {

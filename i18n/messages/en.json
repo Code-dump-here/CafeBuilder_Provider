@@ -66,17 +66,32 @@
         {
           "role": "Owner",
           "blurb": "You post the brief, accept bids, and see every milestone from kickoff to ribbon cutting.",
-          "bullets": ["Post a brief", "Compare bids", "Sign off designs", "Track milestones"]
+          "bullets": [
+            "Post a brief",
+            "Compare bids",
+            "Sign off designs",
+            "Track milestones"
+          ]
         },
         {
           "role": "Designer",
           "blurb": "Apply for briefs, version your designs, hand off a clean drawing set to the contractor.",
-          "bullets": ["Browse open briefs", "Submit designs", "Respond to revisions", "Share drawings"]
+          "bullets": [
+            "Browse open briefs",
+            "Submit designs",
+            "Respond to revisions",
+            "Share drawings"
+          ]
         },
         {
           "role": "Contractor",
           "blurb": "Quote the job, schedule phases, log daily progress, flag issues before they become delays.",
-          "bullets": ["Quote the work", "Schedule milestones", "Post daily logs", "Resolve issues"]
+          "bullets": [
+            "Quote the work",
+            "Schedule milestones",
+            "Post daily logs",
+            "Resolve issues"
+          ]
         }
       ]
     },
@@ -239,7 +254,11 @@
         "description": "Your email has been confirmed. Click Continue to set up your profile."
       },
       "errors": {
-        "wrongCode": "The verification code is incorrect. Please try again."
+        "wrongCode": "The verification code is incorrect. Please try again.",
+        "tooManyRequests": "Too many attempts. Please wait a moment before requesting another code.",
+        "serverError": "Something went wrong on our side. Please try again shortly.",
+        "sendFailed": "We couldn't send the verification code. Please check the address and try again.",
+        "verifyFailed": "We couldn't verify that code. Please try again."
       }
     },
     "completeProfile": {
@@ -406,7 +425,8 @@
     "myProjects": "My Projects",
     "projectFallback": "Project {id}",
     "versionFallback": "Version {code}",
-    "backToOverview": "Back to project overview"
+    "backToOverview": "Back to project overview",
+    "projectLoading": "Loading project name"
   },
   "ProjectsOverview": {
     "title": "Overview",
@@ -417,7 +437,10 @@
       "area": "Area",
       "location": "Location",
       "millionShort": "M VND",
-      "areaUnit": "m²"
+      "areaUnit": "m²",
+      "priority": "Priority",
+      "priorityUrgent": "Urgent",
+      "priorityStandard": "Standard"
     },
     "members": {
       "title": "Providers",
@@ -516,7 +539,14 @@
         "accepted": "Application accepted",
         "rejected": "Application declined",
         "edit": "Edit",
-        "withdraw": "Withdraw"
+        "withdraw": "Withdraw",
+        "surveyRequired": "Survey the site to be considered",
+        "surveyRequiredHint": "This project includes design work, so the owner can only accept you after you have visited and recorded the site survey.",
+        "surveyBooked": "Site visit booked, not yet recorded",
+        "surveyBookedHint": "The owner can accept you once you have made the visit and filled in the survey.",
+        "surveyDone": "Site survey recorded",
+        "surveyStartCta": "Record site survey",
+        "surveyRecordCta": "Record the visit"
       },
       "withdrawConfirm": {
         "title": "Withdraw your application?",
@@ -656,11 +686,64 @@
           "rawRequest": "Request payload",
           "rawRequestHint": "Raw JSON sent to the AI worker — useful for debugging."
         }
+      },
+      "empty": {
+        "title": "No brief yet",
+        "subtitle": "The owner hasn't filled in the design brief for this project. Once they do, their requirements appear here."
       }
     },
     "empty": {
       "title": "No design brief yet",
       "subtitle": "Once the owner submits the brief, you'll see it here — including target customers, style, mood, and timeline."
+    },
+    "nextSteps": {
+      "title": "Next steps",
+      "subtitle": "What this job needs from you right now.",
+      "allDone": {
+        "title": "Nothing outstanding",
+        "subtitle": "Every stage is done or waiting on the shop owner. They'll accept the work when they're ready."
+      },
+      "steps": {
+        "contractMissing": {
+          "title": "Agree the contract",
+          "detail": "Design and construction work stay locked until a contract is signed by both sides.",
+          "cta": "Open contracts"
+        },
+        "contractUnsigned": {
+          "title": "Finish signing the contract",
+          "detail": "A contract is drawn up but not confirmed yet. Nothing else can start until it is.",
+          "cta": "Open contracts"
+        },
+        "designStart": {
+          "title": "Start the design",
+          "detail": "Create a design and upload your first concept for the owner to look at.",
+          "cta": "Open design"
+        },
+        "designSubmit": {
+          "title": "Submit the design for review",
+          "detail": "Your design is still a draft. Submit it so the owner can approve it.",
+          "cta": "Open design"
+        },
+        "designRevise": {
+          "title": "Make the requested changes",
+          "detail": "The owner asked for revisions. Update the design and resubmit it.",
+          "cta": "Open design"
+        },
+        "designWaiting": {
+          "title": "Waiting on the owner",
+          "detail": "Your design is submitted. Nothing to do here until they approve it or ask for changes."
+        },
+        "milestonesPlan": {
+          "title": "Plan the milestones",
+          "detail": "Break the build into milestones with target dates so the owner can follow progress.",
+          "cta": "Open milestones"
+        },
+        "milestonesProgress": {
+          "title": "Move the build along",
+          "detail": "{count} milestone(s) still open. A milestone closes once its tasks and required checklist items pass.",
+          "cta": "Open milestones"
+        }
+      }
     }
   },
   "ConstructionLog": {
@@ -732,8 +815,8 @@
     "title": "Site Survey",
     "subtitle": "Document site conditions before work begins.",
     "noEngagement": {
-      "title": "No engagement found",
-      "description": "You need an accepted project engagement before you can create a survey."
+      "title": "Nothing to attach a survey to",
+      "description": "Apply to this project, or be taken on for it, and you can file your site survey here."
     },
     "createNew": "New Survey",
     "createFirst": "Create first survey",
@@ -769,7 +852,9 @@
       "cancel": "Cancel",
       "create": "Create Survey",
       "saveChanges": "Save Changes",
-      "submitting": "Saving…"
+      "submitting": "Saving…",
+      "surveyedOnLabel": "Date you visited",
+      "surveyedOnHint": "The owner sees this date. A survey with no visit date counts as booked only, and does not unlock their decision."
     },
     "errors": {
       "title": "Couldn't load surveys",
@@ -1001,6 +1086,7 @@
       "setStatus": "Set status",
       "statusMoveHint": "Status only moves forward — the next step is highlighted below.",
       "statusTerminalHint": "This phase is completed and can't be changed.",
+      "paid": "Paid",
       "closeMilestone": "Mark completed",
       "statusSuccess": "Phase status updated.",
       "statusCompleted": "Completed",
@@ -1085,6 +1171,66 @@
       "unknownAuthor": "Unknown",
       "placeholder": "Write a note…",
       "send": "Post note"
+    },
+    "checklist": {
+      "open": "Acceptance checklist",
+      "title": "Acceptance checklist",
+      "subtitleWithPhase": "What the shop owner signs off on for “{phase}”.",
+      "loading": "Loading checklist…",
+      "error": "Couldn't load the checklist.",
+      "empty": "No checklist yet. Add what the owner should sign off on.",
+      "addTitle": "Add an item",
+      "namePlaceholder": "e.g. Walls flat, no cracks",
+      "descriptionPlaceholder": "Optional detail",
+      "required": "Required",
+      "requiredHint": "Required items must pass before this milestone can close.",
+      "optional": "Optional",
+      "add": "Add item",
+      "delete": "Remove",
+      "status": {
+        "pending": "Not checked",
+        "passed": "Passed",
+        "failed": "Failed"
+      },
+      "ownerNote": "Owner's note",
+      "checkedAt": "Checked {date}",
+      "progress": "{passed} of {total} required items passed",
+      "blocked": "{count, plural, one {# required item} other {# required items}} still blocking sign-off.",
+      "satisfied": "All required items passed — this milestone can be closed.",
+      "noRequired": "No required items, so nothing is blocking sign-off."
+    },
+    "materials": {
+      "open": "Materials",
+      "title": "Materials & cost",
+      "subtitleWithPhase": "Quantities and cost for “{phase}”, including its tasks.",
+      "loading": "Loading materials…",
+      "error": "Couldn't load materials.",
+      "priceList": "Price list",
+      "priceListHint": "Published rates for this project. Agree them before work starts.",
+      "priceListEmpty": "No materials published yet.",
+      "addMaterial": "Add to price list",
+      "materialName": "Material",
+      "materialNamePlaceholder": "e.g. Floor tile 60x60",
+      "unit": "Unit",
+      "unitPrice": "Price per unit",
+      "usage": "Used by this milestone",
+      "usageEmpty": "No materials assigned yet.",
+      "addUsage": "Add material",
+      "pickMaterial": "Choose from the price list",
+      "estimated": "Planned",
+      "actual": "Actual",
+      "actualPlaceholder": "Record after the work is done",
+      "actualLocked": "Recordable once the work has started.",
+      "save": "Save",
+      "remove": "Remove",
+      "estimatedCost": "Planned cost",
+      "actualCost": "Actual cost",
+      "ownLines": "This milestone",
+      "taskLines": "From tasks",
+      "total": "Total",
+      "actualPending": "{count, plural, one {# line} other {# lines}} still need an actual quantity",
+      "actualUnavailable": "—",
+      "priceNote": "The rate is captured when a material is picked, so repricing later doesn't restate work already costed."
     },
     "issue": {
       "pageTitle": "Issues",
@@ -1215,7 +1361,8 @@
       "error": "Couldn't create the phase. Please try again."
     },
     "errorEmpty": "No phases yet. Add the first one to start tracking.",
-    "summaryError": "Couldn't update milestone state."
+    "summaryError": "Couldn't update milestone state.",
+    "retry": "Try again"
   },
   "Sidebar": {
     "common": {
@@ -1238,7 +1385,9 @@
       "revisions": "Revisions",
       "messages": "Messages",
       "progress": "Progress",
-      "constructionSupport": "Construction Support"
+      "constructionSupport": "Construction Support",
+      "siteProfile": "Site Profile",
+      "changeOrders": "Change Orders"
     },
     "contractor": {
       "workspace": "Workspace",
@@ -1393,7 +1542,8 @@
       "confirmDeleteImageBody": "This can't be undone.",
       "confirmCta": "Confirm",
       "confirmCancel": "Cancel",
-      "deleteCta": "Delete"
+      "deleteCta": "Delete",
+      "revisionStarted": "Revision started."
     },
     "tabs": {
       "all": "All",
@@ -1511,7 +1661,8 @@
         "share": "Share",
         "print": "Print",
         "download": "Download"
-      }
+      },
+      "downloadComingSoon": "Downloading drawings isn't available yet."
     },
     "history": {
       "label": "Version history",
@@ -1824,11 +1975,11 @@
     },
     "pagination": {
       "label": "Pagination",
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {page} of {total}",
-    "first": "First",
-    "last": "Last"
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {page} of {total}",
+      "first": "First",
+      "last": "Last"
     },
     "refreshing": "Refreshing…",
     "filters": {
@@ -1875,7 +2026,9 @@
     "tabs": {
       "posts": "Posts",
       "projects": "Projects",
-      "reviews": "Reviews"
+      "reviews": "Reviews",
+      "portfolio": "Portfolio",
+      "brand": "Brand"
     },
     "sections": {
       "basics": {
@@ -2157,6 +2310,401 @@
       "loadFailed": "Failed to load data",
       "noData": "No data available",
       "tryAgain": "Please try again"
+    }
+  },
+  "SiteProfile": {
+    "title": "Site profile",
+    "subtitle": "The measured premises: dimensions, orientation, floors and openings.",
+    "notMeasured": "Not measured",
+    "metres": "{value} m",
+    "squareMetres": "{value} m²",
+    "ceilingValue": "Ceiling {value} m",
+    "floorsValue": "{count, plural, =1 {1 floor} other {# floors}}",
+    "yes": "Yes",
+    "no": "No",
+    "error": {
+      "title": "Could not load the site profile",
+      "subtitle": "The measurements are on the server but we could not reach them.",
+      "retry": "Try again"
+    },
+    "empty": {
+      "title": "Nobody has measured this site yet",
+      "description": "Record the real dimensions so the design works against the building rather than a guess.",
+      "readOnly": "The owner or an appointed provider records these measurements. You can read them once they exist.",
+      "action": "Record the premises"
+    },
+    "measurements": {
+      "title": "Dimensions and orientation",
+      "subtitle": "Fill these in as you measure — every field is optional.",
+      "edit": "Edit"
+    },
+    "fields": {
+      "lengthM": "Depth",
+      "widthM": "Width",
+      "frontageWidthM": "Frontage width",
+      "frontageHint": "Often the same as the width, but not on a corner or set-back plot.",
+      "ceilingHeightM": "Ceiling height",
+      "roadWidthM": "Road width",
+      "orientation": "Frontage faces",
+      "orientationPlaceholder": "Not determined",
+      "floorCount": "Floors in use",
+      "hasMezzanine": "Has a mezzanine",
+      "structureNote": "Structure",
+      "structurePlaceholder": "Townhouse, shophouse, single storey, bare shell…",
+      "existingConditionNote": "Condition on handover",
+      "conditionPlaceholder": "What is already there, and what has to come out.",
+      "derivedFootprintM2": "Footprint",
+      "derivedFootprintHint": "Depth × width",
+      "totalFloorAreaM2": "Total floor area",
+      "totalFloorAreaHint": "Sum of the floors below"
+    },
+    "orientation": {
+      "north": "North",
+      "northeast": "North-east",
+      "east": "East",
+      "southeast": "South-east",
+      "south": "South",
+      "southwest": "South-west",
+      "west": "West",
+      "northwest": "North-west"
+    },
+    "openingType": {
+      "main_door": "Main door",
+      "secondary_door": "Side door",
+      "service_door": "Service door",
+      "window": "Window",
+      "balcony": "Balcony",
+      "terrace": "Terrace",
+      "skylight": "Skylight"
+    },
+    "dialog": {
+      "createTitle": "Record the premises",
+      "editTitle": "Edit the measurements",
+      "description": "Leave anything you have not measured blank.",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "floors": {
+      "title": "Floors",
+      "subtitle": "Each storey has its own area — a set-back ground floor is not the upper one.",
+      "add": "Add floor",
+      "empty": "No floors recorded yet.",
+      "no": "Floor {no}",
+      "unnamed": "Unnamed floor",
+      "noDetail": "No detail recorded",
+      "editFloor": "Edit floor",
+      "removeFloor": "Remove floor",
+      "addTitle": "Add a floor",
+      "editTitle": "Edit floor",
+      "dialogDescription": "1 is the ground floor, 0 a mezzanine, negative numbers a basement.",
+      "floorNo": "Floor number",
+      "floorNoHint": "Unique per site — there is only one floor 2.",
+      "name": "Name",
+      "namePlaceholder": "Ground, First floor, Mezzanine, Roof terrace…",
+      "areaM2": "Floor area",
+      "purpose": "Intended use",
+      "purposePlaceholder": "Bar and seating, quiet seating, storage, WC…",
+      "removeTitle": "Remove this floor?",
+      "removeDescription": "Openings pinned to it stay on the site profile but lose their floor.",
+      "removeConfirm": "Remove floor"
+    },
+    "openings": {
+      "title": "Doors, windows and balconies",
+      "subtitle": "Where light and people get in — this decides where a counter can go.",
+      "add": "Add opening",
+      "empty": "No openings recorded yet.",
+      "noFloor": "No floor set",
+      "quantity": "×{count}",
+      "size": "{width} × {height} m",
+      "noDetail": "No detail recorded",
+      "editOpening": "Edit opening",
+      "removeOpening": "Remove opening",
+      "addTitle": "Add an opening",
+      "editTitle": "Edit opening",
+      "dialogDescription": "Group identical openings on one row and set the quantity.",
+      "type": "Type",
+      "floor": "Floor",
+      "widthM": "Width",
+      "heightM": "Height",
+      "quantityLabel": "Quantity",
+      "quantityHint": "Four matching windows are one row with a quantity of 4.",
+      "note": "Note",
+      "removeTitle": "Remove this opening?",
+      "removeDescription": "It disappears from the site profile.",
+      "removeConfirm": "Remove opening"
+    }
+  },
+  "ChangeOrders": {
+    "title": "Change orders",
+    "subtitle": "Money agreed after the contract — the other side has to accept it.",
+    "create": "Raise a change order",
+    "noEngagement": {
+      "title": "No engagement on this project",
+      "description": "Change orders belong to a job you have been taken on for."
+    },
+    "summary": {
+      "title": "What this job now costs",
+      "subtitle": "The signed contract plus everything accepted since.",
+      "contractValue": "Contract value",
+      "noContract": "No signed contract",
+      "accepted": "Accepted extras",
+      "acceptedCount": "{count, plural, =1 {1 item} other {# items}}",
+      "pending": "Awaiting a decision",
+      "pendingCount": "{count, plural, =1 {1 item} other {# items}}",
+      "totalCommitted": "Committed total",
+      "totalCommittedHint": "Contract + accepted extras",
+      "revisionFees": "Of which revision fees",
+      "revisionFeesHint": "Extra design rounds beyond the free quota",
+      "billed": "Billed",
+      "billedHint": "Accepted extras that became a payment batch",
+      "paid": "Paid",
+      "paidHint": "Batches you have confirmed receiving",
+      "unbilled": "{amount} agreed but not billable yet",
+      "unbilledHint": "Both sides accepted this, but no payment batch covers it — either the engagement has no signed contract, or it was agreed before extras started generating batches."
+    },
+    "filters": {
+      "all": "All",
+      "pending": "Awaiting a decision",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "status": {
+      "pending": "Awaiting a decision",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "kind": {
+      "extra_revision": "Extra revision",
+      "scope_change": "Scope change",
+      "material_change": "Material change",
+      "other": "Other"
+    },
+    "raisedByYou": "You raised this",
+    "raisedByOwner": "The owner raised this",
+    "revisionNo": "Revision {no}",
+    "rejectedBecause": "Rejected: {reason}",
+    "actions": {
+      "edit": "Edit",
+      "withdraw": "Withdraw",
+      "accept": "Accept",
+      "reject": "Reject",
+      "setPrice": "Set the price"
+    },
+    "empty": {
+      "title": "No change orders",
+      "description": "Nothing has been added to the contract value on this job."
+    },
+    "error": {
+      "title": "Could not load change orders",
+      "subtitle": "The list is on the server but we could not reach it.",
+      "retry": "Try again"
+    },
+    "dialog": {
+      "createTitle": "Raise a change order",
+      "editTitle": "Edit change order",
+      "description": "The owner sees the reason and decides. Only they can accept it.",
+      "kind": "Kind",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Add an extraction system",
+      "amount": "Amount (VND)",
+      "amountHint": "0 is allowed — use it when the change costs nothing.",
+      "reason": "Reason",
+      "reasonPlaceholder": "What changed on site, why it is needed, and what it affects…",
+      "reasonHint": "This is the whole case the owner reads before deciding.",
+      "cancel": "Cancel",
+      "send": "Send for approval"
+    },
+    "reject": {
+      "title": "Reject this change order",
+      "description": "A reason is required — it is what the other side gets back.",
+      "placeholder": "Why this is not accepted…",
+      "confirm": "Reject"
+    },
+    "withdraw": {
+      "title": "Withdraw this change order?",
+      "description": "It disappears entirely. Only one that is still awaiting a decision can be withdrawn.",
+      "confirm": "Withdraw"
+    },
+    "billing": {
+      "pending": "Billed — awaiting the owner's transfer",
+      "proof_submitted": "The owner has marked this paid — confirm it on the payments page",
+      "confirmed": "Paid and confirmed",
+      "rejected": "You rejected the owner's proof for this",
+      "notBilled": "Accepted, but no payment batch covers it yet"
+    },
+    "needsPricing": {
+      "provider": "The owner asked for a round beyond the free quota. The quotation never published a rate, so put your price on it — the owner cannot decide until you do.",
+      "owner": "Waiting for the provider to price this round. Nothing to decide yet."
+    },
+    "unpriced": "Not priced yet"
+  },
+  "CostSummary": {
+    "title": "Cost of the build",
+    "subtitle": "Labour and materials, planned against actual.",
+    "estimatedTotal": "Planned total",
+    "actualTotal": "Actual total",
+    "pendingActuals": "{count, plural, =1 {1 line still open} other {# lines still open}}",
+    "labour": "Labour and plant",
+    "materials": "Materials",
+    "overBudget": "Over the plan by {amount}",
+    "underBudget": "Under the plan by {amount}",
+    "plannedDays": "{count, plural, =1 {1 day planned} other {# days planned}}",
+    "actualDays": "{count, plural, =1 {1 day taken} other {# days taken}}",
+    "actualPending": "Actual pending",
+    "actualIs": "Actual {amount}",
+    "status": {
+      "pending": "Not started",
+      "in_progress": "In progress",
+      "completed": "Completed"
+    },
+    "acceptedChangeOrders": "Accepted change orders",
+    "pendingChangeOrders": "Awaiting a decision",
+    "totalWithChangeOrders": "Total incl. change orders",
+    "changeOrdersHint": "Extras agreed after the contract. They are real cost on this job but sit outside the milestone tree above."
+  },
+  "ProviderBrand": {
+    "unavailable": "This provider has not published a brand page yet.",
+    "verified": "Verified provider",
+    "notSet": "Not set",
+    "common": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "add": "Add",
+      "remove": "Remove"
+    },
+    "identity": {
+      "subtitle": "What an owner reads before deciding to hire you.",
+      "edit": "Edit brand",
+      "foundedYear": "Founded",
+      "employeeCount": "Team size",
+      "people": "{count, plural, =1 {1 person} other {# people}}",
+      "yearsExperience": "Experience",
+      "years": "{count, plural, =1 {1 year} other {# years}}",
+      "rating": "Rating",
+      "ratingValue": "{rating} from {count, plural, =1 {1 review} other {# reviews}}",
+      "noReviews": "No reviews yet",
+      "story": "Our story",
+      "storyPlaceholder": "How you started, what you are known for, how you work…",
+      "website": "Website",
+      "introVideo": "Intro video",
+      "dialogTitle": "Edit brand",
+      "dialogDescription": "Paste links to media you already host.",
+      "logoUrl": "Logo URL",
+      "coverImageUrl": "Cover image URL",
+      "introVideoUrl": "Intro video URL",
+      "companyAddress": "Company address"
+    },
+    "links": {
+      "title": "Where to find you",
+      "subtitle": "One link per platform.",
+      "empty": "No links yet.",
+      "add": "Add link",
+      "dialogTitle": "Add a link",
+      "dialogDescription": "A platform can only appear once.",
+      "platform": "Platform",
+      "url": "URL",
+      "label": "Label",
+      "removeTitle": "Remove this link?",
+      "removeDescription": "It disappears from your public brand page."
+    },
+    "platform": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "youtube": "YouTube",
+      "linkedin": "LinkedIn",
+      "zalo": "Zalo",
+      "website": "Website",
+      "other": "Other"
+    },
+    "areas": {
+      "title": "Where you work",
+      "subtitle": "Provinces and districts you take jobs in.",
+      "empty": "No service areas yet.",
+      "add": "Add area",
+      "dialogTitle": "Add a service area",
+      "dialogDescription": "Province is required; district narrows it.",
+      "province": "Province or city",
+      "district": "District",
+      "note": "Note",
+      "removeTitle": "Remove this area?",
+      "removeDescription": "It disappears from your public brand page."
+    },
+    "certificates": {
+      "title": "Licences and certificates",
+      "subtitle": "Only an administrator can mark one as verified.",
+      "empty": "No certificates yet.",
+      "add": "Add certificate",
+      "verified": "Verified",
+      "expired": "Expired",
+      "noDetail": "No detail recorded",
+      "remove": "Remove certificate",
+      "removeTitle": "Remove this certificate?",
+      "removeDescription": "It disappears from your public brand page.",
+      "dialogTitle": "Add a certificate",
+      "dialogDescription": "Licence, certificate, award or membership.",
+      "kind": "Kind",
+      "name": "Name",
+      "issuer": "Issued by",
+      "number": "Number",
+      "issuedAt": "Issued on",
+      "expiresAt": "Expires on",
+      "fileUrl": "Scan URL",
+      "verifyNote": "New certificates start unverified. An administrator checks them — you cannot verify your own."
+    },
+    "certificateKind": {
+      "license": "Licence",
+      "certificate": "Certificate",
+      "award": "Award",
+      "membership": "Membership",
+      "other": "Other"
+    }
+  },
+  "Portfolio": {
+    "add": "Add a project",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "addImage": "Add photo",
+    "addImageDescription": "Paste a link to a photo you already host.",
+    "removeImage": "Remove photo",
+    "watchVideo": "Watch the walk-through",
+    "noDetail": "No detail recorded",
+    "areaValue": "{value} m²",
+    "durationValue": "{count, plural, =1 {1 day} other {# days}}",
+    "editTitle": "Edit project",
+    "addTitle": "Add a project",
+    "dialogDescription": "Past work an owner reads while comparing bids.",
+    "deleteTitle": "Delete this project?",
+    "deleteDescription": "The entry and its photos are removed for good.",
+    "empty": {
+      "title": "No sample projects yet",
+      "description": "Show the work that wins you the next job.",
+      "readOnly": "This provider has not published any sample projects yet."
+    },
+    "role": {
+      "design": "Design",
+      "construction": "Build",
+      "both": "Design and build"
+    },
+    "fields": {
+      "title": "Project name",
+      "titlePlaceholder": "Nha Go Coffee — District 3",
+      "role": "Your part in it",
+      "style": "Style",
+      "location": "Location",
+      "areaM2": "Area (m²)",
+      "contractValue": "Contract value (VND)",
+      "durationDays": "Duration (days)",
+      "completedAt": "Completed on",
+      "videoUrl": "Video URL",
+      "coverImageUrl": "Cover image URL",
+      "isFeatured": "Pin to the top of my profile",
+      "description": "Description",
+      "descriptionPlaceholder": "What the brief was, what you did, how it turned out…",
+      "imageUrl": "Image URL",
+      "caption": "Caption"
     }
   }
 }

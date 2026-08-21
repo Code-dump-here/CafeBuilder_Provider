@@ -63,12 +63,12 @@ export type EngagementCapability = "designer" | "constructor" | "both";
  *                                next to the lifecycle CTAs.
  */
 export interface Engagement {
-  id: number;
-  projectShopOwnerId: number;
+  id: string;
+  projectShopOwnerId: string;
   projectName: string;
-  serviceProviderProfileId: number;
+  serviceProviderProfileId: string;
   providerDisplayName: string;
-  applyId: number | null;
+  applyId: string | null;
   contractType: EngagementContractType;
   status: EngagementStatus;
   requestMessage: string | null;
@@ -105,7 +105,7 @@ export interface Engagement {
  * Mirrors the wire shape returned alongside `Engagement`.
  */
 export interface EngagementContractSummary {
-  id: number;
+  id: string;
   title: string;
   agreedValue: number;
   status: string;
@@ -141,7 +141,7 @@ export interface EngagementListResponse {
  * Simplified design brief for engagement overview.
  */
 export interface EngagementBriefSummary {
-  id: number;
+  id: string;
   targetCustomer: string;
   style: string;
   mood: string;
@@ -151,7 +151,7 @@ export interface EngagementBriefSummary {
  * AI recommendation summary for engagement overview.
  */
 export interface EngagementAiSummary {
-  id: number;
+  id: string;
   conceptSummary: string;
   state: string;
   /**
@@ -171,7 +171,7 @@ export interface EngagementAiSummary {
  * Approved design summary for engagement overview.
  */
 export interface EngagementDesignSummary {
-  id: number;
+  id: string;
   title: string;
   version: number;
 }
@@ -180,11 +180,11 @@ export interface EngagementDesignSummary {
  * Engagement overview response from `GET /api/project-workings/{id}/overview`.
  */
 export interface EngagementOverview {
-  projectWorkingId: number;
+  projectWorkingId: string;
   contractType: EngagementContractType;
   status: EngagementStatus;
   projectShopOwner: {
-    id: number;
+    id: string;
     name: string;
     address: string;
     areaM2: number | null;

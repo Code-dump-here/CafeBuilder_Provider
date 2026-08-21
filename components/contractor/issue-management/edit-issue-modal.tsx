@@ -24,7 +24,7 @@ import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { Field } from "@/components/ui/field";
 
 export interface EditIssueInput {
-  issueTypeId: number;
+  issueTypeId: string;
   cause: string;
   reason: string;
   solution: string;
@@ -37,7 +37,7 @@ interface EditIssueModalProps {
   issue: Issue | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (id: number, input: EditIssueInput) => void;
+  onSubmit: (id: string, input: EditIssueInput) => void;
   isSubmitting?: boolean;
 }
 
@@ -112,7 +112,7 @@ export function EditIssueModal({
           <Field label={tIssue("fields.issueType")}>
             <select
               value={form.issueTypeId}
-              onChange={(e) => update("issueTypeId", Number(e.target.value))}
+              onChange={(e) => update("issueTypeId", e.target.value)}
               required
               disabled={isLoadingTypes}
               className="border-input bg-transparent flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs outline-none"

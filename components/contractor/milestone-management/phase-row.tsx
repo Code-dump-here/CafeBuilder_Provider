@@ -29,12 +29,14 @@ interface PhaseRowProps {
   onEditMeta: (phaseId: string) => void;
   onDelete: (phaseId: string) => void;
   onOpenNotes: (phaseId: string) => void;
+  onOpenChecklist: (phaseId: string) => void;
+  onOpenMaterials: (phaseId: string) => void;
   onStatusChange: (phaseId: string, status: MilestoneStatus) => void;
   highlight?: boolean;
 }
 
 export function PhaseRow(props: PhaseRowProps) {
-  const { phase, index, taskMeta, taskStatus, highlight, onToggleTask, onOpenTask, onRequestAddTask, onRename, onEditMeta, onDelete, onOpenNotes, onStatusChange } = props;
+  const { phase, index, taskMeta, taskStatus, highlight, onToggleTask, onOpenTask, onRequestAddTask, onRename, onEditMeta, onDelete, onOpenNotes, onOpenChecklist, onOpenMaterials, onStatusChange } = props;
   const t = useTranslations("MilestoneManagement.phase");
 
   const doneCount = phase.tasks.reduce(
@@ -58,6 +60,8 @@ export function PhaseRow(props: PhaseRowProps) {
         onEditMeta={onEditMeta}
         onDelete={onDelete}
         onOpenNotes={onOpenNotes}
+        onOpenChecklist={onOpenChecklist}
+        onOpenMaterials={onOpenMaterials}
         onStatusChange={onStatusChange}
       />
 

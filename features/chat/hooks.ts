@@ -71,14 +71,14 @@ function parseDate(iso: string): Date {
 // ─── Conversation list ────────────────────────────────────────────────────────
 
 export interface UseConversationsOptions {
-  projectWorkingId: number | null;
+  projectWorkingId: string | null;
   pageNumber?: number;
   pageSize?: number;
   /**
    * Optional override: return data from this fn instead of the API.
    * Mirrors the `__setMessagesOverride` pattern used by `useMessageThreads`.
    */
-  override?: (projectWorkingId: number) => ConversationListResponse | null;
+  override?: (projectWorkingId: string) => ConversationListResponse | null;
 }
 
 export interface UseConversationsResult {
@@ -105,7 +105,7 @@ export function useConversations(
 
   const query = useQuery<ConversationListResponse, Error>({
     queryKey: queryKeys.chat.conversations(
-      projectWorkingId ?? 0,
+      projectWorkingId ?? "",
       pageNumber,
       pageSize,
     ),
@@ -142,11 +142,11 @@ export function useConversations(
 // ─── Single conversation detail ────────────────────────────────────────────────
 
 export interface UseConversationOptions {
-  conversationId: number | null;
+  conversationId: string | null;
   pageNumber?: number;
   pageSize?: number;
   override?: (
-    conversationId: number,
+    conversationId: string,
   ) => ConversationDetailResponse | null;
 }
 
@@ -174,7 +174,7 @@ export function useConversation(
 
   const query = useQuery<ConversationDetailResponse, Error>({
     queryKey: queryKeys.chat.conversation(
-      conversationId ?? 0,
+      conversationId ?? "",
       pageNumber,
       pageSize,
     ),
@@ -208,7 +208,7 @@ export function useConversation(
 // ─── Message polling ─────────────────────────────────────────────────────────
 
 export interface UseChatPollingOptions {
-  conversationId: number | null;
+  conversationId: string | null;
   /**
    * Called whenever a new batch of messages arrives.
    * Return `true` to indicate the messages were handled (stop appending
@@ -217,7 +217,7 @@ export interface UseChatPollingOptions {
    */
   onMessages?: (messages: MessageResponse[]) => boolean | void;
   /** Cursor: id of the most recently seen message. Defaults to latest from the conversation page. */
-  initialSinceId?: number;
+  initialSinceId?: string;
   /** Polling interval in ms. Default 3000. */
   intervalMs?: number;
 }
@@ -263,7 +263,7 @@ export function useChatPolling(
     intervalMs = 3000,
   } = options;
 
-  const lastIdRef = React.useRef<number | null>(initialSinceId ?? null);
+  const lastIdRef = React.useRef<string | null>(initialSinceId ?? null);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = React.useRef<AbortController | null>(null);
   // Set by the effect cleanup so an in-flight poll can't reschedule itself
@@ -280,7 +280,7 @@ export function useChatPolling(
   // active thread id, so those messages would have surfaced under the wrong
   // conversation.
   const [accumulated, setAccumulated] = React.useState<{
-    conversationId: number | null;
+    conversationId: string | null;
     messages: MessageResponse[];
   }>({ conversationId: null, messages: [] });
 
@@ -395,7 +395,7 @@ export function useSendMessage(options: UseSendMessageOptions = {}) {
   return useMutation<
     MessageResponse,
     Error,
-    { conversationId: number; payload: SendMessagePayload }
+    { conversationId: string; payload: SendMessagePayload }
   >({
     mutationFn: ({ conversationId, payload }) =>
       sendMessageApi(conversationId, payload),
@@ -443,12 +443,12 @@ export function useCreateConversation(
 // ─── Delete conversation ─────────────────────────────────────────────────────
 
 export function useDeleteConversation(
-  projectWorkingId: number,
+  projectWorkingId: string,
   onSuccessSideEffect?: () => void,
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, number>({
+  return useMutation<void, Error, string>({
     mutationFn: (conversationId) => deleteConversationApi(conversationId),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -462,12 +462,12 @@ export function useDeleteConversation(
 // ─── Delete message ──────────────────────────────────────────────────────────
 
 export function useDeleteMessage(
-  conversationId: number,
+  conversationId: string,
   onSuccessSideEffect?: () => void,
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, number>({
+  return useMutation<void, Error, string>({
     mutationFn: (messageId) => deleteMessageApi(messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -489,19 +489,19 @@ export function useDeleteMessage(
  */
 export function apiMessageToDisplay(
   msg: MessageResponse,
-  threadId: number,
+  threadId: string,
 ): {
-  id: number;
-  threadId: number;
+  id: string;
+  threadId: string;
   author: {
-    id: number;
+    id: string;
     fullName: string;
     avatarColor: string | null;
   };
   body: string;
   createdAt: Date;
   attachments: Array<{
-    id: number;
+    id: string;
     kind: "FILE" | "MEDIA" | "VOICE";
     title: string;
     subtitle: string | null;
@@ -560,14 +560,14 @@ function formatFileSize(bytes: number): string {
  */
 export function apiConversationToThread(
   conv: ConversationSummary | ConversationDetailResponse,
-  projectId: number,
+  projectId: string,
 ): {
-  id: number;
-  projectId: number;
+  id: string;
+  projectId: string;
   title: string;
   snippet: string;
   participants: Array<{
-    id: number;
+    id: string;
     fullName: string;
     avatarColor: string | null;
   }>;
@@ -580,12 +580,12 @@ export function apiConversationToThread(
   isRoom: boolean;
   messages: Array<ReturnType<typeof apiMessageToDisplay>>;
   members: Array<{
-    id: number;
+    id: string;
     fullName: string;
     avatarColor: string | null;
   }>;
   attachments: Array<{
-    id: number;
+    id: string;
     kind: "FILE" | "MEDIA" | "VOICE";
     title: string;
     subtitle: string | null;
@@ -607,7 +607,7 @@ export function apiConversationToThread(
     lastMsg?.body ?? (lastMsg ? "Attachment" : "No messages yet");
 
   // Participants = last message sender + thread creator (deduped)
-  const participantMap = new Map<number, { id: number; fullName: string; avatarColor: string | null }>();
+  const participantMap = new Map<string, { id: string; fullName: string; avatarColor: string | null }>();
   if (lastMsgSender) {
     participantMap.set(lastMsgSender.accountId, {
       id: lastMsgSender.accountId,

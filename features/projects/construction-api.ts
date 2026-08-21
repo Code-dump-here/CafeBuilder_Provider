@@ -39,9 +39,9 @@ export async function createConstructionItemApi(
  * Endpoint: `GET /api/construction-items?projectWorkingId=&parentId=&status=`
  */
 export async function getConstructionItemsApi(
-  projectWorkingId: number,
+  projectWorkingId: string,
   options?: {
-    parentId?: number | null;
+    parentId?: string | null;
     status?: string;
     pageNumber?: number;
     pageSize?: number;
@@ -77,7 +77,7 @@ export async function getConstructionItemsApi(
  * Endpoint: `GET /api/construction-items/{id}`
  */
 export async function getConstructionItemApi(
-  id: number,
+  id: string,
   config?: RequestConfig,
 ): Promise<ConstructionItem> {
   const response = await api.get<ConstructionItem>(
@@ -93,7 +93,7 @@ export async function getConstructionItemApi(
  * Endpoint: `PUT /api/construction-items/{id}`
  */
 export async function updateConstructionItemApi(
-  id: number,
+  id: string,
   payload: UpdateConstructionItemPayload,
   config?: RequestConfig,
 ): Promise<ConstructionItem> {
@@ -111,7 +111,7 @@ export async function updateConstructionItemApi(
  * Endpoint: `PUT /api/construction-items/{id}/status`
  */
 export async function setConstructionItemStatusApi(
-  id: number,
+  id: string,
   payload: SetConstructionItemStatusPayload,
   config?: RequestConfig,
 ): Promise<ConstructionItem> {
@@ -129,7 +129,7 @@ export async function setConstructionItemStatusApi(
  * Endpoint: `DELETE /api/construction-items/{id}`
  */
 export async function deleteConstructionItemApi(
-  id: number,
+  id: string,
   config?: RequestConfig,
 ): Promise<void> {
   await api.delete(`/api/construction-items/${id}`, config);
@@ -166,8 +166,8 @@ export async function createConstructionTaskApi(
  */
 export async function getConstructionTasksApi(
   options?: {
-    constructionItemId?: number;
-    projectWorkingId?: number;
+    constructionItemId?: string;
+    projectWorkingId?: string;
     status?: string;
     pageNumber?: number;
     pageSize?: number;
@@ -204,7 +204,7 @@ export async function getConstructionTasksApi(
  * Endpoint: `GET /api/construction-tasks/{id}`
  */
 export async function getConstructionTaskApi(
-  id: number,
+  id: string,
   config?: RequestConfig,
 ): Promise<ConstructionTask> {
   const response = await api.get<ConstructionTask>(
@@ -220,7 +220,7 @@ export async function getConstructionTaskApi(
  * Endpoint: `PUT /api/construction-tasks/{id}`
  */
 export async function updateConstructionTaskApi(
-  id: number,
+  id: string,
   payload: UpdateConstructionTaskPayload,
   config?: RequestConfig,
 ): Promise<ConstructionTask> {
@@ -238,7 +238,7 @@ export async function updateConstructionTaskApi(
  * Endpoint: `PUT /api/construction-tasks/{id}/status`
  */
 export async function setConstructionTaskStatusApi(
-  id: number,
+  id: string,
   payload: SetConstructionTaskStatusPayload,
   config?: RequestConfig,
 ): Promise<ConstructionTask> {
@@ -256,7 +256,7 @@ export async function setConstructionTaskStatusApi(
  * Endpoint: `DELETE /api/construction-tasks/{id}`
  */
 export async function deleteConstructionTaskApi(
-  id: number,
+  id: string,
   config?: RequestConfig,
 ): Promise<void> {
   await api.delete(`/api/construction-tasks/${id}`, config);

@@ -10,7 +10,7 @@ import type {
 
 export interface DesignBriefListFilters {
   /** Required by the backend to scope briefs to one project. */
-  projectId: number;
+  projectId: string;
   pageNumber: number;
   pageSize: number;
 }

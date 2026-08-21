@@ -16,6 +16,7 @@ import { AiRecommendationsList } from "@/components/design-brief/ai-recommendati
 import { AiRecommendationsSummaryList } from "@/components/design-brief/ai-recommendations-summary-list";
 import { BriefDetailsCard } from "@/components/design-brief/brief-details-card";
 import { ProjectApplyCard } from "@/components/project-overview/project-apply-card";
+import { NextStepsCard } from "@/components/project-overview/next-steps-card";
 import { ProjectInvitationBanner } from "@/components/project-overview/project-invitation-banner";
 import { ProjectTerminationBanner } from "@/components/project-overview/project-termination-banner";
 import { useCurrentUser } from "@/features/auth/user-context";
@@ -223,6 +224,17 @@ export default function ProjectDetailPage() {
 
             {/* Right column — Quick Facts (top) → Owner → Apply → Members/Providers */}
             <div className="flex flex-col gap-4 md:col-span-1">
+              {/* Next steps — first in the rail, because "what do I do now?"
+                  outranks the reference facts below it. Only for a provider
+                  actually engaged here; a visitor or the owner has no job
+                  queue to show. */}
+              {isProviderViewer && myEngagement ? (
+                <NextStepsCard
+                  engagement={myEngagement}
+                  projectId={projectIdParam}
+                />
+              ) : null}
+
               <QuickFactsCard project={project} />
 
               {/* Owner card — the person behind the project. Sits between

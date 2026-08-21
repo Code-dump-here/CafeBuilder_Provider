@@ -162,7 +162,7 @@ export function useApplyToPostMutation(options: ApplyToPostMutationOptions = {})
 // ─── Revise / withdraw ──────────────────────────────────────────────────────
 
 export interface UpdateApplyProposalVariables {
-  applyId: number;
+  applyId: string;
   payload: UpdateApplyProposalPayload;
 }
 
@@ -244,11 +244,12 @@ export function useUpdateApplyProposalMutation(
  * user asked for (they likely withdrew it in another tab).
  */
 export function useWithdrawApplyMutation(
-  options: ApplyMutationOptions<number> = {},
+  // The mutation resolves to the withdrawn application's id, which is a uuid.
+  options: ApplyMutationOptions<string> = {},
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<number, AppError, number>({
+  return useMutation<string, AppError, string>({
     mutationFn: async (applyId) => {
       try {
         await withdrawApplyApi(applyId);
@@ -390,9 +391,9 @@ function preferServerMessage(error: AppError, fallback: string): string {
 
 export interface UseProviderAppliesOptions {
   /** Filter by project (projectShopOwnerId) */
-  projectShopOwnerId?: number | string;
+  projectShopOwnerId?: string;
   /** Filter by post */
-  postId?: number | string;
+  postId?: string;
   /** Filter by status */
   status?: string;
   /** Page size - default to 50 to get all applies in most cases */
@@ -405,9 +406,15 @@ export interface UseProviderAppliesResult {
   /** All applies matching the filters */
   applies: ApplyResponse[];
   /** Find if provider has applied to a specific post */
-  hasAppliedToPost: (targetPostId: number) => boolean;
+  hasAppliedToPost: (targetPostId: string) => boolean;
   /** Get the apply for a specific post */
-  getApplyForPost: (targetPostId: number) => ApplyResponse | undefined;
+  getApplyForPost: (targetPostId: string) => ApplyResponse | undefined;
+  /**
+   * The provider's own application on a project, whichever post it went to.
+   * For callers that hold a project id rather than a post id — the survey
+   * page, which needs the application a bidding-stage survey hangs off.
+   */
+  getApplyForProject: (targetProjectId: string) => ApplyResponse | undefined;
   isLoading: boolean;
   isFetching: boolean;
   isError: boolean;
@@ -465,10 +472,10 @@ export function useProviderApplies(
           serviceProviderProfileId: serviceProviderProfileId ?? undefined,
           projectShopOwnerId:
             projectShopOwnerId !== undefined
-              ? Number(projectShopOwnerId)
+              ? projectShopOwnerId
               : undefined,
           postId:
-            postId !== undefined ? Number(postId) : undefined,
+            postId !== undefined ? postId : undefined,
           status,
           pageSize,
         },
@@ -482,15 +489,27 @@ export function useProviderApplies(
   const applies = query.data?.items ?? [];
 
   const hasAppliedToPost = React.useCallback(
-    (targetPostId: number): boolean => {
+    (targetPostId: string): boolean => {
       return applies.some((apply) => apply.postId === targetPostId);
     },
     [applies],
   );
 
   const getApplyForPost = React.useCallback(
-    (targetPostId: number): ApplyResponse | undefined => {
+    (targetPostId: string): ApplyResponse | undefined => {
       return applies.find((apply) => apply.postId === targetPostId);
+    },
+    [applies],
+  );
+
+  // `GET /api/applies` has no project filter (the `projectShopOwnerId` param
+  // above is ignored by the controller), so the match happens here against the
+  // id the response carries. Prefer a live application: a project can hold an
+  // older rejected bid alongside the current pending one.
+  const getApplyForProject = React.useCallback(
+    (targetProjectId: string): ApplyResponse | undefined => {
+      const mine = applies.filter((a) => a.projectShopOwnerId === targetProjectId);
+      return mine.find((a) => a.status === "pending") ?? mine[0];
     },
     [applies],
   );
@@ -499,6 +518,7 @@ export function useProviderApplies(
     applies,
     hasAppliedToPost,
     getApplyForPost,
+    getApplyForProject,
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     isError: query.isError,

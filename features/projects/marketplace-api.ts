@@ -18,8 +18,8 @@ import {
 // module knows about the raw shape.
 
 interface RawMarketplacePost {
-  id: number;
-  projectShopOwnerId: number;
+  id: string;
+  projectShopOwnerId: string;
   projectName: string;
   projectAddress: string;
   projectBudget: number;
