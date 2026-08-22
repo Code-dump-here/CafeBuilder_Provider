@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import {
+  byScheduleDate,
   useConstructionItems,
   useConstructionTasks,
 } from "@/features/projects/use-construction";
@@ -41,7 +42,7 @@ import type {
  *   | `status`                | derived (see `resolvePhaseStatus`)      | API has only 3 states
  *   | `progress`              | derived (see `resolvePhaseProgress`)    | API has no progress field
  *   | `targetDate`            | `estimateAt`                            | nullable — falls back to createdAt
- *   | `startDate`             | `createdAt`                             | placeholder until API adds startAt
+ *   | `startDate`             | `actualStartAt || startAt || createdAt` | real start wins, then planned
  *   | `endDate`               | `actualAt || estimateAt || updatedAt`   | actual wins, then planned, then last touched
  *   | `lead`                  | `"—"`                                   | removed feature per design decision
  *   | `tasks`                 | `[]`                                    | tasks come from a different endpoint (per milestone)
@@ -175,7 +176,10 @@ function toMilestonePhase(
     status: resolvePhaseStatus(item.status, openIssues),
     progress: resolvePhaseProgress(item.status, openIssues, itemTasks),
     targetDate: item.estimateAt ?? item.createdAt,
-    startDate: item.createdAt,
+    // Real start if work has begun, else the planned one; `createdAt` is only
+    // the last resort for a milestone with no dates at all. Same mapping as
+    // the milestones screen — the two must not disagree about a span.
+    startDate: item.actualStartAt ?? item.startAt ?? item.createdAt,
     endDate: item.actualAt ?? item.estimateAt ?? item.updatedAt,
     lead: "—",
     tasks: [],
@@ -195,11 +199,13 @@ function toMilestonePhases(
   // detail page, not on the overview track. The overview focuses on
   // top-level phase progression.
   const topLevel = items.filter((i) => i.parentId == null);
-  // Sort by createdAt ascending so the track reads left → right as
-  // "earliest planned → latest planned", matching the design intent.
-  const ordered = [...topLevel].sort((a, b) =>
-    a.createdAt.localeCompare(b.createdAt),
-  );
+  // Left → right as "earliest planned → latest planned", which is what the
+  // track is for. Keyed on the planned date, not on `createdAt`: the two only
+  // agree when phases happen to be typed in schedule order, and they cannot
+  // agree at all for a plan generated from a process template, where every row
+  // is written in one transaction and shares a `createdAt` to the millisecond
+  // — that comparison returns 0 for every pair and sorts nothing.
+  const ordered = [...topLevel].sort(byScheduleDate);
   return ordered.map((item) => toMilestonePhase(item, openIssuesByItem, tasks));
 }
 

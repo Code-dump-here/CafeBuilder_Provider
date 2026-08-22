@@ -35,6 +35,34 @@ import type {
 
 // ─── Error messages ───────────────────────────────────────────────────────────
 
+/**
+ * Chronological order for anything that hangs on the construction schedule.
+ *
+ * The milestone screen reads as a plan, so it has to run forward in time — and
+ * it cannot lean on the order rows arrive in. Applying a process template
+ * writes a whole batch inside one transaction, which stamps every row with the
+ * same `createdAt`; sorting on that column leaves the database free to hand
+ * back "Sơn nước" before "Phần thô". The server now orders by `estimateAt`
+ * too, but the screen states the requirement here rather than inheriting it,
+ * so a paged or cache-merged response still renders in the right sequence.
+ *
+ * Undated rows sort last: they are not on the calendar yet.
+ */
+export function byScheduleDate(
+  a: { estimateAt: string | null; createdAt: string; id: string },
+  b: { estimateAt: string | null; createdAt: string; id: string },
+): number {
+  if (a.estimateAt !== b.estimateAt) {
+    if (a.estimateAt === null) return 1;
+    if (b.estimateAt === null) return -1;
+    return a.estimateAt < b.estimateAt ? -1 : 1;
+  }
+  // Same target date — fall back to a stable tiebreak so the list does not
+  // reshuffle between renders.
+  if (a.createdAt !== b.createdAt) return a.createdAt < b.createdAt ? -1 : 1;
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
 const TOAST = {
   createSuccess: "Đã tạo mốc công việc.",
   updateSuccess: "Đã cập nhật mốc công việc.",
@@ -122,9 +150,9 @@ export function useConstructionItems(
 
   const items = query.data?.items ?? [];
 
-  // Separate top-level milestones from sub-milestones
+  // Separate top-level milestones from sub-milestones, in schedule order
   const topLevelItems = React.useMemo(
-    () => items.filter((item) => item.parentId === null),
+    () => items.filter((item) => item.parentId === null).sort(byScheduleDate),
     [items],
   );
 
@@ -139,6 +167,7 @@ export function useConstructionItems(
         grouped[item.parentId]!.push(item);
       }
     }
+    for (const list of Object.values(grouped)) list.sort(byScheduleDate);
     return grouped;
   }, [items]);
 
