@@ -38,6 +38,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { formatVndMillions } from "@/lib/format-currency";
+import { proxiedImageSrc } from "@/lib/image-proxy";
 
 import type {
   AiRecommendation,
@@ -619,7 +620,9 @@ function ConceptImageLarge({ src, alt }: { src: string; alt: string }) {
   }
   return (
     <img
-      src={src}
+      // Artifacts come over plain HTTP, which an HTTPS page blocks as mixed
+      // content — routed through the same-origin proxy. See lib/image-proxy.
+      src={proxiedImageSrc(src)}
       alt={alt}
       loading="lazy"
       onError={() => setError(true)}

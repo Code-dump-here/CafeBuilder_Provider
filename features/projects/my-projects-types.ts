@@ -60,7 +60,7 @@ export type MyProjectContractStatus =
  * a "contract confirmed" badge without an extra round-trip.
  */
 export interface MyProjectContract {
-  id: number;
+  id: string;
   title: string;
   /**
    * VND, as agreed at the time of contract creation. `null` when no value has
@@ -86,9 +86,9 @@ export interface MyProjectContract {
  */
 export interface MyProjectWorking {
   /** Primary key of the project-working row. */
-  id: number;
+  id: string;
   /** Underlying project — use this for `/projects/{id}` navigation. */
-  projectShopOwnerId: number;
+  projectShopOwnerId: string;
   /** Project name (denormalized for list rendering). */
   projectName: string;
   /** What this provider does on the engagement. */
@@ -110,19 +110,19 @@ export interface MyProjectWorking {
   /** Convenience flag the backend denormalizes for the badge. */
   hasConfirmedContract: boolean;
   /** Original application id if this row came from a bid; otherwise null. */
-  applyId: number | null;
+  applyId: string | null;
 }
 
 // ─── Wire types ─────────────────────────────────────────────────────────────
 
 /** Raw JSON shape returned by `GET /api/project-workings`. */
 export interface RawMyProjectWorking {
-  id: number;
-  projectShopOwnerId: number;
+  id: string;
+  projectShopOwnerId: string;
   projectName: string;
-  serviceProviderProfileId: number;
+  serviceProviderProfileId: string;
   providerDisplayName: string;
-  applyId: number | null;
+  applyId: string | null;
   contractType: string;
   status: string;
   requestMessage?: string | null;
@@ -134,7 +134,7 @@ export interface RawMyProjectWorking {
 }
 
 export interface RawMyProjectContract {
-  id: number;
+  id: string;
   title: string;
   /** `decimal?` server-side — absent until the two sides agree a figure. */
   agreedValue?: number | null;
@@ -164,9 +164,21 @@ export interface MyProjectsQueryParams {
   pageNumber: number;
   pageSize: number;
   /** Required — the authenticated provider's `serviceProvider.id`. */
-  serviceProviderProfileId: number;
-  /** Optional `project-workings` status filter. */
-  status?: MyProjectStatus;
+  serviceProviderProfileId: string;
+  /**
+   * Statuses to return, sent as the CSV `statuses` param. Always supply the
+   * full visible set for the "All" tab rather than omitting it: the endpoint
+   * reads an empty value as "no status filter" and would hand back declined
+   * and terminated engagements for the client to throw away again.
+   */
+  statuses?: readonly MyProjectStatus[];
+  /**
+   * Restrict to one kind of work. Matched exactly by the backend
+   * (`e.ContractType == kind`), so `design` does NOT subsume `both` — a
+   * design-and-build engagement answers only to `both`. The filter UI lists
+   * all three separately for exactly that reason.
+   */
+  contractType?: MyProjectContractType;
 }
 
 interface RawPagedResponse {
@@ -282,7 +294,7 @@ function normalizeMyProjectWorking(
     updatedAt: new Date(raw.updatedAt),
     contract: normalizeContract(raw.contract ?? null),
     hasConfirmedContract: !!raw.hasConfirmedContract,
-    applyId: typeof raw.applyId === "number" ? raw.applyId : null,
+    applyId: typeof raw.applyId === "string" && raw.applyId ? raw.applyId : null,
   };
 }
 
@@ -293,15 +305,12 @@ export function normalizeMyProjectsPage(
     .map(normalizeMyProjectWorking)
     .filter((item): item is MyProjectWorking => item !== null);
 
-  // The "All" tab sends no `status`, and the backend's list query excludes
-  // only soft-deleted rows — so declined and finished engagements arrive here
-  // and get dropped above.
-  //
-  // `totalItems` still counts them, so it's corrected by however many this
-  // page discarded. That's approximate: rows dropped on *other* pages are
-  // still in the server's total. Filtering server-side would fix it properly,
-  // but the endpoint takes a single `status` value, so "every live status"
-  // isn't expressible without a backend change.
+  // Nothing should be dropped any more: the request names the exact statuses
+  // it wants via `statuses`, so the server pages over the visible rows only.
+  // This stays as a guard against a status added to the backend later, and
+  // `totalItems` is corrected by whatever it catches — approximate, since
+  // rows dropped on *other* pages are still in the server's total, but the
+  // correction is only ever exercised by a wire value we don't yet know.
   const dropped = raw.items.length - items.length;
 
   return {

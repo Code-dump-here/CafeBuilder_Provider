@@ -34,8 +34,8 @@ const DURATION_DEFAULT_DAYS = 30;
 interface ApplyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  postId: number;
-  providerId: number;
+  postId: string;
+  providerId: string;
   projectName: string;
   /**
    * When present the dialog edits this application instead of creating a
@@ -127,7 +127,7 @@ export function ApplyDialog({
     !isPending &&
     proposalValid &&
     durationValid &&
-    providerId > 0 &&
+    providerId !== "" &&
     !isUnchanged;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

@@ -92,8 +92,11 @@ export function useActiveProjectMembership(
     if (account!.role === "owner" && account!.shopOwner != null) {
       const ownerId = account!.shopOwner.id;
       const projectDetail = projectQuery.project;
-      const projectOwnerId =
-        projectDetail.ownerId > 0 ? projectDetail.ownerId : projectDetail.id;
+      // Fall back to the project id when the response omitted `ownerId`.
+      // The old `> 0` test meant "a real id"; for uuids that is "non-empty".
+      const projectOwnerId = projectDetail.ownerId
+        ? projectDetail.ownerId
+        : projectDetail.id;
       const isOwner = ownerId === projectOwnerId;
       if (!isOwner) {
         return {

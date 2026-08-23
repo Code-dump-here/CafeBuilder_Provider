@@ -73,7 +73,7 @@ export interface UseAiRecommendationsArgs {
    * loading — the query is disabled in that case so we don't hit the
    * backend with a `briefId=0` placeholder request.
    */
-  briefId: number | null;
+  briefId: string | null;
   pageNumber?: number;
   pageSize?: number;
 }
@@ -108,18 +108,17 @@ export function useAiRecommendations(
   const enabled =
     hydrated &&
     briefId != null &&
-    Number.isFinite(briefId) &&
-    briefId > 0;
+    briefId !== "";
 
   const query = useQuery<PagedAiRecommendations, Error>({
-    queryKey: queryKeys.projects.aiRecommendations(briefId ?? 0, {
+    queryKey: queryKeys.projects.aiRecommendations(briefId ?? "", {
       pageNumber,
       pageSize,
     }),
     queryFn: ({ signal }) =>
       fetchAiRecommendations(
         {
-          briefId: briefId as number,
+          briefId: briefId as string,
           pageNumber,
           pageSize,
         },

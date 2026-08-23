@@ -29,6 +29,8 @@ import { useCurrentUser } from "@/features/auth/user-context";
 import { uploadFileApi } from "@/lib/http/file-upload-api";
 import { useSurveys, useCreateSurveyMutation, useUpdateSurveyMutation } from "@/features/projects/use-surveys";
 import { useEngagements } from "@/features/projects/use-engagements";
+import { useProviderApplies } from "@/features/projects/use-project-applications";
+import type { SurveyAnchor } from "@/features/projects/survey-api";
 import type { Survey } from "@/features/projects/survey-types";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { ErrorState } from "@/components/ui/error-state";
@@ -44,6 +46,25 @@ const ACCEPTED_FILE_TYPES = {
   ".doc": [".doc"],
   ".docx": [".docx"],
 };
+
+/** `yyyy-MM-dd` for a date input, in the viewer's own timezone. */
+function todayInputValue(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+/**
+ * A `yyyy-MM-dd` input value as an ISO instant. Midday local time, not
+ * midnight: midnight in a UTC+7 timezone lands on the previous day once
+ * converted, which would show the owner a visit dated a day early.
+ */
+function toIsoDate(value: string): string | undefined {
+  if (!value) return undefined;
+  const [y, m, d] = value.split("-").map(Number);
+  if (!y || !m || !d) return undefined;
+  return new Date(y, m - 1, d, 12, 0, 0).toISOString();
+}
 
 // ---------------------------------------------------------------------------
 // Page component
@@ -79,6 +100,24 @@ export default function SurveyPage() {
 
   const projectWorkingId = myEngagement?.id ?? null;
 
+  // No engagement doesn't mean no survey. On a post with a design phase the
+  // owner can only accept a bidder who has already walked the site
+  // (ApplyService.EnsureSurveySubmittedAsync), so the survey has to be
+  // fileable while the application is still pending — it hangs off the
+  // application instead of an engagement.
+  const { getApplyForProject, isLoading: isLoadingApplies } = useProviderApplies({
+    projectShopOwnerId: projectIdParam,
+    enabled: projectWorkingId === null && viewerProfileId != null,
+  });
+  const pendingApply = projectWorkingId === null ? getApplyForProject(projectIdParam) : undefined;
+  const applyId = pendingApply?.status === "pending" ? pendingApply.id : null;
+
+  const anchor: SurveyAnchor | null = projectWorkingId
+    ? { projectWorkingId }
+    : applyId
+      ? { applyId }
+      : null;
+
   const {
     surveys,
     latestSurvey,
@@ -87,10 +126,7 @@ export default function SurveyPage() {
     isError: isSurveysError,
     error: surveysError,
     refetch,
-  } = useSurveys({
-    projectWorkingId: projectWorkingId ?? 0,
-    enabled: Boolean(projectWorkingId),
-  });
+  } = useSurveys({ anchor });
 
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingSurvey, setEditingSurvey] = React.useState<Survey | null>(null);
@@ -106,12 +142,12 @@ export default function SurveyPage() {
   };
 
   // Loading state
-  if (isLoadingEngagements) {
+  if (isLoadingEngagements || isLoadingApplies) {
     return <SurveyLoadingSkeleton />;
   }
 
-  // No engagement found
-  if (!projectWorkingId) {
+  // Neither engaged nor bidding — nothing to attach a survey to.
+  if (anchor === null) {
     return (
       <div className="flex flex-col gap-6">
         <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card/40 px-6 py-16 text-center">
@@ -237,7 +273,7 @@ export default function SurveyPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         survey={editingSurvey}
-        projectWorkingId={projectWorkingId}
+        anchor={anchor}
         onSuccess={() => {
           setDialogOpen(false);
           void refetch();
@@ -338,7 +374,8 @@ interface SurveyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   survey: Survey | null;
-  projectWorkingId: number;
+  /** Engagement or application the new survey attaches to. */
+  anchor: SurveyAnchor;
   onSuccess: () => void;
 }
 
@@ -346,12 +383,16 @@ function SurveyDialog({
   open,
   onOpenChange,
   survey,
-  projectWorkingId,
+  anchor,
   onSuccess,
 }: SurveyDialogProps) {
   const t = useTranslations("Survey.dialog");
 
   const [conditionNote, setConditionNote] = React.useState("");
+  // The date the provider walked the site. This is the field the accept gate
+  // reads (`surveyed_at`) — a survey without it counts as booked-only and the
+  // owner still can't take the applicant on.
+  const [surveyedOn, setSurveyedOn] = React.useState(todayInputValue);
   const [reportUrl, setReportUrl] = React.useState("");
   const [reportFile, setReportFile] = React.useState<File | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -366,6 +407,9 @@ function SurveyDialog({
       // accepts either form back on submit (it re-normalizes whatever we
       // send), so reusing this same state for the submit payload is safe.
       setReportUrl(survey?.reportViewUrl ?? survey?.reportUrl ?? "");
+      setSurveyedOn(
+        survey?.surveyedAt ? survey.surveyedAt.slice(0, 10) : todayInputValue(),
+      );
       setReportFile(null);
       setUploadError(null);
     }
@@ -418,13 +462,15 @@ function SurveyDialog({
       updateMutation.mutate({
         surveyId: survey.id,
         payload: {
+          surveyedAt: toIsoDate(surveyedOn),
           conditionNote: trimmedNote,
           reportUrl: reportUrl || undefined,
         },
       });
     } else {
       createMutation.mutate({
-        projectWorkingId,
+        ...anchor,
+        surveyedAt: toIsoDate(surveyedOn),
         conditionNote: trimmedNote,
         reportUrl: reportUrl || undefined,
       });
@@ -453,6 +499,31 @@ function SurveyDialog({
           onSubmit={handleSubmit}
           className="flex flex-col gap-4"
         >
+          {/* Visit date */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="survey-surveyed-on"
+              className="text-sm font-medium text-foreground"
+            >
+              {t("surveyedOnLabel")}
+            </label>
+            <Input
+              id="survey-surveyed-on"
+              type="date"
+              value={surveyedOn}
+              max={todayInputValue()}
+              onChange={(e) => setSurveyedOn(e.target.value)}
+              aria-describedby="survey-surveyed-on-hint"
+              className="w-48"
+            />
+            <p
+              id="survey-surveyed-on-hint"
+              className="text-[11px] text-muted-foreground"
+            >
+              {t("surveyedOnHint")}
+            </p>
+          </div>
+
           {/* Condition Note */}
           <div className="flex flex-col gap-1.5">
             <label

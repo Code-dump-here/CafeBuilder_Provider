@@ -54,7 +54,7 @@ function resolveErrorMessage(error: AppError): string {
 // ─── Close / Cancel project mutations ───────────────────────────────────────
 
 export interface CloseProjectVariables {
-  projectId: string | number;
+  projectId: string;
 }
 
 export interface UseCloseProjectOptions {

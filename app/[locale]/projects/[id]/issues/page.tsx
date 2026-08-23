@@ -94,7 +94,7 @@ export default function IssuesPage() {
     error: issuesError,
     refetch: refetchIssues,
   } = useIssues({
-    projectWorkingId: projectWorkingId ?? 0,
+    projectWorkingId: projectWorkingId ?? "",
     enabled: Boolean(projectWorkingId),
   });
 
@@ -116,7 +116,7 @@ export default function IssuesPage() {
   // Store only the id and look the issue up from the list. Holding the whole
   // object meant it went stale on every refetch, which needed an effect to
   // copy fresh data back into state; deriving keeps it current for free.
-  const [detailTargetId, setDetailTargetId] = React.useState<number | null>(null);
+  const [detailTargetId, setDetailTargetId] = React.useState<string | null>(null);
   const detailTarget = React.useMemo(
     () =>
       detailTargetId == null
@@ -139,7 +139,7 @@ export default function IssuesPage() {
     });
   };
 
-  const handleEdit = async (id: number, input: EditIssueInput) => {
+  const handleEdit = async (id: string, input: EditIssueInput) => {
     await updateIssue.mutateAsync({
       id,
       payload: {
@@ -154,7 +154,7 @@ export default function IssuesPage() {
     });
   };
 
-  const handleChangeStatus = async (id: number, next: IssueStatus) => {
+  const handleChangeStatus = async (id: string, next: IssueStatus) => {
     await setStatus.mutateAsync({ id, payload: { status: next } });
     // No local patch needed — `detailTarget` is derived from the list, so the
     // refreshed status flows straight through.

@@ -1,6 +1,5 @@
 import { api } from "@/lib/http/axios";
 import type {
-  ApiSuccessResponse,
   RequestConfig,
 } from "@/lib/http/types";
 
@@ -27,7 +26,7 @@ export type Capability = "designer" | "constructor" | "both";
  * the form doesn't collect it.
  */
 export interface CreateServiceProviderProfilePayload {
-  accountId: number;
+  accountId: string;
   displayName: string;
   providerType: ProviderType;
   capability: Capability;
@@ -66,8 +65,8 @@ export interface UpdateServiceProviderProfilePayload {
  * are wired up.
  */
 export interface ServiceProviderProfileCreated {
-  id: number;
-  accountId: number;
+  id: string;
+  accountId: string;
   displayName: string;
   providerType: ProviderType;
   capability: Capability;
@@ -87,19 +86,19 @@ export interface ServiceProviderProfileCreated {
  * POST /api/service-provider-profiles — finish onboarding for a provider
  * account. Authenticated (request interceptor attaches the Bearer token).
  *
- * Backend returns the standard `{ data, message?, meta? }` envelope so we
- * unwrap `.data` before returning.
+ * The backend returns this DTO flat — there is no `{ data, … }` envelope
+ * anywhere in the API, so unwrapping `.data.data` yielded `undefined`.
  */
 export async function createServiceProviderProfileApi(
   payload: CreateServiceProviderProfilePayload,
   config?: RequestConfig,
 ): Promise<ServiceProviderProfileCreated> {
-  const response = await api.post<ApiSuccessResponse<ServiceProviderProfileCreated>>(
+  const response = await api.post<ServiceProviderProfileCreated>(
     "/api/service-provider-profiles",
     payload,
     config,
   );
-  return response.data.data;
+  return response.data;
 }
 
 /**
@@ -114,14 +113,14 @@ export async function createServiceProviderProfileApi(
  * accounts that aren't the profile owner (or an admin).
  */
 export async function updateServiceProviderProfileApi(
-  id: number,
+  id: string,
   payload: UpdateServiceProviderProfilePayload,
   config?: RequestConfig,
 ): Promise<ServiceProviderProfileCreated> {
-  const response = await api.put<ApiSuccessResponse<ServiceProviderProfileCreated>>(
+  const response = await api.put<ServiceProviderProfileCreated>(
     `/api/service-provider-profiles/${id}`,
     payload,
     config,
   );
-  return response.data.data;
+  return response.data;
 }

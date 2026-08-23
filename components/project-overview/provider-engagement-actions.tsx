@@ -61,7 +61,8 @@ export function ProviderEngagementActions({
   const isProvider = account?.role === "provider";
   const isViewerOnThisRow =
     isProvider &&
-    typeof viewerProfileId === "number" &&
+    typeof viewerProfileId === "string" &&
+    viewerProfileId !== "" &&
     provider.providerId === viewerProfileId;
 
   // Hide for owners, non-providers, providers not engaged here, or
@@ -79,7 +80,7 @@ export function ProviderEngagementActions({
 }
 
 interface InnerProps {
-  engagementId: number;
+  engagementId: string;
   t: ReturnType<typeof useTranslations<"ProjectsOverview.members.providerActions">>;
   tErrors: ReturnType<typeof useTranslations<"ProjectsOverview.members.providerActions.errors">>;
 }
@@ -95,7 +96,7 @@ function ProviderEngagementActionsInner({
   const { data: engagement, isLoading } = useQuery({
     queryKey: ["engagements", "detail", engagementId],
     queryFn: ({ signal }) => getEngagementApi(engagementId, { signal }),
-    enabled: engagementId > 0,
+    enabled: engagementId !== "",
     staleTime: 15_000,
   });
 

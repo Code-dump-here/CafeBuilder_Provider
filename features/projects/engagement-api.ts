@@ -23,8 +23,8 @@ import type {
  */
 export async function getEngagementsApi(
   params: {
-    projectShopOwnerId?: number | string;
-    serviceProviderProfileId?: number | string;
+    projectShopOwnerId?: string;
+    serviceProviderProfileId?: string;
     status?: string;
     pageNumber?: number;
     pageSize?: number;
@@ -70,7 +70,7 @@ export async function getEngagementsApi(
  *   Bearer access token required.
  */
 export async function getEngagementApi(
-  engagementId: number,
+  engagementId: string,
   config?: RequestConfig,
 ): Promise<Engagement> {
   const response = await api.get<Engagement>(
@@ -89,7 +89,7 @@ export async function getEngagementApi(
  *   Bearer access token required.
  */
 export async function getEngagementOverviewApi(
-  engagementId: number,
+  engagementId: string,
   config?: RequestConfig,
 ): Promise<EngagementOverview> {
   const response = await api.get<EngagementOverview>(
@@ -109,7 +109,7 @@ export async function getEngagementOverviewApi(
  *   blocked if rejected or terminated.
  */
 export async function getEngagementBriefApi(
-  engagementId: number,
+  engagementId: string,
   config?: RequestConfig,
 ): Promise<unknown> {
   const response = await api.get(
@@ -134,7 +134,7 @@ export async function getEngagementBriefApi(
  * `requestCompletion` / `completeEngagement` / `terminateEngagement`.
  */
 export async function updateEngagementStatusApi(
-  engagementId: number,
+  engagementId: string,
   payload: UpdateEngagementStatusPayload,
   config?: RequestConfig,
 ): Promise<Engagement> {
@@ -169,7 +169,7 @@ export async function updateEngagementStatusApi(
  *   - 409 deliverable not finished — message already Vietnamese, just toast.
  */
 export async function requestCompletionApi(
-  engagementId: number,
+  engagementId: string,
   payload: { note?: string } = {},
   config?: RequestConfig,
 ): Promise<Engagement> {
@@ -197,7 +197,7 @@ export async function requestCompletionApi(
  * provider's request or finish the deliverable first.
  */
 export async function completeEngagementApi(
-  engagementId: number,
+  engagementId: string,
   config?: RequestConfig,
 ): Promise<Engagement> {
   const response = await api.post<Engagement>(
@@ -221,7 +221,7 @@ export async function completeEngagementApi(
  * "wait for acceptance" flag is reset).
  */
 export async function terminateEngagementApi(
-  engagementId: number,
+  engagementId: string,
   config?: RequestConfig,
 ): Promise<Engagement> {
   const response = await api.post<Engagement>(

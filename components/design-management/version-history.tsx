@@ -14,7 +14,7 @@ import type {
 
 interface VersionHistoryProps {
   versions: DesignVersion[];
-  currentVersionId: number;
+  currentVersionId: string;
   projectId: string;
 }
 

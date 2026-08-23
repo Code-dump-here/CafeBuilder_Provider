@@ -35,15 +35,15 @@ export type VersionStatus =
   | "revision";
 
 export interface DesignVersionOwner {
-  id: number;
+  id: string;
   fullName: string;
   /** Hex used as the avatar background; falls back to `bg-muted` when null. */
   avatarColor: string | null;
 }
 
 export interface DesignVersion {
-  id: number;
-  projectId: number;
+  id: string;
+  projectId: string;
   /** Human-friendly code, e.g. "V3.0" or "R-2025-08". */
   code: string;
   /** Short label shown in the row title, e.g. "Concept Lock". */
@@ -65,8 +65,8 @@ export interface DesignVersion {
 }
 
 export interface DesignDrawing {
-  id: number;
-  versionId: number;
+  id: string;
+  versionId: string;
   /** Display name, e.g. "Ground floor plan" or "Section A-A". */
   name: string;
   code: string;
@@ -89,12 +89,12 @@ export interface DesignDrawing {
  * order in the right-rail comments panel.
  */
 export interface DesignVersionComment {
-  id: number;
-  versionId: number;
+  id: string;
+  versionId: string;
   author: DesignVersionOwner;
   body: string;
   pinned: boolean;
-  parentId: number | null;
+  parentId: string | null;
   createdAt: Date;
 }
 
@@ -127,19 +127,19 @@ export interface DesignVersionComment {
 export type DesignVersionSnapshotKind = "submitted" | "approved" | "revision";
 
 export interface DesignVersionImage {
-  id: number;
+  id: string;
   /** FK to the source `DesignImage.Id`, nulled when the source is deleted. */
-  originalImageId: number | null;
+  originalImageId: string | null;
   /** COPY of the GCS ObjectName — survives deletion of the source image. */
   imageUrl: string;
   caption: string | null;
-  uploadedBy: number;
+  uploadedBy: string;
   uploadedAt: Date;
 }
 
 export interface DesignVersionSnapshot {
-  id: number;
-  designId: number;
+  id: string;
+  designId: string;
   snapshotKind: DesignVersionSnapshotKind;
   /** Semantic version at the moment of snapshot (e.g. "0.1", "1.5"). */
   version: string;
@@ -148,8 +148,8 @@ export interface DesignVersionSnapshot {
   /** Status at the moment of snapshot (typically equals snapshotKind). */
   status: import("./design-types").DesignStatus;
   reason: string | null;
-  createdBy: number | null;
-  snapshottedBy: number | null;
+  createdBy: string | null;
+  snapshottedBy: string | null;
   createdAt: Date;
   snapshottedAt: Date;
   images: DesignVersionImage[];

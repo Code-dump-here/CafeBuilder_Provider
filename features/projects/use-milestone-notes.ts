@@ -36,17 +36,17 @@ export interface UseMilestoneNotesResult {
  * disabled and an empty list comes back.
  */
 export function useMilestoneNotes(
-  constructionItemId: number | null,
+  constructionItemId: string | null,
 ): UseMilestoneNotesResult {
   const query = useQuery({
     queryKey: queryKeys.comments.list(
       "construction_item",
-      constructionItemId ?? 0,
+      constructionItemId ?? "",
     ),
     queryFn: () =>
       getCommentsApi({
         targetType: "construction_item",
-        targetId: constructionItemId as number,
+        targetId: constructionItemId as string,
       }),
     enabled: constructionItemId != null,
   });
@@ -64,7 +64,7 @@ export function useMilestoneNotes(
  * a toast rather than being swallowed, so it can't look like it worked.
  */
 export function useCreateMilestoneNoteMutation(
-  constructionItemId: number | null,
+  constructionItemId: string | null,
 ) {
   const queryClient = useQueryClient();
 
@@ -72,7 +72,7 @@ export function useCreateMilestoneNoteMutation(
     mutationFn: (body: string) =>
       createCommentApi({
         targetType: "construction_item",
-        targetId: constructionItemId as number,
+        targetId: constructionItemId as string,
         body,
       }),
 
@@ -80,7 +80,7 @@ export function useCreateMilestoneNoteMutation(
       void queryClient.invalidateQueries({
         queryKey: queryKeys.comments.list(
           "construction_item",
-          constructionItemId ?? 0,
+          constructionItemId ?? "",
         ),
       });
     },

@@ -146,7 +146,7 @@ export function PlanGrid({ plans, submittingPlanId, onSubscribe }: PlanGridProps
     byRole.set(plan.targetRole, bucket);
   }
 
-  const savingsByPlanId = new Map<number, number>();
+  const savingsByPlanId = new Map<string, number>();
   for (const [, rolePlans] of byRole) {
     const monthly = rolePlans.find((p) => p.durationInDays === 30);
     const yearly = rolePlans.find((p) => p.durationInDays === 365);
@@ -160,7 +160,9 @@ export function PlanGrid({ plans, submittingPlanId, onSubscribe }: PlanGridProps
     const ay = a.durationInDays === 365 ? 1 : 0;
     const by = b.durationInDays === 365 ? 1 : 0;
     if (ay !== by) return by - ay;
-    return a.id - b.id;
+    // Tie-break only needs to be stable, not meaningful — uuids have no
+    // ordering, so compare them as strings.
+    return a.id.localeCompare(b.id);
   });
 
   return (

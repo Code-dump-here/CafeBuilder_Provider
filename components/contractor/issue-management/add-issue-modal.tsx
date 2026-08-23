@@ -24,7 +24,7 @@ import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { Field } from "@/components/ui/field";
 
 export interface AddIssueInput {
-  issueTypeId: number;
+  issueTypeId: string;
   cause: string;
   reason: string;
   solution: string;
@@ -41,7 +41,7 @@ interface AddIssueModalProps {
 }
 
 const EMPTY: AddIssueInput = {
-  issueTypeId: 0,
+  issueTypeId: "0",
   cause: "",
   reason: "",
   solution: "",
@@ -89,7 +89,7 @@ export function AddIssueModal({
   // and the effect had `form.issueTypeId` in its own deps — it re-ran on
   // every change to the field it was setting.
   const effectiveIssueTypeId =
-    form.issueTypeId !== 0 ? form.issueTypeId : issueTypes[0]?.id ?? 0;
+    form.issueTypeId !== "" ? form.issueTypeId : issueTypes[0]?.id ?? "";
 
   const update = <K extends keyof AddIssueInput>(
     key: K,
@@ -128,7 +128,7 @@ export function AddIssueModal({
           <Field label={tIssue("fields.issueType")}>
             <select
               value={effectiveIssueTypeId}
-              onChange={(e) => update("issueTypeId", Number(e.target.value))}
+              onChange={(e) => update("issueTypeId", e.target.value)}
               required
               disabled={isLoadingTypes}
               className="border-input bg-transparent flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs outline-none"

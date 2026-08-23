@@ -1,6 +1,6 @@
 import { api } from "@/lib/http/axios";
 import type { Account, UserRole } from "@/features/auth/api";
-import type { ApiSuccessResponse, RequestConfig } from "@/lib/http/types";
+import type { RequestConfig } from "@/lib/http/types";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -17,7 +17,7 @@ export type { Account };
  * drops the envelope, switch to reading `response.data` directly.
  */
 export type Me = {
-  accountId: number;
+  accountId: string;
   email: string;
   role: UserRole;
   fullName?: string | null;
@@ -31,28 +31,20 @@ export type UpdateMePayload = Partial<
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function unwrapEnvelope<T>(payload: ApiSuccessResponse<T>): T {
-  return payload.data;
-}
+// No envelope: `/api/auth/me` answers with the account object directly,
+// so there is nothing to unwrap.
 
 // ─── Endpoints ───────────────────────────────────────────────────────────────
 
 export async function getMe(config?: RequestConfig): Promise<Me> {
-  const response = await api.get<ApiSuccessResponse<Me>>(
-    "/api/auth/me",
-    config,
-  );
-  return unwrapEnvelope(response.data);
+  const response = await api.get<Me>("/api/auth/me", config);
+  return response.data;
 }
 
 export async function updateMe(
   payload: UpdateMePayload,
   config?: RequestConfig,
 ): Promise<Me> {
-  const response = await api.patch<ApiSuccessResponse<Me>>(
-    "/api/auth/me",
-    payload,
-    config,
-  );
-  return unwrapEnvelope(response.data);
+  const response = await api.patch<Me>("/api/auth/me", payload, config);
+  return response.data;
 }

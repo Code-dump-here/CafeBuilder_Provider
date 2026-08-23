@@ -40,7 +40,7 @@ export function VersionCommentsPanel({
 }: VersionCommentsPanelProps) {
   const t = useTranslations("DesignManagement");
   const [draft, setDraft] = React.useState("");
-  const [replyTo, setReplyTo] = React.useState<number | null>(null);
+  const [replyTo, setReplyTo] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
 
   // Reset composer state when switching versions — otherwise the
@@ -60,13 +60,13 @@ export function VersionCommentsPanel({
 
   const topLevel = sorted.filter((c) => c.parentId === null);
   const repliesByParent = React.useMemo(() => {
-    const map = new Map<number, DesignVersionComment[]>();
+    const map = new Map<string, DesignVersionComment[]>();
     sorted
       .filter((c) => c.parentId !== null)
       .forEach((c) => {
-        const list = map.get(c.parentId as number) ?? [];
+        const list = map.get(c.parentId as string) ?? [];
         list.push(c);
-        map.set(c.parentId as number, list);
+        map.set(c.parentId as string, list);
       });
     return map;
   }, [sorted]);
@@ -200,7 +200,7 @@ export function VersionCommentsPanel({
 
 interface CommentBubbleProps {
   comment: DesignVersionComment;
-  onReply?: (id: number) => void;
+  onReply?: (id: string) => void;
 }
 
 function CommentBubble({ comment, onReply }: CommentBubbleProps) {

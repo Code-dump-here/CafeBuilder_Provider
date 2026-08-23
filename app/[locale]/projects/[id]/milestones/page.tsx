@@ -28,6 +28,8 @@ import { AddPhaseDialog } from "@/components/contractor/milestone-management/add
 import { TaskDetailView } from "@/components/contractor/milestone-management/task-detail-view";
 import { AddTaskModal } from "@/components/contractor/milestone-management/add-task-modal";
 import { MilestoneNotesDialog } from "@/components/contractor/milestone-management/milestone-notes-dialog";
+import { ChecklistDialog } from "@/components/contractor/milestone-management/checklist-dialog";
+import { MaterialsDialog } from "@/components/contractor/milestone-management/materials-dialog";
 
 import { useCurrentUser } from "@/features/auth/user-context";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
@@ -178,7 +180,7 @@ export default function MilestoneManagementPage() {
     error: itemsError,
     refetch: refetchItems,
   } = useConstructionItems({
-    projectWorkingId: projectWorkingId ?? 0,
+    projectWorkingId: projectWorkingId ?? "",
     enabled: Boolean(projectWorkingId),
     // The backend defaults to pageSize=10, which silently hid every phase
     // past the first page on any project with more than 10 milestones.
@@ -220,7 +222,7 @@ export default function MilestoneManagementPage() {
 
   // Group tasks by constructionItemId
   const tasksByItem = React.useMemo(() => {
-    const grouped: Record<number, ConstructionTask[]> = {};
+    const grouped: Record<string, ConstructionTask[]> = {};
     for (const task of allTasks) {
       if (!grouped[task.constructionItemId]) {
         grouped[task.constructionItemId] = [];
@@ -285,30 +287,35 @@ export default function MilestoneManagementPage() {
 
   const [taskEdit, setTaskEdit] = React.useState<{
     open: boolean;
-    itemId: number | null;
+    itemId: string | null;
     taskIndex: number | null;
     initialTitle: string;
   }>({ open: false, itemId: null, taskIndex: null, initialTitle: "" });
 
   const [taskDetail, setTaskDetail] = React.useState<{
     open: boolean;
-    itemId: number | null;
+    itemId: string | null;
     taskIndex: number | null;
   }>({ open: false, itemId: null, taskIndex: null });
 
-  const [addTaskTarget, setAddTaskTarget] = React.useState<number | null>(null);
+  const [addTaskTarget, setAddTaskTarget] = React.useState<string | null>(null);
 
   // Delete confirmation dialog state
   const [deleteConfirm, setDeleteConfirm] = React.useState<{
     open: boolean;
-    taskId: number | null;
+    taskId: string | null;
     taskIndex: number | null;
   }>({ open: false, taskId: null, taskIndex: null });
 
   // Hash-based highlighting
   const [highlightId, setHighlightId] = React.useState<string | null>(null);
   /** Construction item whose owner-note thread is open, null when closed. */
-  const [notesPhaseId, setNotesPhaseId] = React.useState<number | null>(null);
+  const [notesPhaseId, setNotesPhaseId] = React.useState<string | null>(null);
+  // Kept as strings: milestone ids are uuids server-side, and Number() on a
+  // uuid yields NaN. The older dialogs still take numbers — those are being
+  // migrated separately.
+  const [checklistPhaseId, setChecklistPhaseId] = React.useState<string | null>(null);
+  const [materialsPhaseId, setMaterialsPhaseId] = React.useState<string | null>(null);
   React.useEffect(() => {
     const hash = window.location.hash.replace(/^#/, "");
     if (hash && phases.some((p) => p.id === hash)) {
@@ -345,7 +352,7 @@ export default function MilestoneManagementPage() {
   // `handleRequestToggleTask` so there's exactly one confirm dialog.
   const [toggleConfirm, setToggleConfirm] = React.useState<{
     open: boolean;
-    itemId: number | null;
+    itemId: string | null;
     taskIndex: number | null;
   }>({ open: false, itemId: null, taskIndex: null });
 
@@ -360,7 +367,7 @@ export default function MilestoneManagementPage() {
         ? "completed"
         : "in_progress";
 
-  const handleRequestToggleTask = (itemId: number, taskIndex: number) => {
+  const handleRequestToggleTask = (itemId: string, taskIndex: number) => {
     const task = (tasksByItem[itemId] ?? [])[taskIndex];
     // The backend rejects reopening a completed task — there's no valid
     // next status once a task is done, so there's nothing to confirm.
@@ -382,11 +389,11 @@ export default function MilestoneManagementPage() {
     void refetchTasks();
   };
 
-  const handleOpenTask = (itemId: number, taskIndex: number) => {
+  const handleOpenTask = (itemId: string, taskIndex: number) => {
     setTaskDetail({ open: true, itemId, taskIndex });
   };
 
-  const handleStartAddTask = (itemId: number) => {
+  const handleStartAddTask = (itemId: string) => {
     setAddTaskTarget(itemId);
   };
 
@@ -475,7 +482,7 @@ export default function MilestoneManagementPage() {
   const handleDeletePhase = async (phaseId: string) => {
     if (!window.confirm(t("phase.deleteConfirm"))) return;
     try {
-      await deleteItem.mutateAsync(Number(phaseId));
+      await deleteItem.mutateAsync(phaseId);
       void refetchItems();
     } catch (err) {
       console.error("[MilestonePage] deleteItem error", err);
@@ -485,7 +492,7 @@ export default function MilestoneManagementPage() {
 
   const handleStatusChange = async (phaseId: string, status: string) => {
     const target = unmapStatus(status);
-    const current = allItems.find((i) => i.id === Number(phaseId))?.status;
+    const current = allItems.find((i) => i.id === phaseId)?.status;
 
     try {
       // The backend only accepts one-step-forward transitions
@@ -498,12 +505,12 @@ export default function MilestoneManagementPage() {
       // rule (it still refuses if any task is unfinished).
       if (target === "completed" && current === "pending") {
         await setItemStatus.mutateAsync({
-          id: Number(phaseId),
+          id: phaseId,
           payload: { status: "in_progress" },
         });
       }
       await setItemStatus.mutateAsync({
-        id: Number(phaseId),
+        id: phaseId,
         payload: { status: target },
       });
       toast.success(t("phase.statusSuccess"));
@@ -540,7 +547,7 @@ export default function MilestoneManagementPage() {
   const handleSubmitRename = async (input: { label: string }) => {
     if (!renameTarget) return;
     await updateItem.mutateAsync({
-      id: Number(renameTarget.id),
+      id: renameTarget.id,
       payload: { name: input.label },
     });
     setRenameTarget(null);
@@ -666,7 +673,7 @@ export default function MilestoneManagementPage() {
 
       <div className="mt-3 flex flex-col gap-3">
         {phases.map((phase, idx) => {
-          const itemId = Number(phase.id);
+          const itemId = phase.id;
           const itemTasks = tasksByItem[itemId] ?? [];
 
           return (
@@ -679,13 +686,15 @@ export default function MilestoneManagementPage() {
                 itemTasks.map((t, i) => [`${phase.id}:${i}`, t.status])
               )}
               highlight={highlightId === phase.id}
-              onToggleTask={(phaseId, taskIndex) => handleRequestToggleTask(Number(phaseId), taskIndex)}
+              onToggleTask={(phaseId, taskIndex) => handleRequestToggleTask(phaseId, taskIndex)}
               onOpenTask={(_, taskIndex) => handleOpenTask(itemId, taskIndex)}
               onRequestAddTask={() => handleStartAddTask(itemId)}
               onRename={handleRenamePhase}
               onEditMeta={handleEditMeta}
               onDelete={handleDeletePhase}
-              onOpenNotes={(phaseId) => setNotesPhaseId(Number(phaseId))}
+              onOpenNotes={(phaseId) => setNotesPhaseId(phaseId)}
+              onOpenChecklist={(phaseId) => setChecklistPhaseId(phaseId)}
+              onOpenMaterials={(phaseId) => setMaterialsPhaseId(phaseId)}
               onStatusChange={handleStatusChange}
             />
           );
@@ -738,7 +747,32 @@ export default function MilestoneManagementPage() {
         }}
         milestoneId={notesPhaseId}
         milestoneLabel={
-          phases.find((p) => Number(p.id) === notesPhaseId)?.label
+          phases.find((p) => p.id === notesPhaseId)?.label
+        }
+      />
+
+      <ChecklistDialog
+        open={checklistPhaseId != null}
+        onOpenChange={(open) => {
+          if (!open) setChecklistPhaseId(null);
+        }}
+        milestoneId={checklistPhaseId}
+        milestoneLabel={phases.find((p) => p.id === checklistPhaseId)?.label}
+      />
+
+      <MaterialsDialog
+        open={materialsPhaseId != null}
+        onOpenChange={(open) => {
+          if (!open) setMaterialsPhaseId(null);
+        }}
+        projectWorkingId={projectWorkingId ?? null}
+        milestoneId={materialsPhaseId}
+        milestoneLabel={phases.find((p) => p.id === materialsPhaseId)?.label}
+        // The server refuses an actual quantity while the milestone is still
+        // `pending`, so the field is disabled rather than letting the user
+        // type a number and collect a 409 on save.
+        milestoneStarted={
+          phases.find((p) => p.id === materialsPhaseId)?.status !== "upcoming"
         }
       />
 

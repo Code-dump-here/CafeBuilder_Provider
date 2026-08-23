@@ -51,9 +51,9 @@ const TOAST = {
 
 export interface UseEngagementsOptions {
   /** Filter by project ID (projectShopOwnerId) */
-  projectId?: number | string;
+  projectId?: string;
   /** Filter by provider profile ID */
-  providerId?: number | string;
+  providerId?: string;
   /** Filter by engagement status */
   status?: string;
   /** Page size */
@@ -88,9 +88,9 @@ export function useEngagements(
       return getEngagementsApi(
         {
           projectShopOwnerId:
-            projectId !== undefined ? Number(projectId) : undefined,
+            projectId !== undefined ? projectId : undefined,
           serviceProviderProfileId:
-            providerId !== undefined ? Number(providerId) : undefined,
+            providerId !== undefined ? providerId : undefined,
           status,
           pageSize,
         },
@@ -116,7 +116,7 @@ export function useEngagements(
 // ─── Get Single Engagement Query ────────────────────────────────────────────
 
 export interface UseEngagementOptions {
-  engagementId: number | string;
+  engagementId: string;
   enabled?: boolean;
 }
 
@@ -137,7 +137,7 @@ export function useEngagement(
   const query = useQuery<Engagement, Error>({
     queryKey: ["engagements", "detail", { engagementId }],
     queryFn: async ({ signal }) => {
-      return getEngagementApi(Number(engagementId), { signal });
+      return getEngagementApi(engagementId, { signal });
     },
     enabled: enabled && Boolean(engagementId),
     staleTime: 30 * 1000,
@@ -156,7 +156,7 @@ export function useEngagement(
 // ─── Get Engagement Overview Query ──────────────────────────────────────────
 
 export interface UseEngagementOverviewOptions {
-  engagementId: number | string;
+  engagementId: string;
   enabled?: boolean;
 }
 
@@ -177,7 +177,7 @@ export function useEngagementOverview(
   const query = useQuery<EngagementOverview, Error>({
     queryKey: ["engagements", "overview", { engagementId }],
     queryFn: async ({ signal }) => {
-      return getEngagementOverviewApi(Number(engagementId), { signal });
+      return getEngagementOverviewApi(engagementId, { signal });
     },
     enabled: enabled && Boolean(engagementId),
     staleTime: 30 * 1000,
@@ -208,7 +208,7 @@ export function useUpdateEngagementStatusMutation(
   return useMutation<
     Engagement,
     AppError,
-    { engagementId: number; payload: UpdateEngagementStatusPayload }
+    { engagementId: string; payload: UpdateEngagementStatusPayload }
   >({
     mutationFn: ({ engagementId, payload }) =>
       updateEngagementStatusApi(engagementId, payload),
@@ -237,7 +237,7 @@ export function useUpdateEngagementStatusMutation(
 // ─── Request Completion Mutation (provider) ─────────────────────────────────
 
 export interface RequestCompletionVariables {
-  engagementId: number;
+  engagementId: string;
   /** Optional note (≤ 1000 chars per backend). Pass `""` when no note. */
   note?: string;
 }
@@ -322,7 +322,7 @@ export function useRequestCompletionMutation(
 // ─── Complete Engagement Mutation (owner) ───────────────────────────────────
 
 export interface CompleteEngagementVariables {
-  engagementId: number;
+  engagementId: string;
 }
 
 export interface UseCompleteEngagementOptions {
@@ -398,7 +398,7 @@ export function useCompleteEngagementMutation(
 // ─── Terminate Engagement Mutation (owner or provider) ──────────────────────
 
 export interface TerminateEngagementVariables {
-  engagementId: number;
+  engagementId: string;
 }
 
 export interface UseTerminateEngagementOptions {

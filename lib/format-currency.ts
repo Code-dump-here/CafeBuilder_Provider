@@ -8,9 +8,10 @@ import type { useFormatter } from "next-intl";
  * and "₫150,000,000" on another. They're gathered here so the difference is
  * visible in a single file instead of hidden across three.
  *
- * NOTE: this deliberately does NOT unify the output. Which form a budget
- * should take is a product call, not a refactor — pick one and delete the
- * other when that's decided.
+ * The product call has now been made: amounts read as a plain number followed
+ * by "VND", matching the mobile app. `Intl`'s `style: "currency"` renders the
+ * ₫ symbol instead, so the full form builds the string itself rather than
+ * letting the formatter pick a symbol.
  */
 
 // ─── Millions form: "150 tr VND" ─────────────────────────────────────────────
@@ -30,8 +31,6 @@ export function formatVndMillions(
 // ─── Locale-aware full / compact form ────────────────────────────────────────
 
 const NF_VND_FULL_VI = new Intl.NumberFormat("vi-VN", {
-  style: "currency",
-  currency: "VND",
   maximumFractionDigits: 0,
 });
 const NF_VND_COMPACT_VI = new Intl.NumberFormat("vi-VN", {
@@ -39,8 +38,6 @@ const NF_VND_COMPACT_VI = new Intl.NumberFormat("vi-VN", {
   maximumFractionDigits: 1,
 });
 const NF_VND_FULL_EN = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "VND",
   maximumFractionDigits: 0,
 });
 const NF_VND_COMPACT_EN = new Intl.NumberFormat("en-US", {
@@ -59,7 +56,7 @@ export function formatVndParts(
 ): { full: string; compact: string } {
   const isVi = locale.startsWith("vi");
   return {
-    full: (isVi ? NF_VND_FULL_VI : NF_VND_FULL_EN).format(amount),
-    compact: (isVi ? NF_VND_COMPACT_VI : NF_VND_COMPACT_EN).format(amount),
+    full: `${(isVi ? NF_VND_FULL_VI : NF_VND_FULL_EN).format(amount)} VND`,
+    compact: `${(isVi ? NF_VND_COMPACT_VI : NF_VND_COMPACT_EN).format(amount)} VND`,
   };
 }

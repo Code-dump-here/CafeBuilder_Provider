@@ -14,7 +14,7 @@ import type {
 
 export interface AiRecommendationListFilters {
   /** Required by the backend to scope recommendations to one brief. */
-  briefId: number;
+  briefId: string;
   pageNumber: number;
   pageSize: number;
 }
@@ -68,8 +68,8 @@ interface RawRiskNote {
 }
 
 interface RawAiRecommendation {
-  id: number;
-  briefId: number;
+  id: string;
+  briefId: string;
   conceptSummary: string;
   payload: string;
   estimatedDesignCost: number | null;

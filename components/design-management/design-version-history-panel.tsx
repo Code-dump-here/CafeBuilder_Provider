@@ -45,7 +45,7 @@ interface DesignVersionHistoryPanelProps {
    * Optional id of the snapshot currently shown by the viewer — lets
    * the rail highlight the matching row.
    */
-  selectedSnapshotId?: number | null;
+  selectedSnapshotId?: string | null;
 }
 
 // ─── Snapshot-kind visuals ──────────────────────────────────────────────────

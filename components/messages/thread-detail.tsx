@@ -35,14 +35,14 @@ interface ThreadDetailProps {
   /** Called when the user submits the composer form. */
   onSend?: (body: string, files?: File[]) => Promise<void>;
   /** Called when the user clicks delete on a message. */
-  onDeleteMessage?: (messageId: number) => void;
+  onDeleteMessage?: (messageId: string) => void;
   /** The current user's account id — used to show delete affordances. */
-  currentAccountId?: number | null;
+  currentAccountId?: string | null;
   /** Disable the composer while a send is in flight (no optimistic bubble). */
   isSending?: boolean;
 }
 
-const ROLE_BY_AUTHOR: Record<number, string> = {
+const ROLE_BY_AUTHOR: Record<string, string> = {
   7: "Lead Designer",
   8: "Junior Designer",
   12: "Owner",
@@ -328,8 +328,8 @@ function MessageBurst({
 }: {
   burst: Burst;
   roleLabel: string;
-  currentAccountId?: number | null;
-  onDeleteMessage?: (messageId: number) => void;
+  currentAccountId?: string | null;
+  onDeleteMessage?: (messageId: string) => void;
 }) {
   const t = useTranslations("Messages");
   const format = useFormatter();
@@ -606,19 +606,19 @@ function dateOnlyKey(date: Date): string {
   return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 }
 
-function roleKey(authorId: number) {
+function roleKey(authorId: string) {
   switch (authorId) {
-    case 7:
+    case "7":
       return "designer";
-    case 8:
+    case "8":
       return "juniorDesigner";
-    case 12:
+    case "12":
       return "owner";
-    case 21:
+    case "21":
       return "contractor";
-    case 33:
+    case "33":
       return "mep";
-    case 41:
+    case "41":
       return "procurement";
     default:
       return "default";

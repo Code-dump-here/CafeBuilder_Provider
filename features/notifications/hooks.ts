@@ -80,10 +80,10 @@ export function useNotificationsQuery(
   const hydrated = useAuthHydrated();
 
   const pageSize = params.pageSize ?? DEFAULT_NOTIFICATIONS_PAGE_SIZE;
-  const accountId = account?.id ?? 0;
+  const accountId = account?.id ?? "";
 
   const enabled =
-    hydrated && !accountLoading && Boolean(account && account.id > 0);
+    hydrated && !accountLoading && Boolean(account && account.id !== "");
 
   const query = useQuery<PagedNotifications, Error>({
     queryKey: queryKeys.notifications.list({
@@ -148,13 +148,13 @@ export function useUnreadCountQuery(): UseUnreadCountResult {
   const { account } = useCurrentUser();
   const hydrated = useAuthHydrated();
 
-  const accountId = account?.id ?? 0;
+  const accountId = account?.id ?? "";
 
   const query = useQuery<number, Error>({
     queryKey: queryKeys.notifications.unreadCount(accountId),
     queryFn: ({ signal }) =>
       fetchUnreadCountApi({ accountId }, { signal }),
-    enabled: hydrated && Boolean(account && account.id > 0),
+    enabled: hydrated && Boolean(account && account.id !== ""),
     staleTime: 30 * 1000,
     refetchInterval: 60 * 1000,
     refetchIntervalInBackground: false,
@@ -172,11 +172,11 @@ export function useUnreadCountQuery(): UseUnreadCountResult {
 // ─── Mutation: mark as read ──────────────────────────────────────────────────
 
 export interface MarkNotificationReadVariables {
-  notificationId: number;
+  notificationId: string;
 }
 
 /**
- * PUT /api/notifications/{id}/read.
+ * PATCH /api/notifications/{id}/read.
  *
  * Optimistic update: flip the matching item to `isRead: true` in every
  * cached list query so the bell badge decrements instantly and the
@@ -190,7 +190,7 @@ export interface MarkNotificationReadVariables {
 export function useMarkNotificationReadMutation() {
   const queryClient = useQueryClient();
   const { account } = useCurrentUser();
-  const accountId = account?.id ?? 0;
+  const accountId = account?.id ?? "";
 
   return useMutation<void, Error, MarkNotificationReadVariables, {
     previousLists: Array<[readonly unknown[], PagedNotifications | undefined]>;
@@ -288,7 +288,7 @@ export function useMarkNotificationReadMutation() {
 export function useMarkAllNotificationsReadMutation() {
   const queryClient = useQueryClient();
   const { account } = useCurrentUser();
-  const accountId = account?.id ?? 0;
+  const accountId = account?.id ?? "";
 
   return useMutation<
     void,

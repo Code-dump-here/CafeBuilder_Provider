@@ -61,7 +61,7 @@ import type {
  */
 export interface UseConstructionOverviewOptions {
   /** Engagement id this overview is scoped to. Disable the hook when null. */
-  projectWorkingId: number | string | null;
+  projectWorkingId: string | null;
   /** Project display name (header chip). Pulled from the project page in
    *  practice — accepting it as an option keeps the hook independent of
    *  the engagement hook. */
@@ -96,18 +96,18 @@ export function useConstructionOverview(
   const { projectWorkingId, projectName, projectId } = options;
 
   const itemsQuery = useConstructionItems({
-    projectWorkingId: projectWorkingId ?? 0,
+    projectWorkingId: projectWorkingId ?? "",
     // Don't pass `status` — we want every milestone so the track shows
     // completed + in-progress + upcoming in correct order.
-    enabled: projectWorkingId != null && Number(projectWorkingId) > 0,
+    enabled: projectWorkingId != null && projectWorkingId !== "",
     // The backend defaults to pageSize=10, which silently hid every
     // milestone past the first page on any project with more than 10.
     pageSize: 200,
   });
 
   const issuesQuery = useIssues({
-    projectWorkingId: projectWorkingId ?? 0,
-    enabled: projectWorkingId != null && Number(projectWorkingId) > 0,
+    projectWorkingId: projectWorkingId ?? "",
+    enabled: projectWorkingId != null && projectWorkingId !== "",
   });
 
   // Every task on this engagement, used to compute per-milestone progress.
@@ -117,7 +117,7 @@ export function useConstructionOverview(
   // contained none of this project's tasks at all, showing 0%.
   const tasksQuery = useConstructionTasks({
     projectWorkingId: projectWorkingId ?? undefined,
-    enabled: projectWorkingId != null && Number(projectWorkingId) > 0,
+    enabled: projectWorkingId != null && projectWorkingId !== "",
     pageSize: 200,
   });
 
@@ -163,7 +163,7 @@ export function useConstructionOverview(
  */
 function toMilestonePhase(
   item: ConstructionItem,
-  openIssuesByItem: Map<number, number>,
+  openIssuesByItem: Map<string, number>,
   tasks: ConstructionTask[],
 ): MilestonePhase {
   const openIssues = openIssuesByItem.get(item.id) ?? 0;
@@ -181,6 +181,7 @@ function toMilestonePhase(
     tasks: [],
     blockerCount: openIssues,
     photoCount: 0,
+    isPaid: item.isPaid,
   };
 }
 
@@ -258,8 +259,8 @@ function resolvePhaseProgress(
  * `open` and `in_progress` issues — `resolved` and `closed` ones are
  * not blockers.
  */
-function countOpenIssuesByItem(issues: Issue[]): Map<number, number> {
-  const counts = new Map<number, number>();
+function countOpenIssuesByItem(issues: Issue[]): Map<string, number> {
+  const counts = new Map<string, number>();
   for (const issue of issues) {
     if (issue.constructionItemId == null) continue;
     if (!isOpenIssue(issue.status)) continue;

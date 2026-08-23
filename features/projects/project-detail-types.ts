@@ -85,7 +85,7 @@ export type ProjectOpenPostServiceKind = "design" | "construction" | "both";
  * and hide the corresponding line rather than render "—".
  */
 export interface ProjectOwner {
-  id: number;
+  id: string;
   fullName: string;
   shopName: string | null;
   phone: string | null;
@@ -97,7 +97,7 @@ export interface ProjectOwner {
  * the overview page itself).
  */
 export interface ProjectOpenPost {
-  id: number;
+  id: string;
   serviceKind: ProjectOpenPostServiceKind;
   title: string;
   status: ProjectOpenPostStatus;
@@ -142,8 +142,8 @@ export type ProjectOpenForEntry = ProjectOpenPostServiceKind;
  */
 export interface ProjectProvider {
   /** The engagement/projectWorking id for API calls. */
-  projectWorkingId: number;
-  providerId: number;
+  projectWorkingId: string;
+  providerId: string;
   displayName: string;
   providerType: ProjectProviderType;
   capability: ProjectProviderCapability;
@@ -163,8 +163,8 @@ export interface ProjectProvider {
  * No mock-only fields.
  */
 export interface ProjectDetail {
-  id: number;
-  ownerId: number;
+  id: string;
+  ownerId: string;
   name: string;
   address: string;
   areaM2: number | null;
@@ -191,8 +191,8 @@ export interface ProjectDetail {
  * missing fields default to `[]` / `null` after normalization.
  */
 export interface RawProjectDetail {
-  id: number;
-  ownerId: number;
+  id: string;
+  ownerId: string;
   name: string;
   address: string;
   areaM2: number;
@@ -211,11 +211,11 @@ export interface RawProjectDetail {
  * returns in the `providers[]` array of the project detail response.
  */
 export interface RawProjectProvider {
-  projectWorkingId: number;
+  projectWorkingId: string;
   /** API field: `serviceProviderProfileId` */
-  serviceProviderProfileId: number;
+  serviceProviderProfileId: string;
   /** Fallback alias for compatibility */
-  providerId?: number;
+  providerId?: string;
   displayName: string;
   /** `individual` | `company` */
   providerType: string;
@@ -232,7 +232,7 @@ export interface RawProjectProvider {
 
 /** Raw wire shape for the nested `owner` object. */
 export interface RawProjectOwner {
-  id: number;
+  id: string;
   fullName: string;
   shopName?: string | null;
   phone?: string | null;
@@ -240,7 +240,7 @@ export interface RawProjectOwner {
 
 /** Raw wire shape for a single entry in `openPosts[]`. */
 export interface RawProjectOpenPost {
-  id: number;
+  id: string;
   serviceKind: string;
   title: string;
   status: string;
@@ -334,7 +334,7 @@ function normalizeProjectProvider(raw: RawProjectProvider): ProjectProvider {
   return {
     projectWorkingId: raw.projectWorkingId,
     // API uses `serviceProviderProfileId`, with `providerId` as fallback alias
-    providerId: raw.serviceProviderProfileId ?? (raw.providerId ?? 0),
+    providerId: raw.serviceProviderProfileId ?? (raw.providerId ?? ""),
     displayName: raw.displayName,
     providerType: normalizeProviderType(raw.providerType),
     capability: normalizeCapability(raw.capability),
@@ -407,8 +407,8 @@ export function normalizeProjectDetail(raw: RawProjectDetail): ProjectDetail {
 
 export function createEmptyProjectDetail(): ProjectDetail {
   return {
-    id: 0,
-    ownerId: 0,
+    id: "0",
+    ownerId: "0",
     name: "",
     address: "",
     areaM2: null,

@@ -43,7 +43,7 @@ interface PhaseDetailDrawerProps {
    * Pass `null` when no engagement has been resolved yet — the data
    * hooks stay disabled and the drawer renders empty sections.
    */
-  projectWorkingId: number | null;
+  projectWorkingId: string | null;
 }
 
 /**
@@ -89,13 +89,13 @@ export function PhaseDetailDrawer({
   }, [projectId, phase, onOpenChange, router]);
 
   // Resolve the numeric construction-item id from the phase. The phase
-  // id is a stringified version of the same number (set in
-  // `use-construction-overview.ts`), so this is a safe cast.
-  const constructionItemId = React.useMemo<number | null>(() => {
-    if (!phase) return null;
-    const parsed = Number(phase.id);
-    return Number.isFinite(parsed) ? parsed : null;
-  }, [phase]);
+  // `phase.id` is the milestone's uuid, carried through unchanged from
+  // `use-construction-overview.ts` — there is nothing to parse or validate
+  // beyond it being present.
+  const constructionItemId = React.useMemo<string | null>(
+    () => phase?.id ?? null,
+    [phase],
+  );
 
   // Real data fetches — both hooks short-circuit cleanly when their
   // ids are null (the API endpoints would 404 on bad ids), so we don't
@@ -114,7 +114,7 @@ export function PhaseDetailDrawer({
     enabled:
       constructionItemId != null &&
       projectWorkingId != null &&
-      projectWorkingId > 0,
+      projectWorkingId !== "",
   });
 
   const tasks = tasksQuery.items;
@@ -129,7 +129,7 @@ export function PhaseDetailDrawer({
   // Per-drawer-open task completion. Reset every time `phase` changes
   // so reopening the drawer for a different phase starts fresh. Local
   // toggle only — the real mutation lands on the dedicated tasks page.
-  const [doneTaskIds, setDoneTaskIds] = React.useState<Record<number, boolean>>(
+  const [doneTaskIds, setDoneTaskIds] = React.useState<Record<string, boolean>>(
     {},
   );
   useResetOnChange(phase?.id, () => {

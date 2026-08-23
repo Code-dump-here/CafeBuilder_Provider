@@ -41,6 +41,11 @@ export interface MilestonePhase {
   blockerCount: number;
   /** Number of photos uploaded for this phase (KPI display). */
   photoCount: number;
+  /**
+   * True once a payment batch covering this phase has been confirmed.
+   * Undefined when the source response predates the field.
+   */
+  isPaid?: boolean;
 }
 
 export interface ConstructionOverviewData {

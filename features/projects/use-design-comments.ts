@@ -41,7 +41,7 @@ function toVersionComment(comment: Comment): DesignVersionComment {
     id: comment.id,
     versionId: comment.targetId,
     author: {
-      id: comment.createdBy ?? 0,
+      id: comment.createdBy ?? "",
       fullName: comment.createdByName ?? "Unknown",
       // No avatar colour on the wire; the panel falls back to `bg-muted`.
       avatarColor: null,
@@ -64,12 +64,12 @@ export interface UseDesignCommentsResult {
  * stays disabled and an empty list is returned.
  */
 export function useDesignComments(
-  designId: number | null,
+  designId: string | null,
 ): UseDesignCommentsResult {
   const query = useQuery({
-    queryKey: queryKeys.comments.list("design", designId ?? 0),
+    queryKey: queryKeys.comments.list("design", designId ?? ""),
     queryFn: () =>
-      getCommentsApi({ targetType: "design", targetId: designId as number }),
+      getCommentsApi({ targetType: "design", targetId: designId as string }),
     enabled: designId != null,
   });
 
@@ -90,20 +90,20 @@ export function useDesignComments(
  * toast rather than being swallowed, so a failed post can't look like a
  * successful one.
  */
-export function useCreateDesignCommentMutation(designId: number | null) {
+export function useCreateDesignCommentMutation(designId: string | null) {
   const queryClient = useQueryClient();
 
   return useMutation<Comment, AppError, string>({
     mutationFn: (body: string) =>
       createCommentApi({
         targetType: "design",
-        targetId: designId as number,
+        targetId: designId as string,
         body,
       }),
 
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.comments.list("design", designId ?? 0),
+        queryKey: queryKeys.comments.list("design", designId ?? ""),
       });
     },
 

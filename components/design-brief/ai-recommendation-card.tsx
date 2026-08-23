@@ -11,7 +11,6 @@ import {
   Coins,
   ExternalLink,
   Grid3x3,
-  ImageOff,
   ListOrdered,
   Loader2,
   Maximize2,
@@ -23,6 +22,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+import { ConceptImage } from "@/components/design-brief/concept-image";
 
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
 import { formatVndMillions } from "@/lib/format-currency";
@@ -590,53 +591,6 @@ function CostRow({
         {value}
       </p>
     </div>
-  );
-}
-
-function ConceptImage({
-  src,
-  prompt,
-  promptLabel,
-  imageLabel,
-}: {
-  src: string;
-  prompt: string | null;
-  promptLabel: string;
-  imageLabel: string;
-}) {
-  const [error, setError] = React.useState(false);
-
-  if (error) {
-    return (
-      <div
-        role="img"
-        aria-label={imageLabel}
-        className="flex aspect-video w-full items-center justify-center gap-2 rounded-md border border-dashed border-border/60 bg-muted/30 text-xs text-muted-foreground"
-      >
-        <ImageOff className="size-4" aria-hidden />
-        {imageLabel}
-      </div>
-    );
-  }
-
-  return (
-    <figure className="flex flex-col gap-2 overflow-hidden rounded-md border border-border/60">
-      <img
-        src={src}
-        alt={imageLabel}
-        loading="lazy"
-        onError={() => setError(true)}
-        className="aspect-video w-full bg-muted object-cover"
-      />
-      {prompt ? (
-        <figcaption className="border-t border-border/60 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
-            {promptLabel}:
-          </span>{" "}
-          <span className="wrap-break-word">{prompt}</span>
-        </figcaption>
-      ) : null}
-    </figure>
   );
 }
 

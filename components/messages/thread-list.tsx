@@ -16,7 +16,7 @@ import type { MessageThread } from "@/features/projects/messages-types";
 
 interface ThreadListProps {
   threads: MessageThread[];
-  selectedId: number | null;
+  selectedId: string | null;
   /**
    * Build the href for a thread row. Pages pass `({id}) =>
    * `/projects/${projectId}/messages?threadId=${id}`` so the

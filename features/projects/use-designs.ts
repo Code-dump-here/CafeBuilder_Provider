@@ -185,7 +185,7 @@ export function mapDesignToVersion(design: Design): DesignVersion {
 // ─── Get Designs Query ───────────────────────────────────────────────────────
 
 export interface UseDesignsOptions {
-  projectWorkingId: number | null;
+  projectWorkingId: string | null;
   enabled?: boolean;
   pageNumber?: number;
   pageSize?: number;
@@ -226,7 +226,7 @@ export function useDesigns(options: UseDesignsOptions): UseDesignsResult {
     ],
     queryFn: async ({ signal }) => {
       const params: ListDesignsParams = {
-        projectWorkingId: projectWorkingId ?? 0,
+        projectWorkingId: projectWorkingId ?? "",
         pageNumber,
         pageSize,
         status,
@@ -260,7 +260,7 @@ export function useDesigns(options: UseDesignsOptions): UseDesignsResult {
 // ─── Get Single Design Query ─────────────────────────────────────────────────
 
 export interface UseDesignOptions {
-  designId: number | null;
+  designId: string | null;
   enabled?: boolean;
 }
 
@@ -279,7 +279,7 @@ export function useDesign(options: UseDesignOptions): UseDesignResult {
   const query = useQuery<Design, Error>({
     queryKey: ["designs", "detail", { designId }],
     queryFn: async ({ signal }) => {
-      return getDesignApi(designId ?? 0, { signal });
+      return getDesignApi(designId ?? "", { signal });
     },
     enabled: enabled && Boolean(designId),
     staleTime: 30 * 1000,
@@ -356,7 +356,7 @@ export function useUpdateDesignMutation(
   return useMutation<
     Design,
     AppError,
-    { designId: number; payload: UpdateDesignPayload }
+    { designId: string; payload: UpdateDesignPayload }
   >({
     mutationFn: ({ designId, payload }) =>
       updateDesignApi(designId, payload),
@@ -402,7 +402,7 @@ export function useUpdateDesignMutation(
 // the whole `["designs"]` subtree will sweep it too.
 function invalidateDesignSnapshotQueries(
   queryClient: ReturnType<typeof useQueryClient>,
-  designId: number,
+  designId: string,
 ): void {
   queryClient.invalidateQueries({
     queryKey: ["designs", "versions", designId],
@@ -424,7 +424,7 @@ export interface SubmitDesignOptions {
 export function useSubmitDesignMutation(options: SubmitDesignOptions = {}) {
   const queryClient = useQueryClient();
 
-  return useMutation<Design, AppError, number>({
+  return useMutation<Design, AppError, string>({
     mutationFn: (designId) => submitDesignApi(designId),
 
     onSuccess: (design) => {
@@ -465,7 +465,7 @@ export interface ApproveDesignOptions {
 export function useApproveDesignMutation(options: ApproveDesignOptions = {}) {
   const queryClient = useQueryClient();
 
-  return useMutation<Design, AppError, number>({
+  return useMutation<Design, AppError, string>({
     mutationFn: (designId) => approveDesignApi(designId),
 
     onSuccess: (design) => {
@@ -511,7 +511,7 @@ export function useRequestDesignRevisionMutation(
   return useMutation<
     Design,
     AppError,
-    { designId: number; payload: RequestRevisionPayload }
+    { designId: string; payload: RequestRevisionPayload }
   >({
     mutationFn: ({ designId, payload }) =>
       requestRevisionApi(designId, payload),
@@ -554,7 +554,7 @@ export interface StartRevisionOptions {
 export function useStartRevisionMutation(options: StartRevisionOptions = {}) {
   const queryClient = useQueryClient();
 
-  return useMutation<Design, AppError, number>({
+  return useMutation<Design, AppError, string>({
     mutationFn: (designId) => startRevisionApi(designId),
 
     onSuccess: (design) => {
@@ -596,7 +596,7 @@ export interface UploadDesignImageOptions {
 
 /** Upload a file to an existing design (multipart). */
 export function useUploadDesignImageMutation(
-  designId: number,
+  designId: string,
   options: UploadDesignImageOptions = {},
 ) {
   const queryClient = useQueryClient();
@@ -643,12 +643,12 @@ export interface DeleteDesignImageOptions {
 
 /** Delete a file from a design. */
 export function useDeleteDesignImageMutation(
-  designId: number,
+  designId: string,
   options: DeleteDesignImageOptions = {},
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<void, AppError, number>({
+  return useMutation<void, AppError, string>({
     mutationFn: (fileId) => deleteDesignImageApi(designId, fileId),
 
     onSuccess: () => {

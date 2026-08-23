@@ -39,11 +39,9 @@ function RevenueChart({ data }: { data: RevenueReport }) {
 
   const maxValue = Math.max(...chartData.map((d) => d.value), 1);
   const formattedMax = new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: data.currency || "VND",
     maximumFractionDigits: 0,
     notation: "compact",
-  }).format(maxValue);
+  }).format(maxValue) + " VND";
 
   return (
     <div className="space-y-4">
@@ -53,10 +51,8 @@ function RevenueChart({ data }: { data: RevenueReport }) {
             {t("revenue.totalRevenue")}:{" "}
             <span className="font-heading text-2xl font-bold text-emerald-600">
               {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: data.currency || "VND",
                 maximumFractionDigits: 0,
-              }).format(data.totalRevenue)}
+              }).format(data.totalRevenue) + " VND"}
             </span>
           </p>
           <p className="text-xs text-muted-foreground">
@@ -87,10 +83,8 @@ function RevenueChart({ data }: { data: RevenueReport }) {
               >
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs font-medium text-background opacity-0 transition-opacity group-hover:opacity-100">
                   {new Intl.NumberFormat("vi-VN", {
-                    style: "currency",
-                    currency: data.currency || "VND",
                     maximumFractionDigits: 0,
-                  }).format(item.value)}
+                  }).format(item.value) + " VND"}
                 </div>
               </div>
               <span className="mt-2 text-xs text-muted-foreground">
@@ -140,10 +134,8 @@ function RevenueByPurpose({ data }: { data: RevenueReport }) {
           </div>
           <p className="font-heading text-lg font-bold text-foreground">
             {new Intl.NumberFormat("vi-VN", {
-              style: "currency",
-              currency: data.currency || "VND",
               maximumFractionDigits: 0,
-            }).format(item.amount)}
+            }).format(item.amount) + " VND"}
           </p>
         </div>
       ))}
@@ -181,10 +173,8 @@ function TransactionsTable({ data }: { data: TransactionListResponse }) {
       cell: (row: typeof data.items[0]) => (
         <span className="font-semibold">
           {new Intl.NumberFormat("vi-VN", {
-            style: "currency",
-            currency: "VND",
             maximumFractionDigits: 0,
-          }).format(row.amount)}
+          }).format(row.amount) + " VND"}
         </span>
       ),
     },
@@ -322,10 +312,8 @@ export function AdminRevenue() {
           <SectionHeader
             title={t("revenue.chart")}
             description={`${t("revenue.totalRevenue")}: ${revenueData ? new Intl.NumberFormat("vi-VN", {
-              style: "currency",
-              currency: revenueData.currency || "VND",
               maximumFractionDigits: 0,
-            }).format(revenueData.totalRevenue) : "..."}`}
+            }).format(revenueData.totalRevenue) + " VND" : "..."}`}
           />
           <div className="mt-6">
             {revenueLoading ? (

@@ -75,7 +75,7 @@ export default function TechnicalDrawingsPage() {
 
   const overviewQuery = useEngagementOverview({
     engagementId: engagementId == null ? "" : String(engagementId),
-    enabled: engagementId != null && engagementId > 0,
+    enabled: engagementId != null && engagementId !== "",
   });
 
   const approvedDesigns = overviewQuery.overview?.approvedDesigns ?? [];

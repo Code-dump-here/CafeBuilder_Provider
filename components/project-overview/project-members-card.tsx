@@ -1,5 +1,6 @@
 "use client";
 
+import { paletteIndexForAll } from "@/lib/id-hash";
 import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { BadgeCheck, Star, UserPlus, Users } from "lucide-react";
@@ -48,9 +49,15 @@ function avatarColorFor(provider: ProjectProvider): string {
   // so the colour is stable per engagement across renders and reloads. This
   // used to multiply `projectProviderId`, a field the API never sends, which
   // made the index `NaN` and the colour `undefined` for every row.
-  const idx =
-    (provider.projectWorkingId * 7 + provider.providerId * 13) % palette.length;
-  return palette[Math.abs(idx)];
+  // Ids are uuids, so the colour comes from hashing them rather than from
+  // arithmetic. Both ids are folded in, keeping the colour stable per
+  // engagement exactly as before.
+  return palette[
+    paletteIndexForAll(
+      [provider.projectWorkingId, provider.providerId],
+      palette.length,
+    )
+  ];
 }
 
 // ---------------------------------------------------------------------------

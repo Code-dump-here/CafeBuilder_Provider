@@ -77,7 +77,8 @@ export function ProjectInvitationBanner({
   // already carries `projectWorkingId` so we don't need a separate fetch
   // for the engagement id.
   const invitation = React.useMemo<ProjectProvider | null>(() => {
-    if (!isProvider || typeof viewerProfileId !== "number") return null;
+    if (!isProvider || typeof viewerProfileId !== "string" || viewerProfileId === "")
+      return null;
     return (
       project.providers.find(
         (p) =>
@@ -96,13 +97,15 @@ export function ProjectInvitationBanner({
   >(null);
 
   React.useEffect(() => {
-    if (!invitation || typeof viewerProfileId !== "number") {
+    if (!invitation || typeof viewerProfileId !== "string" || viewerProfileId === "") {
       setInvitationMessage(null);
       return;
     }
 
-    const projectId = Number(project.id);
-    if (!Number.isFinite(projectId) || projectId <= 0) {
+    // A uuid is usable when it is present; the numeric sanity check it
+    // replaced would now always fail.
+    const projectId = project.id;
+    if (!projectId) {
       return;
     }
 

@@ -11,7 +11,7 @@ export const chatKeys = {
    * No `isRead` discriminator — conversations are always visible to members.
    */
   conversations: (
-    projectWorkingId: number,
+    projectWorkingId: string,
     pageNumber: number,
     pageSize: number,
   ) =>
@@ -29,7 +29,7 @@ export const chatKeys = {
    * Discriminators: `conversationId`, `pageNumber`, `pageSize`.
    */
   conversation: (
-    conversationId: number,
+    conversationId: string,
     pageNumber: number,
     pageSize: number,
   ) =>

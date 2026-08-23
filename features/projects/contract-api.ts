@@ -34,7 +34,7 @@ export async function createContractApi(
  *   Bearer access token required.
  */
 export async function getContractsApi(
-  projectWorkingId: number,
+  projectWorkingId: string,
   config?: RequestConfig,
 ): Promise<ContractListResponse> {
   const response = await api.get<ContractListResponse>(
@@ -53,7 +53,7 @@ export async function getContractsApi(
  *   Bearer access token required.
  */
 export async function getContractApi(
-  contractId: number,
+  contractId: string,
   config?: RequestConfig,
 ): Promise<Contract> {
   const response = await api.get<Contract>(`/api/contracts/${contractId}`, config);
@@ -69,7 +69,7 @@ export async function getContractApi(
  *   Bearer access token required (provider who created the contract).
  */
 export async function updateContractApi(
-  contractId: number,
+  contractId: string,
   payload: UpdateContractPayload,
   config?: RequestConfig,
 ): Promise<Contract> {
@@ -94,7 +94,7 @@ export async function updateContractApi(
  *   Response includes `otpExpiresAt`.
  */
 export async function sendContractOtpApi(
-  contractId: number,
+  contractId: string,
   config?: RequestConfig,
 ): Promise<Contract> {
   const response = await api.post<Contract>(
@@ -114,7 +114,7 @@ export async function sendContractOtpApi(
  *   Bearer access token required (owner).
  */
 export async function confirmContractOtpApi(
-  contractId: number,
+  contractId: string,
   payload: ConfirmOtpPayload,
   config?: RequestConfig,
 ): Promise<Contract> {
@@ -138,7 +138,7 @@ export async function confirmContractOtpApi(
  *   Contract status changes to `cancelled`. Only allowed before confirmation.
  */
 export async function cancelContractApi(
-  contractId: number,
+  contractId: string,
   config?: RequestConfig,
 ): Promise<Contract> {
   const response = await api.post<Contract>(

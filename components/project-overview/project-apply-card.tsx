@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import {
@@ -11,6 +12,7 @@ import {
   Clock,
   Pencil,
   Trash2,
+  ClipboardCheck,
 } from "lucide-react";
 
 import {
@@ -178,7 +180,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   const { account } = useCurrentUser();
 
   // Fetch applies to check if provider has already applied to this project
-  const projectId = Number(project.id);
+  const projectId = project.id;
   const { hasAppliedToPost, getApplyForPost, isLoading: isLoadingApplies } =
     useProviderApplies({
       projectShopOwnerId: projectId,
@@ -245,7 +247,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   const canApply =
     hasToken &&
     account !== null &&
-    account.id > 0 &&
+    account.id !== "" &&
     targetPost !== null &&
     !hasAlreadyApplied;
 
@@ -266,7 +268,8 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
   ]);
   const isAlreadyEngaged =
     isProvider &&
-    typeof viewerProfileId === "number" &&
+    typeof viewerProfileId === "string" &&
+    viewerProfileId !== "" &&
     project.providers.some(
       (p) =>
         p.providerId === viewerProfileId &&
@@ -312,6 +315,18 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
     const config = statusConfig[existingApply.status] ?? statusConfig.pending;
     const Icon = config.icon;
 
+    // A post with a design phase can only be awarded to a provider who has
+    // walked the site — the server refuses the owner's accept otherwise
+    // (ApplyService.EnsureSurveySubmittedAsync). Surfacing it here is the only
+    // way the applicant learns their proposal is parked until they visit;
+    // the rejection lands on the owner's screen, not theirs.
+    const needsSurvey =
+      existingApply.status === "pending" &&
+      targetPost !== null &&
+      targetPost.serviceKind !== "construction" &&
+      !existingApply.hasCompletedSurvey;
+    const surveyBooked = needsSurvey && existingApply.surveyCount > 0;
+
     // Revise / withdraw are only legal while the owner hasn't answered —
     // the server returns 409 otherwise, so don't offer the buttons at all.
     const canAmend = existingApply.status === "pending";
@@ -324,6 +339,52 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
             {config.label}
           </span>
         </div>
+
+        {needsSurvey ? (
+          <div className="flex flex-col gap-1 rounded-md border border-amber-300/70 bg-amber-50 px-3 py-2 dark:border-amber-500/40 dark:bg-amber-950/30">
+            <div className="flex items-center gap-2">
+              <ClipboardCheck
+                className="size-4 shrink-0 text-amber-700 dark:text-amber-400"
+                aria-hidden
+              />
+              <span className="text-xs font-medium text-amber-900 dark:text-amber-200">
+                {surveyBooked
+                  ? t("applied.surveyBooked")
+                  : t("applied.surveyRequired")}
+              </span>
+            </div>
+            <p className="text-[11px] leading-relaxed text-amber-800/90 dark:text-amber-300/80">
+              {surveyBooked
+                ? t("applied.surveyBookedHint")
+                : t("applied.surveyRequiredHint")}
+            </p>
+            <Button
+              asChild
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-1 w-full border-amber-400/70 bg-transparent text-amber-900 hover:bg-amber-100/60 dark:text-amber-200 dark:hover:bg-amber-900/30"
+            >
+              <Link href={`/projects/${project.id}/survey`}>
+                <ClipboardCheck aria-hidden />
+                {surveyBooked
+                  ? t("applied.surveyRecordCta")
+                  : t("applied.surveyStartCta")}
+              </Link>
+            </Button>
+          </div>
+        ) : existingApply.status === "pending" &&
+          existingApply.hasCompletedSurvey ? (
+          <div className="flex items-center gap-2 px-1">
+            <ClipboardCheck
+              className="size-3.5 shrink-0 text-green-600"
+              aria-hidden
+            />
+            <span className="text-[11px] text-muted-foreground">
+              {t("applied.surveyDone")}
+            </span>
+          </div>
+        ) : null}
 
         {canAmend ? (
           <div className="flex items-center gap-2">
@@ -434,7 +495,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
           // The apply payload carries no provider id (the server reads the
           // JWT); this is the dialog's "do you have a provider profile?"
           // guard, so it must be the profile id, not the account id.
-          providerId={viewerProfileId ?? 0}
+          providerId={viewerProfileId ?? ""}
           projectName={project.name}
           existingApply={editing ? existingApply ?? null : null}
         />

@@ -51,7 +51,7 @@ interface NewVersionDialogProps {
   /** Engagement id the new design belongs to. When null, the submit
    *  button stays disabled — the parent hasn't resolved the engagement
    *  yet. */
-  projectWorkingId: number | null;
+  projectWorkingId: string | null;
   /** Called with the created Design when the API call resolves. */
   onCreated: (design: Design) => void;
   /** Render-prop for the trigger button so the parent controls styling. */
@@ -108,7 +108,7 @@ export function NewVersionDialog({
     if (!finalTitle) return;
 
     createMutation.mutate({
-      projectWorkingId: projectWorkingId as number,
+      projectWorkingId: projectWorkingId as string,
       title: finalTitle,
       type: category,
     });

@@ -20,7 +20,7 @@ export type ThreadKind = "DIRECT" | "ROOM" | "CHANNEL";
 export type MessageAttachmentKind = "FILE" | "MEDIA" | "VOICE";
 
 export interface MessageAttachment {
-  id: number;
+  id: string;
   /** Discriminator for the right-rail filter tabs. */
   kind: MessageAttachmentKind;
   /** Human-friendly display title. */
@@ -32,8 +32,8 @@ export interface MessageAttachment {
 }
 
 export interface Message {
-  id: number;
-  threadId: number;
+  id: string;
+  threadId: string;
   author: MessageAuthor;
   body: string;
   createdAt: Date;
@@ -44,8 +44,8 @@ export interface Message {
 }
 
 export interface MessageThread {
-  id: number;
-  projectId: number;
+  id: string;
+  projectId: string;
   /** Display name shown in the row + header. */
   title: string;
   /** Single-line preview shown under the title in the list. */

@@ -11,7 +11,7 @@ interface IssueGroupProps {
   status: IssueStatus;
   issues: Issue[];
   /** ID of the currently selected issue (highlighted in the list). */
-  activeId?: number | null;
+  activeId?: string | null;
   onOpen: (issue: Issue) => void;
   onEdit?: (issue: Issue) => void;
   onDelete?: (issue: Issue) => void;

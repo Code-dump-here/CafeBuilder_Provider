@@ -41,14 +41,14 @@ export type DesignStatus = "in_progress" | "submitted" | "approved" | "revision"
 
 /** A single uploaded file attached to a design. */
 export interface DesignImage {
-  id: number;
-  designId: number;
+  id: string;
+  designId: string;
   /** GCS object name — never displayed directly. Use `viewUrl` for rendering. */
   imageUrl: string;
   /** Display URL — already signed/exposed for the FE. */
   viewUrl: string;
   caption: string | null;
-  uploadedBy: number;
+  uploadedBy: string;
   createdAt: string;
 }
 
@@ -58,8 +58,8 @@ export interface DesignImage {
  * Mirrors `DesignResponse` documented in `API_FLOW_FE.md` §6.
  */
 export interface Design {
-  id: number;
-  projectWorkingId: number;
+  id: string;
+  projectWorkingId: string;
   title: string;
   /** Semantic version, e.g. "0.1" or "1.3". Backend increments on
    *  start-revision (`+0.1`). */
@@ -68,7 +68,7 @@ export interface Design {
   /** Latest revision reason — populated when `status === "revision"`. */
   reason: string | null;
   status: DesignStatus;
-  createdBy: number;
+  createdBy: string;
   createdAt: string;
   updatedAt: string;
   images: DesignImage[];
@@ -98,7 +98,7 @@ export interface DesignListResponse {
  * any client-supplied value, so it isn't part of this payload.
  */
 export interface CreateDesignPayload {
-  projectWorkingId: number;
+  projectWorkingId: string;
   title: string;
   type: DesignType;
 }
@@ -131,11 +131,11 @@ export interface DesignImageUploadFields {
 
 /** Resolved result after a successful `POST /api/designs/{id}/files`. */
 export interface DesignImageUploadResponse {
-  id: number;
-  designId: number;
+  id: string;
+  designId: string;
   imageUrl: string;
   viewUrl: string;
   caption: string | null;
-  uploadedBy: number;
+  uploadedBy: string;
   createdAt: string;
 }

@@ -13,7 +13,7 @@ import type { Issue, IssueStatus } from "@/features/projects/issue-types";
 
 interface IssueDetailPanelProps {
   issue: Issue | null;
-  onChangeStatus: (id: number, next: IssueStatus) => void;
+  onChangeStatus: (id: string, next: IssueStatus) => void;
   onEdit?: (issue: Issue) => void;
   onClose?: () => void;
   isChangingStatus?: boolean;

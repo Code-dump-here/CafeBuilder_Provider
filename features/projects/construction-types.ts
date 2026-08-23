@@ -17,10 +17,10 @@ export type ConstructionStatus = "pending" | "in_progress" | "completed";
  * Can be a top-level milestone or a sub-milestone via `parentId`.
  */
 export interface ConstructionItem {
-  id: number;
-  projectWorkingId: number;
+  id: string;
+  projectWorkingId: string;
   /** Parent milestone id. Null for top-level milestones. */
-  parentId: number | null;
+  parentId: string | null;
   name: string;
   description: string | null;
   /** Category label, e.g. "site-prep", "foundation", "finishing". */
@@ -30,7 +30,15 @@ export interface ConstructionItem {
   /** ISO date string — actual completion date (set when status = completed). */
   actualAt: string | null;
   status: ConstructionStatus;
-  createdBy: number;
+  /**
+   * Whether a payment batch covering this milestone has been confirmed by the
+   * provider. Maintained server-side from `payment_batches`; read-only here.
+   *
+   * Optional so older responses (and any caller that hasn't refetched) stay
+   * valid rather than rendering "unpaid" from a missing field.
+   */
+  isPaid?: boolean;
+  createdBy: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -52,8 +60,8 @@ export interface ConstructionItemListResponse {
  * Request body for POST /construction-items.
  */
 export interface CreateConstructionItemPayload {
-  projectWorkingId: number;
-  parentId?: number | null;
+  projectWorkingId: string;
+  parentId?: string | null;
   name: string;
   description?: string;
   category?: string;
@@ -81,8 +89,8 @@ export interface SetConstructionItemStatusPayload {
  * A construction task = work item inside a milestone.
  */
 export interface ConstructionTask {
-  id: number;
-  constructionItemId: number;
+  id: string;
+  constructionItemId: string;
   name: string;
   description: string | null;
   /** ObjectName on storage bucket — internal reference. */
@@ -96,7 +104,7 @@ export interface ConstructionTask {
   /** Delay / disruption note. */
   reason: string | null;
   status: ConstructionStatus;
-  createdBy: number;
+  createdBy: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -118,7 +126,7 @@ export interface ConstructionTaskListResponse {
  * Request body for POST /construction-tasks.
  */
 export interface CreateConstructionTaskPayload {
-  constructionItemId: number;
+  constructionItemId: string;
   name: string;
   description?: string;
   imageUrl?: string;
