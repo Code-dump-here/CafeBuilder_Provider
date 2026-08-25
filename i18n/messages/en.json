@@ -1078,7 +1078,8 @@
       "summary": "Creates {phases, plural, =1 {1 phase} other {# phases}} and {tasks, plural, =1 {1 task} other {# tasks}}, running about {days} days.",
       "appendWarning": "This project already has phases. Applying adds the template's phases alongside them — it doesn't replace anything.",
       "cancel": "Cancel",
-      "apply": "Apply to project"
+      "apply": "Apply to project",
+      "dragHandle": "Drag, or press the arrow keys, to reorder this phase"
     },
     "common": {
       "close": "Close",
@@ -1123,7 +1124,11 @@
       "confirmCancel": "Cancel",
       "blockedTasksTitle": "Tasks still open",
       "blockedTasksBody": "\"{name}\" still has {count, plural, =1 {1 task} other {# tasks}} not completed. Finish them first before marking this phase as completed.",
-      "blockedTasksCta": "Got it"
+      "blockedTasksCta": "Got it",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "dragHandle": "Drag to reorder this milestone",
+      "dragHandleLocked": "Completed milestones keep the order they were done in"
     },
     "task": {
       "edit": "Edit task",
@@ -2188,7 +2193,8 @@
       "total": "{count, plural, =0 {No notifications} one {# notification} other {# notifications}}",
       "emptyTitle": "You're all caught up",
       "emptySubtitle": "New activity will show up here.",
-      "viewAll": "View all notifications"
+      "viewAll": "View all",
+      "markAll": "Mark all read"
     },
     "empty": {
       "title": "No {filter} notifications",
@@ -2199,6 +2205,12 @@
     },
     "item": {
       "markRead": "Mark as read"
+    },
+    "detail": {
+      "unread": "Unread",
+      "noBody": "No further details.",
+      "close": "Close",
+      "open": "Open related item"
     },
     "types": {
       "engagement_completion_requested": "Provider requested completion",

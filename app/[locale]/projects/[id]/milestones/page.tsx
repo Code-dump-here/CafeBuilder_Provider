@@ -46,8 +46,10 @@ import {
   useUpdateConstructionTaskMutation,
   useSetConstructionTaskStatusMutation,
   useDeleteConstructionTaskMutation,
+  useReorderConstructionItemsMutation,
   byScheduleDate,
 } from "@/features/projects/use-construction";
+import { useDragReorder } from "@/hooks/use-drag-reorder";
 import { useApplyConstructionTemplateMutation } from "@/features/projects/use-construction-templates";
 import type {
   ConstructionItem,
@@ -289,6 +291,70 @@ export default function MilestoneManagementPage() {
       };
     });
   }, [topLevelItems, tasksByItem]);
+
+  // ── Reordering ──────────────────────────────────────────────────────────────
+
+  // The order shown while a reorder is in flight. The server is the source of
+  // truth, but waiting for the round-trip before the row moves makes dragging
+  // feel broken — so the new order is painted immediately and dropped again
+  // once the refetch confirms it (or the request fails and the list snaps back).
+  const [pendingOrder, setPendingOrder] = React.useState<string[] | null>(null);
+
+  const orderedPhases = React.useMemo(() => {
+    if (!pendingOrder) return phases;
+    const byId = new Map(phases.map((phase) => [phase.id, phase]));
+    const next = pendingOrder
+      .map((id) => byId.get(id))
+      .filter((phase): phase is (typeof phases)[number] => phase !== undefined);
+    // A milestone the optimistic list has never seen — added by someone else
+    // between the drag and the refetch — still has to render.
+    for (const phase of phases) {
+      if (!pendingOrder.includes(phase.id)) next.push(phase);
+    }
+    return next;
+  }, [phases, pendingOrder]);
+
+  const reorderItems = useReorderConstructionItemsMutation({
+    onSuccessSideEffect: () => {
+      // Only stop overriding once fresh rows are in the cache; clearing first
+      // would flash the pre-drag order for a frame.
+      void Promise.resolve(refetchItems()).finally(() => setPendingOrder(null));
+    },
+    onErrorSideEffect: () => setPendingOrder(null),
+  });
+
+  const handleReorderPhases = React.useCallback(
+    (nextIds: string[]) => {
+      if (!projectWorkingId) return;
+      setPendingOrder(nextIds);
+      reorderItems.mutate({
+        projectWorkingId,
+        // This screen only renders top-level milestones; their children are
+        // their own sibling group and are not reordered from here.
+        parentId: null,
+        itemIds: nextIds,
+      });
+    },
+    [projectWorkingId, reorderItems],
+  );
+
+  const phaseIds = React.useMemo(
+    () => orderedPhases.map((phase) => phase.id),
+    [orderedPhases],
+  );
+
+  const dragReorder = useDragReorder({
+    ids: phaseIds,
+    // Completed milestones keep the order they were done in — the server
+    // rejects any request that moves them relative to each other, so the grip
+    // is locked rather than letting the user find out via a 409.
+    canDrag: (id) =>
+      orderedPhases.find((phase) => phase.id === id)?.status !== "completed",
+    onReorder: handleReorderPhases,
+  });
+
+  // Nothing to arrange with a single milestone.
+  const canReorder = orderedPhases.length > 1 && Boolean(projectWorkingId);
 
   // ── Dialog state ────────────────────────────────────────────────────────────
   const [addPhaseOpen, setAddPhaseOpen] = React.useState(false);
@@ -714,15 +780,28 @@ export default function MilestoneManagementPage() {
       ) : null}
 
       <div className="mt-3 flex flex-col gap-3">
-        {phases.map((phase, idx) => {
+        {orderedPhases.map((phase, idx) => {
           const itemId = phase.id;
           const itemTasks = tasksByItem[itemId] ?? [];
+          const canMove = phase.status !== "completed";
 
           return (
             <PhaseRow
               key={phase.id}
               phase={phase}
               index={idx}
+              reorder={
+                canReorder
+                  ? {
+                      ...dragReorder.getItemProps(phase.id),
+                      canMove,
+                      onMoveUp: () => dragReorder.move(phase.id, -1),
+                      onMoveDown: () => dragReorder.move(phase.id, 1),
+                      canMoveUp: canMove && idx > 0,
+                      canMoveDown: canMove && idx < orderedPhases.length - 1,
+                    }
+                  : undefined
+              }
               taskMeta={{}} // Not used with API
               taskStatus={Object.fromEntries(
                 itemTasks.map((t, i) => [`${phase.id}:${i}`, t.status])

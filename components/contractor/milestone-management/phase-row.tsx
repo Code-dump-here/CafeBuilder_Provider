@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Plus } from "lucide-react";
+import { GripVertical, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -17,9 +17,35 @@ import type { ConstructionStatus } from "@/features/projects/construction-types"
 
 import { PhaseRowHeader } from "@/components/contractor/milestone-management/phase-row-header";
 
+/**
+ * Everything a row needs to take part in drag-to-reorder. Supplied by the page,
+ * which owns the list and the `useDragReorder` instance; absent when the list
+ * isn't reorderable.
+ */
+export interface PhaseReorder {
+  /** Spread on the row — the row is the drop target. */
+  containerProps: React.HTMLAttributes<HTMLElement>;
+  /** Spread on the grip — the grip is the drag source. */
+  handleProps: React.HTMLAttributes<HTMLElement> & { draggable: boolean };
+  isDragging: boolean;
+  /** Which edge to draw the drop indicator on, or null when not a target. */
+  dropEdge: "top" | "bottom" | null;
+  /**
+   * False for completed milestones. Signed-off work keeps the order it was
+   * done in, so the grip is shown locked rather than hidden — a missing handle
+   * on one row looks like a rendering bug, a locked one explains itself.
+   */
+  canMove: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+}
+
 interface PhaseRowProps {
   phase: MilestonePhase;
   index: number;
+  reorder?: PhaseReorder;
   taskMeta: Record<string, MilestoneTask>;
   taskStatus: Record<string, ConstructionStatus>;
   onToggleTask: (phaseId: string, taskIndex: number) => void;
@@ -36,7 +62,7 @@ interface PhaseRowProps {
 }
 
 export function PhaseRow(props: PhaseRowProps) {
-  const { phase, index, taskMeta, taskStatus, highlight, onToggleTask, onOpenTask, onRequestAddTask, onRename, onEditMeta, onDelete, onOpenNotes, onOpenChecklist, onOpenMaterials, onStatusChange } = props;
+  const { phase, index, reorder, taskMeta, taskStatus, highlight, onToggleTask, onOpenTask, onRequestAddTask, onRename, onEditMeta, onDelete, onOpenNotes, onOpenChecklist, onOpenMaterials, onStatusChange } = props;
   const t = useTranslations("MilestoneManagement.phase");
 
   const doneCount = phase.tasks.reduce(
@@ -46,24 +72,70 @@ export function PhaseRow(props: PhaseRowProps) {
 
   return (
     <section
+      {...(reorder?.containerProps ?? {})}
       data-phase-id={phase.id}
       className={cn(
-        "flex flex-col gap-2.5 rounded-lg border bg-card/30 p-3 transition-colors",
-        highlight ? "border-primary/60 ring-2 ring-primary/30" : "border-border/60"
+        "relative flex flex-col gap-2.5 rounded-lg border bg-card/30 p-3 transition-colors",
+        highlight ? "border-primary/60 ring-2 ring-primary/30" : "border-border/60",
+        reorder?.isDragging ? "opacity-40" : null
       )}
     >
-      <PhaseRowHeader
-        phase={phase}
-        index={index}
-        doneCount={doneCount}
-        onRename={onRename}
-        onEditMeta={onEditMeta}
-        onDelete={onDelete}
-        onOpenNotes={onOpenNotes}
-        onOpenChecklist={onOpenChecklist}
-        onOpenMaterials={onOpenMaterials}
-        onStatusChange={onStatusChange}
-      />
+      {/* Where the dragged milestone would land. Drawn on the row being hovered
+          rather than as a gap in the list, so nothing reflows mid-drag. */}
+      {reorder?.dropEdge ? (
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-x-2 h-0.5 rounded-full bg-primary",
+            reorder.dropEdge === "top" ? "-top-px" : "-bottom-px"
+          )}
+        />
+      ) : null}
+
+      <div className="flex items-start gap-1.5">
+        {reorder ? (
+          <button
+            type="button"
+            {...reorder.handleProps}
+            disabled={!reorder.canMove}
+            aria-label={reorder.canMove ? t("dragHandle") : t("dragHandleLocked")}
+            title={reorder.canMove ? t("dragHandle") : t("dragHandleLocked")}
+            className={cn(
+              "mt-0.5 shrink-0 rounded p-1 text-muted-foreground transition-colors",
+              reorder.canMove
+                ? "cursor-grab hover:bg-accent hover:text-foreground active:cursor-grabbing"
+                : "cursor-not-allowed opacity-40"
+            )}
+          >
+            <GripVertical aria-hidden className="size-4" />
+          </button>
+        ) : null}
+
+        <div className="min-w-0 flex-1">
+          <PhaseRowHeader
+            phase={phase}
+            index={index}
+            doneCount={doneCount}
+            onRename={onRename}
+            onEditMeta={onEditMeta}
+            onDelete={onDelete}
+            onOpenNotes={onOpenNotes}
+            onOpenChecklist={onOpenChecklist}
+            onOpenMaterials={onOpenMaterials}
+            onStatusChange={onStatusChange}
+            reorder={
+              reorder && reorder.canMove
+                ? {
+                    onMoveUp: reorder.onMoveUp,
+                    onMoveDown: reorder.onMoveDown,
+                    canMoveUp: reorder.canMoveUp,
+                    canMoveDown: reorder.canMoveDown,
+                  }
+                : undefined
+            }
+          />
+        </div>
+      </div>
 
       {/* Tasks indented below the milestone name */}
       <div className="flex flex-col gap-1.5 pl-4 sm:pl-10">

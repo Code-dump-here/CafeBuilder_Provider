@@ -10,6 +10,7 @@ import {
   getConstructionItemsApi,
   getConstructionItemApi,
   updateConstructionItemApi,
+  reorderConstructionItemsApi,
   setConstructionItemStatusApi,
   deleteConstructionItemApi,
   createConstructionTaskApi,
@@ -24,6 +25,7 @@ import type {
   ConstructionItemListResponse,
   CreateConstructionItemPayload,
   UpdateConstructionItemPayload,
+  ReorderConstructionItemsPayload,
   SetConstructionItemStatusPayload,
   ConstructionTask,
   ConstructionTaskListResponse,
@@ -61,6 +63,27 @@ export function byScheduleDate(
   // reshuffle between renders.
   if (a.createdAt !== b.createdAt) return a.createdAt < b.createdAt ? -1 : 1;
   return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
+/**
+ * The order the plan is actually shown in: what the provider arranged, with the
+ * schedule only breaking ties.
+ *
+ * `sortOrder` is what dragging a milestone writes, and the server sorts by it
+ * first too. Re-sorting here by date alone would silently undo every drag as
+ * soon as the list refetched.
+ *
+ * Rows saved before the column existed all read as 0, so they tie and fall
+ * through to [byScheduleDate] — which is exactly how they sorted before.
+ */
+export function byPlanOrder(
+  a: { sortOrder?: number; estimateAt: string | null; createdAt: string; id: string },
+  b: { sortOrder?: number; estimateAt: string | null; createdAt: string; id: string },
+): number {
+  const aOrder = a.sortOrder ?? 0;
+  const bOrder = b.sortOrder ?? 0;
+  if (aOrder !== bOrder) return aOrder - bOrder;
+  return byScheduleDate(a, b);
 }
 
 const TOAST = {
@@ -152,7 +175,7 @@ export function useConstructionItems(
 
   // Separate top-level milestones from sub-milestones, in schedule order
   const topLevelItems = React.useMemo(
-    () => items.filter((item) => item.parentId === null).sort(byScheduleDate),
+    () => items.filter((item) => item.parentId === null).sort(byPlanOrder),
     [items],
   );
 
@@ -167,7 +190,7 @@ export function useConstructionItems(
         grouped[item.parentId]!.push(item);
       }
     }
-    for (const list of Object.values(grouped)) list.sort(byScheduleDate);
+    for (const list of Object.values(grouped)) list.sort(byPlanOrder);
     return grouped;
   }, [items]);
 
@@ -355,6 +378,48 @@ export function useUpdateConstructionItemMutation(
         notifySuccess(message);
       }
       options.onSuccessSideEffect?.(item);
+    },
+
+    onError: (error) => {
+      if (options.onErrorMessage !== null) {
+        const message =
+          typeof options.onErrorMessage === "function"
+            ? options.onErrorMessage(error)
+            : options.onErrorMessage ?? resolveErrorMessage(error);
+        notifyError(message);
+      }
+      options.onErrorSideEffect?.(error);
+    },
+  });
+}
+
+// ─── Reorder Construction Items Mutation ──────────────────────────────────────
+
+export interface UseReorderConstructionItemsOptions {
+  onSuccessMessage?: string | null;
+  onErrorMessage?: string | ((error: AppError) => string) | null;
+  onSuccessSideEffect?: (items: ConstructionItem[]) => void;
+  onErrorSideEffect?: (error: AppError) => void;
+}
+
+/**
+ * Persist a new milestone order.
+ *
+ * Success is deliberately quiet by default: reordering shows its own result on
+ * screen the moment the rows move, and a toast per drag would be noise.
+ * Failures still speak up — the list snaps back and the user needs to know why.
+ */
+export function useReorderConstructionItemsMutation(
+  options: UseReorderConstructionItemsOptions = {},
+) {
+  return useMutation<ConstructionItem[], AppError, ReorderConstructionItemsPayload>({
+    mutationFn: (payload) => reorderConstructionItemsApi(payload),
+
+    onSuccess: (items) => {
+      if (options.onSuccessMessage) {
+        notifySuccess(options.onSuccessMessage);
+      }
+      options.onSuccessSideEffect?.(items);
     },
 
     onError: (error) => {

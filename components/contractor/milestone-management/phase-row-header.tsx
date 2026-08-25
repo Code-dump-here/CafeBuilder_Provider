@@ -3,7 +3,9 @@
 import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import {
+  ArrowDown,
   ArrowRight,
+  ArrowUp,
   CheckCircle2,
   ClipboardList,
   Loader2,
@@ -60,6 +62,20 @@ interface PhaseRowHeaderProps {
     phaseId: string,
     status: MilestoneStatus,
   ) => void | Promise<void>;
+  /**
+   * The keyboard and touch route to reordering. Dragging the grip is a mouse
+   * gesture, so it can't be the only one — these menu items do the same job
+   * for everyone else.
+   *
+   * Absent when the list isn't reorderable and when the milestone is completed:
+   * finished work keeps the order it was done in.
+   */
+  reorder?: {
+    onMoveUp: () => void;
+    onMoveDown: () => void;
+    canMoveUp: boolean;
+    canMoveDown: boolean;
+  };
 }
 
 const STATUS_TONE: Record<MilestoneStatus, { badgeClass: string }> = {
@@ -106,6 +122,7 @@ export function PhaseRowHeader({
   onOpenChecklist,
   onOpenMaterials,
   onStatusChange,
+  reorder,
 }: PhaseRowHeaderProps) {
   const t = useTranslations("MilestoneManagement.phase");
   const tStatus = useTranslations("ConstructionOverview.status");
@@ -288,6 +305,25 @@ export function PhaseRowHeader({
               <ClipboardList aria-hidden />
               {t("editMeta")}
             </DropdownMenuItem>
+            {reorder ? (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={reorder.onMoveUp}
+                  disabled={!reorder.canMoveUp}
+                >
+                  <ArrowUp aria-hidden />
+                  {t("moveUp")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={reorder.onMoveDown}
+                  disabled={!reorder.canMoveDown}
+                >
+                  <ArrowDown aria-hidden />
+                  {t("moveDown")}
+                </DropdownMenuItem>
+              </>
+            ) : null}
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               {t("setStatus")}
