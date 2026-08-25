@@ -25,6 +25,7 @@ import { PhaseRow } from "@/components/contractor/milestone-management/phase-row
 import { PhaseEditDialog, type PhaseEditInput } from "@/components/contractor/milestone-management/phase-edit-dialog";
 import { TaskEditDialog } from "@/components/contractor/milestone-management/task-edit-dialog";
 import { AddPhaseDialog } from "@/components/contractor/milestone-management/add-phase-dialog";
+import { ApplyTemplateDialog } from "@/components/contractor/milestone-management/apply-template-dialog";
 import { TaskDetailView } from "@/components/contractor/milestone-management/task-detail-view";
 import { AddTaskModal } from "@/components/contractor/milestone-management/add-task-modal";
 import { MilestoneNotesDialog } from "@/components/contractor/milestone-management/milestone-notes-dialog";
@@ -45,7 +46,9 @@ import {
   useUpdateConstructionTaskMutation,
   useSetConstructionTaskStatusMutation,
   useDeleteConstructionTaskMutation,
+  byScheduleDate,
 } from "@/features/projects/use-construction";
+import { useApplyConstructionTemplateMutation } from "@/features/projects/use-construction-templates";
 import type {
   ConstructionItem,
   ConstructionTask,
@@ -207,6 +210,7 @@ export default function MilestoneManagementPage() {
   // Mutations
   const createItem = useCreateConstructionItemMutation();
   const updateItem = useUpdateConstructionItemMutation();
+  const applyTemplate = useApplyConstructionTemplateMutation();
   // Closing a milestone can take two calls (see `handleStatusChange`), so the
   // hook's per-call success toast is suppressed and fired once at the end
   // instead — otherwise one click produced two identical toasts.
@@ -229,6 +233,11 @@ export default function MilestoneManagementPage() {
       }
       grouped[task.constructionItemId]!.push(task);
     }
+    // Sorted for two reasons: a phase's work should read in the order it gets
+    // done, and PhaseRow addresses tasks by their index in this array — an
+    // order that shifts between renders would point "tick task 3" at a
+    // different task than the one the user clicked.
+    for (const list of Object.values(grouped)) list.sort(byScheduleDate);
     return grouped;
   }, [allTasks]);
 
@@ -260,17 +269,18 @@ export default function MilestoneManagementPage() {
         label: item.name,
         status: mapItemStatus(item.status),
         progress,
-        // ConstructionItem only tracks one real date (`estimateAt`, a
-        // target/completion date) — there's no start-date field on the
-        // backend. This used to fill start/end/target with the same
-        // value, which rendered as a date "range" whose two ends were
-        // secretly identical. Approximate the same way the read-only
-        // construction overview page already does (see
-        // `use-construction-overview.ts`): start = when the record was
-        // created, end = actual completion if set, else the planned
-        // target, else last-touched.
+        // A milestone carries both ends of its span: `startAt`/`estimateAt`
+        // planned, `actualStartAt`/`actualAt` as it really ran. Prefer what
+        // happened over what was planned, and only fall back to record
+        // timestamps when neither date is set — a milestone created without
+        // dates has nothing better to show.
+        //
+        // This used to read `startAt` as if it did not exist and used
+        // `createdAt` for every start, which put the whole plan on one day
+        // whenever it came from a process template: those rows are all
+        // written in the same transaction.
         targetDate: item.estimateAt ?? item.createdAt,
-        startDate: item.createdAt,
+        startDate: item.actualStartAt ?? item.startAt ?? item.createdAt,
         endDate: item.actualAt ?? item.estimateAt ?? item.updatedAt,
         lead: "",
         tasks: itemTasks.map((t) => t.name),
@@ -282,6 +292,7 @@ export default function MilestoneManagementPage() {
 
   // ── Dialog state ────────────────────────────────────────────────────────────
   const [addPhaseOpen, setAddPhaseOpen] = React.useState(false);
+  const [applyTemplateOpen, setApplyTemplateOpen] = React.useState(false);
   const [renameTarget, setRenameTarget] = React.useState<{ id: string; label: string } | null>(null);
   const [editMetaTarget, setEditMetaTarget] = React.useState<ConstructionItem | null>(null);
 
@@ -544,6 +555,27 @@ export default function MilestoneManagementPage() {
     }
   };
 
+  /**
+   * Copy a process template onto this engagement.
+   *
+   * Errors are rethrown so the dialog stays open on the chosen template: the
+   * two refusals that actually happen here — no signed contract, start date in
+   * the past — are both fixable without picking again.
+   */
+  const handleApplyTemplate = async (input: {
+    templateId: string;
+    startDate: string;
+  }) => {
+    if (!projectWorkingId) return;
+
+    await applyTemplate.mutateAsync({
+      id: input.templateId,
+      payload: { projectWorkingId, startDate: input.startDate },
+    });
+    void refetchItems();
+    void refetchTasks();
+  };
+
   const handleSubmitRename = async (input: { label: string }) => {
     if (!renameTarget) return;
     await updateItem.mutateAsync({
@@ -637,6 +669,8 @@ export default function MilestoneManagementPage() {
           doneTaskCount={0}
           onAddPhase={() => setAddPhaseOpen(true)}
           addPhaseDisabled={!canAddPhase}
+          onApplyTemplate={() => setApplyTemplateOpen(true)}
+          applyTemplateDisabled={!canAddPhase}
         />
         {blockedReason ? (
           <p className="mt-3 rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
@@ -651,6 +685,12 @@ export default function MilestoneManagementPage() {
           onOpenChange={setAddPhaseOpen}
           onSubmit={handleAddPhase}
         />
+        <ApplyTemplateDialog
+          open={applyTemplateOpen}
+          onOpenChange={setApplyTemplateOpen}
+          hasExistingPhases={false}
+          onSubmit={handleApplyTemplate}
+        />
       </>
     );
   }
@@ -664,6 +704,8 @@ export default function MilestoneManagementPage() {
         doneTaskCount={doneTaskCount}
         onAddPhase={() => setAddPhaseOpen(true)}
         addPhaseDisabled={!canAddPhase}
+        onApplyTemplate={() => setApplyTemplateOpen(true)}
+        applyTemplateDisabled={!canAddPhase}
       />
       {blockedReason ? (
         <p className="mt-3 rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
@@ -706,6 +748,12 @@ export default function MilestoneManagementPage() {
         open={addPhaseOpen}
         onOpenChange={setAddPhaseOpen}
         onSubmit={handleAddPhase}
+      />
+      <ApplyTemplateDialog
+        open={applyTemplateOpen}
+        onOpenChange={setApplyTemplateOpen}
+        hasExistingPhases={phases.length > 0}
+        onSubmit={handleApplyTemplate}
       />
       <PhaseEditDialog
         phase={renameTarget ? { id: renameTarget.id, label: renameTarget.label } : null}
