@@ -91,7 +91,6 @@ export async function applyConstructionTemplateApi(
   return response.data;
 }
 
-/** Endpoint: `DELETE /api/construction-templates/{id}` */
 /**
  * Reorder a template's phases.
  *
@@ -113,6 +112,7 @@ export async function reorderConstructionTemplateItemsApi(
   return response.data;
 }
 
+/** Endpoint: `DELETE /api/construction-templates/{id}` */
 export async function deleteConstructionTemplateApi(
   id: string,
   config?: RequestConfig,
