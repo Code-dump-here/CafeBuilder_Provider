@@ -25,8 +25,12 @@ export interface ConstructionItem {
   description: string | null;
   /** Category label, e.g. "site-prep", "foundation", "finishing". */
   category: string | null;
+  /** ISO date string — planned start. With `estimateAt`, this is the real span. */
+  startAt: string | null;
   /** ISO date string — targeted completion date. */
   estimateAt: string | null;
+  /** ISO date string — when work actually began. */
+  actualStartAt: string | null;
   /** ISO date string — actual completion date (set when status = completed). */
   actualAt: string | null;
   status: ConstructionStatus;
@@ -97,8 +101,12 @@ export interface ConstructionTask {
   imageUrl: string | null;
   /** Public absolute URL for img src. */
   imageViewUrl: string | null;
+  /** ISO date string — planned start. With `estimateAt`, this is the real span. */
+  startAt: string | null;
   /** ISO date string — targeted completion date. */
   estimateAt: string | null;
+  /** ISO date string — when work actually began. */
+  actualStartAt: string | null;
   /** ISO date string — actual completion date. */
   actualAt: string | null;
   /** Delay / disruption note. */
