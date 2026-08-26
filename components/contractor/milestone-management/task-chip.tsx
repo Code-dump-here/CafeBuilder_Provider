@@ -3,6 +3,7 @@
 import { useFormatter, useTranslations } from "next-intl";
 import { CalendarDays, CheckCircle2, Circle, CircleDot } from "lucide-react";
 
+import { pressable } from "@/lib/interactive";
 import { cn } from "@/lib/utils";
 
 import type { ConstructionStatus } from "@/features/projects/construction-types";
@@ -52,7 +53,11 @@ export function TaskChip({
     <article
       data-task-key={`${phaseId}:${taskIndex}`}
       className={cn(
-        "group flex w-full items-start gap-2 rounded-md border bg-card px-2.5 py-2 transition-colors hover:border-border/80",
+        "group flex w-full items-start gap-2 rounded-md border bg-card px-2.5 py-2",
+        // Reacts to a hover anywhere on the chip, including the dead
+        // space between the toggle and the title — the whole pill is one
+        // task, so lighting up only the text would read as two things.
+        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-foreground/25 hover:shadow-sm",
         done
           ? "border-emerald-500/40 bg-emerald-500/5"
           : inProgress
@@ -88,12 +93,16 @@ export function TaskChip({
         type="button"
         onClick={onClick}
         className={cn(
-          "flex min-w-0 flex-1 flex-col items-start gap-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+          pressable,
+          "group/title flex min-w-0 flex-1 flex-col items-start gap-1 rounded-sm text-left"
         )}
       >
         <span
           className={cn(
-            "line-clamp-2 text-xs font-medium leading-snug",
+            // Underlined on hover so it's clear the title itself opens the
+            // task detail, as distinct from the circle beside it, which
+            // changes the status without opening anything.
+            "line-clamp-2 text-xs font-medium leading-snug underline-offset-2 group-hover/title:underline",
             done && "text-muted-foreground line-through"
           )}
         >

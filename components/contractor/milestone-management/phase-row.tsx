@@ -75,7 +75,12 @@ export function PhaseRow(props: PhaseRowProps) {
       {...(reorder?.containerProps ?? {})}
       data-phase-id={phase.id}
       className={cn(
-        "relative flex flex-col gap-2.5 rounded-lg border bg-card/30 p-3 transition-colors",
+        "group/phase relative flex flex-col gap-2.5 rounded-lg border bg-card/30 p-3 transition-colors",
+        // The row isn't a click target itself, but it holds a dozen of
+        // them. Lifting the border and warming the fill draws the boundary
+        // of "the milestone you're working in" — deliberately quieter than
+        // the card tier so it never reads as a button.
+        "hover:border-border hover:bg-card/60",
         highlight ? "border-primary/60 ring-2 ring-primary/30" : "border-border/60",
         reorder?.isDragging ? "opacity-40" : null
       )}

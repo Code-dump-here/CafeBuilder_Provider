@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { pressable } from "@/lib/interactive";
 import { cn } from "@/lib/utils";
 
 import type {
@@ -66,13 +67,18 @@ export function MilestoneTrack({
                   aria-pressed={isSelected}
                   aria-label={phase.label}
                   className={cn(
-                    "group flex w-full flex-col items-center gap-1.5 rounded-md p-2 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    pressable,
+                    "group flex w-full flex-col items-center gap-1.5 rounded-md p-2 hover:bg-muted/60 motion-safe:active:scale-[0.97]",
                     isSelected && "bg-muted/60"
                   )}
                 >
                   <div
                     className={cn(
                       "relative flex size-9 items-center justify-center rounded-full border-2 transition-all",
+                      // The node is the thing the eye tracks along the rail,
+                      // so it grows under the cursor rather than relying on
+                      // the panel tint alone to say "this one".
+                      "motion-safe:group-hover:scale-110",
                       tone.badgeClass,
                       isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-card",
                       phase.status === "inProgress" && !isSelected && "ring-2 ring-amber-400/40 ring-offset-2 ring-offset-card motion-safe:animate-pulse"

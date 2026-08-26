@@ -14,6 +14,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
+import { interactiveCard } from "@/lib/interactive";
 import { cn } from "@/lib/utils";
 import { formatVndParts } from "@/lib/format-currency";
 import type {
@@ -105,7 +106,8 @@ export function MyProjectCard({ project, className }: MyProjectCardProps) {
     <Link
       href={`/projects/${project.projectShopOwnerId}`}
       className={cn(
-        "group flex h-full flex-col gap-3 rounded-2xl border border-border/60 bg-card p-5 text-left transition-colors hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+        interactiveCard,
+        "group flex h-full flex-col gap-3 rounded-2xl border border-border/60 bg-card p-5 text-left",
         className,
       )}
       aria-label={t("viewAria", { name: project.projectName })}
