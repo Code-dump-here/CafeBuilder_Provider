@@ -9,6 +9,7 @@ import {
   createConstructionTemplateApi,
   deleteConstructionTemplateApi,
   getConstructionTemplatesApi,
+  reorderConstructionTemplateItemsApi,
 } from "./construction-template-api";
 import type {
   ApplyConstructionTemplatePayload,
@@ -16,6 +17,7 @@ import type {
   ConstructionTemplate,
   ConstructionTemplateListResponse,
   CreateConstructionTemplatePayload,
+  ReorderConstructionTemplateItemsPayload,
   TemplateServiceKind,
 } from "./construction-template-types";
 
@@ -127,6 +129,38 @@ export function useApplyConstructionTemplateMutation(
         );
       }
       options.onSuccessSideEffect?.(result);
+    },
+
+    onError: (error) => {
+      notifyError(resolveErrorMessage(error));
+      options.onErrorSideEffect?.(error);
+    },
+  });
+}
+
+/**
+ * Persist a new order for a template's phases.
+ *
+ * Quiet on success — the rows have already moved on screen. Invalidates the
+ * template list so every other copy of it picks the new order up.
+ */
+export function useReorderConstructionTemplateItemsMutation(options: {
+  onSuccessSideEffect?: (template: ConstructionTemplate) => void;
+  onErrorSideEffect?: (error: AppError) => void;
+} = {}) {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ConstructionTemplate,
+    AppError,
+    { id: string; payload: ReorderConstructionTemplateItemsPayload }
+  >({
+    mutationFn: ({ id, payload }) =>
+      reorderConstructionTemplateItemsApi(id, payload),
+
+    onSuccess: (template) => {
+      void queryClient.invalidateQueries({ queryKey: ["construction-templates"] });
+      options.onSuccessSideEffect?.(template);
     },
 
     onError: (error) => {

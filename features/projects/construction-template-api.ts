@@ -7,6 +7,7 @@ import type {
   ConstructionTemplate,
   ConstructionTemplateListResponse,
   CreateConstructionTemplatePayload,
+  ReorderConstructionTemplateItemsPayload,
   TemplateServiceKind,
 } from "./construction-template-types";
 
@@ -84,6 +85,27 @@ export async function applyConstructionTemplateApi(
 ): Promise<ApplyConstructionTemplateResult> {
   const response = await api.post<ApplyConstructionTemplateResult>(
     `/api/construction-templates/${id}/apply`,
+    payload,
+    config,
+  );
+  return response.data;
+}
+
+/**
+ * Reorder a template's phases.
+ *
+ * Endpoint: `PUT /api/construction-templates/{id}/items/reorder`
+ *
+ * Author (or admin) only, and only ever affects future applications — applying
+ * a template copies it, so plans generated earlier keep the order they got.
+ */
+export async function reorderConstructionTemplateItemsApi(
+  id: string,
+  payload: ReorderConstructionTemplateItemsPayload,
+  config?: RequestConfig,
+): Promise<ConstructionTemplate> {
+  const response = await api.put<ConstructionTemplate>(
+    `/api/construction-templates/${id}/items/reorder`,
     payload,
     config,
   );

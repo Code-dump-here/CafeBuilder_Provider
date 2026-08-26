@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import { Bell, Check, Inbox } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -17,6 +18,7 @@ import {
   useUnreadCountQuery,
 } from "@/features/notifications/hooks";
 
+import { NotificationDetailDialog } from "./notification-detail-dialog";
 import { NotificationListItem } from "./notification-list-item";
 
 // ─── Filter tabs ────────────────────────────────────────────────────────────
@@ -52,6 +54,8 @@ interface NotificationsListProps {
   onPageChange: (next: number) => void;
   filter: ReadFilter;
   onFilterChange: (next: ReadFilter) => void;
+  /** Row to open on arrival — set by the bell dropdown's `?n=` handoff. */
+  initialSelectedId: string | null;
 }
 
 function NotificationsList({
@@ -59,6 +63,7 @@ function NotificationsList({
   onPageChange,
   filter,
   onFilterChange,
+  initialSelectedId,
 }: NotificationsListProps) {
   const t = useTranslations("Notifications");
   const tStates = useTranslations("Notifications.states");
@@ -78,6 +83,17 @@ function NotificationsList({
   const handleMarkAll = React.useCallback(() => {
     markAllRead.mutate();
   }, [markAllRead]);
+
+  // Held as an id rather than the item itself, so the dialog keeps showing the
+  // live cached row — a mark-read elsewhere updates it underneath. Resolving it
+  // during render also means the `?n=` handoff opens as soon as the first page
+  // lands, with no effect chasing the data.
+  const [selectedId, setSelectedId] = React.useState<string | null>(
+    initialSelectedId,
+  );
+  const selected = selectedId
+    ? (data.items.find((item) => item.id === selectedId) ?? null)
+    : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -137,6 +153,7 @@ function NotificationsList({
                   markRead.isPending &&
                   markRead.variables?.notificationId === item.id
                 }
+                onOpen={(opened) => setSelectedId(opened.id)}
               />
             </li>
           ))}
@@ -156,6 +173,13 @@ function NotificationsList({
             current: data.pageNumber,
             total: Math.max(data.totalPages, 1),
           }),
+        }}
+      />
+
+      <NotificationDetailDialog
+        item={selected}
+        onOpenChange={(open) => {
+          if (!open) setSelectedId(null);
         }}
       />
     </div>
@@ -255,8 +279,14 @@ function Pagination({
 
 export function NotificationsPage() {
   const t = useTranslations("Notifications.header");
+  const searchParams = useSearchParams();
   const [pageNumber, setPageNumber] = React.useState(1);
   const [filter, setFilter] = React.useState<ReadFilter>("all");
+
+  // Read once, on arrival: the bell dropdown links here as `?n={id}` so the
+  // full text is reachable from the preview too. Later navigation inside the
+  // inbox drives the dialog through state, not the URL.
+  const initialSelectedId = searchParams.get("n");
 
   // Reset to page 1 whenever the filter changes so the user doesn't
   // land on an empty page after switching tabs.
@@ -285,6 +315,7 @@ export function NotificationsPage() {
         onPageChange={setPageNumber}
         filter={filter}
         onFilterChange={handleFilterChange}
+        initialSelectedId={initialSelectedId}
       />
     </div>
   );
