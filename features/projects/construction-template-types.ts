@@ -95,6 +95,17 @@ export interface CreateConstructionTemplatePayload {
   items: ConstructionTemplateItemInput[];
 }
 
+/**
+ * Reorder a template's phases.
+ *
+ * The whole list goes on the wire for the same reason milestones do: the client
+ * already knows the order it wants, and sending it whole means two editors
+ * cannot interleave into an order neither of them chose.
+ */
+export interface ReorderConstructionTemplateItemsPayload {
+  itemIds: string[];
+}
+
 export interface ApplyConstructionTemplatePayload {
   projectWorkingId: string;
   /** ISO `yyyy-MM-dd`. Omitted means today. Must not be in the past. */

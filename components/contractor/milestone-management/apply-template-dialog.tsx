@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, GripVertical, Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -20,8 +20,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { todayDateInputValue } from "@/lib/date-input";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
-import { useConstructionTemplates } from "@/features/projects/use-construction-templates";
-import type { ConstructionTemplate } from "@/features/projects/construction-template-types";
+import { useDragReorder } from "@/hooks/use-drag-reorder";
+import { useCurrentUser } from "@/features/auth/user-context";
+import {
+  useConstructionTemplates,
+  useReorderConstructionTemplateItemsMutation,
+} from "@/features/projects/use-construction-templates";
+import type {
+  ConstructionTemplate,
+  ConstructionTemplateItem,
+} from "@/features/projects/construction-template-types";
 
 interface ApplyTemplateDialogProps {
   open: boolean;
@@ -195,6 +203,48 @@ function TemplateOption({
   onToggleExpand: () => void;
 }) {
   const t = useTranslations("MilestoneManagement.applyTemplate");
+  const { account } = useCurrentUser();
+
+  // Reordering edits the template itself, so it is offered only to its author.
+  // Everyone can read a public system template; nobody else gets to rearrange
+  // one — and the server would refuse anyway.
+  const canReorder =
+    template.items.length > 1 &&
+    Boolean(account?.id) &&
+    template.createdBy === account?.id;
+
+  // Optimistic order while the request is in flight, for the same reason the
+  // milestone list keeps one: waiting for the round-trip before the row moves
+  // makes dragging feel broken.
+  const [pendingOrder, setPendingOrder] = React.useState<string[] | null>(null);
+
+  const orderedItems = React.useMemo(() => {
+    const base = [...template.items].sort((a, b) => a.sortOrder - b.sortOrder);
+    if (!pendingOrder) return base;
+    const byId = new Map(base.map((item) => [item.id, item]));
+    const next = pendingOrder
+      .map((id) => byId.get(id))
+      .filter((item): item is ConstructionTemplateItem => item !== undefined);
+    for (const item of base) {
+      if (!pendingOrder.includes(item.id)) next.push(item);
+    }
+    return next;
+  }, [template.items, pendingOrder]);
+
+  const reorderItems = useReorderConstructionTemplateItemsMutation({
+    // The hook invalidates the template list, so the saved order arrives on its
+    // own — drop the override then so the two can't disagree.
+    onSuccessSideEffect: () => setPendingOrder(null),
+    onErrorSideEffect: () => setPendingOrder(null),
+  });
+
+  const dragReorder = useDragReorder({
+    ids: orderedItems.map((item) => item.id),
+    onReorder: (itemIds) => {
+      setPendingOrder(itemIds);
+      reorderItems.mutate({ id: template.id, payload: { itemIds } });
+    },
+  });
 
   return (
     <div
@@ -252,28 +302,74 @@ function TemplateOption({
 
       {expanded ? (
         <ol className="mt-1.5 flex flex-col gap-1.5 border-l border-border/60 pl-3 text-xs">
-          {template.items.map((item) => (
-            <li key={item.id} className="flex flex-col gap-0.5">
-              <span className="font-medium text-foreground">
-                {item.name}
-                {item.category ? (
-                  <span className="ml-1.5 font-normal text-muted-foreground">
-                    · {item.category}
-                  </span>
+          {orderedItems.map((item) => {
+            const drag = canReorder ? dragReorder.getItemProps(item.id) : null;
+            return (
+              <li
+                key={item.id}
+                {...(drag?.containerProps ?? {})}
+                className={cn(
+                  "relative flex items-start gap-1.5",
+                  drag?.isDragging ? "opacity-40" : null
+                )}
+              >
+                {drag?.dropEdge ? (
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "pointer-events-none absolute inset-x-0 h-0.5 rounded-full bg-primary",
+                      drag.dropEdge === "top" ? "-top-1" : "-bottom-1"
+                    )}
+                  />
                 ) : null}
-                {item.estimateDays != null ? (
-                  <span className="ml-1.5 font-normal text-muted-foreground">
-                    · {t("days", { days: item.estimateDays })}
-                  </span>
+
+                {drag ? (
+                  <button
+                    type="button"
+                    {...drag.handleProps}
+                    // Arrow keys do the same job as the drag, so reordering is
+                    // not mouse-only. A pair of visible up/down buttons on
+                    // every phase would swamp a list this dense.
+                    onKeyDown={(event) => {
+                      if (event.key === "ArrowUp") {
+                        event.preventDefault();
+                        dragReorder.move(item.id, -1);
+                      } else if (event.key === "ArrowDown") {
+                        event.preventDefault();
+                        dragReorder.move(item.id, 1);
+                      }
+                    }}
+                    aria-label={t("dragHandle")}
+                    title={t("dragHandle")}
+                    className="mt-0.5 shrink-0 cursor-grab rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:cursor-grabbing"
+                  >
+                    <GripVertical aria-hidden className="size-3" />
+                  </button>
                 ) : null}
-              </span>
-              {item.tasks.length > 0 ? (
-                <span className="text-[11px] leading-relaxed text-muted-foreground">
-                  {item.tasks.map((task) => task.name).join(" • ")}
+
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className="font-medium text-foreground">
+                    {item.name}
+                    {item.category ? (
+                      <span className="ml-1.5 font-normal text-muted-foreground">
+                        · {item.category}
+                      </span>
+                    ) : null}
+                    {item.estimateDays != null ? (
+                      <span className="ml-1.5 font-normal text-muted-foreground">
+                        · {t("days", { days: item.estimateDays })}
+                      </span>
+                    ) : null}
+                  </span>
+                  {item.tasks.length > 0 ? (
+                    <span className="text-[11px] leading-relaxed text-muted-foreground">
+                      {item.tasks.map((task) => task.name).join(" • ")}
+                    </span>
+                  ) : null}
                 </span>
-              ) : null}
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ol>
       ) : null}
     </div>

@@ -1078,7 +1078,8 @@
       "summary": "Sẽ tạo {phases, plural, =1 {1 hạng mục} other {# hạng mục}} và {tasks, plural, =1 {1 công việc} other {# công việc}}, kéo dài khoảng {days} ngày.",
       "appendWarning": "Dự án đã có hạng mục. Áp mẫu sẽ THÊM các hạng mục của mẫu vào bên cạnh, không thay thế cái đang có.",
       "cancel": "Huỷ",
-      "apply": "Áp vào dự án"
+      "apply": "Áp vào dự án",
+      "dragHandle": "Kéo hoặc bấm phím mũi tên để đổi thứ tự hạng mục"
     },
     "common": {
       "close": "Đóng",
@@ -1123,7 +1124,11 @@
       "confirmCancel": "Huỷ",
       "blockedTasksTitle": "Còn công việc chưa xong",
       "blockedTasksBody": "\"{name}\" còn {count, plural, =1 {1 việc} other {# việc}} chưa hoàn thành. Hoàn tất chúng trước khi đánh dấu mốc này là hoàn thành.",
-      "blockedTasksCta": "Đã hiểu"
+      "blockedTasksCta": "Đã hiểu",
+      "moveUp": "Chuyển lên",
+      "moveDown": "Chuyển xuống",
+      "dragHandle": "Kéo để đổi thứ tự hạng mục",
+      "dragHandleLocked": "Hạng mục đã nghiệm thu giữ nguyên thứ tự đã thi công"
     },
     "task": {
       "edit": "Sửa việc",
@@ -2188,7 +2193,8 @@
       "total": "{count, plural, =0 {Không có thông báo} other {# thông báo}}",
       "emptyTitle": "Bạn đã xem hết",
       "emptySubtitle": "Hoạt động mới sẽ hiện ở đây.",
-      "viewAll": "Xem tất cả thông báo"
+      "viewAll": "Xem tất cả",
+      "markAll": "Đánh dấu đã đọc"
     },
     "empty": {
       "title": "Không có {filter}",
@@ -2199,6 +2205,12 @@
     },
     "item": {
       "markRead": "Đánh dấu đã đọc"
+    },
+    "detail": {
+      "unread": "Chưa đọc",
+      "noBody": "Không có nội dung chi tiết.",
+      "close": "Đóng",
+      "open": "Mở mục liên quan"
     },
     "types": {
       "engagement_completion_requested": "Nhà cung cấp đã báo hoàn thành",
