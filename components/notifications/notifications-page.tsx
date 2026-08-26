@@ -142,9 +142,12 @@ function NotificationsList({
       ) : data.items.length === 0 ? (
         <EmptyState filter={filter} />
       ) : (
-        <ul className="flex flex-col divide-y divide-border/60 rounded-2xl border border-border/60 bg-card">
+        // `overflow-hidden` so a row's hover highlight is clipped to the
+        // card's radius instead of squaring off its rounded corners. Row
+        // padding lives on the row itself, so the highlight fills it.
+        <ul className="flex flex-col divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 bg-card">
           {data.items.map((item) => (
-            <li key={item.id} className="px-3">
+            <li key={item.id}>
               <NotificationListItem
                 item={item}
                 variant="page"
