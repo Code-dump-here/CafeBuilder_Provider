@@ -36,31 +36,6 @@ function useRelativeTime(): (iso: string) => string {
   );
 }
 
-// ─── Type icons ─────────────────────────────────────────────────────────────
-
-/**
- * `react-notifications` doesn't ship per-type icons. For the five
- * lifecycle types introduced by `a.md` §6 we surface a coloured dot so
- * the bell preview and inbox at least groups them visually until the
- * design system grows per-type icons.
- */
-function typeAccent(type: NotificationItem["type"]): string {
-  switch (type) {
-    case "engagement_completion_requested":
-      return "bg-sky-500";
-    case "engagement_completed":
-      return "bg-emerald-500";
-    case "engagement_terminated":
-      return "bg-rose-500";
-    case "project_completed":
-      return "bg-emerald-500";
-    case "project_cancelled":
-      return "bg-destructive";
-    default:
-      return "bg-muted-foreground/30";
-  }
-}
-
 // ─── List item ──────────────────────────────────────────────────────────────
 
 export interface NotificationListItemProps {
@@ -94,19 +69,20 @@ export function NotificationListItem({
   const t = useTranslations("Notifications.item");
   const relative = useRelativeTime();
 
-  const accentClass = typeAccent(item.type);
-
   // The readable part of the row. Kept apart from the mark-read control so the
   // `page` variant can make this — and only this — the clickable element: a
   // <button> may not contain another <button>, and nesting them is a hydration
   // error, not just invalid markup.
   const body = (
     <>
+      {/* Red means unread, full stop. This used to be tinted per notification
+          type, which left most types on the same muted grey as a read row —
+          the one state the dot exists to distinguish. */}
       <span
         aria-hidden
         className={cn(
           "mt-1.5 size-2 shrink-0 rounded-full",
-          item.isRead ? "bg-muted-foreground/30" : accentClass,
+          item.isRead ? "bg-muted-foreground/30" : "bg-red-500",
         )}
       />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -161,10 +137,16 @@ export function NotificationListItem({
     // Wrapper carries the hover/focus highlight that used to sit on the
     // clickable itself, so the row still lights up as one surface even though
     // it is now two siblings.
+    //
+    // It also owns the row's horizontal padding and has no radius of its own.
+    // Inset with a small radius, the highlight floated inside the row instead
+    // of filling it, and its corners cut across the card's much rounder ones.
+    // The card clips it now (`overflow-hidden` on the <ul>), so the first and
+    // last rows follow the card's curve exactly.
     const openClass =
       "flex min-w-0 flex-1 items-start gap-3 py-2.5 text-left focus-visible:outline-none";
     return (
-      <div className="flex items-start gap-3 rounded-md px-2 transition-colors hover:bg-accent focus-within:bg-accent">
+      <div className="flex items-start gap-3 px-4 transition-colors hover:bg-accent focus-within:bg-accent">
         {onOpen ? (
           <button
             type="button"

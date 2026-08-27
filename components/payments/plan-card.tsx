@@ -167,7 +167,12 @@ export function PlanCard({
     <article
       data-highlighted={highlighted ? "true" : undefined}
       className={cn(
-        "relative flex h-full flex-col gap-5 rounded-2xl border bg-card p-6 transition-shadow md:p-7",
+        "relative flex h-full flex-col gap-5 rounded-2xl border bg-card p-6 md:p-7",
+        // The card isn't clickable (the Subscribe button inside is), so this
+        // is presence only — it lifts out of the row under the cursor so
+        // you can tell which plan you're reading, without pretending the
+        // whole tile is a button.
+        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-primary/40 hover:shadow-lg",
         highlighted
           ? "border-primary/60 shadow-[0_18px_50px_-22px_oklch(0.45_0.12_240_/_0.45)]"
           : "border-border/70",

@@ -39,6 +39,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { pressable } from "@/lib/interactive";
 import { cn } from "@/lib/utils";
 
 import type { MilestonePhase, MilestoneStatus } from "@/lib/contractor/construction-overview-data";
@@ -193,7 +194,10 @@ export function PhaseRowHeader({
           <button
             type="button"
             onClick={() => onRename(phase.id)}
-            className="text-left text-sm font-semibold text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+            className={cn(
+              pressable,
+              "rounded-sm text-left text-sm font-semibold text-foreground underline-offset-2 hover:text-primary hover:underline",
+            )}
           >
             {phase.label}
           </button>

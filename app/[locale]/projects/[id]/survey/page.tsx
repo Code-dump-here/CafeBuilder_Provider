@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { FileText, Loader2, Plus, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FilePicker } from "@/components/ui/file-picker";
 import {
   Card,
   CardContent,
@@ -428,12 +429,13 @@ function SurveyDialog({
   const isPending = createMutation.isPending || updateMutation.isPending;
   const isEditing = Boolean(survey);
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const clearSelectedFile = () => {
+    setReportFile(null);
+    setReportUrl("");
+    setUploadError(null);
+  };
 
+  const handleFileSelect = async (file: File) => {
     setReportFile(file);
     setUploadError(null);
 
@@ -587,13 +589,19 @@ function SurveyDialog({
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                <Input
+                <FilePicker
                   id="survey-report-file"
-                  type="file"
                   accept={Object.keys(ACCEPTED_FILE_TYPES).join(",")}
-                  onChange={handleFileChange}
+                  file={reportFile}
+                  onSelect={handleFileSelect}
+                  onClear={clearSelectedFile}
                   disabled={isUploading}
-                  className="cursor-pointer file:cursor-pointer"
+                  hideClear={isUploading}
+                  labels={{
+                    choose: t("chooseFile"),
+                    empty: t("noFileChosen"),
+                    remove: t("removeFile"),
+                  }}
                 />
                 {isUploading && (
                   <p className="flex items-center gap-2 text-xs text-muted-foreground">

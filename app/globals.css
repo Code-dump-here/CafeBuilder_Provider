@@ -127,4 +127,29 @@
   html {
     @apply font-sans;
   }
+
+  /* Tailwind v4's preflight drops the browser's `cursor: pointer` on
+     buttons in favour of `cursor: default`. The effect across an app this
+     size is that almost nothing reads as clickable: the pointer never
+     changes over a button, a kebab menu, a status pill or a tab. Put it
+     back here rather than pasting `cursor-pointer` onto several hundred
+     call sites.
+
+     `:disabled` is excluded so a greyed-out control keeps saying no, and
+     `[role="button"]` covers the elements that are semantically buttons
+     without being <button> (cards opened by click, Radix triggers). */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary {
+    cursor: pointer;
+  }
+
+  /* Anything that opted out of pointer events shouldn't advertise a
+     click target either — `disabled:pointer-events-none` (used by every
+     shadcn control) otherwise leaves the cursor inherited from the
+     parent, which is often the pointer we just set above. */
+  :disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
