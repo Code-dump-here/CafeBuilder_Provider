@@ -86,17 +86,30 @@ export default function ProviderQuotationsPage() {
     () => engagements.find((e) => e.status === "accepted") ?? null,
     [engagements],
   );
-  const projectWorkingId = engagement?.id ?? null;
-
-  // Bidding-time anchor. Only a *pending* application can carry a live
-  // quotation — once it is accepted or rejected the decision is made.
+  // Bidding-time anchor, for a provider who has applied but not yet won.
   const { getApplyForProject, isLoading: loadingApplies } = useProviderApplies({
     projectShopOwnerId: projectId,
-    enabled: projectWorkingId === null && viewerProfileId != null,
+    enabled: viewerProfileId != null,
   });
-  const pendingApply =
-    projectWorkingId === null ? getApplyForProject(projectId) : undefined;
-  const applyId = pendingApply?.status === "pending" ? pendingApply.id : null;
+  const pendingApply = engagement ? undefined : getApplyForProject(projectId);
+
+  // A quotation never changes anchor. `ck_quotations_anchor` lets it hold only
+  // one of `applyId` / `projectWorkingId`, and approving a bid does not move
+  // it, so the bid that won an engagement stays filed under the application it
+  // came in on. Reading by `projectWorkingId` alone therefore finds nothing for
+  // the provider who just won — and the empty state invited them to write a
+  // second quotation for work already priced and under contract.
+  //
+  // `engagement.applyId` is that original application when the engagement grew
+  // out of a bid, and null when the owner hired directly. So it names the real
+  // anchor in both cases, which guessing from the application list could not:
+  // a provider can hold an old rejected bid on the same project.
+  const applyId = engagement
+    ? engagement.applyId
+    : pendingApply?.status === "pending"
+      ? pendingApply.id
+      : null;
+  const projectWorkingId = applyId ? null : (engagement?.id ?? null);
 
   const { quotations, isLoading, isError, error, refetch } = useQuotations({
     projectWorkingId,
@@ -186,10 +199,15 @@ export default function ProviderQuotationsPage() {
     );
   }
 
-  // Only one live quotation per anchor is useful: a new draft alongside a bid
-  // the owner is already reading is two prices for one job.
+  // Only one live quotation per job is useful: a new draft alongside a bid the
+  // owner is already reading is two prices for one job.
+  //
+  // `accepted` counts as live and is in fact final — the server refuses any
+  // further version once a bid is approved, and the contract is built from it.
+  // `revision_requested` is deliberately absent: that status exists precisely
+  // to ask for a new version, so the button has to stay available there.
   const hasOpenQuotation = quotations.some(
-    (q) => q.status === "draft" || q.status === "sent",
+    (q) => q.status === "draft" || q.status === "sent" || q.status === "accepted",
   );
 
   return (
@@ -198,7 +216,10 @@ export default function ProviderQuotationsPage() {
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            {applyId ? t("subtitleBidding") : t("subtitleEngaged")}
+            {/* Keyed on the engagement, not on which anchor the read used: a
+                provider who won from a bid still reads by `applyId`, but they
+                are no longer bidding. */}
+            {engagement ? t("subtitleEngaged") : t("subtitleBidding")}
           </p>
         </div>
         <Button
