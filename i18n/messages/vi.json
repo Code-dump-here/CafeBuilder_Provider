@@ -546,7 +546,8 @@
         "surveyBookedHint": "Chủ quán chọn được bạn sau khi bạn đi khảo sát và điền kết quả.",
         "surveyDone": "Đã khảo sát hiện trường",
         "surveyStartCta": "Nộp khảo sát hiện trường",
-        "surveyRecordCta": "Ghi nhận buổi khảo sát"
+        "surveyRecordCta": "Ghi nhận buổi khảo sát",
+        "quotationCta": "Gửi báo giá chi tiết"
       },
       "withdrawConfirm": {
         "title": "Rút hồ sơ ứng tuyển?",
@@ -1410,7 +1411,9 @@
       "constructionSupport": "Hỗ trợ thi công",
       "brief": "Yêu cầu thiết kế",
       "siteProfile": "Hồ sơ mặt bằng",
-      "changeOrders": "Khoản phát sinh"
+      "changeOrders": "Khoản phát sinh",
+      "quotations": "Báo giá",
+      "payments": "Thanh toán"
     },
     "contractor": {
       "workspace": "Không gian làm việc",
@@ -1421,7 +1424,8 @@
       "issuesAndRFI": "Vấn đề & RFI",
       "materialsAndHandover": "Vật tư & Bàn giao",
       "materialsTracking": "Theo dõi vật tư",
-      "handover": "Bàn giao"
+      "handover": "Bàn giao",
+      "dailyLogs": "Nhật ký thi công"
     },
     "shopOwner": {
       "workspace": "Không gian làm việc",
@@ -1435,7 +1439,9 @@
       "handover": "Bàn giao",
       "contracts": "Hợp đồng",
       "createContract": "Tạo hợp đồng",
-      "contractHistory": "Lịch sử hợp đồng"
+      "contractHistory": "Lịch sử hợp đồng",
+      "payments": "Thanh toán",
+      "dailyLogs": "Nhật ký thi công"
     },
     "admin": {
       "overview": "Tổng quan",
@@ -2742,6 +2748,262 @@
       "descriptionPlaceholder": "Đề bài là gì, bạn làm gì, kết quả ra sao…",
       "imageUrl": "Link ảnh",
       "caption": "Chú thích"
+    }
+  },
+  "Quotations": {
+    "title": "Báo giá",
+    "subtitleBidding": "Lập giá khi hồ sơ ứng tuyển còn mở. Chủ quán so sánh các bản cạnh nhau, và duyệt một bản chính là chọn nhà cung cấp đó.",
+    "subtitleEngaged": "Bảng hạng mục có giá và điều kiện thanh toán — hợp đồng sẽ dựng từ đây.",
+    "create": "Lập báo giá",
+    "locked": "Đã khoá",
+    "durationDays": "Dự kiến {days} ngày",
+    "revisionReason": "Chủ quán yêu cầu bản khác: {reason}",
+    "rejectReason": "Bị từ chối: {reason}",
+    "noAnchor": {
+      "title": "Chưa có chỗ để gắn báo giá",
+      "description": "Hãy ứng tuyển vào bài đăng của dự án, hoặc chờ chủ quán mời trực tiếp. Báo giá neo vào hồ sơ ứng tuyển hoặc hợp tác."
+    },
+    "empty": {
+      "title": "Chưa có báo giá",
+      "description": "Không có bảng giá thì chủ quán không có gì để so sánh bạn với các nhà cung cấp khác."
+    },
+    "error": {
+      "title": "Không tải được báo giá",
+      "subtitle": "Vui lòng thử lại.",
+      "retry": "Thử lại"
+    },
+    "status": {
+      "draft": "Bản nháp",
+      "sent": "Đã gửi",
+      "revision_requested": "Yêu cầu bản khác",
+      "accepted": "Đã duyệt",
+      "rejected": "Bị từ chối",
+      "superseded": "Hết hiệu lực"
+    },
+    "actions": {
+      "send": "Gửi chủ quán",
+      "edit": "Sửa",
+      "delete": "Xoá bản nháp",
+      "accept": "Duyệt & chọn nhà cung cấp này",
+      "reject": "Từ chối",
+      "requestRevision": "Yêu cầu bản khác",
+      "viewProfile": "Xem hồ sơ nhà cung cấp",
+      "newVersion": "Phát hành bản mới"
+    },
+    "attachments": {
+      "add": "Đính kèm file",
+      "remove": "Gỡ file",
+      "unnamed": "File đính kèm",
+      "uploadFailed": "Không tải được file lên. Vui lòng thử lại."
+    },
+    "breakdown": {
+      "items": "Hạng mục",
+      "terms": "Điều kiện thanh toán",
+      "noTerms": "Chưa có điều kiện thanh toán — sẽ không sinh được đợt thanh toán nào từ báo giá này."
+    },
+    "send": {
+      "title": "Gửi báo giá này?",
+      "description": "Chủ quán sẽ nhận thông báo và so sánh với các bản khác. Sau khi gửi bạn không sửa được nữa, trừ khi chủ quán yêu cầu bản mới.",
+      "confirm": "Gửi"
+    },
+    "delete": {
+      "title": "Xoá bản nháp này?",
+      "description": "Chỉ bản nháp chưa gửi mới xoá được. Không hoàn tác được.",
+      "confirm": "Xoá"
+    },
+    "dialog": {
+      "cancel": "Huỷ"
+    },
+    "editor": {
+      "createTitle": "Lập báo giá",
+      "editTitle": "Sửa báo giá",
+      "description": "Thành tiền từng dòng và tổng báo giá đều được server tính lại từ số lượng x đơn giá.",
+      "titleLabel": "Tiêu đề báo giá",
+      "titlePlaceholder": "VD: Trọn gói hoàn thiện quán 60 m2",
+      "duration": "Thời gian (ngày)",
+      "freeRevisions": "Số lần sửa miễn phí",
+      "extraRevisionFee": "Phí mỗi lần sửa thêm",
+      "itemsTitle": "Hạng mục",
+      "itemsHint": "Chủ quán trả tiền cho những gì — ghi rõ từng dòng.",
+      "addItem": "Thêm dòng",
+      "removeItem": "Xoá dòng",
+      "itemName": "Tên hạng mục",
+      "itemUnit": "Đơn vị",
+      "itemQuantity": "SL",
+      "itemUnitPrice": "Đơn giá",
+      "itemDescription": "Mô tả (không bắt buộc)",
+      "total": "Tổng báo giá",
+      "termsTitle": "Điều kiện thanh toán",
+      "termsHint": "Các đợt này sẽ thành đợt thanh toán của dự án ngay khi hợp đồng được ký.",
+      "addTerm": "Thêm đợt",
+      "removeTerm": "Xoá đợt",
+      "noTerms": "Chưa có đợt nào. Thiếu phần này thì lúc ký hợp đồng sẽ không sinh được đợt thanh toán.",
+      "termName": "Tên đợt",
+      "termCondition": "Điều kiện kích hoạt (không bắt buộc)",
+      "termsOver": "Các đợt đang vượt tổng báo giá {amount}.",
+      "termsUnder": "Còn {amount} trong tổng báo giá chưa có đợt nào thu.",
+      "note": "Ghi chú gửi chủ quán",
+      "notePlaceholder": "Điều chủ quán nên đọc kèm bảng giá.",
+      "save": "Lưu bản nháp",
+      "newVersionTitle": "Bản báo giá mới",
+      "newVersionDescription": "Chủ quán đã xem bản trước nên không sửa đè được. Thao tác này tạo một bản báo giá mới, điền sẵn từ bản cũ."
+    }
+  },
+  "PaymentBatches": {
+    "title": "Đợt thanh toán",
+    "subtitleProvider": "Hệ thống không giữ tiền. Đối chiếu tài khoản của bạn với minh chứng chủ quán gửi, rồi xác nhận hoặc bác.",
+    "subtitleOwner": "Chuyển khoản thẳng cho nhà cung cấp rồi tải minh chứng lên đây. Nhà cung cấp xác nhận thì đợt mới đóng.",
+    "fromChangeOrder": "Từ phát sinh",
+    "dueAt": "Hạn {date}",
+    "rejectedBecause": "Bị bác: {reason}",
+    "noEngagement": {
+      "title": "Chưa có hợp tác trên dự án này",
+      "description": "Đợt thanh toán sinh từ hợp đồng của một hợp tác."
+    },
+    "empty": {
+      "title": "Chưa có đợt thanh toán",
+      "providerDescription": "Đợt sinh tự động từ điều kiện thanh toán của báo giá đã duyệt, ngay khi hợp đồng được ký.",
+      "ownerDescription": "Sau khi hợp đồng được ký, các đợt trong báo giá đã duyệt sẽ hiện ở đây."
+    },
+    "error": {
+      "title": "Không tải được đợt thanh toán",
+      "subtitle": "Vui lòng thử lại.",
+      "retry": "Thử lại"
+    },
+    "status": {
+      "pending": "Chưa thanh toán",
+      "proof_submitted": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "rejected": "Minh chứng bị bác"
+    },
+    "filters": {
+      "all": "Tất cả",
+      "pending": "Chưa thanh toán",
+      "proof_submitted": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "rejected": "Bị bác"
+    },
+    "summary": {
+      "total": "Tổng giá trị hợp đồng",
+      "confirmed": "Đã xác nhận",
+      "confirmedCount": "{count} đợt",
+      "awaiting": "Chờ xác nhận",
+      "awaitingCount": "{count} đợt",
+      "outstanding": "Còn lại",
+      "outstandingHint": "Nhà cung cấp chưa xác nhận"
+    },
+    "proofs": {
+      "title": "Minh chứng thanh toán",
+      "none": "Chưa có minh chứng nào.",
+      "fullAmount": "Trọn đợt",
+      "transferredAt": "Chuyển ngày {date}",
+      "imageAlt": "Ảnh chứng từ chuyển khoản"
+    },
+    "actions": {
+      "confirm": "Xác nhận đã nhận",
+      "reject": "Bác minh chứng",
+      "link": "Gắn hạng mục",
+      "relink": "Đổi hạng mục",
+      "submitProof": "Đánh dấu đã trả",
+      "resubmitProof": "Gửi minh chứng lại"
+    },
+    "confirm": {
+      "title": "Xác nhận đã nhận đủ tiền đợt này?",
+      "description": "Đợt sẽ đóng lại và hạng mục gắn kèm được đánh dấu đã thanh toán. Không hoàn tác được.",
+      "confirm": "Xác nhận"
+    },
+    "reject": {
+      "title": "Bác minh chứng này",
+      "description": "Ghi rõ sai ở đâu — sai số tiền, ảnh không đọc được — để chủ quán sửa rồi gửi lại.",
+      "placeholder": "Lý do bác",
+      "confirm": "Bác"
+    },
+    "link": {
+      "title": "Gắn vào hạng mục thi công",
+      "description": "Xác nhận đợt này sẽ đánh dấu hạng mục đó đã thanh toán — đúng yêu cầu đã trả và trả cho việc gì của review 3.",
+      "placeholder": "Chọn hạng mục",
+      "none": "Không gắn hạng mục",
+      "save": "Lưu"
+    },
+    "proof": {
+      "title": "Đánh dấu đã thanh toán đợt này",
+      "description": "Hệ thống không chuyển tiền. Hãy ghi nhận lần chuyển khoản bạn đã thực hiện; có ảnh chứng từ thì nhà cung cấp đối chiếu dễ hơn.",
+      "amount": "Số tiền đã chuyển",
+      "amountHint": "Để trống nếu bạn chuyển đúng bằng giá trị đợt.",
+      "transferredAt": "Ngày chuyển khoản",
+      "note": "Ghi chú",
+      "notePlaceholder": "Số tham chiếu, ngân hàng, hoặc bất cứ gì giúp đối chiếu.",
+      "image": "Ảnh chứng từ",
+      "addImage": "Đính ảnh chứng từ",
+      "uploadFailed": "Không tải được ảnh lên. Vui lòng thử lại.",
+      "submit": "Gửi"
+    },
+    "dialog": {
+      "cancel": "Huỷ"
+    }
+  },
+  "DailyLogs": {
+    "title": "Nhật ký thi công",
+    "subtitleProvider": "Báo cáo mỗi ngày đã làm gì kèm ảnh hiện trường, để chủ quán theo dõi tiến độ mà không phải ra công trường.",
+    "subtitleOwner": "Công trường diễn ra thế nào từng ngày, ghi trực tiếp từ nhà cung cấp.",
+    "create": "Ghi nhật ký",
+    "count": "{count} bản ghi",
+    "byline": "Người ghi: {name}",
+    "workers": "{count} thợ",
+    "photoAlt": "Ảnh hiện trường",
+    "readOnlyNotice": "Hợp tác này không còn hoạt động nên không ghi thêm được. Nhật ký cũ vẫn đọc được bình thường.",
+    "noEngagement": {
+      "title": "Chưa có hợp tác trên dự án này",
+      "description": "Nhật ký thi công thuộc về một hợp tác."
+    },
+    "empty": {
+      "title": "Chưa có bản ghi nào",
+      "providerDescription": "Ghi bản đầu tiên để chủ quán thấy tiến độ hôm nay.",
+      "ownerDescription": "Nhà cung cấp chưa ghi nhật ký nào."
+    },
+    "error": {
+      "title": "Không tải được nhật ký",
+      "subtitle": "Vui lòng thử lại.",
+      "retry": "Thử lại"
+    },
+    "filters": {
+      "item": "Hạng mục",
+      "allItems": "Tất cả hạng mục",
+      "from": "Từ ngày",
+      "to": "Đến ngày",
+      "clear": "Xoá bộ lọc"
+    },
+    "actions": {
+      "edit": "Sửa",
+      "delete": "Xoá"
+    },
+    "delete": {
+      "title": "Xoá bản ghi này?",
+      "description": "Nhật ký là vết ghi lại công việc đã xảy ra trong ngày. Xoá đi là mất bằng chứng đó của cả hai bên.",
+      "confirm": "Xoá"
+    },
+    "dialog": {
+      "cancel": "Huỷ"
+    },
+    "editor": {
+      "createTitle": "Ghi nhật ký",
+      "editTitle": "Sửa nhật ký",
+      "description": "Mỗi ngày làm việc một bản ghi.",
+      "logDate": "Ngày thực hiện",
+      "item": "Hạng mục",
+      "noItem": "Không gắn hạng mục",
+      "workDone": "Công việc đã làm",
+      "workDonePlaceholder": "Hôm nay hoàn thành những gì ở công trường.",
+      "issueNote": "Vấn đề phát sinh",
+      "issueNotePlaceholder": "Có gì trục trặc hoặc đang chặn tiến độ.",
+      "weatherNote": "Thời tiết / điều kiện công trường",
+      "weatherPlaceholder": "VD: Mưa lớn buổi chiều",
+      "workerCount": "Số thợ tại công trường",
+      "media": "Ảnh & video hiện trường",
+      "addMedia": "Thêm file",
+      "removeMedia": "Gỡ file",
+      "uploadFailed": "Không tải lên được. Vui lòng thử lại.",
+      "save": "Lưu nhật ký"
     }
   }
 }

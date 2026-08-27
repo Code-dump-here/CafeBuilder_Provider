@@ -546,7 +546,8 @@
         "surveyBookedHint": "The owner can accept you once you have made the visit and filled in the survey.",
         "surveyDone": "Site survey recorded",
         "surveyStartCta": "Record site survey",
-        "surveyRecordCta": "Record the visit"
+        "surveyRecordCta": "Record the visit",
+        "quotationCta": "Send a priced quotation"
       },
       "withdrawConfirm": {
         "title": "Withdraw your application?",
@@ -1410,7 +1411,9 @@
       "progress": "Progress",
       "constructionSupport": "Construction Support",
       "siteProfile": "Site Profile",
-      "changeOrders": "Change Orders"
+      "changeOrders": "Change Orders",
+      "quotations": "Quotations",
+      "payments": "Payments"
     },
     "contractor": {
       "workspace": "Workspace",
@@ -1421,7 +1424,8 @@
       "issuesAndRFI": "Issues & RFI",
       "materialsAndHandover": "Materials & Handover",
       "materialsTracking": "Materials Tracking",
-      "handover": "Handover"
+      "handover": "Handover",
+      "dailyLogs": "Daily Log"
     },
     "shopOwner": {
       "workspace": "Workspace",
@@ -1435,7 +1439,9 @@
       "handover": "Handover",
       "contracts": "Contracts",
       "createContract": "Create Contract",
-      "contractHistory": "Contract History"
+      "contractHistory": "Contract History",
+      "payments": "Payments",
+      "dailyLogs": "Daily Log"
     },
     "admin": {
       "overview": "Overview",
@@ -2742,6 +2748,262 @@
       "descriptionPlaceholder": "What the brief was, what you did, how it turned out…",
       "imageUrl": "Image URL",
       "caption": "Caption"
+    }
+  },
+  "Quotations": {
+    "title": "Quotations",
+    "subtitleBidding": "Price the job while your application is still open. The owner compares every bid side by side, and approving one is how a provider gets chosen.",
+    "subtitleEngaged": "Priced line items and the instalment schedule the contract will be built from.",
+    "create": "New quotation",
+    "locked": "Locked",
+    "durationDays": "Estimated duration: {days} day(s)",
+    "revisionReason": "The owner asked for a different version: {reason}",
+    "rejectReason": "Rejected: {reason}",
+    "noAnchor": {
+      "title": "Nothing to quote against yet",
+      "description": "Apply to this project post, or wait for a direct invitation. A quotation hangs off an application or an engagement."
+    },
+    "empty": {
+      "title": "No quotation yet",
+      "description": "Without a priced quotation the owner has nothing to compare you against."
+    },
+    "error": {
+      "title": "Could not load quotations",
+      "subtitle": "Please try again.",
+      "retry": "Retry"
+    },
+    "status": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "revision_requested": "Revision requested",
+      "accepted": "Approved",
+      "rejected": "Rejected",
+      "superseded": "No longer valid"
+    },
+    "actions": {
+      "send": "Send to owner",
+      "edit": "Edit",
+      "delete": "Delete draft",
+      "accept": "Approve & choose this provider",
+      "reject": "Reject",
+      "requestRevision": "Ask for another version",
+      "viewProfile": "View provider profile",
+      "newVersion": "Issue a new version"
+    },
+    "attachments": {
+      "add": "Attach file",
+      "remove": "Remove attachment",
+      "unnamed": "Attachment",
+      "uploadFailed": "Could not upload the file. Please try again."
+    },
+    "breakdown": {
+      "items": "Line items",
+      "terms": "Payment schedule",
+      "noTerms": "No payment schedule — instalments cannot be generated from this quotation."
+    },
+    "send": {
+      "title": "Send this quotation?",
+      "description": "The owner will be notified and can compare it with the other bids. You cannot edit it again unless the owner asks for another version.",
+      "confirm": "Send"
+    },
+    "delete": {
+      "title": "Delete this draft?",
+      "description": "Only an unsent draft can be deleted. This cannot be undone.",
+      "confirm": "Delete"
+    },
+    "dialog": {
+      "cancel": "Cancel"
+    },
+    "editor": {
+      "createTitle": "New quotation",
+      "editTitle": "Edit quotation",
+      "description": "Line totals and the quotation total are recalculated on the server from quantity x unit price.",
+      "titleLabel": "Quotation title",
+      "titlePlaceholder": "e.g. Full fit-out for a 60 m2 cafe",
+      "duration": "Duration (days)",
+      "freeRevisions": "Free revisions",
+      "extraRevisionFee": "Fee per extra revision",
+      "itemsTitle": "Line items",
+      "itemsHint": "What the owner is paying for, priced line by line.",
+      "addItem": "Add line",
+      "removeItem": "Remove line",
+      "itemName": "Item name",
+      "itemUnit": "Unit",
+      "itemQuantity": "Qty",
+      "itemUnitPrice": "Unit price",
+      "itemDescription": "Description (optional)",
+      "total": "Quotation total",
+      "termsTitle": "Payment schedule",
+      "termsHint": "These instalments become the payment batches of the project once the contract is signed.",
+      "addTerm": "Add instalment",
+      "removeTerm": "Remove instalment",
+      "noTerms": "No instalments yet. Without them no payment batch can be generated when the contract is signed.",
+      "termName": "Instalment name",
+      "termCondition": "Trigger condition (optional)",
+      "termsOver": "The schedule exceeds the total by {amount}.",
+      "termsUnder": "{amount} of the total has no instalment to collect it.",
+      "note": "Note to the owner",
+      "notePlaceholder": "Anything the owner should read alongside the price.",
+      "save": "Save draft",
+      "newVersionTitle": "New version of this quotation",
+      "newVersionDescription": "The owner has already seen the previous version, so it cannot be rewritten. This creates a new quotation, prefilled from it."
+    }
+  },
+  "PaymentBatches": {
+    "title": "Payment batches",
+    "subtitleProvider": "The platform holds no money. Check your own bank account against the proof from the owner, then confirm or reject.",
+    "subtitleOwner": "Transfer directly to the provider, then upload proof here. The provider confirms receipt to close the instalment.",
+    "fromChangeOrder": "From a change order",
+    "dueAt": "Due {date}",
+    "rejectedBecause": "Rejected: {reason}",
+    "noEngagement": {
+      "title": "No engagement on this project",
+      "description": "Payment batches are generated from the contract of an engagement."
+    },
+    "empty": {
+      "title": "No payment batches",
+      "providerDescription": "Batches are generated from the payment schedule of the approved quotation when the contract is signed.",
+      "ownerDescription": "Once the contract is signed, the instalments from the approved quotation appear here."
+    },
+    "error": {
+      "title": "Could not load payment batches",
+      "subtitle": "Please try again.",
+      "retry": "Retry"
+    },
+    "status": {
+      "pending": "Not paid",
+      "proof_submitted": "Awaiting confirmation",
+      "confirmed": "Confirmed",
+      "rejected": "Proof rejected"
+    },
+    "filters": {
+      "all": "All",
+      "pending": "Not paid",
+      "proof_submitted": "Awaiting confirmation",
+      "confirmed": "Confirmed",
+      "rejected": "Rejected"
+    },
+    "summary": {
+      "total": "Contract total",
+      "confirmed": "Confirmed",
+      "confirmedCount": "{count} instalment(s)",
+      "awaiting": "Awaiting confirmation",
+      "awaitingCount": "{count} instalment(s)",
+      "outstanding": "Outstanding",
+      "outstandingHint": "Not yet confirmed by the provider"
+    },
+    "proofs": {
+      "title": "Payment proof",
+      "none": "No proof submitted yet.",
+      "fullAmount": "Full instalment",
+      "transferredAt": "Transferred {date}",
+      "imageAlt": "Transfer receipt"
+    },
+    "actions": {
+      "confirm": "Confirm receipt",
+      "reject": "Reject proof",
+      "link": "Link a milestone",
+      "relink": "Change milestone",
+      "submitProof": "Mark as paid",
+      "resubmitProof": "Submit proof again"
+    },
+    "confirm": {
+      "title": "Confirm you received this payment?",
+      "description": "The instalment closes and the linked milestone is marked paid. This cannot be undone.",
+      "confirm": "Confirm"
+    },
+    "reject": {
+      "title": "Reject this proof",
+      "description": "Say what is wrong — the wrong amount, an unreadable receipt — so the owner can fix it and submit again.",
+      "placeholder": "Reason for rejecting",
+      "confirm": "Reject"
+    },
+    "link": {
+      "title": "Link to a milestone",
+      "description": "Confirming this instalment then marks that milestone as paid — the paid-and-paid-for-what half of review 3.",
+      "placeholder": "Choose a milestone",
+      "none": "No milestone",
+      "save": "Save"
+    },
+    "proof": {
+      "title": "Mark this instalment as paid",
+      "description": "The platform does not transfer money. Record the transfer you already made; a receipt image helps the provider reconcile it.",
+      "amount": "Amount transferred",
+      "amountHint": "Leave blank if you transferred exactly the instalment amount.",
+      "transferredAt": "Transfer date",
+      "note": "Note",
+      "notePlaceholder": "Reference number, bank, anything that helps reconciliation.",
+      "image": "Receipt image",
+      "addImage": "Attach receipt",
+      "uploadFailed": "Could not upload the image. Please try again.",
+      "submit": "Submit"
+    },
+    "dialog": {
+      "cancel": "Cancel"
+    }
+  },
+  "DailyLogs": {
+    "title": "Daily construction log",
+    "subtitleProvider": "Report what was done each day with site photos, so the owner can follow progress without driving out.",
+    "subtitleOwner": "What happened on site, day by day, straight from the provider.",
+    "create": "New entry",
+    "count": "{count} entries",
+    "byline": "By {name}",
+    "workers": "{count} worker(s)",
+    "photoAlt": "Site photo",
+    "readOnlyNotice": "This engagement is no longer active, so no new entries can be written. The existing log stays readable.",
+    "noEngagement": {
+      "title": "No engagement on this project",
+      "description": "The daily log belongs to an engagement."
+    },
+    "empty": {
+      "title": "No entries yet",
+      "providerDescription": "Write the first entry so the owner can see the progress today.",
+      "ownerDescription": "The provider has not filed a daily report yet."
+    },
+    "error": {
+      "title": "Could not load the log",
+      "subtitle": "Please try again.",
+      "retry": "Retry"
+    },
+    "filters": {
+      "item": "Milestone",
+      "allItems": "All milestones",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear filters"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "delete": {
+      "title": "Delete this entry?",
+      "description": "The daily log is the record that work happened on a given day. Deleting it removes that evidence for both sides.",
+      "confirm": "Delete"
+    },
+    "dialog": {
+      "cancel": "Cancel"
+    },
+    "editor": {
+      "createTitle": "New log entry",
+      "editTitle": "Edit log entry",
+      "description": "One entry per working day.",
+      "logDate": "Work date",
+      "item": "Milestone",
+      "noItem": "Not tied to a milestone",
+      "workDone": "Work done",
+      "workDonePlaceholder": "What was completed on site today.",
+      "issueNote": "Issues",
+      "issueNotePlaceholder": "Anything that went wrong or is blocking progress.",
+      "weatherNote": "Weather / site conditions",
+      "weatherPlaceholder": "e.g. Heavy rain in the afternoon",
+      "workerCount": "Workers on site",
+      "media": "Site photos & video",
+      "addMedia": "Add files",
+      "removeMedia": "Remove file",
+      "uploadFailed": "Could not upload. Please try again.",
+      "save": "Save entry"
     }
   }
 }

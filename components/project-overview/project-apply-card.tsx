@@ -13,6 +13,7 @@ import {
   Pencil,
   Trash2,
   ClipboardCheck,
+  FileSpreadsheet,
 } from "lucide-react";
 
 import {
@@ -384,6 +385,26 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
               {t("applied.surveyDone")}
             </span>
           </div>
+        ) : null}
+
+        {/* The quotation is what the owner actually compares bidders on, and
+            it has to be written while the application is still pending. The
+            sidebar cannot carry the link: project-scoped nav only renders for
+            members, and a bidder is not one yet — so without this the page
+            would be unreachable at exactly the moment it matters. */}
+        {canAmend ? (
+          <Button
+            asChild
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+          >
+            <Link href={`/projects/${project.id}/quotations`}>
+              <FileSpreadsheet aria-hidden />
+              {t("applied.quotationCta")}
+            </Link>
+          </Button>
         ) : null}
 
         {canAmend ? (
