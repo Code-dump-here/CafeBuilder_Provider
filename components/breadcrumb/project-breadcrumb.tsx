@@ -3,8 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+
+// next-intl's usePathname, not the one from next/navigation: the latter keeps
+// the locale prefix ("/vi/projects/123/survey"), while the marker built below
+// has none, so `startsWith` never matched and EVERY sub-page fell back to the
+// project-overview label instead of its own.
+import { usePathname } from "@/i18n/navigation";
 
 import { PROJECT_SEGMENT_TITLE_KEY } from "@/lib/sidebar-config";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
