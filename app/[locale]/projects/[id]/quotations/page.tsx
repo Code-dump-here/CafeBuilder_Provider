@@ -40,9 +40,13 @@ import { uploadFileApi } from "@/lib/http/file-upload-api";
 import { formatVndParts } from "@/lib/format-currency";
 import { notifyError } from "@/lib/notify";
 import {
-  QuotationEditorDialog,
+  ConstructionQuotationEditorDialog,
+  DesignQuotationEditorDialog,
   type QuotationFormValues,
 } from "@/components/quotation/quotation-editor-dialog";
+import { useMarketplacePosts } from "@/features/projects/use-marketplace";
+import { DEFAULT_FILTERS } from "@/features/projects/marketplace-types";
+import { resolveQuotationVariant } from "@/features/projects/quotation-variant";
 
 /**
  * The provider's side of the quotation flow.
@@ -116,6 +120,40 @@ export default function ProviderQuotationsPage() {
     applyId,
     enabled: Boolean(projectWorkingId || applyId),
   });
+
+  // Which editor to open. The SCOPE OF THE WORK decides, never the provider's
+  // own capability: a studio with capability 'both' bidding on a
+  // construction-only post is selling construction, and revision terms would
+  // be meaningless on that quotation.
+  //
+  // Once hired, the engagement states the scope outright. While still bidding
+  // it does not exist yet, and `ApplyResponse` carries `postId` but not the
+  // post's `serviceKind` — so the post is read off the project's own posts,
+  // which are still 'open' for as long as bidding is possible.
+  const { data: projectPosts } = useMarketplacePosts({
+    ...DEFAULT_FILTERS,
+    projectShopOwnerId: projectId,
+    pageSize: 20,
+  });
+
+  const biddingServiceKind = React.useMemo(() => {
+    if (engagement || !pendingApply) return null;
+    return (
+      projectPosts.items.find((post) => post.id === pendingApply.postId)
+        ?.serviceKind ?? null
+    );
+  }, [engagement, pendingApply, projectPosts]);
+
+  const variant = resolveQuotationVariant({
+    contractType: engagement?.contractType,
+    serviceKind: biddingServiceKind,
+    capability: account?.serviceProvider?.capability,
+  });
+
+  const QuotationEditor =
+    variant === "construction"
+      ? ConstructionQuotationEditorDialog
+      : DesignQuotationEditorDialog;
 
   const [editorOpen, setEditorOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Quotation | null>(null);
@@ -432,7 +470,7 @@ export default function ProviderQuotationsPage() {
         </div>
       )}
 
-      <QuotationEditorDialog
+      <QuotationEditor
         open={editorOpen}
         onOpenChange={(next) => {
           setEditorOpen(next);
