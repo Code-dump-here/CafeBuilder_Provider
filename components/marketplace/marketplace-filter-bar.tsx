@@ -5,6 +5,7 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
+import { useCurrentUser } from "@/features/auth/user-context";
 import {
   Select,
   SelectContent,
@@ -69,6 +70,20 @@ export function MarketplaceFilterBar({
   const tStatus = useTranslations("Marketplace.filters.status");
   const tSort = useTranslations("Marketplace.filters.sort");
   const tGrid = useTranslations("Marketplace.grid");
+  const { account } = useCurrentUser();
+
+  // The server only returns posts this provider's capability can take on, so
+  // offering the other kinds here is offering a filter that always comes back
+  // empty. A designer or a constructor has exactly one kind to look at, which
+  // makes the whole select redundant for them — only a `both` provider has a
+  // real choice to make.
+  const capability = account?.serviceProvider?.capability ?? null;
+  const serviceValues = React.useMemo<Array<MarketplaceFilters["serviceKind"]>>(() => {
+    if (capability === "designer") return ["design"];
+    if (capability === "constructor") return ["construction"];
+    return SERVICE_VALUES;
+  }, [capability]);
+  const showServiceFilter = serviceValues.length > 1;
 
   const update = React.useCallback(
     (patch: Partial<MarketplaceFilters>) => {
@@ -108,23 +123,25 @@ export function MarketplaceFilterBar({
           />
         </div>
 
-        <Select
-          value={filters.serviceKind}
-          onValueChange={(value) =>
-            update({ serviceKind: value as ServiceKind | "all" })
-          }
-        >
-          <SelectTrigger aria-label={tService("label")} size="default">
-            <SelectValue placeholder={tService("label")} />
-          </SelectTrigger>
-          <SelectContent>
-            {SERVICE_VALUES.map((value) => (
-              <SelectItem key={value} value={value}>
-                {tService(value)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {showServiceFilter ? (
+          <Select
+            value={filters.serviceKind}
+            onValueChange={(value) =>
+              update({ serviceKind: value as ServiceKind | "all" })
+            }
+          >
+            <SelectTrigger aria-label={tService("label")} size="default">
+              <SelectValue placeholder={tService("label")} />
+            </SelectTrigger>
+            <SelectContent>
+              {serviceValues.map((value) => (
+                <SelectItem key={value} value={value}>
+                  {tService(value)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : null}
 
         <Select
           value={filters.status}

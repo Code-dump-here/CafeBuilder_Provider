@@ -21,6 +21,9 @@ import {
 } from "@/components/ui/collapsible";
 import { ChevronRight } from "lucide-react";
 
+import { interactivePanel } from "@/lib/interactive";
+import { cn } from "@/lib/utils";
+
 import type { NavItem, NavSection } from "@/lib/sidebar-config";
 
 interface RoleSidebarNavProps {
@@ -81,9 +84,17 @@ function RoleSidebarNavSection({
     <Collapsible defaultOpen={initiallyOpen} className="group/collapsible">
       <SidebarGroup>
         <SidebarGroupLabel asChild>
-          <CollapsibleTrigger className="flex w-full items-center justify-between">
+          <CollapsibleTrigger
+            className={cn(
+              interactivePanel,
+              "flex w-full items-center justify-between",
+            )}
+          >
             <span>{t(section.labelKey)}</span>
-            <ChevronRight className="size-3.5 transition-transform group-data-[state=open]/collapsible:rotate-90" aria-hidden />
+            <ChevronRight
+              className="size-3.5 opacity-70 transition-transform group-data-[state=open]/collapsible:rotate-90"
+              aria-hidden
+            />
           </CollapsibleTrigger>
         </SidebarGroupLabel>
         <CollapsibleContent>
