@@ -25,11 +25,14 @@ import { useResetOnChange } from "@/hooks/use-reset-on-change";
  * Bounds for the apply form. Mirrors typical backend column limits
  * (`proposal TEXT`, `estimated_duration_days INT`) and keeps the input
  * inside `int32` for safety.
+ *
+ * The bounds only apply once a number is actually typed: the duration is
+ * optional here, matching `CreateApplyRequest.EstimatedDurationDays` (`int?`).
+ * There is deliberately no default — see the duration block below.
  */
 const PROPOSAL_MIN_LENGTH = 30;
 const DURATION_MIN_DAYS = 1;
 const DURATION_MAX_DAYS = 365;
-const DURATION_DEFAULT_DAYS = 30;
 
 interface ApplyDialogProps {
   open: boolean;
@@ -71,9 +74,9 @@ export function ApplyDialog({
   const isEditing = existingApply != null;
 
   const [proposal, setProposal] = React.useState("");
-  const [duration, setDuration] = React.useState<string>(
-    String(DURATION_DEFAULT_DAYS),
-  );
+  // Starts blank on purpose. A prefilled "30" is a number the provider never
+  // chose, and the owner reads it off the application as a commitment.
+  const [duration, setDuration] = React.useState("");
 
   // Reset form whenever the dialog re-opens so a previous (failed) attempt
   // doesn't bleed into the next one. Cheap because both inputs are tiny.
@@ -82,7 +85,9 @@ export function ApplyDialog({
     if (open) {
       setProposal(existingApply?.proposal ?? "");
       setDuration(
-        String(existingApply?.estimatedDurationDays ?? DURATION_DEFAULT_DAYS),
+        existingApply?.estimatedDurationDays != null
+          ? String(existingApply.estimatedDurationDays)
+          : "",
       );
     }
   });
@@ -108,20 +113,34 @@ export function ApplyDialog({
 
   const isPending = apply.isPending || update.isPending;
 
-  const durationNumber = Number.parseInt(duration, 10);
+  // Blank is a valid answer here, not an unfinished form. A `Post` carries
+  // only a service kind and free-form text (see `Post.cs`) — it is not anchored
+  // to a design, so a contractor applying to a construction post has no
+  // drawings, dimensions or site survey to estimate a handover date from.
+  // Forcing a number at this stage only manufactures a commitment nobody made.
+  // The real schedule lands downstream: the quotation carries the committed
+  // duration, and `ContractService` turns it into execution dates.
+  const durationTrimmed = duration.trim();
+  const durationNumber = Number.parseInt(durationTrimmed, 10);
+  const durationOmitted = durationTrimmed === "";
   const durationValid =
-    Number.isFinite(durationNumber) &&
-    durationNumber >= DURATION_MIN_DAYS &&
-    durationNumber <= DURATION_MAX_DAYS;
+    durationOmitted ||
+    (Number.isFinite(durationNumber) &&
+      durationNumber >= DURATION_MIN_DAYS &&
+      durationNumber <= DURATION_MAX_DAYS);
+
+  /** `undefined` rather than 0 when left blank — the column is nullable. */
+  const durationPayload = durationOmitted ? undefined : durationNumber;
 
   const proposalTrimmed = proposal.trim();
   const proposalValid = proposalTrimmed.length >= PROPOSAL_MIN_LENGTH;
 
   // Nothing to send when the user reopened the form and changed nothing.
+  // Compared through null so "blank" and "never set" count as the same value.
   const isUnchanged =
     isEditing &&
     proposalTrimmed === (existingApply?.proposal ?? "").trim() &&
-    durationNumber === existingApply?.estimatedDurationDays;
+    (durationPayload ?? null) === (existingApply?.estimatedDurationDays ?? null);
 
   const canSubmit =
     !isPending &&
@@ -139,7 +158,13 @@ export function ApplyDialog({
         applyId: existingApply.id,
         payload: {
           proposal: proposalTrimmed,
-          estimatedDurationDays: durationNumber,
+          estimatedDurationDays: durationPayload,
+          // Omitting the duration means "leave it alone" on a partial update,
+          // so emptying the field has to be said explicitly or the previously
+          // saved number would survive a save that visibly cleared it.
+          ...(durationOmitted && existingApply.estimatedDurationDays != null
+            ? { clearEstimatedDuration: true }
+            : {}),
         },
       });
       return;
@@ -148,7 +173,7 @@ export function ApplyDialog({
     apply.mutate({
       postId,
       proposal: proposalTrimmed,
-      estimatedDurationDays: durationNumber,
+      estimatedDurationDays: durationPayload,
     });
   };
 
@@ -216,7 +241,7 @@ export function ApplyDialog({
                 min={DURATION_MIN_DAYS}
                 max={DURATION_MAX_DAYS}
                 step={1}
-                required
+                placeholder={t("durationPlaceholder")}
                 value={duration}
                 onChange={(event) => setDuration(event.target.value)}
                 aria-describedby="apply-dialog-duration-hint"

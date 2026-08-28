@@ -58,6 +58,17 @@ interface TermDraft {
   condition: string;
 }
 
+/**
+ * Bounds for the committed duration. Required here, unlike on the application
+ * form: by quotation time the provider has the brief, the survey and — on the
+ * construction side — the approved design, so a schedule can be stood behind.
+ * It is also the number `ContractService` reads to derive `ExecutionEndAt`
+ * from `ExecutionStartAt`, so a quotation without one leaves the contract
+ * with no handover date to fill in automatically.
+ */
+const DURATION_MIN_DAYS = 1;
+const DURATION_MAX_DAYS = 365;
+
 let draftKeySeed = 0;
 const nextKey = () => `row-${(draftKeySeed += 1)}`;
 
@@ -206,8 +217,15 @@ function QuotationEditorBase({
   const balance = paymentTermsBalance(parsedTerms, total);
   const money = (amount: number) => formatVndParts(amount, locale).full;
 
+  const durationNumber = Number.parseInt(durationDays.trim(), 10);
+  const durationValid =
+    Number.isFinite(durationNumber) &&
+    durationNumber >= DURATION_MIN_DAYS &&
+    durationNumber <= DURATION_MAX_DAYS;
+
   const valid =
     title.trim().length > 0 &&
+    durationValid &&
     parsedItems.length > 0 &&
     parsedItems.every((item) => item.quantity > 0 && item.unitPrice >= 0);
 
@@ -253,14 +271,31 @@ function QuotationEditorBase({
             }
           >
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium">{t("editor.duration")}</label>
+              <label className="text-sm font-medium" htmlFor="quotation-duration">
+                {t("editor.duration")}
+              </label>
               <Input
+                id="quotation-duration"
                 type="number"
                 inputMode="numeric"
-                min="1"
+                min={DURATION_MIN_DAYS}
+                max={DURATION_MAX_DAYS}
                 value={durationDays}
                 onChange={(e) => setDurationDays(e.target.value)}
+                aria-describedby="quotation-duration-hint"
+                aria-invalid={durationDays.length > 0 && !durationValid}
               />
+              <p
+                id="quotation-duration-hint"
+                className="text-[11px] text-muted-foreground"
+              >
+                {durationValid
+                  ? t("editor.durationHint")
+                  : t("editor.durationInvalid", {
+                      min: DURATION_MIN_DAYS,
+                      max: DURATION_MAX_DAYS,
+                    })}
+              </p>
             </div>
 
             {/* Revision terms exist only on the design side. A contractor
@@ -538,7 +573,8 @@ function QuotationEditorBase({
               onSubmit({
                 title: title.trim(),
                 note: note.trim() || undefined,
-                estimatedDurationDays: Number(durationDays) || undefined,
+                // Required by `valid` above, so this is always a real number.
+                estimatedDurationDays: durationNumber,
                 // Omitted entirely on the construction form — not sent as 0.
                 // A published 0 reads as "no free revisions, extra rounds are
                 // free", which is a term the owner could hold the contractor

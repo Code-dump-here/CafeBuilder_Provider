@@ -38,7 +38,26 @@ function resolveApiBaseUrl(): string {
   return "http://localhost:3001";
 }
 
+/**
+ * Google Maps Platform key for map previews of a project's address.
+ *
+ * Empty is a supported state, not a failure: with no key the map simply isn't
+ * rendered and the address stays as text, which is what every screen showed
+ * before maps existed. That deliberately differs from `apiBaseUrl` above —
+ * a missing API URL breaks the whole app, a missing Maps key costs one tile.
+ *
+ * Being `NEXT_PUBLIC_` means this ships in the browser bundle. That is normal
+ * for Maps: the key is not a secret, and the way it is protected is an HTTP
+ * referrer restriction in the Cloud console, not obscurity. Restrict it there
+ * to your own domains, or anyone can bill your project by copying it out of
+ * the page source.
+ */
+const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim() ?? "";
+
 export const env = {
   apiBaseUrl: resolveApiBaseUrl(),
   requestTimeoutMs: Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS ?? 10000),
+  googleMapsApiKey,
+  /** Whether map previews can render at all. */
+  mapsEnabled: googleMapsApiKey.length > 0,
 };
