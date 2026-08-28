@@ -27,6 +27,7 @@ import {
 import { ProjectMembersCard } from "@/components/project-overview/project-members-card";
 import { ProjectOwnerCard } from "@/components/project-overview/project-owner-card";
 import { QuickFactsCard } from "@/components/project-overview/quick-facts-card";
+import { ProjectLocationMap } from "@/components/project-overview/project-location-map";
 
 import {
   useAiRecommendations,
@@ -236,6 +237,16 @@ export default function ProjectDetailPage() {
               ) : null}
 
               <QuickFactsCard project={project} />
+
+              {/* Directly under Quick Facts, which is where the address line
+                  lives — a provider deciding whether to bid reads "where is
+                  this" and gets the answer without leaving the rail. Renders
+                  nothing when the owner never pinned the address. */}
+              <ProjectLocationMap
+                address={project.address}
+                latitude={project.latitude}
+                longitude={project.longitude}
+              />
 
               {/* Owner card — the person behind the project. Sits between
                   Quick Facts and Providers so the right rail reads

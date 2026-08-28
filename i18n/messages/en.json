@@ -442,6 +442,12 @@
       "priorityUrgent": "Urgent",
       "priorityStandard": "Standard"
     },
+    "locationMap": {
+      "title": "Site location",
+      "openInMaps": "Open in Maps",
+      "openAria": "Open {address} in Google Maps",
+      "alt": "Map showing {address}"
+    },
     "members": {
       "title": "Providers",
       "subtitle": "{count, plural, =0 {No providers attached} =1 {1 provider on this project} other {# providers on this project}}",
@@ -558,7 +564,7 @@
       },
       "dialog": {
         "title": "Apply to \"{project}\"",
-        "description": "Tell the owner why you're a good fit and when you can deliver.",
+        "description": "Tell the owner why you're a good fit. A timeline is optional at this stage.",
         "editTitle": "Edit your application to \"{project}\"",
         "editDescription": "Revise your proposal or timeline. The owner sees the updated version straight away.",
         "saveEdit": "Save changes",
@@ -567,9 +573,10 @@
         "proposalPlaceholder": "Describe your approach, relevant experience, and why this project fits you…",
         "proposalHint": "Minimum {min} characters.",
         "proposalTooShort": "Please write at least {min} characters.",
-        "durationLabel": "Estimated duration",
+        "durationLabel": "Estimated duration (optional)",
         "durationSuffix": "days",
-        "durationHint": "How many days from kickoff to handover?",
+        "durationPlaceholder": "—",
+        "durationHint": "Days from kickoff to handover. Leave blank if the post doesn't give you enough to estimate from — you'll commit to a timeline in your quotation.",
         "durationInvalid": "Duration must be between {min} and {max} days.",
         "submit": "Submit application",
         "submitting": "Submitting…",
@@ -2639,7 +2646,21 @@
       "logoUrl": "Logo URL",
       "coverImageUrl": "Cover image URL",
       "introVideoUrl": "Intro video URL",
-      "companyAddress": "Company address"
+      "companyAddress": "Company address",
+      "companyAddressPlaceholder": "Search for your office or workshop address",
+      "openAddressInMaps": "Open the company address in Google Maps",
+      "addressPinned": "Pinned on the map",
+      "addressTextOnly": "Saved as text only — pick a suggestion to pin it",
+      "addressClear": "Clear address",
+      "addressSearching": "Searching addresses",
+      "addressNoResults": "No matching address. You can still save what you typed.",
+      "addressUnavailable": "Address search is off in this build — type the address by hand.",
+      "addressPlaceFirstPin": "Drag the map until the pin sits on your address, or search for it above.",
+      "addressAdjust": "Pin in the wrong spot? Move it",
+      "addressAdjustDone": "Done moving the pin",
+      "addressDragHint": "Drag the map to move the pin",
+      "addressZoomIn": "Zoom in",
+      "addressZoomOut": "Zoom out"
     },
     "links": {
       "title": "Where to find you",
@@ -2828,6 +2849,8 @@
       "titleLabel": "Quotation title",
       "titlePlaceholder": "e.g. Full fit-out for a 60 m2 cafe",
       "duration": "Duration (days)",
+      "durationHint": "Days from kickoff to handover. The contract derives its end date from this number.",
+      "durationInvalid": "Required — enter between {min} and {max} days.",
       "freeRevisions": "Free revisions",
       "extraRevisionFee": "Fee per extra revision",
       "itemsTitle": "Line items",

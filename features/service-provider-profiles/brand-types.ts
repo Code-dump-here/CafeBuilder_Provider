@@ -96,6 +96,12 @@ export interface ProviderBrand {
   website: string | null;
   brandStory: string | null;
   companyAddress: string | null;
+  /**
+   * Map pin for `companyAddress`, or null when it was only ever typed. Always
+   * paired — the backend rejects one coordinate without the other.
+   */
+  companyLatitude: number | null;
+  companyLongitude: number | null;
   foundedYear: number | null;
   employeeCount: number | null;
   yearsExperience: number | null;
@@ -114,6 +120,15 @@ export interface UpdateProviderBrandPayload {
   website?: string;
   brandStory?: string;
   companyAddress?: string;
+  /** New pin. Omit to leave the saved one alone; use `clearCompanyCoordinates` to remove it. */
+  companyLatitude?: number;
+  companyLongitude?: number;
+  /**
+   * Drops the saved pin, leaving the address as text. Needs its own flag
+   * because an omitted field already means "don't touch this one" — there is
+   * otherwise no way to say "erase it".
+   */
+  clearCompanyCoordinates?: boolean;
   foundedYear?: number;
   employeeCount?: number;
 }

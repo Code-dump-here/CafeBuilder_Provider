@@ -28,8 +28,13 @@ export interface ApplyToPostPayload {
 
 /**
  * Request body for `PUT /api/applies/{id}/proposal` — mirrors
- * `UpdateApplyRequest`. Both fields are optional: the server only writes
+ * `UpdateApplyRequest`. Every field is optional: the server only writes
  * the ones present, so this doubles as a partial update.
+ *
+ * `clearEstimatedDuration` — erase a duration that was already saved.
+ * Needed because omitting `estimatedDurationDays` means "leave it alone"
+ * under partial-update semantics, so there is otherwise no way to take a
+ * number back out. Sending both it and a duration is a 400.
  *
  * Accepted only while the application is still `pending`; the server
  * answers 409 once the owner has accepted or rejected it.
@@ -37,6 +42,7 @@ export interface ApplyToPostPayload {
 export interface UpdateApplyProposalPayload {
   proposal?: string;
   estimatedDurationDays?: number;
+  clearEstimatedDuration?: boolean;
 }
 
 /**

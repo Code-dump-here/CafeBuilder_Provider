@@ -442,6 +442,12 @@
       "millionShort": "triệu VND",
       "areaUnit": "m²"
     },
+    "locationMap": {
+      "title": "Vị trí mặt bằng",
+      "openInMaps": "Mở trong Maps",
+      "openAria": "Mở {address} trong Google Maps",
+      "alt": "Bản đồ vị trí {address}"
+    },
     "members": {
       "title": "Nhà cung cấp",
       "subtitle": "{count, plural, =0 {Chưa có nhà cung cấp nào} =1 {1 nhà cung cấp đang tham gia} other {# nhà cung cấp đang tham gia}}",
@@ -558,7 +564,7 @@
       },
       "dialog": {
         "title": "Ứng tuyển vào \"{project}\"",
-        "description": "Cho chủ dự án biết lý do bạn phù hợp và thời gian dự kiến hoàn thành.",
+        "description": "Cho chủ dự án biết lý do bạn phù hợp. Thời gian dự kiến ở bước này không bắt buộc.",
         "editTitle": "Sửa hồ sơ ứng tuyển vào \"{project}\"",
         "editDescription": "Cập nhật đề xuất hoặc thời lượng. Chủ dự án sẽ thấy bản mới ngay.",
         "saveEdit": "Lưu thay đổi",
@@ -567,9 +573,10 @@
         "proposalPlaceholder": "Mô tả cách tiếp cận, kinh nghiệm liên quan và lý do bạn phù hợp với dự án này…",
         "proposalHint": "Tối thiểu {min} ký tự.",
         "proposalTooShort": "Vui lòng viết ít nhất {min} ký tự.",
-        "durationLabel": "Thời lượng dự kiến",
+        "durationLabel": "Thời lượng dự kiến (không bắt buộc)",
         "durationSuffix": "ngày",
-        "durationHint": "Bao nhiêu ngày từ lúc bắt đầu đến khi bàn giao?",
+        "durationPlaceholder": "—",
+        "durationHint": "Số ngày từ lúc bắt đầu đến khi bàn giao. Chưa đủ dữ kiện để ước lượng thì cứ bỏ trống — bạn sẽ chốt thời gian trong báo giá.",
         "durationInvalid": "Thời lượng phải nằm trong khoảng {min} đến {max} ngày.",
         "submit": "Gửi hồ sơ",
         "submitting": "Đang gửi…",
@@ -2639,7 +2646,21 @@
       "logoUrl": "Link logo",
       "coverImageUrl": "Link ảnh bìa",
       "introVideoUrl": "Link video giới thiệu",
-      "companyAddress": "Địa chỉ công ty"
+      "companyAddress": "Địa chỉ công ty",
+      "companyAddressPlaceholder": "Tìm địa chỉ văn phòng hoặc xưởng",
+      "openAddressInMaps": "Mở địa chỉ công ty trong Google Maps",
+      "addressPinned": "Đã ghim trên bản đồ",
+      "addressTextOnly": "Chỉ lưu dạng chữ — chọn một gợi ý để ghim bản đồ",
+      "addressClear": "Xoá địa chỉ",
+      "addressSearching": "Đang tìm địa chỉ",
+      "addressNoResults": "Không tìm thấy địa chỉ phù hợp. Bạn vẫn lưu được nội dung đã gõ.",
+      "addressUnavailable": "Bản dựng này tắt tìm kiếm địa chỉ — hãy gõ địa chỉ thủ công.",
+      "addressPlaceFirstPin": "Kéo bản đồ cho ghim trùng địa chỉ của bạn, hoặc tìm kiếm ở trên.",
+      "addressAdjust": "Ghim chưa đúng chỗ? Kéo lại",
+      "addressAdjustDone": "Xong, đã ghim lại",
+      "addressDragHint": "Kéo bản đồ để dời ghim",
+      "addressZoomIn": "Phóng to",
+      "addressZoomOut": "Thu nhỏ"
     },
     "links": {
       "title": "Kênh liên hệ",
@@ -2828,6 +2849,8 @@
       "titleLabel": "Tiêu đề báo giá",
       "titlePlaceholder": "VD: Trọn gói hoàn thiện quán 60 m2",
       "duration": "Thời gian (ngày)",
+      "durationHint": "Số ngày từ lúc bắt đầu đến khi bàn giao. Đây là con số hợp đồng dùng để suy ra ngày kết thúc.",
+      "durationInvalid": "Bắt buộc — nhập từ {min} đến {max} ngày.",
       "freeRevisions": "Số lần sửa miễn phí",
       "extraRevisionFee": "Phí mỗi lần sửa thêm",
       "itemsTitle": "Hạng mục",

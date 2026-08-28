@@ -167,6 +167,14 @@ export interface ProjectDetail {
   ownerId: string;
   name: string;
   address: string;
+  /**
+   * Map pin for `address`, or null when the owner never pinned one — every
+   * project created before the map picker existed is in that state. Always
+   * paired: the backend rejects one coordinate without the other, so checking
+   * either one is enough to know whether a map can be drawn.
+   */
+  latitude: number | null;
+  longitude: number | null;
   areaM2: number | null;
   budget: number | null;
   status: ProjectStatus;
@@ -195,6 +203,8 @@ export interface RawProjectDetail {
   ownerId: string;
   name: string;
   address: string;
+  latitude?: number | null;
+  longitude?: number | null;
   areaM2: number;
   budget: number;
   status: string;
@@ -384,6 +394,8 @@ export function normalizeProjectDetail(raw: RawProjectDetail): ProjectDetail {
     ownerId: raw.ownerId,
     name: raw.name,
     address: raw.address,
+    latitude: typeof raw.latitude === "number" ? raw.latitude : null,
+    longitude: typeof raw.longitude === "number" ? raw.longitude : null,
     areaM2: typeof raw.areaM2 === "number" ? raw.areaM2 : null,
     budget: typeof raw.budget === "number" ? raw.budget : null,
     status: raw.status,
@@ -411,6 +423,8 @@ export function createEmptyProjectDetail(): ProjectDetail {
     ownerId: "0",
     name: "",
     address: "",
+    latitude: null,
+    longitude: null,
     areaM2: null,
     budget: null,
     status: "",
