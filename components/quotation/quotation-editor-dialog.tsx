@@ -24,6 +24,7 @@ import {
   type QuotationItemInput,
   type QuotationPaymentTermInput,
 } from "@/features/projects/quotation-types";
+import type { QuotationVariant } from "@/features/projects/quotation-variant";
 
 /**
  * Draft editor for a quotation: the priced line items and the instalment
@@ -86,16 +87,22 @@ export interface QuotationFormValues {
   paymentTerms: QuotationPaymentTermInput[];
 }
 
-export function QuotationEditorDialog({
+function QuotationEditorBase({
   open,
   onOpenChange,
   initial,
   isNewVersion = false,
+  variant,
   pending,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /**
+   * Which contract this quotation prices. Drives whether the revision terms
+   * are on the form at all — see `features/projects/quotation-variant.ts`.
+   */
+  variant: QuotationVariant;
   /** Prefill. Null when starting from scratch. */
   initial: Quotation | null;
   /**
@@ -111,6 +118,7 @@ export function QuotationEditorDialog({
 }) {
   const t = useTranslations("Quotations");
   const locale = useLocale();
+  const isDesign = variant === "design";
 
   const [title, setTitle] = React.useState("");
   const [note, setNote] = React.useState("");
@@ -223,7 +231,9 @@ export function QuotationEditorDialog({
           <DialogDescription>
             {isNewVersion
               ? t("editor.newVersionDescription")
-              : t("editor.description")}
+              : isDesign
+                ? t("editor.designDescription")
+                : t("editor.constructionDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -237,7 +247,11 @@ export function QuotationEditorDialog({
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div
+            className={
+              isDesign ? "grid gap-4 sm:grid-cols-3" : "grid gap-4 sm:max-w-[12rem]"
+            }
+          >
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium">{t("editor.duration")}</label>
               <Input
@@ -248,30 +262,49 @@ export function QuotationEditorDialog({
                 onChange={(e) => setDurationDays(e.target.value)}
               />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium">{t("editor.freeRevisions")}</label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                min="0"
-                value={freeRevisions}
-                onChange={(e) => setFreeRevisions(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium">
-                {t("editor.extraRevisionFee")}
-              </label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                min="0"
-                step="1000"
-                value={extraRevisionFee}
-                onChange={(e) => setExtraRevisionFee(e.target.value)}
-              />
-            </div>
+
+            {/* Revision terms exist only on the design side. A contractor
+                filling them in would be publishing a rate the server never
+                charges: revision quota is resolved from the design flow, and a
+                construction engagement has no designs to resolve it against. */}
+            {isDesign ? (
+              <>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium">
+                    {t("editor.freeRevisions")}
+                  </label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    value={freeRevisions}
+                    onChange={(e) => setFreeRevisions(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium">
+                    {t("editor.extraRevisionFee")}
+                  </label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    step="1000"
+                    value={extraRevisionFee}
+                    onChange={(e) => setExtraRevisionFee(e.target.value)}
+                  />
+                </div>
+              </>
+            ) : null}
           </div>
+
+          {/* Say where scope changes go instead, so the missing fields read as
+              a deliberate rule rather than a form that forgot something. */}
+          {isDesign ? null : (
+            <p className="rounded-lg border border-dashed border-border/70 px-3 py-2 text-xs text-muted-foreground">
+              {t("editor.constructionChangeOrderHint")}
+            </p>
+          )}
 
           {/* ── Line items ─────────────────────────────────────────────── */}
           <section className="flex flex-col gap-3">
@@ -506,8 +539,18 @@ export function QuotationEditorDialog({
                 title: title.trim(),
                 note: note.trim() || undefined,
                 estimatedDurationDays: Number(durationDays) || undefined,
-                freeRevisionCount: freeRevisions === "" ? undefined : Number(freeRevisions),
-                extraRevisionFee: extraRevisionFee === "" ? undefined : Number(extraRevisionFee),
+                // Omitted entirely on the construction form — not sent as 0.
+                // A published 0 reads as "no free revisions, extra rounds are
+                // free", which is a term the owner could hold the contractor
+                // to; absent means the quotation makes no revision promise.
+                ...(isDesign
+                  ? {
+                      freeRevisionCount:
+                        freeRevisions === "" ? undefined : Number(freeRevisions),
+                      extraRevisionFee:
+                        extraRevisionFee === "" ? undefined : Number(extraRevisionFee),
+                    }
+                  : {}),
                 items: parsedItems,
                 paymentTerms: parsedTerms,
               })
@@ -520,4 +563,35 @@ export function QuotationEditorDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+/**
+ * The design studio's quotation form: price, schedule, **and** the revision
+ * terms the design flow will enforce.
+ */
+export function DesignQuotationEditorDialog(
+  props: Omit<React.ComponentProps<typeof QuotationEditorBase>, "variant">,
+) {
+  return <QuotationEditorBase {...props} variant="design" />;
+}
+
+/**
+ * The contractor's quotation form: the same priced lines and instalments, with
+ * the revision terms removed. Extra work on a build is a change order against
+ * the signed contract, not a rate published up front.
+ */
+export function ConstructionQuotationEditorDialog(
+  props: Omit<React.ComponentProps<typeof QuotationEditorBase>, "variant">,
+) {
+  return <QuotationEditorBase {...props} variant="construction" />;
+}
+
+/**
+ * Variant-driven entry point, for call sites that resolve the kind of work at
+ * runtime rather than knowing it statically.
+ */
+export function QuotationEditorDialog(
+  props: React.ComponentProps<typeof QuotationEditorBase>,
+) {
+  return <QuotationEditorBase {...props} />;
 }
