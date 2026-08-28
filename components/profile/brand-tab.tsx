@@ -29,6 +29,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { AddressPicker } from "@/components/ui/address-picker";
+import { directionsUrl, type PickedLocation } from "@/lib/maps";
+import { TileMap } from "@/components/ui/tile-map";
 import {
   Dialog,
   DialogContent,
@@ -222,6 +225,31 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
               </span>
             ) : null}
           </div>
+
+          {/* Where the business actually is, which is what an owner is really
+              asking when they read the address — a province name doesn't tell
+              them whether this provider is an hour away or five.
+              Distinct from Service Areas below: those are where the provider
+              takes work, this is where they are. Renders only when pinned. */}
+          {brand.companyLatitude != null && brand.companyLongitude != null ? (
+            <a
+              href={directionsUrl(brand.companyLatitude, brand.companyLongitude)}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="block overflow-hidden rounded-lg border border-border/60 transition-shadow hover:shadow-md"
+              aria-label={t("identity.openAddressInMaps")}
+            >
+              {/* Fixed pixel box — the tile grid is laid out against these
+                  numbers, and a fluid width would offset the centre pin. */}
+              <TileMap
+                latitude={brand.companyLatitude}
+                longitude={brand.companyLongitude}
+                width={640}
+                height={180}
+                className="max-w-full"
+              />
+            </a>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -570,6 +598,8 @@ function BrandDialog({
     website: string | null;
     brandStory: string | null;
     companyAddress: string | null;
+    companyLatitude: number | null;
+    companyLongitude: number | null;
     foundedYear: number | null;
     employeeCount: number | null;
   };
@@ -581,6 +611,9 @@ function BrandDialog({
     website?: string;
     brandStory?: string;
     companyAddress?: string;
+    companyLatitude?: number;
+    companyLongitude?: number;
+    clearCompanyCoordinates?: boolean;
     foundedYear?: number;
     employeeCount?: number;
   }) => void;
@@ -592,7 +625,13 @@ function BrandDialog({
   const [introVideoUrl, setIntroVideoUrl] = React.useState("");
   const [website, setWebsite] = React.useState("");
   const [brandStory, setBrandStory] = React.useState("");
-  const [companyAddress, setCompanyAddress] = React.useState("");
+  // Address and pin travel as one value, because the picker resolves both at
+  // once and a pin separated from the text it belongs to is meaningless.
+  const [companyLocation, setCompanyLocation] = React.useState<PickedLocation>({
+    address: "",
+    latitude: null,
+    longitude: null,
+  });
   const [foundedYear, setFoundedYear] = React.useState("");
   const [employeeCount, setEmployeeCount] = React.useState("");
 
@@ -602,7 +641,11 @@ function BrandDialog({
     setIntroVideoUrl(initial.introVideoUrl ?? "");
     setWebsite(initial.website ?? "");
     setBrandStory(initial.brandStory ?? "");
-    setCompanyAddress(initial.companyAddress ?? "");
+    setCompanyLocation({
+      address: initial.companyAddress ?? "",
+      latitude: initial.companyLatitude,
+      longitude: initial.companyLongitude,
+    });
     setFoundedYear(initial.foundedYear === null ? "" : String(initial.foundedYear));
     setEmployeeCount(initial.employeeCount === null ? "" : String(initial.employeeCount));
   });
@@ -646,11 +689,26 @@ function BrandDialog({
             onChange={setEmployeeCount}
             type="number"
           />
-          <div className="sm:col-span-2">
-            <Field
-              label={t("identity.companyAddress")}
-              value={companyAddress}
-              onChange={setCompanyAddress}
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <label className="text-sm font-medium">{t("identity.companyAddress")}</label>
+            <AddressPicker
+              value={companyLocation}
+              onChange={setCompanyLocation}
+              placeholder={t("identity.companyAddressPlaceholder")}
+              labels={{
+                pinned: t("identity.addressPinned"),
+                textOnly: t("identity.addressTextOnly"),
+                clear: t("identity.addressClear"),
+                searching: t("identity.addressSearching"),
+                noResults: t("identity.addressNoResults"),
+                unavailable: t("identity.addressUnavailable"),
+                placeFirstPin: t("identity.addressPlaceFirstPin"),
+                adjust: t("identity.addressAdjust"),
+                adjustDone: t("identity.addressAdjustDone"),
+                dragHint: t("identity.addressDragHint"),
+                zoomIn: t("identity.addressZoomIn"),
+                zoomOut: t("identity.addressZoomOut"),
+              }}
             />
           </div>
           <div className="flex flex-col gap-1.5 sm:col-span-2">
@@ -677,7 +735,19 @@ function BrandDialog({
                 introVideoUrl: introVideoUrl.trim() || undefined,
                 website: website.trim() || undefined,
                 brandStory: brandStory.trim() || undefined,
-                companyAddress: companyAddress.trim() || undefined,
+                companyAddress: companyLocation.address.trim() || undefined,
+                // Only send a pin that still belongs to the address on screen.
+                // Editing the text after picking a suggestion clears the
+                // coordinates in `AddressPicker`, so this is already null then.
+                companyLatitude: companyLocation.latitude ?? undefined,
+                companyLongitude: companyLocation.longitude ?? undefined,
+                // The saved pin has to be told to go, since an omitted field
+                // means "leave it". Only sent when there *was* one to remove,
+                // so an ordinary edit doesn't carry a no-op flag.
+                clearCompanyCoordinates:
+                  companyLocation.latitude == null && initial.companyLatitude != null
+                    ? true
+                    : undefined,
                 foundedYear: num(foundedYear),
                 employeeCount: num(employeeCount),
               })

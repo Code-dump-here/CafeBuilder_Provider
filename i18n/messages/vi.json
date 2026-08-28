@@ -442,6 +442,12 @@
       "millionShort": "triệu VND",
       "areaUnit": "m²"
     },
+    "locationMap": {
+      "title": "Vị trí mặt bằng",
+      "openInMaps": "Mở trong Maps",
+      "openAria": "Mở {address} trong Google Maps",
+      "alt": "Bản đồ vị trí {address}"
+    },
     "members": {
       "title": "Nhà cung cấp",
       "subtitle": "{count, plural, =0 {Chưa có nhà cung cấp nào} =1 {1 nhà cung cấp đang tham gia} other {# nhà cung cấp đang tham gia}}",
@@ -2640,7 +2646,21 @@
       "logoUrl": "Link logo",
       "coverImageUrl": "Link ảnh bìa",
       "introVideoUrl": "Link video giới thiệu",
-      "companyAddress": "Địa chỉ công ty"
+      "companyAddress": "Địa chỉ công ty",
+      "companyAddressPlaceholder": "Tìm địa chỉ văn phòng hoặc xưởng",
+      "openAddressInMaps": "Mở địa chỉ công ty trong Google Maps",
+      "addressPinned": "Đã ghim trên bản đồ",
+      "addressTextOnly": "Chỉ lưu dạng chữ — chọn một gợi ý để ghim bản đồ",
+      "addressClear": "Xoá địa chỉ",
+      "addressSearching": "Đang tìm địa chỉ",
+      "addressNoResults": "Không tìm thấy địa chỉ phù hợp. Bạn vẫn lưu được nội dung đã gõ.",
+      "addressUnavailable": "Bản dựng này tắt tìm kiếm địa chỉ — hãy gõ địa chỉ thủ công.",
+      "addressPlaceFirstPin": "Kéo bản đồ cho ghim trùng địa chỉ của bạn, hoặc tìm kiếm ở trên.",
+      "addressAdjust": "Ghim chưa đúng chỗ? Kéo lại",
+      "addressAdjustDone": "Xong, đã ghim lại",
+      "addressDragHint": "Kéo bản đồ để dời ghim",
+      "addressZoomIn": "Phóng to",
+      "addressZoomOut": "Thu nhỏ"
     },
     "links": {
       "title": "Kênh liên hệ",
