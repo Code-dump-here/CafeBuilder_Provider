@@ -6,6 +6,7 @@ import type {
   ConstructionItemListResponse,
   CreateConstructionItemPayload,
   UpdateConstructionItemPayload,
+  ReorderConstructionItemsPayload,
   SetConstructionItemStatusPayload,
   ConstructionTask,
   ConstructionTaskListResponse,
@@ -99,6 +100,26 @@ export async function updateConstructionItemApi(
 ): Promise<ConstructionItem> {
   const response = await api.put<ConstructionItem>(
     `/api/construction-items/${id}`,
+    payload,
+    config,
+  );
+  return response.data;
+}
+
+/**
+ * Reorder a sibling group of construction items (milestones).
+ *
+ * Endpoint: `PUT /api/construction-items/reorder`
+ *
+ * Returns the group in its new order. The server rejects a partial list, and
+ * rejects any order that moves completed milestones relative to each other.
+ */
+export async function reorderConstructionItemsApi(
+  payload: ReorderConstructionItemsPayload,
+  config?: RequestConfig,
+): Promise<ConstructionItem[]> {
+  const response = await api.put<ConstructionItem[]>(
+    "/api/construction-items/reorder",
     payload,
     config,
   );

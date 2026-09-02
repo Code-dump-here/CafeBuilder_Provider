@@ -13,5 +13,12 @@ import { NotificationsPage } from "@/components/notifications/notifications-page
  * viewers land on the inbox below.
  */
 export default function NotificationsRoutePage() {
-  return <NotificationsPage />;
+  // `NotificationsPage` reads `?n=` via `useSearchParams`, which Next requires
+  // to sit under a Suspense boundary so the rest of the route can still be
+  // prerendered.
+  return (
+    <React.Suspense fallback={null}>
+      <NotificationsPage />
+    </React.Suspense>
+  );
 }

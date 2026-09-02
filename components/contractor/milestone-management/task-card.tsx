@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { pressable } from "@/lib/interactive";
 import { cn } from "@/lib/utils";
 
 interface TaskCardProps {
@@ -36,7 +37,8 @@ export function TaskCard({
   return (
     <div
       className={cn(
-        "group relative flex items-start gap-2 rounded-md border border-border/40 bg-card px-2 py-1.5 transition-colors hover:border-border/70",
+        "group relative flex items-start gap-2 rounded-md border border-border/40 bg-card px-2 py-1.5",
+        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-foreground/25 hover:shadow-sm",
         done && "bg-muted/40"
       )}
     >
@@ -63,7 +65,10 @@ export function TaskCard({
         type="button"
         onClick={onEdit}
         className={cn(
-          "min-w-0 flex-1 text-left text-xs leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm",
+          pressable,
+          // Same rule as the chip: the title is the edit affordance, the
+          // circle beside it is the status toggle. Underline says which.
+          "min-w-0 flex-1 rounded-sm text-left text-xs leading-snug underline-offset-2 hover:underline",
           done && "text-muted-foreground line-through"
         )}
       >

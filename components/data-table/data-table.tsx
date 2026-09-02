@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { pressable } from "@/lib/interactive";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -258,7 +259,11 @@ function DataTableHeaderCell<T>({
         type="button"
         onClick={toggleSort}
         className={cn(
-          "inline-flex items-center gap-1 rounded-sm -mx-1 px-1 py-0.5 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+          pressable,
+          // A colour shift alone is hard to spot on text that is already
+          // uppercase 10px muted — the fill is what tells you the header
+          // is a sort control rather than a label.
+          "-mx-1 inline-flex items-center gap-1 rounded-sm px-1 py-0.5 hover:bg-accent/60 hover:text-foreground",
           sortDir && "text-foreground",
         )}
         aria-label={`Sort by ${typeof content === "string" ? content : column.id}`}

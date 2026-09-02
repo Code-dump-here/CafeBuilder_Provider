@@ -9,6 +9,9 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // Same output, from `next dev` — see distDir in next.config.ts. Without
+    // this, linting the repo walks the dev build.
+    ".next-dev/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

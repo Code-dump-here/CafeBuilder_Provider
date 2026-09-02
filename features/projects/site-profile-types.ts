@@ -102,6 +102,20 @@ export interface SiteProfile {
   derivedFootprintM2: number | null;
   /** Sum of the per-floor areas. Null when no floor declares one. */
   totalFloorAreaM2: number | null;
+  /**
+   * `projects.areaM2` as it currently stands — the figure the project screens
+   * and the AI payload read, which is not necessarily what was measured here.
+   */
+  projectAreaM2: number | null;
+  /**
+   * Whether the surveyed total is the one the project uses. Derived
+   * server-side: true once approved, false while measurements await the
+   * owner, null when no floor declares an area.
+   *
+   * Only the owner can approve, so this is read-only here — it tells the
+   * provider whether the numbers they recorded are actually in force.
+   */
+  isAreaSyncedToProject: boolean | null;
   createdBy: string | null;
   createdAt: string;
   updatedAt: string;

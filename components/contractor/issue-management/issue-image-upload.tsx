@@ -114,7 +114,7 @@ export function IssueImageUpload({
                   onChange(null);
                 }}
                 aria-label="Remove"
-                className="absolute right-0.5 top-0.5 flex size-5 items-center justify-center rounded-full bg-background/80"
+                className="absolute right-0.5 top-0.5 flex size-5 items-center justify-center rounded-full bg-background/80 transition-colors duration-150 hover:bg-destructive/15 hover:text-destructive"
               >
                 <X className="size-3" aria-hidden />
               </button>

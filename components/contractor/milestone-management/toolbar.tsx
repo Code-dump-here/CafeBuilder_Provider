@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, ListChecks, Plus } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,14 @@ interface MilestoneManagementToolbarProps {
    * otherwise, so the button shouldn't invite the attempt.
    */
   addPhaseDisabled?: boolean;
+  /**
+   * Opens the "apply a process template" dialog. Omitted on screens with no
+   * engagement to apply one to, and the button is left out entirely there
+   * rather than rendered dead.
+   */
+  onApplyTemplate?: () => void;
+  /** Same gate as {@link addPhaseDisabled} — applying also needs a signed contract. */
+  applyTemplateDisabled?: boolean;
 }
 
 /**
@@ -31,6 +39,8 @@ export function MilestoneManagementToolbar({
   doneTaskCount,
   onAddPhase,
   addPhaseDisabled = false,
+  onApplyTemplate,
+  applyTemplateDisabled = false,
 }: MilestoneManagementToolbarProps) {
   const t = useTranslations("MilestoneManagement.toolbar");
 
@@ -64,6 +74,18 @@ export function MilestoneManagementToolbar({
             {t("backToOverview")}
           </Link>
         </Button>
+        {onApplyTemplate ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={onApplyTemplate}
+            disabled={applyTemplateDisabled}
+          >
+            <ListChecks aria-hidden />
+            {t("applyTemplate")}
+          </Button>
+        ) : null}
         <Button
           type="button"
           size="sm"

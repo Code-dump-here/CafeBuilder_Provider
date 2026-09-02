@@ -25,6 +25,7 @@ import { PhaseRow } from "@/components/contractor/milestone-management/phase-row
 import { PhaseEditDialog, type PhaseEditInput } from "@/components/contractor/milestone-management/phase-edit-dialog";
 import { TaskEditDialog } from "@/components/contractor/milestone-management/task-edit-dialog";
 import { AddPhaseDialog } from "@/components/contractor/milestone-management/add-phase-dialog";
+import { ApplyTemplateDialog } from "@/components/contractor/milestone-management/apply-template-dialog";
 import { TaskDetailView } from "@/components/contractor/milestone-management/task-detail-view";
 import { AddTaskModal } from "@/components/contractor/milestone-management/add-task-modal";
 import { MilestoneNotesDialog } from "@/components/contractor/milestone-management/milestone-notes-dialog";
@@ -45,7 +46,11 @@ import {
   useUpdateConstructionTaskMutation,
   useSetConstructionTaskStatusMutation,
   useDeleteConstructionTaskMutation,
+  useReorderConstructionItemsMutation,
+  byScheduleDate,
 } from "@/features/projects/use-construction";
+import { useDragReorder } from "@/hooks/use-drag-reorder";
+import { useApplyConstructionTemplateMutation } from "@/features/projects/use-construction-templates";
 import type {
   ConstructionItem,
   ConstructionTask,
@@ -207,6 +212,7 @@ export default function MilestoneManagementPage() {
   // Mutations
   const createItem = useCreateConstructionItemMutation();
   const updateItem = useUpdateConstructionItemMutation();
+  const applyTemplate = useApplyConstructionTemplateMutation();
   // Closing a milestone can take two calls (see `handleStatusChange`), so the
   // hook's per-call success toast is suppressed and fired once at the end
   // instead — otherwise one click produced two identical toasts.
@@ -229,6 +235,11 @@ export default function MilestoneManagementPage() {
       }
       grouped[task.constructionItemId]!.push(task);
     }
+    // Sorted for two reasons: a phase's work should read in the order it gets
+    // done, and PhaseRow addresses tasks by their index in this array — an
+    // order that shifts between renders would point "tick task 3" at a
+    // different task than the one the user clicked.
+    for (const list of Object.values(grouped)) list.sort(byScheduleDate);
     return grouped;
   }, [allTasks]);
 
@@ -260,17 +271,18 @@ export default function MilestoneManagementPage() {
         label: item.name,
         status: mapItemStatus(item.status),
         progress,
-        // ConstructionItem only tracks one real date (`estimateAt`, a
-        // target/completion date) — there's no start-date field on the
-        // backend. This used to fill start/end/target with the same
-        // value, which rendered as a date "range" whose two ends were
-        // secretly identical. Approximate the same way the read-only
-        // construction overview page already does (see
-        // `use-construction-overview.ts`): start = when the record was
-        // created, end = actual completion if set, else the planned
-        // target, else last-touched.
+        // A milestone carries both ends of its span: `startAt`/`estimateAt`
+        // planned, `actualStartAt`/`actualAt` as it really ran. Prefer what
+        // happened over what was planned, and only fall back to record
+        // timestamps when neither date is set — a milestone created without
+        // dates has nothing better to show.
+        //
+        // This used to read `startAt` as if it did not exist and used
+        // `createdAt` for every start, which put the whole plan on one day
+        // whenever it came from a process template: those rows are all
+        // written in the same transaction.
         targetDate: item.estimateAt ?? item.createdAt,
-        startDate: item.createdAt,
+        startDate: item.actualStartAt ?? item.startAt ?? item.createdAt,
         endDate: item.actualAt ?? item.estimateAt ?? item.updatedAt,
         lead: "",
         tasks: itemTasks.map((t) => t.name),
@@ -280,8 +292,73 @@ export default function MilestoneManagementPage() {
     });
   }, [topLevelItems, tasksByItem]);
 
+  // ── Reordering ──────────────────────────────────────────────────────────────
+
+  // The order shown while a reorder is in flight. The server is the source of
+  // truth, but waiting for the round-trip before the row moves makes dragging
+  // feel broken — so the new order is painted immediately and dropped again
+  // once the refetch confirms it (or the request fails and the list snaps back).
+  const [pendingOrder, setPendingOrder] = React.useState<string[] | null>(null);
+
+  const orderedPhases = React.useMemo(() => {
+    if (!pendingOrder) return phases;
+    const byId = new Map(phases.map((phase) => [phase.id, phase]));
+    const next = pendingOrder
+      .map((id) => byId.get(id))
+      .filter((phase): phase is (typeof phases)[number] => phase !== undefined);
+    // A milestone the optimistic list has never seen — added by someone else
+    // between the drag and the refetch — still has to render.
+    for (const phase of phases) {
+      if (!pendingOrder.includes(phase.id)) next.push(phase);
+    }
+    return next;
+  }, [phases, pendingOrder]);
+
+  const reorderItems = useReorderConstructionItemsMutation({
+    onSuccessSideEffect: () => {
+      // Only stop overriding once fresh rows are in the cache; clearing first
+      // would flash the pre-drag order for a frame.
+      void Promise.resolve(refetchItems()).finally(() => setPendingOrder(null));
+    },
+    onErrorSideEffect: () => setPendingOrder(null),
+  });
+
+  const handleReorderPhases = React.useCallback(
+    (nextIds: string[]) => {
+      if (!projectWorkingId) return;
+      setPendingOrder(nextIds);
+      reorderItems.mutate({
+        projectWorkingId,
+        // This screen only renders top-level milestones; their children are
+        // their own sibling group and are not reordered from here.
+        parentId: null,
+        itemIds: nextIds,
+      });
+    },
+    [projectWorkingId, reorderItems],
+  );
+
+  const phaseIds = React.useMemo(
+    () => orderedPhases.map((phase) => phase.id),
+    [orderedPhases],
+  );
+
+  const dragReorder = useDragReorder({
+    ids: phaseIds,
+    // Completed milestones keep the order they were done in — the server
+    // rejects any request that moves them relative to each other, so the grip
+    // is locked rather than letting the user find out via a 409.
+    canDrag: (id) =>
+      orderedPhases.find((phase) => phase.id === id)?.status !== "completed",
+    onReorder: handleReorderPhases,
+  });
+
+  // Nothing to arrange with a single milestone.
+  const canReorder = orderedPhases.length > 1 && Boolean(projectWorkingId);
+
   // ── Dialog state ────────────────────────────────────────────────────────────
   const [addPhaseOpen, setAddPhaseOpen] = React.useState(false);
+  const [applyTemplateOpen, setApplyTemplateOpen] = React.useState(false);
   const [renameTarget, setRenameTarget] = React.useState<{ id: string; label: string } | null>(null);
   const [editMetaTarget, setEditMetaTarget] = React.useState<ConstructionItem | null>(null);
 
@@ -544,6 +621,27 @@ export default function MilestoneManagementPage() {
     }
   };
 
+  /**
+   * Copy a process template onto this engagement.
+   *
+   * Errors are rethrown so the dialog stays open on the chosen template: the
+   * two refusals that actually happen here — no signed contract, start date in
+   * the past — are both fixable without picking again.
+   */
+  const handleApplyTemplate = async (input: {
+    templateId: string;
+    startDate: string;
+  }) => {
+    if (!projectWorkingId) return;
+
+    await applyTemplate.mutateAsync({
+      id: input.templateId,
+      payload: { projectWorkingId, startDate: input.startDate },
+    });
+    void refetchItems();
+    void refetchTasks();
+  };
+
   const handleSubmitRename = async (input: { label: string }) => {
     if (!renameTarget) return;
     await updateItem.mutateAsync({
@@ -637,6 +735,8 @@ export default function MilestoneManagementPage() {
           doneTaskCount={0}
           onAddPhase={() => setAddPhaseOpen(true)}
           addPhaseDisabled={!canAddPhase}
+          onApplyTemplate={() => setApplyTemplateOpen(true)}
+          applyTemplateDisabled={!canAddPhase}
         />
         {blockedReason ? (
           <p className="mt-3 rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
@@ -651,6 +751,12 @@ export default function MilestoneManagementPage() {
           onOpenChange={setAddPhaseOpen}
           onSubmit={handleAddPhase}
         />
+        <ApplyTemplateDialog
+          open={applyTemplateOpen}
+          onOpenChange={setApplyTemplateOpen}
+          hasExistingPhases={false}
+          onSubmit={handleApplyTemplate}
+        />
       </>
     );
   }
@@ -664,6 +770,8 @@ export default function MilestoneManagementPage() {
         doneTaskCount={doneTaskCount}
         onAddPhase={() => setAddPhaseOpen(true)}
         addPhaseDisabled={!canAddPhase}
+        onApplyTemplate={() => setApplyTemplateOpen(true)}
+        applyTemplateDisabled={!canAddPhase}
       />
       {blockedReason ? (
         <p className="mt-3 rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
@@ -672,15 +780,28 @@ export default function MilestoneManagementPage() {
       ) : null}
 
       <div className="mt-3 flex flex-col gap-3">
-        {phases.map((phase, idx) => {
+        {orderedPhases.map((phase, idx) => {
           const itemId = phase.id;
           const itemTasks = tasksByItem[itemId] ?? [];
+          const canMove = phase.status !== "completed";
 
           return (
             <PhaseRow
               key={phase.id}
               phase={phase}
               index={idx}
+              reorder={
+                canReorder
+                  ? {
+                      ...dragReorder.getItemProps(phase.id),
+                      canMove,
+                      onMoveUp: () => dragReorder.move(phase.id, -1),
+                      onMoveDown: () => dragReorder.move(phase.id, 1),
+                      canMoveUp: canMove && idx > 0,
+                      canMoveDown: canMove && idx < orderedPhases.length - 1,
+                    }
+                  : undefined
+              }
               taskMeta={{}} // Not used with API
               taskStatus={Object.fromEntries(
                 itemTasks.map((t, i) => [`${phase.id}:${i}`, t.status])
@@ -706,6 +827,12 @@ export default function MilestoneManagementPage() {
         open={addPhaseOpen}
         onOpenChange={setAddPhaseOpen}
         onSubmit={handleAddPhase}
+      />
+      <ApplyTemplateDialog
+        open={applyTemplateOpen}
+        onOpenChange={setApplyTemplateOpen}
+        hasExistingPhases={phases.length > 0}
+        onSubmit={handleApplyTemplate}
       />
       <PhaseEditDialog
         phase={renameTarget ? { id: renameTarget.id, label: renameTarget.label } : null}

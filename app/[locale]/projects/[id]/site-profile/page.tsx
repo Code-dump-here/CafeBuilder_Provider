@@ -297,6 +297,48 @@ function MeasurementsCard({
           }
           hint={t("fields.totalFloorAreaHint")}
         />
+        <Fact
+          label={t("fields.projectAreaM2")}
+          value={
+            profile.projectAreaM2 === null
+              ? t("notMeasured")
+              : t("squareMetres", { value: profile.projectAreaM2 })
+          }
+          hint={t("fields.projectAreaHint")}
+        />
+
+        {/* Measured here, approved by the owner elsewhere — without this the
+            provider has no way to tell whether the figures they recorded are
+            the ones the project is actually running on. */}
+        {profile.isAreaSyncedToProject === null ? null : (
+          <div
+            className={`col-span-full flex flex-col gap-1 rounded-md border p-3 ${
+              profile.isAreaSyncedToProject
+                ? "border-emerald-600/30 bg-emerald-600/5"
+                : "border-amber-600/30 bg-amber-600/5"
+            }`}
+          >
+            <p className="text-sm font-medium">
+              {profile.isAreaSyncedToProject
+                ? t("areaSync.syncedTitle")
+                : t("areaSync.pendingTitle")}
+            </p>
+            {profile.isAreaSyncedToProject ? null : (
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {t("areaSync.pendingBody", {
+                  surveyed:
+                    profile.totalFloorAreaM2 === null
+                      ? t("notMeasured")
+                      : t("squareMetres", { value: profile.totalFloorAreaM2 }),
+                  inForce:
+                    profile.projectAreaM2 === null
+                      ? t("notMeasured")
+                      : t("squareMetres", { value: profile.projectAreaM2 }),
+                })}
+              </p>
+            )}
+          </div>
+        )}
 
         {profile.structureNote ? (
           <div className="col-span-full flex flex-col gap-1">

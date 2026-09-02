@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Camera, Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { interactiveRow } from "@/lib/interactive";
 import { cn } from "@/lib/utils";
 
 import { IssueStatusPill } from "./issue-status-pill";
@@ -69,8 +70,10 @@ export function IssueCard({
         active
           ? "border-ring/60 bg-ring/5 ring-1 ring-ring/30"
           : "border-border/60",
-        interactive && !active && "transition-colors hover:border-border hover:bg-muted/30",
-        interactive && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
+        // Row tier, not card tier: these stack at `gap-1.5`, so a lift on
+        // hover would have the card bumping into its neighbour.
+        interactive && interactiveRow,
+        interactive && !active && "hover:border-foreground/20 hover:shadow-sm",
       )}
     >
       {/* LEFT — primary info */}

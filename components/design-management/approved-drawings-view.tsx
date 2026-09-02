@@ -96,7 +96,7 @@ export function ApprovedDrawingsView({
             return (
               <li
                 key={design.id}
-                className="flex items-center gap-3 px-4 py-3"
+                className="flex items-center gap-3 px-4 py-3 transition-colors duration-150 ease-out hover:bg-accent/40"
               >
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted/40 text-muted-foreground">
                   <Ruler aria-hidden className="size-4" />

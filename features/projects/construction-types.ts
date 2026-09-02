@@ -25,8 +25,21 @@ export interface ConstructionItem {
   description: string | null;
   /** Category label, e.g. "site-prep", "foundation", "finishing". */
   category: string | null;
+  /**
+   * Where the provider placed this milestone among its siblings — lower first.
+   *
+   * The server orders by this before any date, so it is what drag-and-drop
+   * writes. Optional because a response from before the column existed has no
+   * value for it; `byPlanOrder` treats a missing one as 0 so those rows keep
+   * falling back to the schedule dates rather than jumping to the end.
+   */
+  sortOrder?: number;
+  /** ISO date string — planned start. With `estimateAt`, this is the real span. */
+  startAt: string | null;
   /** ISO date string — targeted completion date. */
   estimateAt: string | null;
+  /** ISO date string — when work actually began. */
+  actualStartAt: string | null;
   /** ISO date string — actual completion date (set when status = completed). */
   actualAt: string | null;
   status: ConstructionStatus;
@@ -81,6 +94,21 @@ export interface UpdateConstructionItemPayload {
 /**
  * Request body for PUT /construction-items/{id}/status.
  */
+/**
+ * Reorder one sibling group of milestones.
+ *
+ * The whole group goes on the wire, not a "moved X above Y" instruction: the
+ * client already knows the order it wants, and sending it whole means two open
+ * tabs cannot interleave into an order neither of them chose.
+ */
+export interface ReorderConstructionItemsPayload {
+  projectWorkingId: string;
+  /** Null for the top-level milestones; a milestone id for its children. */
+  parentId: string | null;
+  /** Every id in the group, in the wanted order. */
+  itemIds: string[];
+}
+
 export interface SetConstructionItemStatusPayload {
   status: ConstructionStatus;
 }
@@ -97,8 +125,12 @@ export interface ConstructionTask {
   imageUrl: string | null;
   /** Public absolute URL for img src. */
   imageViewUrl: string | null;
+  /** ISO date string — planned start. With `estimateAt`, this is the real span. */
+  startAt: string | null;
   /** ISO date string — targeted completion date. */
   estimateAt: string | null;
+  /** ISO date string — when work actually began. */
+  actualStartAt: string | null;
   /** ISO date string — actual completion date. */
   actualAt: string | null;
   /** Delay / disruption note. */

@@ -15,6 +15,9 @@
 
 # next.js
 /.next/
+# `next dev` builds here instead, so dev and prod output cannot collide —
+# see the distDir note in next.config.ts.
+/.next-dev/
 /out/
 
 # production

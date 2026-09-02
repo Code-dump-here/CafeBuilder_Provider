@@ -6,6 +6,18 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 
 const nextConfig: NextConfig = {
+  // `next dev` and `next build` get their own output directory.
+  //
+  // Sharing one `.next` lets a production build leave a route manifest behind
+  // that the dev server then reads as authoritative. Pages that exist start
+  // answering 404 — `/vi/login` did — and nothing explains why, because
+  // nothing is actually broken: the manifest is just from the other mode.
+  // Splitting the directories makes the two unable to see each other's state,
+  // so `rm -rf .next` stops being a debugging step.
+  //
+  // Production still builds to `.next`, so nothing about deployment changes.
+  distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
+
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,

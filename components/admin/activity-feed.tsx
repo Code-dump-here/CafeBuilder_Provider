@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useFormatter } from "next-intl";
 import { ChevronRight } from "lucide-react";
 
+import { interactiveRow } from "@/lib/interactive";
 import { cn } from "@/lib/utils";
 import { resolveAdminIcon } from "@/lib/admin/admin-icons";
 import type { AdminActivity } from "@/lib/admin/admin-mock-data";
@@ -24,7 +25,15 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
       {items.map((item) => {
         const Icon = resolveAdminIcon(item.icon);
         const Body = (
-          <div className="flex min-w-0 items-start gap-3 rounded-md border border-transparent p-1 hover:border-border/60 hover:bg-muted/40">
+          <div
+            className={cn(
+              "flex min-w-0 items-start gap-3 rounded-md border border-transparent p-1",
+              // Only rows that actually go somewhere react. This used to
+              // highlight every row, so half the feed looked clickable and
+              // then swallowed the click.
+              item.href && `${interactiveRow} hover:border-border/60`,
+            )}
+          >
             <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-foreground/70">
               <Icon className="size-3.5" aria-hidden />
             </span>
@@ -42,7 +51,7 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
           </div>
         );
         return (
-          <li key={item.id} className={cn("group", item.href && "cursor-pointer")}>
+          <li key={item.id} className="group">
             {item.href ? (
               <Link href={item.href as never}>{Body}</Link>
             ) : (

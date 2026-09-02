@@ -34,20 +34,26 @@ export async function fetchMyProjectWorkings(
   params: MyProjectsQueryParams,
   config?: RequestConfig,
 ): Promise<PagedResponse<MyProjectWorking>> {
+  // Widened to a plain record on purpose. Passed as an object literal, axios
+  // infers its request generic from this exact shape, which then contradicts
+  // `RequestConfig.paramsSerializer` — declared over `Record<string, any>` —
+  // and fails the build on a call that is perfectly correct at runtime.
+  const query: Record<string, unknown> = {
+    serviceProviderProfileId: params.serviceProviderProfileId,
+    pageNumber: params.pageNumber,
+    pageSize: params.pageSize,
+    // Omitted entirely when empty — a blank `statuses` reads as "every
+    // status" server-side, which is the opposite of what a caller passing
+    // an empty list means.
+    ...(params.statuses?.length
+      ? { statuses: params.statuses.join(",") }
+      : {}),
+    ...(params.contractType ? { contractType: params.contractType } : {}),
+  };
+
   const response = await api.get("/api/project-workings/filter", {
     ...config,
-    params: {
-      serviceProviderProfileId: params.serviceProviderProfileId,
-      pageNumber: params.pageNumber,
-      pageSize: params.pageSize,
-      // Omitted entirely when empty — a blank `statuses` reads as "every
-      // status" server-side, which is the opposite of what a caller passing
-      // an empty list means.
-      ...(params.statuses?.length
-        ? { statuses: params.statuses.join(",") }
-        : {}),
-      ...(params.contractType ? { contractType: params.contractType } : {}),
-    },
+    params: query,
   });
   return normalizeMyProjectsPage(response.data);
 }

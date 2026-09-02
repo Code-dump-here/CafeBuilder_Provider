@@ -10,6 +10,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { pressable } from "@/lib/interactive";
+import { cn } from "@/lib/utils";
 
 import type { MilestoneTask } from "@/lib/contractor/milestone-mgmt-state";
 import type { ConstructionStatus } from "@/features/projects/construction-types";
@@ -180,7 +182,12 @@ function ImagesGallery({
             key={`${src}-${idx}`}
             type="button"
             onClick={() => setActive(src)}
-            className="group relative aspect-square overflow-hidden rounded-md border border-border/60 bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className={cn(
+              pressable,
+              // The image inside already scales on hover, but that reads as
+              // ambient motion. The border is what says "click to enlarge".
+              "group relative aspect-square overflow-hidden rounded-md border border-border/60 bg-muted hover:border-primary/60",
+            )}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

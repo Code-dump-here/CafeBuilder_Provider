@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FilePicker } from "@/components/ui/file-picker";
 import {
   Card,
   CardContent,
@@ -618,12 +619,12 @@ function CreateContractDialog({
 
   const isPending = createMutation.isPending;
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const clearSelectedFile = () => {
+    setDocumentFile(null);
+    setDocumentUrl("");
+  };
 
+  const handleFileSelect = async (file: File) => {
     setDocumentFile(file);
     setIsUploading(true);
     try {
@@ -767,13 +768,19 @@ function CreateContractDialog({
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                <Input
+                <FilePicker
                   id="contract-document"
-                  type="file"
                   accept=".pdf,.doc,.docx"
-                  onChange={handleFileChange}
+                  file={documentFile}
+                  onSelect={handleFileSelect}
+                  onClear={clearSelectedFile}
                   disabled={isUploading}
-                  className="cursor-pointer file:cursor-pointer"
+                  hideClear={isUploading}
+                  labels={{
+                    choose: t("chooseFile"),
+                    empty: t("noFileChosen"),
+                    remove: t("removeFile"),
+                  }}
                 />
                 {isUploading && (
                   <p className="flex items-center gap-2 text-xs text-muted-foreground">

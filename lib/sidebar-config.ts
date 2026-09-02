@@ -24,6 +24,9 @@ import {
   CheckCircle,
   Home,
   ReceiptText,
+  FileSpreadsheet,
+  Wallet,
+  NotebookPen,
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
@@ -133,10 +136,29 @@ const DESIGNER_PROJECT_INFO: NavSection = {
       keepOnCompletion: true,
     },
     {
+      // Priced bid: line items, duration, instalment schedule. Above contracts
+      // because it comes first — the approved quotation is what the contract
+      // and its payment batches are built from.
+      titleKey: "Sidebar.designer.quotations",
+      url: "/quotations",
+      icon: FileSpreadsheet,
+      scope: "project",
+    },
+    {
       titleKey: "Sidebar.designer.contracts",
       url: "/contracts",
       icon: FileCheck,
       scope: "project",
+    },
+    {
+      // Instalments owed under the contract. Kept after completion: the last
+      // batch is routinely confirmed after the work is signed off, and hiding
+      // the page would strand money the provider has not been paid.
+      titleKey: "Sidebar.designer.payments",
+      url: "/payments",
+      icon: Wallet,
+      scope: "project",
+      keepOnCompletion: true,
     },
     {
       // Measured premises: dimensions, orientation, floors, openings. Sits in
@@ -243,6 +265,16 @@ const CONSTRUCTION_WORK_SECTION: NavSection = {
       url: "/milestones",
       icon: ClipboardCheck,
       scope: "project",
+    },
+    {
+      // Daily site report. Kept after completion because reading stays open at
+      // every engagement status server-side — the log is the record of what
+      // happened, and it is most often consulted once the job is over.
+      titleKey: "Sidebar.contractor.dailyLogs",
+      url: "/daily-logs",
+      icon: NotebookPen,
+      scope: "project",
+      keepOnCompletion: true,
     },
   ],
 };

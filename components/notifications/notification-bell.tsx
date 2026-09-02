@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { Bell, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/features/auth/user-context";
 import {
+  useMarkAllNotificationsReadMutation,
   useMarkNotificationReadMutation,
   useNotificationsQuery,
   useUnreadCountQuery,
@@ -94,6 +95,12 @@ function NotificationDropdownPreview() {
     pageSize: 6,
   });
   const markRead = useMarkNotificationReadMutation();
+  const markAllRead = useMarkAllNotificationsReadMutation();
+  // The server's count, not `data.items.filter(...)`: the dropdown only holds
+  // the first six rows, so counting them would grey the button out while older
+  // notifications were still unread. Shares its cache entry with the bell
+  // badge, so this costs no extra request.
+  const { count: unreadCount } = useUnreadCountQuery();
 
   return (
     <div className="flex max-h-[480px] flex-col">
@@ -155,11 +162,28 @@ function NotificationDropdownPreview() {
       )}
 
       <DropdownMenuSeparator />
-      <div className="p-1">
-        <DropdownMenuItem asChild className="cursor-pointer rounded-md">
+      {/* Two actions, not one. Clearing the badge is what people open the bell
+          to do, so it leads; the inbox — filters, older pages — sits beside
+          it. */}
+      <div className="flex items-center gap-1 p-1">
+        <DropdownMenuItem
+          disabled={unreadCount === 0 || markAllRead.isPending}
+          aria-busy={markAllRead.isPending || undefined}
+          onSelect={(event) => {
+            // Hold the dropdown open: watching the rows shed their unread
+            // styling is the only confirmation this action gives.
+            event.preventDefault();
+            markAllRead.mutate();
+          }}
+          className="flex-1 cursor-pointer justify-center gap-1.5 whitespace-nowrap rounded-md py-1.5 text-xs font-medium"
+        >
+          <Check aria-hidden className="size-3.5" />
+          {t("preview.markAll")}
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="flex-1 cursor-pointer rounded-md">
           <Link
             href="/notifications"
-            className="flex w-full items-center justify-center py-1.5 text-xs font-medium text-primary"
+            className="flex w-full items-center justify-center whitespace-nowrap py-1.5 text-xs font-medium text-primary"
           >
             {t("preview.viewAll")}
           </Link>
