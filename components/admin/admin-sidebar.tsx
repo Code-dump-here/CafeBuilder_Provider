@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { toast } from "react-toastify";
 import {
   Activity,
   AppWindow,
@@ -36,6 +38,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+import { useLogoutMutation } from "@/features/auth/hooks";
 import { RoleSidebarNav } from "@/components/sidebar/role-sidebar-nav";
 import type { NavSection } from "@/lib/sidebar-config";
 
@@ -191,11 +194,34 @@ function AdminSidebarActions() {
   );
 }
 
+/**
+ * The admin account menu.
+ *
+ * Every item in here used to be an inert `<DropdownMenuItem>` with a
+ * hardcoded English label — including "Sign out", so an admin who clicked it
+ * got nothing at all and stayed signed in.
+ *
+ * Sign out now goes through `useLogoutMutation`, the same path the owner and
+ * provider sidebars use, which flushes the query cache and redirects on its
+ * own. "Switch role…" is gone rather than wired: nothing in the app can switch
+ * a role, and a menu entry that cannot work is worse than no entry.
+ */
 function AdminUserChip({
   user,
 }: {
   user: { name: string; email: string; avatar?: string };
 }) {
+  const t = useTranslations("Admin.userChip");
+  const tUser = useTranslations("Sidebar.navUser");
+  const logoutMutation = useLogoutMutation();
+
+  const handleSignOut = React.useCallback(() => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => toast.success(tUser("signOutSuccess")),
+      onError: () => toast.error(tUser("signOutError")),
+    });
+  }, [logoutMutation, tUser]);
+
   const initials = user.name
     .split(" ")
     .map((p) => p[0])
@@ -221,12 +247,18 @@ function AdminUserChip({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Admin actions</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("label")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>View audit log</DropdownMenuItem>
-        <DropdownMenuItem>Switch role…</DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/admin/activity">{t("activity")}</Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Sign out</DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={handleSignOut}
+          disabled={logoutMutation.isPending}
+        >
+          {logoutMutation.isPending ? tUser("signingOut") : tUser("signOut")}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

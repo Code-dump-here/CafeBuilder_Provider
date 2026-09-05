@@ -3,17 +3,25 @@
 import * as React from "react";
 import { Coffee } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { toast } from "react-toastify";
+import { useLogoutMutation } from "@/features/auth/hooks";
 import { OnboardingForm } from "@/components/onboarding/onboarding-form";
 
 export default function OnboardingPage() {
   const t = useTranslations("Auth");
-  const router = useRouter();
+  const tUser = useTranslations("Sidebar.navUser");
+  const logoutMutation = useLogoutMutation();
 
-  function handleLogOut() {
-    // TODO: integrate with your auth provider (e.g. NextAuth signOut)
-    router.push("/login");
-  }
+  // This used to push to /login without ending the session, so "Log out" left
+  // the user signed in — going back, or opening any other page, walked straight
+  // back into the app. `useLogoutMutation` clears the token and the query cache
+  // and handles the redirect itself.
+  const handleLogOut = React.useCallback(() => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => toast.success(tUser("signOutSuccess")),
+      onError: () => toast.error(tUser("signOutError")),
+    });
+  }, [logoutMutation, tUser]);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -30,9 +38,10 @@ export default function OnboardingPage() {
         <button
           type="button"
           onClick={handleLogOut}
-          className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+          disabled={logoutMutation.isPending}
+          className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {t("form.logOut")}
+          {logoutMutation.isPending ? tUser("signingOut") : t("form.logOut")}
         </button>
       </header>
 

@@ -2250,6 +2250,10 @@
     }
   },
   "Admin": {
+    "userChip": {
+      "label": "Tác vụ quản trị",
+      "activity": "Xem nhật ký hoạt động"
+    },
     "meta": {
       "title": "Bảng quản trị",
       "description": "Quản lý và điều hành nền tảng"

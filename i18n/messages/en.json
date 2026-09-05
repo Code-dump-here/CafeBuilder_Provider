@@ -2250,6 +2250,10 @@
     }
   },
   "Admin": {
+    "userChip": {
+      "label": "Admin actions",
+      "activity": "View activity log"
+    },
     "meta": {
       "title": "Admin Console",
       "description": "Platform administration and management"
