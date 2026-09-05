@@ -13,12 +13,13 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { useFormatter, useNow } from "next-intl";
+import { useFormatter, useLocale, useNow } from "next-intl";
 
 import { PageHead } from "@/components/admin/page-head";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { formatVnd } from "@/lib/format-currency";
 import {
   ADMIN_PROJECTS,
   type AdminProject,
@@ -43,6 +44,7 @@ type ViewMode = (typeof VIEW_OPTIONS)[number];
 
 export default function AdminProjectsPage() {
   const format = useFormatter();
+  const locale = useLocale();
   const now = useNow({ updateInterval: 60_000 });
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<"all" | AdminProject["status"]>("all");
@@ -156,7 +158,7 @@ export default function AdminProjectsPage() {
       {view === "grid" ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
-            <ProjectCard key={p.id} project={p} format={format} now={now} />
+            <ProjectCard key={p.id} project={p} format={format} locale={locale} now={now} />
           ))}
           {filtered.length === 0 ? (
             <div className="col-span-full rounded-lg border border-dashed border-border/60 bg-muted/30 px-4 py-10 text-center text-sm text-muted-foreground">
@@ -201,7 +203,7 @@ export default function AdminProjectsPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right text-muted-foreground">
-                    ${p.budget.toLocaleString()}
+                    {formatVnd(p.budget, locale)}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {format.relativeTime(new Date(p.updatedAt), now)}
@@ -219,10 +221,12 @@ export default function AdminProjectsPage() {
 function ProjectCard({
   project,
   format,
+  locale,
   now,
 }: {
   project: AdminProject;
   format: ReturnType<typeof useFormatter>;
+  locale: string;
   now: Date;
 }) {
   const overspent = project.spent > project.budget;
@@ -267,7 +271,7 @@ function ProjectCard({
         <div className="flex flex-col">
           <span className="text-muted-foreground">Budget</span>
           <span className="tabular-nums font-medium text-foreground">
-            ${project.budget.toLocaleString()}
+            {formatVnd(project.budget, locale)}
           </span>
         </div>
         <div className="flex flex-col items-end">
@@ -279,7 +283,7 @@ function ProjectCard({
             )}
             title={overspent ? `${Math.round(((project.spent - project.budget) / project.budget) * 100)}% over budget` : undefined}
           >
-            ${project.spent.toLocaleString()}
+            {formatVnd(project.spent, locale)}
           </span>
         </div>
         <div className="flex flex-col items-end">

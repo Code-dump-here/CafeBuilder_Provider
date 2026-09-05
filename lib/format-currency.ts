@@ -12,6 +12,16 @@ import type { useFormatter } from "next-intl";
  * by "VND", matching the mobile app. `Intl`'s `style: "currency"` renders the
  * ₫ symbol instead, so the full form builds the string itself rather than
  * letting the formatter pick a symbol.
+ *
+ * A second round found five more places that had never routed through here.
+ * The worst was the admin project list, which wrote `${value.toLocaleString()}`
+ * inside JSX — the `$` is literal text there, so a 1.5 billion dong budget was
+ * displayed to admins as `$1,500,000,000`, in the wrong currency entirely.
+ * The others hardcoded `vi-VN` regardless of the reader's locale, or rebuilt
+ * `Intl.NumberFormat` inline on every render.
+ *
+ * The rule this file exists to enforce: if an amount reaches a screen, it came
+ * from here, and it knows what locale it is being read in.
  */
 
 // ─── Millions form: "150 tr VND" ─────────────────────────────────────────────
@@ -54,9 +64,46 @@ export function formatVndParts(
   amount: number,
   locale: string,
 ): { full: string; compact: string } {
-  const isVi = locale.startsWith("vi");
   return {
-    full: `${(isVi ? NF_VND_FULL_VI : NF_VND_FULL_EN).format(amount)} VND`,
-    compact: `${(isVi ? NF_VND_COMPACT_VI : NF_VND_COMPACT_EN).format(amount)} VND`,
+    full: formatVnd(amount, locale),
+    compact: formatVndCompact(amount, locale),
   };
+}
+
+/**
+ * The full amount: `1,500,000 VND` in English, `1.500.000 VND` in Vietnamese.
+ *
+ * Use this wherever the exact figure matters. It is the default — reach for
+ * [formatVndCompact] only when the space genuinely cannot hold the number.
+ *
+ * `unit` exists for two callers: the admin revenue card, whose currency
+ * arrives from the server rather than being VND by construction, and the
+ * marketplace tile, which passes `""` because the full amount sits directly
+ * beneath the compact one and would repeat the suffix. Everything else should
+ * leave it alone.
+ */
+export function formatVnd(
+  amount: number,
+  locale: string,
+  unit = "VND",
+): string {
+  const isVi = locale.startsWith("vi");
+  const digits = (isVi ? NF_VND_FULL_VI : NF_VND_FULL_EN).format(amount);
+  return unit ? `${digits} ${unit}` : digits;
+}
+
+/**
+ * The abbreviated amount, for axis labels and narrow tiles: `1.5B VND`.
+ *
+ * Never use it where the figure is being approved or paid — an abbreviated
+ * number is not one anybody can check against a bank transfer.
+ */
+export function formatVndCompact(
+  amount: number,
+  locale: string,
+  unit = "VND",
+): string {
+  const isVi = locale.startsWith("vi");
+  const digits = (isVi ? NF_VND_COMPACT_VI : NF_VND_COMPACT_EN).format(amount);
+  return unit ? `${digits} ${unit}` : digits;
 }

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   AlertCircle,
   AlertTriangle,
@@ -45,6 +45,7 @@ import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import type { Contract } from "@/features/projects/contract-types";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import { formatVnd } from "@/lib/format-currency";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -361,6 +362,7 @@ function ContractCard({
   onCancel,
 }: ContractCardProps) {
   const t = useTranslations("Contracts");
+  const locale = useLocale();
 
   const createdAt = new Date(contract.createdAt);
   const formattedDate = createdAt.toLocaleDateString();
@@ -472,7 +474,7 @@ function ContractCard({
               which threw on any contract drafted without one. */}
           {contract.agreedValue !== null
             ? t("value", {
-                value: contract.agreedValue.toLocaleString("vi-VN"),
+                value: formatVnd(contract.agreedValue, locale),
               })
             : t("valueNotSet")}
         </CardDescription>

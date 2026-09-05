@@ -17,29 +17,11 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import type { MarketplacePost } from "@/features/projects/marketplace-types";
+import { formatVnd, formatVndCompact } from "@/lib/format-currency";
 
 // ---------------------------------------------------------------------------
 // Locale-aware formatters (kept inline — no separate util file for one-off).
 //
-// Sample data is VND and the marketplace is Vietnam-focused, so both
-// locales display VND; English speakers still see a properly-formatted
-// figure with a compact fallback for narrow viewports.
-
-const NF_VND_FULL_VI = new Intl.NumberFormat("vi-VN", {
-  maximumFractionDigits: 0,
-});
-const NF_VND_COMPACT_VI = new Intl.NumberFormat("vi-VN", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-const NF_VND_FULL_EN = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 0,
-});
-const NF_VND_COMPACT_EN = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-
 const NF_DATE_EN = new Intl.DateTimeFormat("en-US", {
   day: "2-digit",
   month: "short",
@@ -51,13 +33,12 @@ const NF_DATE_VI = new Intl.DateTimeFormat("vi-VN", {
   year: "numeric",
 });
 
+// The compact form drops the "VND" suffix on purpose: the full amount is
+// rendered directly beneath it, so repeating the unit only adds noise.
 function formatBudget(post: MarketplacePost, locale: string) {
-  const isVi = locale.startsWith("vi");
   return {
-    full: `${(isVi ? NF_VND_FULL_VI : NF_VND_FULL_EN).format(post.projectBudget)} VND`,
-    compact: (isVi ? NF_VND_COMPACT_VI : NF_VND_COMPACT_EN).format(
-      post.projectBudget,
-    ),
+    full: formatVnd(post.projectBudget, locale),
+    compact: formatVndCompact(post.projectBudget, locale, ""),
   };
 }
 
