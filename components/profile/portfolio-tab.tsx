@@ -80,6 +80,10 @@ export function PortfolioTab({ serviceProviderProfileId, editable }: PortfolioTa
   const [editing, setEditing] = React.useState<ProviderPortfolio | null>(null);
   const [deleting, setDeleting] = React.useState<ProviderPortfolio | null>(null);
   const [addingImageTo, setAddingImageTo] = React.useState<ProviderPortfolio | null>(null);
+  // Deleting a whole portfolio entry already confirmed; deleting one of its
+  // photos did not, even though the trigger is a smaller target — an icon that
+  // only appears on hover, in the corner of a 28px thumbnail.
+  const [removingImageId, setRemovingImageId] = React.useState<string | null>(null);
 
   const createMutation = useCreatePortfolioMutation();
   const updateMutation = useUpdatePortfolioMutation();
@@ -205,7 +209,7 @@ export function PortfolioTab({ serviceProviderProfileId, editable }: PortfolioTa
                       {editable ? (
                         <button
                           type="button"
-                          onClick={() => removeImageMutation.mutate(image.id)}
+                          onClick={() => setRemovingImageId(image.id)}
                           className="absolute right-1 top-1 hidden rounded-full bg-background/90 p-1 group-hover:block"
                         >
                           <Trash2 className="size-3 text-destructive" aria-hidden />
@@ -264,6 +268,22 @@ export function PortfolioTab({ serviceProviderProfileId, editable }: PortfolioTa
             { portfolioId: addingImageTo.id, payload },
             { onSuccess: () => setAddingImageTo(null) },
           );
+        }}
+      />
+
+      <ConfirmDialog
+        open={removingImageId !== null}
+        onOpenChange={(next) => {
+          if (!next) setRemovingImageId(null);
+        }}
+        title={t("removeImageTitle")}
+        description={t("removeImageDescription")}
+        confirmLabel={t("delete")}
+        cancelLabel={t("cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          if (removingImageId) removeImageMutation.mutate(removingImageId);
+          setRemovingImageId(null);
         }}
       />
 

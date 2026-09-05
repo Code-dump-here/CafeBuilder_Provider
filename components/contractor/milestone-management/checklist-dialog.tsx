@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 
 import {
@@ -63,6 +64,7 @@ export function ChecklistDialog({
   milestoneLabel,
 }: ChecklistDialogProps) {
   const t = useTranslations("MilestoneManagement.checklist");
+  const tCommon = useTranslations("MilestoneManagement.common");
   const format = useFormatter();
 
   const { items, isLoading, isError } = useChecklistItems({
@@ -73,6 +75,12 @@ export function ChecklistDialog({
 
   const [name, setName] = React.useState("");
   const [isRequired, setIsRequired] = React.useState(true);
+  // Deleting a checklist item takes its pass/fail history with it and the
+  // server offers no undo, so the row asks first rather than acting on the
+  // click that lands on a small icon beside every item in the list.
+  const [deletingItem, setDeletingItem] = React.useState<ChecklistItem | null>(
+    null,
+  );
 
   const progress = React.useMemo(() => summarizeChecklist(items), [items]);
   const ordered = React.useMemo(
@@ -162,7 +170,7 @@ export function ChecklistDialog({
                   <ChecklistRow
                     key={item.id}
                     item={item}
-                    onDelete={() => deleteItem.mutate(item.id)}
+                    onDelete={() => setDeletingItem(item)}
                     deleting={deleteItem.isPending}
                   />
                 ))}
@@ -213,6 +221,22 @@ export function ChecklistDialog({
           </label>
         </div>
       </DialogContent>
+
+      <ConfirmDialog
+        open={deletingItem !== null}
+        onOpenChange={(next) => {
+          if (!next) setDeletingItem(null);
+        }}
+        title={t("deleteTitle")}
+        description={t("deleteDescription")}
+        confirmLabel={t("delete")}
+        cancelLabel={tCommon("cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          if (deletingItem) deleteItem.mutate(deletingItem.id);
+          setDeletingItem(null);
+        }}
+      />
     </Dialog>
   );
 }

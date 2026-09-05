@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 import { formatVnd } from "@/lib/format-currency";
 
@@ -75,7 +76,15 @@ export function MaterialsDialog({
   milestoneStarted = false,
 }: MaterialsDialogProps) {
   const t = useTranslations("MilestoneManagement.materials");
+  const tCommon = useTranslations("MilestoneManagement.common");
   const locale = useLocale();
+
+  // Both deletes here used to fire on the click. Removing a usage line throws
+  // away a recorded quantity, and removing a price-list material takes a rate
+  // the whole project quotes against — neither has an undo, and the controls
+  // are icon buttons sitting one row apart in a scrolling list.
+  const [removingUsageId, setRemovingUsageId] = React.useState<string | null>(null);
+  const [deletingMaterialId, setDeletingMaterialId] = React.useState<string | null>(null);
 
   const { materials, isLoading: loadingList, isError: listError } = useMaterials({
     projectWorkingId: open ? projectWorkingId : null,
@@ -200,7 +209,7 @@ export function MaterialsDialog({
                         payload: { actualQuantity: actual },
                       })
                     }
-                    onRemove={() => removeUsage.mutate(line.id)}
+                    onRemove={() => setRemovingUsageId(line.id)}
                     saving={updateUsage.isPending || removeUsage.isPending}
                   />
                 ))}
@@ -278,7 +287,7 @@ export function MaterialsDialog({
                         type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={() => deleteMaterial.mutate(m.id)}
+                        onClick={() => setDeletingMaterialId(m.id)}
                         disabled={deleteMaterial.isPending}
                         aria-label={t("remove")}
                       >
@@ -340,6 +349,38 @@ export function MaterialsDialog({
           <p className="text-xs text-muted-foreground">{t("priceNote")}</p>
         </section>
       </DialogContent>
+
+      <ConfirmDialog
+        open={removingUsageId !== null}
+        onOpenChange={(next) => {
+          if (!next) setRemovingUsageId(null);
+        }}
+        title={t("removeUsageTitle")}
+        description={t("removeUsageDescription")}
+        confirmLabel={t("remove")}
+        cancelLabel={tCommon("cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          if (removingUsageId) removeUsage.mutate(removingUsageId);
+          setRemovingUsageId(null);
+        }}
+      />
+
+      <ConfirmDialog
+        open={deletingMaterialId !== null}
+        onOpenChange={(next) => {
+          if (!next) setDeletingMaterialId(null);
+        }}
+        title={t("deleteMaterialTitle")}
+        description={t("deleteMaterialDescription")}
+        confirmLabel={tCommon("delete")}
+        cancelLabel={tCommon("cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          if (deletingMaterialId) deleteMaterial.mutate(deletingMaterialId);
+          setDeletingMaterialId(null);
+        }}
+      />
     </Dialog>
   );
 }
@@ -376,6 +417,7 @@ function UsageRow({
 }) {
   const t = useTranslations("MilestoneManagement.materials");
   const locale = useLocale();
+
   const [draft, setDraft] = React.useState(
     line.actualQuantity === null ? "" : String(line.actualQuantity),
   );
