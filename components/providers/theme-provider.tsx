@@ -72,6 +72,9 @@ const ThemeContext = React.createContext<ThemeContextValue | undefined>(
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+/** Same-tab counterpart to `storage`, which only fires in other tabs. */
+const THEME_CHANGE_EVENT = "aicoffee:theme-change";
+
 function readStoredTheme(storageKey: string): Theme | null {
   if (typeof window === "undefined") return null;
   try {
@@ -157,27 +160,49 @@ export function ThemeProvider({
   enableColorScheme = true,
   disableTransitionOnChange = false,
 }: ThemeProviderProps) {
-  // State seeds itself from localStorage in the browser so we don't render
-  // the wrong theme before hydration. On the server it returns the default.
-  const [theme, setThemeState] = React.useState<Theme>(defaultTheme);
+  // The stored theme is external state — it lives in localStorage, another tab
+  // can change it, and this tab has to follow. `useSyncExternalStore` models
+  // that directly, which is what removes the old "read it in an effect, then
+  // setState" step and its extra render.
+  //
+  // `getServerSnapshot` returns the default, so the server render and
+  // hydration agree; React only reads the live value once hydration finishes,
+  // so a stored theme still cannot cause a mismatch.
+  const subscribeToStoredTheme = React.useCallback(
+    (onStoreChange: () => void) => {
+      // `storage` fires in *other* tabs only, so writes from this one are
+      // announced with an event of our own.
+      const onStorage = (event: StorageEvent) => {
+        if (event.key === storageKey) onStoreChange();
+      };
+      window.addEventListener("storage", onStorage);
+      window.addEventListener(THEME_CHANGE_EVENT, onStoreChange);
+      return () => {
+        window.removeEventListener("storage", onStorage);
+        window.removeEventListener(THEME_CHANGE_EVENT, onStoreChange);
+      };
+    },
+    [storageKey],
+  );
+
+  const theme = React.useSyncExternalStore(
+    subscribeToStoredTheme,
+    () => readStoredTheme(storageKey) ?? defaultTheme,
+    () => defaultTheme,
+  );
   const [systemTheme, setSystemTheme] = React.useState<"light" | "dark">(
     () => (typeof window === "undefined" ? "light" : systemPrefers()),
   );
 
-  // Hydrate from localStorage once on mount (browser only). Also install
-  // the system-preference listener so `system` follows OS changes live.
+  // Track the OS preference so `system` follows it live. Reading the stored
+  // theme is no longer done here — see `useSyncExternalStore` above.
   React.useEffect(() => {
-    const stored = readStoredTheme(storageKey);
-    if (stored) {
-      setThemeState(stored);
-    }
-
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => setSystemTheme(media.matches ? "dark" : "light");
     onChange();
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
-  }, [storageKey]);
+  }, []);
 
   const resolvedTheme: "light" | "dark" =
     theme === "system" ? systemTheme : theme;
@@ -233,39 +258,33 @@ export function ThemeProvider({
     };
   }, [attribute, storageKey, defaultTheme, themes, enableSystem, enableColorScheme]);
 
-  // Cross-tab sync via the `storage` event. If the user toggles the theme
-  // in another tab, follow along.
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
-    const onStorage = (event: StorageEvent) => {
-      if (event.key !== storageKey) return;
-      const next = readStoredTheme(storageKey);
-      if (next) setThemeState(next);
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, [storageKey]);
-
   const setTheme = React.useCallback<ThemeContextValue["setTheme"]>(
     (next) => {
-      setThemeState((prev) => {
-        const value = typeof next === "function" ? next(prev) : next;
-        writeStoredTheme(storageKey, value);
-        // Apply immediately so the UI doesn't flash while React schedules
-        // the next state update.
-        const resolved = value === "system" ? systemPrefers() : value;
-        const restore = disableTransitionOnChange
-          ? disableTransitions()
-          : null;
-        applyTheme(attribute, resolved);
-        if (enableColorScheme) {
-          document.documentElement.style.colorScheme = resolved;
-        }
-        restore?.();
-        return value;
-      });
+      const prev = readStoredTheme(storageKey) ?? defaultTheme;
+      const value = typeof next === "function" ? next(prev) : next;
+      writeStoredTheme(storageKey, value);
+
+      // Apply immediately so the UI doesn't flash while React schedules the
+      // re-render. This used to sit inside a `setState` updater, where it was
+      // a side effect in a function React is allowed to call twice.
+      const resolved = value === "system" ? systemPrefers() : value;
+      const restore = disableTransitionOnChange ? disableTransitions() : null;
+      applyTheme(attribute, resolved);
+      if (enableColorScheme) {
+        document.documentElement.style.colorScheme = resolved;
+      }
+      restore?.();
+
+      // Tell this tab's subscribers; `storage` only reaches the others.
+      window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
     },
-    [attribute, storageKey, disableTransitionOnChange, enableColorScheme],
+    [
+      attribute,
+      storageKey,
+      defaultTheme,
+      disableTransitionOnChange,
+      enableColorScheme,
+    ],
   );
 
   const value = React.useMemo<ThemeContextValue>(

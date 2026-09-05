@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { cn } from "@/lib/utils";
 import { formatVnd } from "@/lib/format-currency";
 
@@ -424,9 +425,13 @@ function UsageRow({
 
   // Keep the field in step when the server value changes under us (another
   // tab, a refetch) — without this the input keeps a stale local edit.
-  React.useEffect(() => {
+  //
+  // Adjusted during render rather than in an effect: the effect version
+  // painted the stale number once and then corrected it, which is the
+  // cascading render the set-state-in-effect rule is about.
+  useResetOnChange(line.actualQuantity, () => {
     setDraft(line.actualQuantity === null ? "" : String(line.actualQuantity));
-  }, [line.actualQuantity]);
+  });
 
   const parsed = Number(draft);
   const dirty =

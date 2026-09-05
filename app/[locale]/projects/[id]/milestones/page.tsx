@@ -99,6 +99,25 @@ function unmapStatus(status: string): ConstructionStatus {
  * and tasks indented below. Clicking a task opens a read-only TaskDetailView
  * with full metadata; "Add task" opens a modal.
  */
+/**
+ * The URL fragment, as an external store.
+ *
+ * `getServerHashSnapshot` returns "" so the server render and hydration agree
+ * that nothing is highlighted; React only switches to the live snapshot once
+ * hydration finishes. `window.location.hash` returns an equal string on every
+ * call, which is what keeps `useSyncExternalStore` from re-rendering forever.
+ */
+function subscribeToHash(onChange: () => void): () => void {
+  window.addEventListener("hashchange", onChange);
+  return () => window.removeEventListener("hashchange", onChange);
+}
+function getHashSnapshot(): string {
+  return window.location.hash.replace(/^#/, "");
+}
+function getServerHashSnapshot(): string {
+  return "";
+}
+
 export default function MilestoneManagementPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -384,8 +403,21 @@ export default function MilestoneManagementPage() {
     taskIndex: number | null;
   }>({ open: false, taskId: null, taskIndex: null });
 
-  // Hash-based highlighting
-  const [highlightId, setHighlightId] = React.useState<string | null>(null);
+  // Hash-based highlighting. The hash is read through `useSyncExternalStore`
+  // rather than an effect: it is browser state, `getServerSnapshot` keeps SSR
+  // and hydration agreeing on "no highlight", and subscribing to `hashchange`
+  // means a second link to a different phase now re-highlights. The effect
+  // this replaced only looked at the hash when `phases` changed.
+  const locationHash = React.useSyncExternalStore(
+    subscribeToHash,
+    getHashSnapshot,
+    getServerHashSnapshot,
+  );
+  // The highlight is a 2.5s flash, so it has to expire. What is remembered is
+  // *which* hash has already flashed, not a boolean — with a boolean, following
+  // a second link to a different phase would find the flag still set and never
+  // highlight again.
+  const [expiredHash, setExpiredHash] = React.useState<string | null>(null);
   /** Construction item whose owner-note thread is open, null when closed. */
   const [notesPhaseId, setNotesPhaseId] = React.useState<string | null>(null);
   // Kept as strings: milestone ids are uuids server-side, and Number() on a
@@ -393,14 +425,18 @@ export default function MilestoneManagementPage() {
   // migrated separately.
   const [checklistPhaseId, setChecklistPhaseId] = React.useState<string | null>(null);
   const [materialsPhaseId, setMaterialsPhaseId] = React.useState<string | null>(null);
+  const targetHash =
+    locationHash && phases.some((p) => p.id === locationHash) ? locationHash : null;
+  const highlightId = targetHash && targetHash !== expiredHash ? targetHash : null;
+
+  // setState inside the timeout callback, not in the effect body — that is the
+  // distinction the lint rule draws, and it is a real one: this update lands
+  // 2.5 seconds later rather than as a second render on the way to first paint.
   React.useEffect(() => {
-    const hash = window.location.hash.replace(/^#/, "");
-    if (hash && phases.some((p) => p.id === hash)) {
-      setHighlightId(hash);
-      const timer = setTimeout(() => setHighlightId(null), 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [phases]);
+    if (!highlightId) return;
+    const timer = setTimeout(() => setExpiredHash(highlightId), 2500);
+    return () => clearTimeout(timer);
+  }, [highlightId]);
 
   // Aggregate counts
   const totalTasks = allTasks.length;
