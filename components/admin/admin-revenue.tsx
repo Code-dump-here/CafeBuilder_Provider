@@ -8,7 +8,7 @@ import {
   Filter,
   RefreshCw,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useRevenueReport, useTransactions } from "@/features/admin/hooks";
 import type {
@@ -27,21 +27,20 @@ import {
 } from "./admin-components";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { formatVnd, formatVndCompact } from "@/lib/format-currency";
 
 // ─── Revenue Chart ───────────────────────────────────────────────────────────────
 
 function RevenueChart({ data }: { data: RevenueReport }) {
   const t = useTranslations("Admin");
+  const locale = useLocale();
   const chartData = data.series.map((point) => ({
     label: point.period.slice(5), // Show MM for monthly, DD for daily
     value: point.amount,
   }));
 
   const maxValue = Math.max(...chartData.map((d) => d.value), 1);
-  const formattedMax = new Intl.NumberFormat("vi-VN", {
-    maximumFractionDigits: 0,
-    notation: "compact",
-  }).format(maxValue) + " VND";
+  const formattedMax = formatVndCompact(maxValue, locale);
 
   return (
     <div className="space-y-4">
@@ -50,9 +49,7 @@ function RevenueChart({ data }: { data: RevenueReport }) {
           <p className="text-sm font-medium text-foreground">
             {t("revenue.totalRevenue")}:{" "}
             <span className="font-heading text-2xl font-bold text-emerald-600">
-              {new Intl.NumberFormat("vi-VN", {
-                maximumFractionDigits: 0,
-              }).format(data.totalRevenue) + " VND"}
+              {formatVnd(data.totalRevenue, locale)}
             </span>
           </p>
           <p className="text-xs text-muted-foreground">
@@ -82,9 +79,7 @@ function RevenueChart({ data }: { data: RevenueReport }) {
                 }}
               >
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs font-medium text-background opacity-0 transition-opacity group-hover:opacity-100">
-                  {new Intl.NumberFormat("vi-VN", {
-                    maximumFractionDigits: 0,
-                  }).format(item.value) + " VND"}
+                  {formatVnd(item.value, locale)}
                 </div>
               </div>
               <span className="mt-2 text-xs text-muted-foreground">
@@ -102,6 +97,7 @@ function RevenueChart({ data }: { data: RevenueReport }) {
 
 function RevenueByPurpose({ data }: { data: RevenueReport }) {
   const t = useTranslations("Admin");
+  const locale = useLocale();
 
   return (
     <div className="space-y-3">
@@ -133,9 +129,7 @@ function RevenueByPurpose({ data }: { data: RevenueReport }) {
             </div>
           </div>
           <p className="font-heading text-lg font-bold text-foreground">
-            {new Intl.NumberFormat("vi-VN", {
-              maximumFractionDigits: 0,
-            }).format(item.amount) + " VND"}
+            {formatVnd(item.amount, locale)}
           </p>
         </div>
       ))}
@@ -147,6 +141,7 @@ function RevenueByPurpose({ data }: { data: RevenueReport }) {
 
 function TransactionsTable({ data }: { data: TransactionListResponse }) {
   const t = useTranslations("Admin");
+  const locale = useLocale();
 
   const columns = [
     {
@@ -172,9 +167,7 @@ function TransactionsTable({ data }: { data: TransactionListResponse }) {
       header: t("transactions.amount"),
       cell: (row: typeof data.items[0]) => (
         <span className="font-semibold">
-          {new Intl.NumberFormat("vi-VN", {
-            maximumFractionDigits: 0,
-          }).format(row.amount) + " VND"}
+          {formatVnd(row.amount, locale)}
         </span>
       ),
     },
@@ -240,6 +233,7 @@ function TransactionsTable({ data }: { data: TransactionListResponse }) {
 
 export function AdminRevenue() {
   const t = useTranslations("Admin");
+  const locale = useLocale();
 
   const [params, setParams] = React.useState({
     from: null as string | null,
@@ -311,9 +305,7 @@ export function AdminRevenue() {
         <div className="rounded-xl border border-border bg-card p-6 lg:col-span-2">
           <SectionHeader
             title={t("revenue.chart")}
-            description={`${t("revenue.totalRevenue")}: ${revenueData ? new Intl.NumberFormat("vi-VN", {
-              maximumFractionDigits: 0,
-            }).format(revenueData.totalRevenue) + " VND" : "..."}`}
+            description={`${t("revenue.totalRevenue")}: ${revenueData ? formatVnd(revenueData.totalRevenue, locale) : "..."}`}
           />
           <div className="mt-6">
             {revenueLoading ? (

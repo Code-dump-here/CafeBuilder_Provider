@@ -17,29 +17,11 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import type { MarketplacePost } from "@/features/projects/marketplace-types";
+import { formatVnd, formatVndCompact } from "@/lib/format-currency";
 
 // ---------------------------------------------------------------------------
 // Locale-aware formatters (kept inline — no separate util file for one-off).
 //
-// Sample data is VND and the marketplace is Vietnam-focused, so both
-// locales display VND; English speakers still see a properly-formatted
-// figure with a compact fallback for narrow viewports.
-
-const NF_VND_FULL_VI = new Intl.NumberFormat("vi-VN", {
-  maximumFractionDigits: 0,
-});
-const NF_VND_COMPACT_VI = new Intl.NumberFormat("vi-VN", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-const NF_VND_FULL_EN = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 0,
-});
-const NF_VND_COMPACT_EN = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-
 const NF_DATE_EN = new Intl.DateTimeFormat("en-US", {
   day: "2-digit",
   month: "short",
@@ -51,13 +33,12 @@ const NF_DATE_VI = new Intl.DateTimeFormat("vi-VN", {
   year: "numeric",
 });
 
+// The compact form drops the "VND" suffix on purpose: the full amount is
+// rendered directly beneath it, so repeating the unit only adds noise.
 function formatBudget(post: MarketplacePost, locale: string) {
-  const isVi = locale.startsWith("vi");
   return {
-    full: `${(isVi ? NF_VND_FULL_VI : NF_VND_FULL_EN).format(post.projectBudget)} VND`,
-    compact: (isVi ? NF_VND_COMPACT_VI : NF_VND_COMPACT_EN).format(
-      post.projectBudget,
-    ),
+    full: formatVnd(post.projectBudget, locale),
+    compact: formatVndCompact(post.projectBudget, locale, ""),
   };
 }
 
@@ -297,30 +278,36 @@ function Fact({ icon: Icon, label, primary, secondary, secondaryTone = "muted" }
 // ---------------------------------------------------------------------------
 // useStableDaysToDeadline
 //
-// Reads `Date.now()` *once* on mount and stores it in state. We can't
-// read it during render (that would trip `react-hooks/purity`) and we
-// can't compute it lazily either (that would diverge between SSR and
-// the first client paint).
+// Reads `Date.now()` *once* and keeps it stable for the lifetime of the card.
+// It cannot be read during render (that trips `react-hooks/purity`) and it
+// cannot be computed lazily either (that diverges between SSR and the first
+// client paint).
 //
-// The earlier implementation wrapped `Date.now()` in
-// `useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)`
-// with a `getSnapshot` that returned a *new* value on every call and a
-// `subscribe` that never fired — React would call `getSnapshot` during
-// render, see a different value than last time, schedule an update, and
-// re-render. The next render hit the same path. The result was a
-// "Maximum update depth exceeded" loop. The state-on-mount approach
-// sidesteps the issue: `now` is sampled once and never changes for the
-// lifetime of the card, so the deadline diff is stable for the user.
+// An earlier attempt at `useSyncExternalStore` looped with "Maximum update
+// depth exceeded", because its `getSnapshot` returned a *fresh* `Date.now()`
+// on every call: React compared snapshots between renders, saw a new number
+// each time, and scheduled another render forever. The store is fine — the
+// snapshot just has to be stable, which is what `CLIENT_NOW` below is for.
 //
-// Returns `null` during SSR / before mount so the card renders a neutral
-// placeholder without a hydration mismatch.
+// Sampling at module load rather than at mount is deliberate and harmless:
+// this is a countdown in whole days, and the bundle loads milliseconds before
+// the first card mounts.
+//
+// Returns `null` during SSR and hydration — `useSyncExternalStore` uses
+// `getServerSnapshot` for both and only switches after hydration completes,
+// so the card shows a neutral placeholder with no mismatch.
+
+const CLIENT_NOW = Date.now();
+const subscribeToNothing = () => () => {};
+const getNowSnapshot = () => CLIENT_NOW;
+const getServerNowSnapshot = () => null;
 
 function useStableDaysToDeadline(deadline: Date): number | null {
-  const [now, setNow] = React.useState<number | null>(null);
-
-  React.useEffect(() => {
-    setNow(Date.now());
-  }, []);
+  const now = React.useSyncExternalStore<number | null>(
+    subscribeToNothing,
+    getNowSnapshot,
+    getServerNowSnapshot,
+  );
 
   return React.useMemo(() => {
     if (now == null) return null;

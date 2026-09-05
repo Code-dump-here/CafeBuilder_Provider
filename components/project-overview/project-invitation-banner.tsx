@@ -21,6 +21,7 @@ import { useCurrentUser } from "@/features/auth/user-context";
 import { useRespondToInvitationMutation } from "@/features/projects/use-respond-to-invitation";
 import { getEngagementsApi } from "@/features/projects/engagement-api";
 import { queryKeys } from "@/lib/react-query/keys";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import {
   type ProjectContractType,
   type ProjectDetail,
@@ -96,9 +97,21 @@ export function ProjectInvitationBanner({
     string | null
   >(null);
 
+  // Which note the banner is currently trying to show. Null whenever there is
+  // nothing to fetch.
+  const noteTarget =
+    invitation && typeof viewerProfileId === "string" && viewerProfileId !== "" && project.id
+      ? `${project.id}:${viewerProfileId}:${invitation.projectWorkingId}`
+      : null;
+
+  // Clearing the old note happens during render, not inside the effect below.
+  // Besides being the cascading render the lint rule warns about, the effect
+  // version left the *previous* invitation's note on screen until the new
+  // fetch resolved.
+  useResetOnChange(noteTarget, () => setInvitationMessage(null));
+
   React.useEffect(() => {
     if (!invitation || typeof viewerProfileId !== "string" || viewerProfileId === "") {
-      setInvitationMessage(null);
       return;
     }
 

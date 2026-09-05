@@ -14,7 +14,7 @@ import {
   ArrowUpRight,
   ArrowRight,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useAdminOverview } from "@/features/admin/hooks";
 import {
@@ -27,6 +27,7 @@ import {
 } from "./admin-components";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { formatVnd } from "@/lib/format-currency";
 
 // ─── Revenue Card ─────────────────────────────────────────────────────────────
 
@@ -40,12 +41,12 @@ function RevenueCard({
   currency: string;
 }) {
   const t = useTranslations("Admin");
-  // Suffixed rather than `style: "currency"`, which renders the ₫ symbol —
-  // the rest of this app and the mobile app both spell the currency out.
-  const nf = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 });
+  const locale = useLocale();
+  // `currency` comes from the server here rather than being VND by
+  // construction, so it is passed through instead of assumed.
   const unit = currency || "VND";
-  const formattedTotal = `${nf.format(total)} ${unit}`;
-  const formattedMonth = `${nf.format(thisMonth)} ${unit}`;
+  const formattedTotal = formatVnd(total, locale, unit);
+  const formattedMonth = formatVnd(thisMonth, locale, unit);
 
   return (
     <div className="rounded-xl border border-border bg-linear-to-br from-emerald-500/10 to-teal-500/10 p-5">

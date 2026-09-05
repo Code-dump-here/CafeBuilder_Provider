@@ -1219,6 +1219,8 @@
       "descriptionPlaceholder": "Optional detail",
       "required": "Required",
       "requiredHint": "Required items must pass before this milestone can close.",
+      "deleteTitle": "Delete this checklist item?",
+      "deleteDescription": "It is removed from the milestone for good, along with whether it had passed.",
       "optional": "Optional",
       "add": "Add item",
       "delete": "Remove",
@@ -1242,6 +1244,8 @@
       "error": "Couldn't load materials.",
       "priceList": "Price list",
       "priceListHint": "Published rates for this project. Agree them before work starts.",
+      "deleteMaterialTitle": "Delete this material?",
+      "deleteMaterialDescription": "It is removed from the project price list. Lines already recorded against it are not affected.",
       "priceListEmpty": "No materials published yet.",
       "addMaterial": "Add to price list",
       "materialName": "Material",
@@ -1250,6 +1254,8 @@
       "unitPrice": "Price per unit",
       "usage": "Used by this milestone",
       "usageEmpty": "No materials assigned yet.",
+      "removeUsageTitle": "Remove this material line?",
+      "removeUsageDescription": "The quantity recorded against this task is deleted. The material stays on the price list.",
       "addUsage": "Add material",
       "pickMaterial": "Choose from the price list",
       "estimated": "Planned",
@@ -2250,6 +2256,10 @@
     }
   },
   "Admin": {
+    "userChip": {
+      "label": "Admin actions",
+      "activity": "View activity log"
+    },
     "meta": {
       "title": "Admin Console",
       "description": "Platform administration and management"
@@ -2737,6 +2747,8 @@
     "addImage": "Add photo",
     "addImageDescription": "Paste a link to a photo you already host.",
     "removeImage": "Remove photo",
+    "removeImageTitle": "Remove this photo?",
+    "removeImageDescription": "It is deleted from the portfolio entry for good.",
     "watchVideo": "Watch the walk-through",
     "noDetail": "No detail recorded",
     "areaValue": "{value} m²",

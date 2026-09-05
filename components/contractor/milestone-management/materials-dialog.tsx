@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { AlertTriangle, Loader2, Plus, Trash2 } from "lucide-react";
 
 import {
@@ -21,7 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { cn } from "@/lib/utils";
+import { formatVnd } from "@/lib/format-currency";
 
 import {
   useAddConstructionMaterialMutation,
@@ -50,11 +53,6 @@ interface MaterialsDialogProps {
   milestoneStarted?: boolean;
 }
 
-/** VND, no decimals — the currency has no minor unit in practice here. */
-function formatVnd(value: number): string {
-  return new Intl.NumberFormat("vi-VN").format(Math.round(value)) + " VND";
-}
-
 /**
  * Materials for a milestone: the project's published price list, the lines
  * this milestone draws from it, and what the whole thing costs.
@@ -79,6 +77,15 @@ export function MaterialsDialog({
   milestoneStarted = false,
 }: MaterialsDialogProps) {
   const t = useTranslations("MilestoneManagement.materials");
+  const tCommon = useTranslations("MilestoneManagement.common");
+  const locale = useLocale();
+
+  // Both deletes here used to fire on the click. Removing a usage line throws
+  // away a recorded quantity, and removing a price-list material takes a rate
+  // the whole project quotes against — neither has an undo, and the controls
+  // are icon buttons sitting one row apart in a scrolling list.
+  const [removingUsageId, setRemovingUsageId] = React.useState<string | null>(null);
+  const [deletingMaterialId, setDeletingMaterialId] = React.useState<string | null>(null);
 
   const { materials, isLoading: loadingList, isError: listError } = useMaterials({
     projectWorkingId: open ? projectWorkingId : null,
@@ -155,11 +162,11 @@ export function MaterialsDialog({
         {/* ── Cost roll-up ─────────────────────────────────────────── */}
         {cost && (
           <div className="grid grid-cols-2 gap-3 rounded-md border p-3 sm:grid-cols-3">
-            <Figure label={t("ownLines")} value={formatVnd(cost.ownEstimatedCost)} />
-            <Figure label={t("taskLines")} value={formatVnd(cost.tasksEstimatedCost)} />
+            <Figure label={t("ownLines")} value={formatVnd(cost.ownEstimatedCost, locale)} />
+            <Figure label={t("taskLines")} value={formatVnd(cost.tasksEstimatedCost, locale)} />
             <Figure
               label={t("estimatedCost")}
-              value={formatVnd(cost.totalEstimatedCost)}
+              value={formatVnd(cost.totalEstimatedCost, locale)}
               emphasis
             />
             <div className="col-span-2 sm:col-span-3">
@@ -167,7 +174,7 @@ export function MaterialsDialog({
               <p className="text-sm font-medium tabular-nums">
                 {cost.totalActualCost === null
                   ? t("actualUnavailable")
-                  : formatVnd(cost.totalActualCost)}
+                  : formatVnd(cost.totalActualCost, locale)}
               </p>
               {cost.missingActualCount > 0 && (
                 <p className="text-xs text-amber-600 dark:text-amber-400">
@@ -203,7 +210,7 @@ export function MaterialsDialog({
                         payload: { actualQuantity: actual },
                       })
                     }
-                    onRemove={() => removeUsage.mutate(line.id)}
+                    onRemove={() => setRemovingUsageId(line.id)}
                     saving={updateUsage.isPending || removeUsage.isPending}
                   />
                 ))}
@@ -219,7 +226,7 @@ export function MaterialsDialog({
               <SelectContent>
                 {materials.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {m.name} — {formatVnd(m.unitPrice)}/{m.unit}
+                    {m.name} — {formatVnd(m.unitPrice, locale)}/{m.unit}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -275,13 +282,13 @@ export function MaterialsDialog({
                     <span className="min-w-0 truncate">{m.name}</span>
                     <span className="flex items-center gap-3">
                       <span className="tabular-nums text-muted-foreground">
-                        {formatVnd(m.unitPrice)}/{m.unit}
+                        {formatVnd(m.unitPrice, locale)}/{m.unit}
                       </span>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={() => deleteMaterial.mutate(m.id)}
+                        onClick={() => setDeletingMaterialId(m.id)}
                         disabled={deleteMaterial.isPending}
                         aria-label={t("remove")}
                       >
@@ -343,6 +350,38 @@ export function MaterialsDialog({
           <p className="text-xs text-muted-foreground">{t("priceNote")}</p>
         </section>
       </DialogContent>
+
+      <ConfirmDialog
+        open={removingUsageId !== null}
+        onOpenChange={(next) => {
+          if (!next) setRemovingUsageId(null);
+        }}
+        title={t("removeUsageTitle")}
+        description={t("removeUsageDescription")}
+        confirmLabel={t("remove")}
+        cancelLabel={tCommon("cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          if (removingUsageId) removeUsage.mutate(removingUsageId);
+          setRemovingUsageId(null);
+        }}
+      />
+
+      <ConfirmDialog
+        open={deletingMaterialId !== null}
+        onOpenChange={(next) => {
+          if (!next) setDeletingMaterialId(null);
+        }}
+        title={t("deleteMaterialTitle")}
+        description={t("deleteMaterialDescription")}
+        confirmLabel={tCommon("delete")}
+        cancelLabel={tCommon("cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          if (deletingMaterialId) deleteMaterial.mutate(deletingMaterialId);
+          setDeletingMaterialId(null);
+        }}
+      />
     </Dialog>
   );
 }
@@ -378,15 +417,21 @@ function UsageRow({
   saving: boolean;
 }) {
   const t = useTranslations("MilestoneManagement.materials");
+  const locale = useLocale();
+
   const [draft, setDraft] = React.useState(
     line.actualQuantity === null ? "" : String(line.actualQuantity),
   );
 
   // Keep the field in step when the server value changes under us (another
   // tab, a refetch) — without this the input keeps a stale local edit.
-  React.useEffect(() => {
+  //
+  // Adjusted during render rather than in an effect: the effect version
+  // painted the stale number once and then corrected it, which is the
+  // cascading render the set-state-in-effect rule is about.
+  useResetOnChange(line.actualQuantity, () => {
     setDraft(line.actualQuantity === null ? "" : String(line.actualQuantity));
-  }, [line.actualQuantity]);
+  });
 
   const parsed = Number(draft);
   const dirty =
@@ -404,7 +449,7 @@ function UsageRow({
       </span>
 
       <span className="tabular-nums text-muted-foreground">
-        {formatVnd(line.estimatedCost)}
+        {formatVnd(line.estimatedCost, locale)}
       </span>
 
       <span className="flex items-center gap-1">
