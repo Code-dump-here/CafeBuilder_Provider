@@ -66,3 +66,37 @@ export function resolvePreviewState(
 
 /** Amount shown in previews — the real provider monthly plan's price. */
 export const PREVIEW_AMOUNT = 299000;
+
+/**
+ * The state a page falls back to when nothing in the URL says otherwise.
+ *
+ * With this set, opening a bare `/subscription/return` shows the paid screen
+ * rather than "nothing to show here". That is the whole point while these are
+ * review pages: the URL on its own should render something worth looking at,
+ * with no query string, no session and no backend.
+ *
+ * Real parameters still win — a return URL carrying an `orderCode` polls the
+ * real status, because that is a genuine payment and its real outcome matters
+ * more than a fixture.
+ */
+export const PREVIEW_DEFAULT_STATE: SubscriptionPreviewState = "paid";
+
+/**
+ * Stand-in plan for the checkout screen.
+ *
+ * The real page reads `?planId=` and looks it up in `GET /api/payments/plans`.
+ * That needs the API to be reachable and the id to be current — two ways for
+ * the page to show a spinner or an error to someone who only wanted to look at
+ * it. When the lookup cannot produce a plan, this is rendered instead.
+ *
+ * The numbers are copied from the live provider monthly plan so the screen is
+ * an honest picture of the real thing rather than lorem ipsum.
+ */
+export const PREVIEW_PLAN = {
+  id: "preview-plan",
+  name: "Gói Nhà Cung Cấp - 1 Tháng",
+  description: "Nhận job thiết kế/thi công từ marketplace trong 30 ngày.",
+  targetRole: 1 as const,
+  price: PREVIEW_AMOUNT,
+  durationInDays: 30,
+};

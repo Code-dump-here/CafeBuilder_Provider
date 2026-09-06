@@ -16,7 +16,12 @@ import {
   useCreateSubscriptionMutation,
 } from "@/features/payments/hooks";
 
-import { resolvePreviewState } from "./subscription-preview";
+import {
+  PREVIEW_DEFAULT_STATE,
+  PREVIEW_ENABLED,
+  PREVIEW_PLAN,
+  resolvePreviewState,
+} from "./subscription-preview";
 
 /**
  * `/subscription/checkout` — the confirmation step before payOS.
@@ -49,15 +54,32 @@ export function SubscriptionCheckout() {
   const { plans, isLoading, isError, refetch } = usePaymentPlansQuery();
   const createSubscription = useCreateSubscriptionMutation();
 
-  const plan = React.useMemo(
+  const realPlan = React.useMemo(
     () => plans.find((candidate) => candidate.id === planId) ?? null,
     [plans, planId],
   );
 
+  // While these are review pages the screen has to render whatever the API and
+  // the URL are doing: a missing planId, a stale one, or an unreachable backend
+  // would otherwise park a spinner or an error card in front of someone who
+  // only wanted to look at the layout.
+  //
+  // Waiting is still allowed when it can pay off — a planId was given and the
+  // lookup is genuinely in flight — so a real plan is not replaced by a
+  // stand-in for a frame on its way in. With no planId there is nothing to wait
+  // for, and once the query settles without a match there is nothing more
+  // coming.
+  const lookupWorthWaitingFor = Boolean(planId) && isLoading;
+  const usingFallbackPlan = PREVIEW_ENABLED && !realPlan && !lookupWorthWaitingFor;
+  const plan = realPlan ?? (usingFallbackPlan ? PREVIEW_PLAN : null);
+
   const handlePay = React.useCallback(() => {
     if (!plan) return;
-    if (preview) {
-      window.location.assign(`/subscription/return?preview=${preview}`);
+    // No real plan means no real payOS link can be created, so walk to the
+    // result screen instead of firing a request that can only fail.
+    const walkThrough = preview ?? (usingFallbackPlan ? PREVIEW_DEFAULT_STATE : null);
+    if (walkThrough) {
+      window.location.assign(`/subscription/return?preview=${walkThrough}`);
       return;
     }
     createSubscription.mutate(
@@ -77,13 +99,13 @@ export function SubscriptionCheckout() {
         },
       },
     );
-  }, [createSubscription, plan, preview, tErrors]);
+  }, [createSubscription, plan, preview, usingFallbackPlan, tErrors]);
 
-  if (isLoading) {
+  if (lookupWorthWaitingFor) {
     return <CheckoutShell>{<PendingRow label={t("loading")} />}</CheckoutShell>;
   }
 
-  if (isError) {
+  if (isError && !usingFallbackPlan) {
     return (
       <CheckoutShell>
         <ErrorState
