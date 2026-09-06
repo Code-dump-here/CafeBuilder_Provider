@@ -16,6 +16,8 @@ import {
   useCreateSubscriptionMutation,
 } from "@/features/payments/hooks";
 
+import { resolvePreviewState } from "./subscription-preview";
+
 /**
  * `/subscription/checkout` — the confirmation step before payOS.
  *
@@ -38,6 +40,12 @@ export function SubscriptionCheckout() {
   const searchParams = useSearchParams();
   const planId = searchParams.get("planId");
 
+  // In development, `?preview=` walks the flow without a session: the pay
+  // button goes straight to the return page's fixture instead of creating a
+  // real payOS link. Plans themselves are a public endpoint, so the rest of
+  // this page already renders signed-out. See subscription-preview.
+  const preview = resolvePreviewState(searchParams.get("preview"));
+
   const { plans, isLoading, isError, refetch } = usePaymentPlansQuery();
   const createSubscription = useCreateSubscriptionMutation();
 
@@ -48,6 +56,10 @@ export function SubscriptionCheckout() {
 
   const handlePay = React.useCallback(() => {
     if (!plan) return;
+    if (preview) {
+      window.location.assign(`/subscription/return?preview=${preview}`);
+      return;
+    }
     createSubscription.mutate(
       { planId: plan.id, platform: "web" },
       {
@@ -65,7 +77,7 @@ export function SubscriptionCheckout() {
         },
       },
     );
-  }, [createSubscription, plan, tErrors]);
+  }, [createSubscription, plan, preview, tErrors]);
 
   if (isLoading) {
     return <CheckoutShell>{<PendingRow label={t("loading")} />}</CheckoutShell>;
