@@ -11,11 +11,15 @@
  * and no session. It is scoped to `components/payments/subscription-*`; no
  * other page reads it, and it does not touch auth anywhere.
  *
- * **Development only.** `resolvePreviewState` returns null in a production
- * build regardless of the query string, so a deployed site cannot be talked
- * into showing a fake "you're subscribed" screen by editing a URL. The check
- * is on `NODE_ENV`, which Next inlines at build time — it is not something a
- * client can flip.
+ * **Off unless a build opts in.** `resolvePreviewState` returns null in a
+ * production build unless `NEXT_PUBLIC_SUBSCRIPTION_PREVIEW=1` was set when
+ * that build was made — so a real deployment cannot be talked into showing a
+ * fake "you're subscribed" screen by editing a URL.
+ *
+ * The opt-in exists for staging and demo deploys, where the point is to look
+ * at the screens and there is no payOS account to pay through. Set it there
+ * and nowhere else. Being `NEXT_PUBLIC_`, it is inlined at build time: turning
+ * it on or off requires a rebuild, and no client can flip it.
  */
 
 export const SUBSCRIPTION_PREVIEW_STATES = [
@@ -28,8 +32,15 @@ export const SUBSCRIPTION_PREVIEW_STATES = [
 export type SubscriptionPreviewState =
   (typeof SUBSCRIPTION_PREVIEW_STATES)[number];
 
-/** Whether preview mode can be used at all in this build. */
-export const PREVIEW_ENABLED = process.env.NODE_ENV !== "production";
+/**
+ * Whether preview mode can be used at all in this build.
+ *
+ * Always on in development; in production only when the deploy explicitly
+ * asked for it.
+ */
+export const PREVIEW_ENABLED =
+  process.env.NODE_ENV !== "production" ||
+  process.env.NEXT_PUBLIC_SUBSCRIPTION_PREVIEW === "1";
 
 /**
  * Read `?preview=` and validate it against the known states.
