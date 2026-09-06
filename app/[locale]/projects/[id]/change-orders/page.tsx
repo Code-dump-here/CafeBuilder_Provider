@@ -51,6 +51,7 @@ import {
 import { formatVndParts } from "@/lib/format-currency";
 import { useCurrentUser } from "@/features/auth/user-context";
 import { useEngagements } from "@/features/projects/use-engagements";
+import { useConstructionItems } from "@/features/projects/use-construction";
 import {
   useAcceptChangeOrderMutation,
   useChangeOrderSummary,
@@ -66,6 +67,9 @@ import {
   type ChangeOrderKind,
   type ChangeOrderStatus,
 } from "@/features/projects/change-order-types";
+
+/** Select của shadcn không nhận value rỗng — dùng sentinel cho "không gắn hạng mục". */
+const NO_MILESTONE = "__none__";
 
 const FILTERS: readonly (ChangeOrderStatus | "all")[] = [
   "all",
@@ -296,6 +300,11 @@ export default function ChangeOrdersPage() {
                           {t(`status.${order.status}`)}
                         </Badge>
                         <Badge variant="outline">{t(`kind.${order.kind}`)}</Badge>
+                        {order.constructionItemName ? (
+                          <Badge variant="secondary" className="font-normal">
+                            {order.constructionItemName}
+                          </Badge>
+                        ) : null}
                         <span className="text-xs text-muted-foreground">
                           {mine ? t("raisedByYou") : t("raisedByOwner")}
                         </span>
@@ -418,6 +427,7 @@ export default function ChangeOrdersPage() {
         }}
         initial={editing}
         pending={createMutation.isPending || updateMutation.isPending}
+        projectWorkingId={engagement?.id ?? ""}
         onSubmit={(values) => {
           const done = () => {
             setCreating(false);
@@ -499,17 +509,20 @@ function ChangeOrderDialog({
   onOpenChange,
   initial,
   pending,
+  projectWorkingId,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initial: ChangeOrder | null;
   pending: boolean;
+  projectWorkingId: string;
   onSubmit: (values: {
     kind: ChangeOrderKind;
     title: string;
     reason: string;
     amount: number;
+    constructionItemId?: string;
   }) => void;
 }) {
   const t = useTranslations("ChangeOrders");
@@ -518,12 +531,22 @@ function ChangeOrderDialog({
   const [title, setTitle] = React.useState("");
   const [reason, setReason] = React.useState("");
   const [amount, setAmount] = React.useState("");
+  // "" không dùng được làm value của Select (shadcn), nên dùng sentinel.
+  const [itemId, setItemId] = React.useState<string>(NO_MILESTONE);
+
+  // Chỉ nạp khi dialog mở — không fetch lúc màn hình đứng yên.
+  const { topLevelItems, subItemsByParent } = useConstructionItems({
+    projectWorkingId,
+    enabled: open && Boolean(projectWorkingId),
+    pageSize: 100,
+  });
 
   useResetOnChange(open ? (initial?.id ?? "new") : null, () => {
     setKind(initial?.kind ?? "scope_change");
     setTitle(initial?.title ?? "");
     setReason(initial?.reason ?? "");
     setAmount(initial ? String(initial.amount) : "");
+    setItemId(initial?.constructionItemId ?? NO_MILESTONE);
   });
 
   const parsedAmount = Number(amount);
@@ -558,6 +581,33 @@ function ChangeOrderDialog({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium">{t("dialog.milestone")}</label>
+            <Select value={itemId} onValueChange={setItemId}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_MILESTONE}>{t("dialog.milestoneNone")}</SelectItem>
+                {topLevelItems.map((item) => (
+                  <React.Fragment key={item.id}>
+                    <SelectItem value={item.id}>{item.name}</SelectItem>
+                    {(subItemsByParent[item.id] ?? []).map((sub) => (
+                      <SelectItem key={sub.id} value={sub.id}>
+                        {`— ${sub.name}`}
+                      </SelectItem>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-muted-foreground">
+              {topLevelItems.length === 0
+                ? t("dialog.milestoneEmpty")
+                : t("dialog.milestoneHint")}
+            </p>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -606,6 +656,7 @@ function ChangeOrderDialog({
                 title: title.trim(),
                 reason: reason.trim(),
                 amount: parsedAmount,
+                ...(itemId !== NO_MILESTONE ? { constructionItemId: itemId } : {}),
               })
             }
           >
