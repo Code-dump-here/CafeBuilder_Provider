@@ -4,7 +4,6 @@ import * as React from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { AppError } from "@/lib/http/errors";
-import { useMe } from "@/features/auth/use-me";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import {
   createIssueApi,
@@ -200,11 +199,9 @@ export interface UseCreateIssueOptions {
 export function useCreateIssueMutation(
   options: UseCreateIssueOptions = {},
 ) {
-  const { data: me } = useMe();
-
-  return useMutation<Issue, AppError, Omit<CreateIssuePayload, "createdBy">>({
-    mutationFn: (payload) =>
-      createIssueApi({ ...payload, createdBy: me?.id ?? "" }),
+  // Không còn đọc useMe: người tạo do server lấy từ token.
+  return useMutation<Issue, AppError, CreateIssuePayload>({
+    mutationFn: (payload) => createIssueApi(payload),
 
     onSuccess: (issue) => {
       if (options.onSuccessMessage !== null) {

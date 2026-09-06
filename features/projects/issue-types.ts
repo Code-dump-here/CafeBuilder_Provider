@@ -71,8 +71,10 @@ export interface IssueListResponse {
 /**
  * Request body for POST /issues.
  *
- * Server fills `createdBy` from the auth context on the FE side so the
- * mutation hook can pass `0` until `useMe` resolves.
+ * `createdBy` is NOT part of this payload: the server stamps it from the
+ * bearer token and ignores whatever the client sends. Passing it from the
+ * FE used to risk shipping an empty string before `useMe` resolved, which
+ * the API rejects outright as an unparseable Guid.
  */
 export interface CreateIssuePayload {
   projectWorkingId: string;
@@ -84,7 +86,6 @@ export interface CreateIssuePayload {
   issueImage?: string;
   confirmImage?: string;
   estimateAt?: string; // "yyyy-MM-dd"
-  createdBy: string;
 }
 
 /**
