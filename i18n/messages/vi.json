@@ -2146,6 +2146,42 @@
     }
   },
   "Payments": {
+  "checkout": {
+   "eyebrow": "Thanh toán",
+   "title": "Xác nhận gói của bạn",
+   "loading": "Đang tải gói của bạn…",
+   "unknownPlanTitle": "Không tìm thấy gói này",
+   "unknownPlanSubtitle": "Liên kết có thể đã cũ, hoặc gói không còn được bán. Hãy chọn lại từ trang bảng giá.",
+   "backToPlans": "Về bảng giá",
+   "payCta": "Tiếp tục thanh toán",
+   "redirecting": "Đang chuyển sang payOS…",
+   "cancel": "Huỷ",
+   "secureNote": "payOS xử lý thanh toán. Chúng tôi không nhìn thấy thông tin thẻ hay tài khoản của bạn.",
+   "summary": {
+    "duration": "Thời hạn",
+    "days": "{count} ngày",
+    "total": "Tổng cộng"
+   }
+  },
+  "result": {
+   "pending": "Đang xác nhận thanh toán…",
+   "pendingNote": "payOS báo kết quả cho chúng tôi tách biệt với việc đưa bạn quay lại đây, nên có thể mất vài giây. Bạn không cần thanh toán lại.",
+   "paidTitle": "Bạn đã đăng ký thành công",
+   "paidBody": "Gói của bạn đang hoạt động. Bạn có thể bắt đầu nhận dự án ngay.",
+   "failedTitle": "Thanh toán chưa thành công",
+   "failedBody": "Chưa có khoản nào bị trừ. Bạn có thể thử lại bất cứ lúc nào.",
+   "cancelledTitle": "Đã huỷ thanh toán",
+   "cancelledBody": "Bạn đã dừng trước khi trả tiền, nên không có khoản nào bị trừ và liên kết thanh toán đã được đóng.",
+   "missingTitle": "Không có gì để hiển thị",
+   "missingBody": "Đây là trang payOS chuyển bạn về sau khi thanh toán, và nó đang được mở mà không có giao dịch nào.",
+   "unknownTitle": "Không kiểm tra được giao dịch",
+   "unknownBody": "Nếu tiền đã bị trừ, hệ thống sẽ tự đối soát — đừng trả lần thứ hai. Hãy liên hệ nếu tình trạng không được xử lý.",
+   "startBrowsing": "Xem marketplace",
+   "viewProfile": "Xem hồ sơ của tôi",
+   "tryAgain": "Thử lại",
+   "keepBrowsing": "Tiếp tục xem",
+   "backToPlans": "Về bảng giá"
+  },
     "meta": {
       "title": "Bảng giá — SmartCafeBuilder",
       "description": "Chọn gói đăng ký phù hợp với tần suất nhận dự án quán cafe của bạn."

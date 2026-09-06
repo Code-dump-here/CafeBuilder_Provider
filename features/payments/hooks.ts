@@ -7,11 +7,14 @@ import { queryKeys } from "@/lib/react-query/keys";
 import { tokenStore } from "@/features/auth/token-store";
 
 import {
+  cancelPaymentApi,
   createSubscriptionApi,
   fetchPaymentPlansApi,
+  fetchPaymentStatusApi,
+  type CreatePaymentResponse,
   type CreateSubscriptionPayload,
   type PaymentPlan,
-  type SubscriptionCreated,
+  type PaymentStatusResponse,
 } from "./api";
 
 /**
@@ -88,7 +91,7 @@ export function useCreateSubscriptionMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    SubscriptionCreated,
+    CreatePaymentResponse,
     Error,
     CreateSubscriptionPayload
   >({
@@ -96,6 +99,56 @@ export function useCreateSubscriptionMutation() {
     onSuccess: async () => {
       queryClient.removeQueries({ queryKey: queryKeys.auth.me() });
       await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
+    },
+  });
+}
+
+// ─── Payment status ─────────────────────────────────────────────────────────
+
+/**
+ * Poll `GET /api/payments/status` until the transaction reaches a final state.
+ *
+ * Polling is not laziness: payOS confirms out of band by calling the backend
+ * webhook, and the browser redirect back to our return URL routinely wins that
+ * race. A user who paid can land here while the server still says `pending`,
+ * so a single read would tell them their payment failed when it did not.
+ *
+ * `refetchInterval` returns `false` once `isFinal` is true, which stops the
+ * polling without unmounting anything. The query stays disabled until we have
+ * at least one identifier from the redirect.
+ */
+export function usePaymentStatusQuery(params: {
+  orderCode?: number;
+  paymentLinkId?: string;
+}) {
+  const enabled = params.orderCode != null || Boolean(params.paymentLinkId);
+
+  return useQuery<PaymentStatusResponse, Error>({
+    queryKey: queryKeys.payments.status(params.orderCode, params.paymentLinkId),
+    queryFn: ({ signal }) => fetchPaymentStatusApi(params, { signal }),
+    enabled,
+    // Every answer is a fresh read of a moving value; caching it would show a
+    // stale `pending` to someone who has since paid.
+    staleTime: 0,
+    refetchInterval: (query) => (query.state.data?.isFinal ? false : 2000),
+    // Give the webhook a couple of minutes before the UI stops asking.
+    retry: 3,
+  });
+}
+
+/**
+ * POST /api/payments/cancel — drop a pending transaction and its payOS link.
+ *
+ * Invalidates `auth.me` because an account's plan state is derived from it,
+ * and a cancel is a state change the rest of the UI should see.
+ */
+export function useCancelPaymentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<PaymentStatusResponse, Error, number>({
+    mutationFn: (orderCode) => cancelPaymentApi(orderCode),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
     },
   });
 }

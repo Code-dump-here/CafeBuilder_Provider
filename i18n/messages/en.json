@@ -2146,6 +2146,42 @@
     }
   },
   "Payments": {
+  "checkout": {
+   "eyebrow": "Checkout",
+   "title": "Confirm your plan",
+   "loading": "Loading your plan…",
+   "unknownPlanTitle": "We couldn't find that plan",
+   "unknownPlanSubtitle": "The link may be out of date, or the plan is no longer offered. Pick one from the pricing page and try again.",
+   "backToPlans": "Back to plans",
+   "payCta": "Continue to payment",
+   "redirecting": "Taking you to payOS…",
+   "cancel": "Cancel",
+   "secureNote": "Payment is handled by payOS. We never see your card or bank details.",
+   "summary": {
+    "duration": "Duration",
+    "days": "{count} days",
+    "total": "Total"
+   }
+  },
+  "result": {
+   "pending": "Confirming your payment…",
+   "pendingNote": "payOS tells us the result separately from sending you back here, so this can take a few seconds. You don't need to pay again.",
+   "paidTitle": "You're subscribed",
+   "paidBody": "Your plan is active. You can start taking on projects right away.",
+   "failedTitle": "That payment didn't go through",
+   "failedBody": "Nothing has been charged. You can try again whenever you're ready.",
+   "cancelledTitle": "Payment cancelled",
+   "cancelledBody": "You stopped before paying, so nothing was charged and the payment link has been closed.",
+   "missingTitle": "Nothing to show here",
+   "missingBody": "This page is where payOS sends you after a payment, and it was opened without one.",
+   "unknownTitle": "We couldn't check that payment",
+   "unknownBody": "If money left your account, it will be reconciled automatically — don't pay twice. Contact us if it doesn't resolve.",
+   "startBrowsing": "Browse the marketplace",
+   "viewProfile": "View my profile",
+   "tryAgain": "Try again",
+   "keepBrowsing": "Keep browsing",
+   "backToPlans": "Back to plans"
+  },
     "meta": {
       "title": "Pricing — SmartCafeBuilder",
       "description": "Pick a subscription plan that fits how often you take on new cafe projects."
