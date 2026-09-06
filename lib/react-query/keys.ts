@@ -32,6 +32,13 @@ export const queryKeys = {
      * viewer without re-issuing the request.
      */
     plans: () => ["payments", "plans"] as const,
+    /**
+     * A single payOS transaction's state: `GET /api/payments/status`.
+     * Keyed on whichever identifier the redirect carried so two different
+     * transactions never share a cache entry.
+     */
+    status: (orderCode?: number, paymentLinkId?: string) =>
+      ["payments", "status", orderCode ?? null, paymentLinkId ?? null] as const,
   },
   notifications: {
     /**

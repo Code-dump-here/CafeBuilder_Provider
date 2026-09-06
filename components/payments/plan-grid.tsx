@@ -3,12 +3,10 @@
 import * as React from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { toast } from "react-toastify";
+import { useRouter } from "@/i18n/navigation";
 
 import { Button } from "@/components/ui/button";
-import { AppError } from "@/lib/http/errors";
 import {
-  useCreateSubscriptionMutation,
   usePaymentPlansQuery,
 } from "@/features/payments/hooks";
 import {
@@ -204,36 +202,26 @@ interface PlanGridContainerProps {
 
 export function PlanGridContainer({ targetRole }: PlanGridContainerProps) {
   const t = useTranslations("Payments.states");
-  const tCta = useTranslations("Payments.cta");
-  const tErrors = useTranslations("Auth.errors");
 
+  const router = useRouter();
   const { plans, isLoading, isError, refetch } = usePaymentPlansQuery();
-  const createSubscription = useCreateSubscriptionMutation();
 
   // Filter the cached catalogue to the current viewer's role. The
   // request itself returns every plan; the role selector is a UI
   // concern, not an API parameter.
   const visiblePlans = plans.filter((plan) => plan.targetRole === targetRole);
 
+  // Subscribing used to POST straight from this grid and then show a success
+  // toast. That created a real transaction and a live payOS payment link, and
+  // then dropped the `checkoutUrl` on the floor — so the card next to this
+  // button promised "you'll be redirected to a secure checkout" and nobody
+  // ever was. The click now goes to /subscription/checkout, which confirms
+  // the plan first and owns the POST and the redirect.
   const handleSubscribe = React.useCallback(
     (planId: PaymentPlanId) => {
-      createSubscription.mutate(
-        { planId, platform: "web" },
-        {
-          onSuccess: () => {
-            toast.success(tCta("subscribeSuccess"));
-          },
-          onError: (err) => {
-            const message =
-              err instanceof AppError && err.message
-                ? err.message
-                : tErrors("unknown");
-            toast.error(message);
-          },
-        },
-      );
+      router.push(`/subscription/checkout?planId=${encodeURIComponent(planId)}`);
     },
-    [createSubscription, tCta, tErrors],
+    [router],
   );
 
   if (isLoading) {
@@ -258,9 +246,7 @@ export function PlanGridContainer({ targetRole }: PlanGridContainerProps) {
   return (
     <PlanGrid
       plans={visiblePlans}
-      submittingPlanId={createSubscription.isPending
-        ? createSubscription.variables?.planId ?? null
-        : null}
+      submittingPlanId={null}
       onSubscribe={handleSubscribe}
     />
   );

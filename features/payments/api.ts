@@ -41,28 +41,51 @@ export interface PaymentPlan {
 // ─── Subscription types ──────────────────────────────────────────────────────
 
 /**
- * Platform the subscription is created from. Today only `"web"` is
- * supported — keep the union closed so accidental typos at call sites
- * surface as a TS error rather than a 422 from the server.
+ * Platform the payment is created from. The backend maps this to a pair of
+ * payOS `returnUrl` / `cancelUrl` values (`PayOs:ReturnUrl` vs
+ * `PayOs:MobileReturnUrl`), and those URLs are baked into the payment link at
+ * creation time — so a link made for `"web"` cannot be reused on mobile.
  */
-export type SubscriptionPlatform = "web";
+export type SubscriptionPlatform = "web" | "mobile";
 
 /**
- * Lifecycle of a subscription record. Mirrors what the backend is
- * expected to return on `POST /api/payments/subscriptions`. `pending`
- * covers the window between the POST landing on the server and the
- * first payment webhook landing back; `active` means the user has a
- * running plan; `expired` / `cancelled` are terminal states.
+ * Lifecycle of a subscription record, as the numeric enum the API actually
+ * sends. `SubscriptionStatus` in the backend is declared
+ * `{ pending, active, expired, cancelled }` and the API registers no
+ * `JsonStringEnumConverter`, so these arrive as 0-3 rather than as names.
+ *
+ * Other endpoints in this API *do* send strings, because their DTOs expose
+ * `public string Status` and call `.ToString()`. The payment DTOs expose the
+ * raw enum instead. Verified against the live API: `GET /api/payments/plans`
+ * returns `"targetRole": 0`, not `"owner"`.
  */
+export const SUBSCRIPTION_STATUS = {
+  pending: 0,
+  active: 1,
+  expired: 2,
+  cancelled: 3,
+} as const;
 export type SubscriptionStatus =
-  | "pending"
-  | "active"
-  | "expired"
-  | "cancelled";
+  (typeof SUBSCRIPTION_STATUS)[keyof typeof SUBSCRIPTION_STATUS];
+
+/** payOS transaction lifecycle: `{ pending, paid, cancelled, failed }`. */
+export const PAYMENT_TRANSACTION_STATUS = {
+  pending: 0,
+  paid: 1,
+  cancelled: 2,
+  failed: 3,
+} as const;
+export type PaymentTransactionStatus =
+  (typeof PAYMENT_TRANSACTION_STATUS)[keyof typeof PAYMENT_TRANSACTION_STATUS];
+
+/** What the transaction was for: `{ subscription, post_boost }`. */
+export const PAYMENT_PURPOSE = { subscription: 0, post_boost: 1 } as const;
+export type PaymentPurpose =
+  (typeof PAYMENT_PURPOSE)[keyof typeof PAYMENT_PURPOSE];
 
 /**
  * Body of `POST /api/payments/subscriptions`. The backend infers the
- * subscriber from the bearer token, so we don't pass `accountId` here.
+ * subscriber from the bearer token, so no `accountId` is sent.
  */
 export interface CreateSubscriptionPayload {
   planId: PaymentPlanId;
@@ -70,22 +93,55 @@ export interface CreateSubscriptionPayload {
 }
 
 /**
- * Response of `POST /api/payments/subscriptions`. The shape mirrors
- * what the rest of the codebase expects for created entities (id +
- * timestamps + the user-supplied fields echoed back). If the backend
- * returns a richer record (e.g. with payment URLs, gateway references,
- * ...) the consumer can extend this type without touching call sites.
+ * Response of `POST /api/payments/subscriptions` — the backend's
+ * `CreatePaymentResponse`.
+ *
+ * This previously described a subscription *record* (`startedAt`,
+ * `expiresAt`, `updatedAt`…). No such payload is ever returned: the endpoint
+ * creates a **payOS payment link** and hands back the URL the user has to be
+ * sent to. Because the old type had no `checkoutUrl`, the pricing page took
+ * the click, created a pending transaction on the server and then showed a
+ * success toast without ever sending anyone to pay.
  */
-export interface SubscriptionCreated {
-  id: string;
-  accountId: string;
-  planId: PaymentPlanId;
-  platform: SubscriptionPlatform;
-  status: SubscriptionStatus;
-  startedAt: string;
-  expiresAt: string;
-  createdAt: string;
-  updatedAt: string;
+export interface CreatePaymentResponse {
+  /** `"subscription"` or `"post_boost"` — a string here, unlike the enums. */
+  purpose: string;
+  /** Set when `purpose` is a subscription; null for a post boost. */
+  subscriptionId: string | null;
+  postId: string | null;
+  /** payOS order code. A millisecond timestamp, so guessable — never treat it as a secret. */
+  orderCode: number;
+  paymentLinkId: string;
+  /** Where the user must be sent to actually pay. */
+  checkoutUrl: string;
+  /** payOS QR payload, for rendering a scannable code instead of redirecting. */
+  qrCode: string;
+  amount: number;
+  /** Unix seconds. payOS expires unpaid links. */
+  expiredAt: number;
+}
+
+/**
+ * Response of `GET /api/payments/status`.
+ *
+ * `isFinal` is the field that matters to the UI: payOS confirms asynchronously
+ * via webhook, so a user landing on the return URL can arrive before the
+ * webhook does. Poll until `isFinal` is true rather than trusting the first
+ * answer.
+ */
+export interface PaymentStatusResponse {
+  success: boolean;
+  isFinal: boolean;
+  status: PaymentTransactionStatus;
+  purpose: PaymentPurpose;
+  orderCode: number;
+  paymentLinkId: string;
+  subscriptionId: string | null;
+  subscriptionStatus: SubscriptionStatus | null;
+  postId: string | null;
+  postBoostedUntil: string | null;
+  amount: number;
+  message: string;
 }
 
 // ─── Endpoints ───────────────────────────────────────────────────────────────
@@ -122,29 +178,71 @@ export function selectPaymentPlansForRole(
 }
 
 /**
- * POST /api/payments/subscriptions — kick off a new subscription for
- * the authenticated account.
+ * POST /api/payments/subscriptions — create a payOS payment link for a plan.
  *
- * The endpoint infers `accountId` from the bearer token (the auth
- * interceptor attaches it), so the request body only carries the
- * selected `planId` and the originating `platform`. Today `platform`
- * is hard-wired to `"web"` at the call site — the API_FLOW_FE.md
- * doesn't define mobile/desktop, but adding more values here is a
- * one-line change.
+ * The endpoint infers `accountId` from the bearer token, so the body only
+ * carries the plan and the originating platform. It does **not** activate a
+ * subscription: it returns a `checkoutUrl` the caller must send the user to.
+ * The subscription only becomes active once payOS calls the backend webhook.
  *
- * The backend returns this DTO flat — there is no `{ data, … }` envelope
- * anywhere in the API (no result filter wraps responses; `/api/auth/me`,
- * `/api/posts` and the rest all answer with the bare object). Unwrapping
- * `.data.data` therefore yielded `undefined`.
+ * Responses are returned flat — this API has no `{ data, ... }` envelope
+ * anywhere, so unwrapping `.data.data` yields `undefined`.
  */
 export async function createSubscriptionApi(
   payload: CreateSubscriptionPayload,
   config?: RequestConfig,
-): Promise<SubscriptionCreated> {
-  const response = await api.post<SubscriptionCreated>(
+): Promise<CreatePaymentResponse> {
+  const response = await api.post<CreatePaymentResponse>(
     "/api/payments/subscriptions",
     payload,
     config,
+  );
+  return response.data;
+}
+
+/**
+ * GET /api/payments/status — where a transaction stands.
+ *
+ * Requires a bearer token even though the caller already knows the order
+ * code: the code is a millisecond timestamp and therefore guessable, so an
+ * anonymous endpoint would leak other people's amounts and statuses. The
+ * backend rejects a code that does not belong to the caller.
+ *
+ * Pass whichever identifier the return URL carried — payOS appends both
+ * `orderCode` and `id` (the payment link id) to the redirect.
+ */
+export async function fetchPaymentStatusApi(
+  params: { orderCode?: number; paymentLinkId?: string },
+  config?: RequestConfig,
+): Promise<PaymentStatusResponse> {
+  const response = await api.get<PaymentStatusResponse>("/api/payments/status", {
+    ...config,
+    params: {
+      ...(params.orderCode != null ? { orderCode: params.orderCode } : {}),
+      ...(params.paymentLinkId ? { paymentLinkId: params.paymentLinkId } : {}),
+    },
+  });
+  return response.data;
+}
+
+/**
+ * POST /api/payments/cancel — cancel a pending transaction and its payOS link.
+ *
+ * Idempotent, and scoped to the transaction's owner for the same reason the
+ * status endpoint is: a guessable order code would otherwise let anyone
+ * cancel a stranger's pending payment.
+ *
+ * Called when the user lands on the cancel URL, so the server does not leave
+ * a pending row and a live payment link behind after they walked away.
+ */
+export async function cancelPaymentApi(
+  orderCode: number,
+  config?: RequestConfig,
+): Promise<PaymentStatusResponse> {
+  const response = await api.post<PaymentStatusResponse>(
+    "/api/payments/cancel",
+    undefined,
+    { ...config, params: { orderCode } },
   );
   return response.data;
 }
