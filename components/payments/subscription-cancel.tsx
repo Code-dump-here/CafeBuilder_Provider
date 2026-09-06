@@ -4,6 +4,7 @@ import * as React from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import { useAuthSession } from "@/features/auth/hooks";
 import { useCancelPaymentMutation } from "@/features/payments/hooks";
 
 import { CheckoutShell } from "./subscription-checkout";
@@ -23,6 +24,13 @@ import { ResultCard } from "./subscription-return";
  * transaction you already walked away from" would be noise about our
  * bookkeeping, not information they can act on. A failure leaves the row
  * pending, which expires on its own.
+ *
+ * It is skipped entirely for a signed-out visitor. The endpoint requires a
+ * bearer token, so without one the POST can only 401 — and the shared axios
+ * interceptor turns any 401 into a "your session has expired" toast, which is
+ * a confusing thing to show someone who was never signed in. Anyone arriving
+ * here from a real payOS redirect has a session; anyone else has no
+ * transaction to cancel.
  */
 export function SubscriptionCancel() {
   const t = useTranslations("Payments.result");
@@ -31,6 +39,7 @@ export function SubscriptionCancel() {
   const orderCodeRaw = searchParams.get("orderCode");
   const orderCode = orderCodeRaw ? Number(orderCodeRaw) : NaN;
 
+  const { isAuthenticated } = useAuthSession();
   const cancelPayment = useCancelPaymentMutation();
 
   // Fire once per order code. A ref rather than a dependency guard because
@@ -41,12 +50,13 @@ export function SubscriptionCancel() {
   const { mutate } = cancelPayment;
 
   React.useEffect(() => {
+    if (!isAuthenticated) return;
     if (!Number.isFinite(orderCode)) return;
     if (cancelledRef.current === orderCode) return;
     cancelledRef.current = orderCode;
     // Errors are swallowed on purpose — see the note above.
     mutate(orderCode);
-  }, [mutate, orderCode]);
+  }, [isAuthenticated, mutate, orderCode]);
 
   return (
     <CheckoutShell>
