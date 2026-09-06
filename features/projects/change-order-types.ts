@@ -46,6 +46,9 @@ export interface ChangeOrder {
   designId: string | null;
   /** Set when the charge belongs to a specific milestone. */
   constructionItemId: string | null;
+
+  /** Tên hạng mục khoản này neo vào — server trả kèm để khỏi phải tra thêm một lượt. */
+  constructionItemName: string | null;
   kind: ChangeOrderKind;
   title: string;
   reason: string;

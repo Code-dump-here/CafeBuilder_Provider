@@ -2576,7 +2576,11 @@
       "reasonPlaceholder": "Hiện trường đổi thế nào, vì sao cần, ảnh hưởng tới đâu…",
       "reasonHint": "Đây là toàn bộ căn cứ chủ quán đọc trước khi quyết.",
       "cancel": "Huỷ",
-      "send": "Gửi duyệt"
+      "send": "Gửi duyệt",
+      "milestone": "Hạng mục thi công",
+      "milestoneHint": "Gắn khoản này vào hạng mục đã phát sinh ra nó — đợt thu sẽ kế thừa, nên hạng mục tự chuyển sang đã thanh toán khi tiền về. Chỉ để trống với chi phí không thuộc hạng mục nào.",
+      "milestoneNone": "Không gắn hạng mục",
+      "milestoneEmpty": "Hợp tác này chưa có hạng mục thi công nào"
     },
     "reject": {
       "title": "Từ chối khoản phát sinh",

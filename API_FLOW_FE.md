@@ -306,11 +306,50 @@ Use the returned `url` for `reportUrl` (survey), `documentUrl` (contract), `imag
 
 
 
+### Change Orders — `api/change-orders` (chi phí phát sinh ngoài báo giá đã chốt)
+
+- `POST { projectWorkingId*, kind*, title*, reason*, amount*, constructionItemId, designId }`
+- `GET ?projectWorkingId=&status=` / `GET /summary?projectWorkingId=` /
+  `GET /revision-quota/{designId}` / `GET /{id}` / `PUT /{id}` /
+  `POST /{id}/accept` / `POST /{id}/reject { rejectReason* }` / `DELETE /{id}`
+
+`kind`: `extra_revision | scope_change | material_change | other`.
+`ChangeOrderResponse` thêm `{ constructionItemName, revisionNo, paymentBatchId, paymentBatchStatus, needsPricing }`.
+
+> **Thi công: LUÔN gửi `constructionItemId`.** Nghiệp vụ construction là *xây trước, phát sinh
+> sau* — khoản phát sinh phải neo vào hạng mục đã sinh ra nó, vì đợt thu **kế thừa**
+> `constructionItemId` và đó là thứ bật cờ `is_paid` của hạng mục khi tiền về:
+>
+> ```
+> ChangeOrder.constructionItemId → PaymentBatch.constructionItemId → is_paid của hạng mục
+> ```
+>
+> Bỏ trống thì khoản tiền trôi nổi, không thuộc hạng mục nào, và màn "trả theo từng phần" đếm
+> thiếu. Chỉ để trống với chi phí thật sự không thuộc hạng mục nào.
+>
+> `constructionItemName` server trả kèm — đừng tra thêm một lượt để lấy tên.
+
+> **Ai duyệt:** bên KIA. Bên lập không tự duyệt khoản của mình (`RespondAsync` chặn).
+> Duyệt xong khoản bị khoá; muốn đổi thì lập bản mới.
+
+> **Design khác hẳn:** `extra_revision` do BE **tự sinh** trong `DesignService.RequestRevisionAsync`
+> khi owner yêu cầu sửa vượt `free_revision_count`. Báo giá đã công bố `extra_revision_fee` thì
+> khoản đó **auto-accepted** + sinh đợt thu ngay; chưa công bố thì để `pending` do provider lập với
+> `needsPricing = true` để provider điền số. FE **không** tự POST `extra_revision`.
+
 ### Issues — `api/issues` (problems during work)
 
-- `POST { projectWorkingId*, constructionItemId, issueTypeId*, cause, reason, solution, issueImage, confirmImage, estimateAt, createdBy }`
+- `POST { projectWorkingId*, constructionItemId, issueTypeId*, cause, reason, solution, issueImage, confirmImage, estimateAt }`
 - `GET ?projectWorkingId=&constructionItemId=&status=` / `GET /{id}` / `PUT /{id}` (same optional) / `PUT /{id}/status { status* }` / `DELETE /{id}`
-`IssueResponse` = same fields + `{ id, issueTypeName, actualAt, status, createdAt, updatedAt }`
+`IssueResponse` = same fields + `{ id, issueTypeName, actualAt, status, createdBy, createdAt, updatedAt }`
+
+> **Đổi 06/09/2026 — đừng gửi `createdBy` nữa.** Server ép người tạo theo bearer token và bỏ qua
+> giá trị client khai. Field vẫn còn trong DTO cho tương thích ngược nhưng không có tác dụng.
+>
+> Kèm theo đó, mọi endpoint issue nay rào theo engagement: chỉ owner của dự án, provider của
+> engagement, hoặc admin mới đọc/tạo/sửa/đổi trạng thái được — người ngoài nhận **401**. `GET`
+> danh sách cũng lọc theo đó, nên `totalItems` là con số theo góc nhìn người gọi. `DELETE` vẫn
+> chỉ admin.
 
 
 

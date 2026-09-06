@@ -2576,7 +2576,11 @@
       "reasonPlaceholder": "What changed on site, why it is needed, and what it affects…",
       "reasonHint": "This is the whole case the owner reads before deciding.",
       "cancel": "Cancel",
-      "send": "Send for approval"
+      "send": "Send for approval",
+      "milestone": "Construction milestone",
+      "milestoneHint": "Anchor this charge to the milestone it came from — the payment batch inherits it, so the milestone shows as paid once the money clears. Leave unset only for costs that belong to no single milestone.",
+      "milestoneNone": "Not tied to a milestone",
+      "milestoneEmpty": "This engagement has no construction milestones yet"
     },
     "reject": {
       "title": "Reject this change order",
