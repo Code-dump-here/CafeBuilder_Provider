@@ -12,6 +12,12 @@ import { usePaymentStatusQuery } from "@/features/payments/hooks";
 import { PAYMENT_TRANSACTION_STATUS } from "@/features/payments/api";
 
 import { CheckoutShell, PendingRow } from "./subscription-checkout";
+import {
+  PREVIEW_AMOUNT,
+  PREVIEW_DEFAULT_STATE,
+  PREVIEW_ENABLED,
+  resolvePreviewState,
+} from "./subscription-preview";
 
 /**
  * `/subscription/return` — where payOS sends the user after a payment attempt.
@@ -37,10 +43,68 @@ export function SubscriptionReturn() {
   const orderCode = orderCodeRaw ? Number(orderCodeRaw) : undefined;
   const paymentLinkId = searchParams.get("id") ?? undefined;
 
+  // `?preview=` short-circuits the page so a state can be looked at without a
+  // session or a real payment. With no identifiers in the URL there is no
+  // payment to report on either, so rather than showing an empty-handed card
+  // the page falls back to the default state — a bare /subscription/return
+  // renders something worth looking at. A real `orderCode` still wins and is
+  // polled for its real outcome. See subscription-preview.
+  const hasRealPayment = Boolean(orderCodeRaw) || Boolean(paymentLinkId);
+  const preview =
+    resolvePreviewState(searchParams.get("preview")) ??
+    (PREVIEW_ENABLED && !hasRealPayment ? PREVIEW_DEFAULT_STATE : null);
+
   const { data, isLoading, isError } = usePaymentStatusQuery({
-    orderCode: Number.isFinite(orderCode) ? orderCode : undefined,
-    paymentLinkId,
+    // Disable the poll entirely while previewing — there is nothing to poll.
+    orderCode: preview ? undefined : Number.isFinite(orderCode) ? orderCode : undefined,
+    paymentLinkId: preview ? undefined : paymentLinkId,
   });
+
+  if (preview) {
+    if (preview === "pending") {
+      return (
+        <CheckoutShell>
+          <div className="flex flex-col gap-3">
+            <PendingRow label={t("pending")} />
+            <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+              {t("pendingNote")}
+            </p>
+          </div>
+        </CheckoutShell>
+      );
+    }
+    const paidPreview = preview === "paid";
+    return (
+      <CheckoutShell>
+        <ResultCard
+          tone={paidPreview ? "success" : "error"}
+          title={
+            paidPreview
+              ? t("paidTitle")
+              : preview === "cancelled"
+                ? t("cancelledTitle")
+                : t("failedTitle")
+          }
+          body={
+            paidPreview
+              ? t("paidBody")
+              : preview === "cancelled"
+                ? t("cancelledBody")
+                : t("failedBody")
+          }
+          amount={formatVnd(PREVIEW_AMOUNT, locale)}
+          primary={
+            paidPreview
+              ? { href: "/marketplace", label: t("startBrowsing") }
+              : { href: "/pricing", label: t("tryAgain") }
+          }
+          secondary={
+            paidPreview ? { href: "/profile", label: t("viewProfile") } : undefined
+          }
+        />
+      </CheckoutShell>
+    );
+  }
 
   // Landing here with no identifiers means the URL was hand-typed or mangled.
   // There is nothing to poll for, so say that rather than spinning forever.
