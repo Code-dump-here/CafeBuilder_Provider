@@ -992,6 +992,8 @@
       "progressLabel": "Tiến độ mốc",
       "tasks": "Công việc",
       "noTasks": "Chưa có công việc nào được ghi nhận cho mốc này.",
+      "tasksLoading": "Đang đếm công việc…",
+      "tasksSummary": "Hoàn thành {done}/{total}",
       "blockers": "{count, plural, =0 {} =1 {1 vướng mắc} other {# vướng mắc}}",
       "photosLabel": "{count, plural, =0 {Chưa có hình} =1 {1 hình} other {# hình}} đã đăng",
       "viewPhase": "Mở chi tiết mốc",

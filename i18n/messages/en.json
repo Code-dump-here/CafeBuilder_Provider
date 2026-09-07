@@ -992,6 +992,8 @@
       "progressLabel": "Phase progress",
       "tasks": "Tasks",
       "noTasks": "No tasks tracked for this phase yet.",
+      "tasksLoading": "Counting tasks…",
+      "tasksSummary": "{done} of {total} done",
       "blockers": "{count, plural, =0 {} =1 {1 blocker} other {# blockers}}",
       "photosLabel": "{count, plural, =0 {No photos} =1 {1 photo} other {# photos}} uploaded",
       "viewPhase": "Open phase detail",

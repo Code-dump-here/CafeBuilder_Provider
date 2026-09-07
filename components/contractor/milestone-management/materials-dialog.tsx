@@ -20,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { cn } from "@/lib/utils";
@@ -142,7 +141,19 @@ export function MaterialsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      {/*
+        `DialogContent` is centred with `-translate-y-1/2` and sets no height
+        bound, so without these three classes the panel simply grows past the
+        top and bottom of the window with nothing to scroll — this dialog runs
+        to a cost card, two lists and two add-rows, which is taller than a
+        laptop viewport once a bookmarks bar is showing.
+
+        Two rows: the header stays put, the body takes the remainder.
+        `minmax(0,1fr)` rather than `1fr` because a grid row's automatic
+        minimum is its content, which would let the body push the panel back
+        past its own max-height instead of scrolling.
+      */}
+      <DialogContent className="max-h-[90dvh] max-w-3xl grid-rows-[auto_minmax(0,1fr)] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
@@ -152,203 +163,207 @@ export function MaterialsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {listError && (
-          <div className="flex items-center gap-2 text-sm text-destructive">
-            <AlertTriangle className="h-4 w-4" />
-            {t("error")}
-          </div>
-        )}
+        {/*
+          One scroll region for the whole body. The two lists inside used to
+          carry their own `ScrollArea` caps, which reserved 28vh + 22vh of
+          height before anything else was measured and then nested a second
+          scrollbar inside the first once the panel was bounded.
+        */}
+        <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1">
+          {listError && (
+            <div className="flex items-center gap-2 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+              {t("error")}
+            </div>
+          )}
 
-        {/* ── Cost roll-up ─────────────────────────────────────────── */}
-        {cost && (
-          <div className="grid grid-cols-2 gap-3 rounded-md border p-3 sm:grid-cols-3">
-            <Figure label={t("ownLines")} value={formatVnd(cost.ownEstimatedCost, locale)} />
-            <Figure label={t("taskLines")} value={formatVnd(cost.tasksEstimatedCost, locale)} />
-            <Figure
-              label={t("estimatedCost")}
-              value={formatVnd(cost.totalEstimatedCost, locale)}
-              emphasis
-            />
-            <div className="col-span-2 sm:col-span-3">
-              <p className="text-xs text-muted-foreground">{t("actualCost")}</p>
-              <p className="text-sm font-medium tabular-nums">
-                {cost.totalActualCost === null
-                  ? t("actualUnavailable")
-                  : formatVnd(cost.totalActualCost, locale)}
-              </p>
-              {cost.missingActualCount > 0 && (
-                <p className="text-xs text-amber-600 dark:text-amber-400">
-                  {t("actualPending", { count: cost.missingActualCount })}
+          {/* ── Cost roll-up ─────────────────────────────────────────── */}
+          {cost && (
+            <div className="grid grid-cols-2 gap-3 rounded-md border p-3 sm:grid-cols-3">
+              <Figure label={t("ownLines")} value={formatVnd(cost.ownEstimatedCost, locale)} />
+              <Figure label={t("taskLines")} value={formatVnd(cost.tasksEstimatedCost, locale)} />
+              <Figure
+                label={t("estimatedCost")}
+                value={formatVnd(cost.totalEstimatedCost, locale)}
+                emphasis
+              />
+              <div className="col-span-2 sm:col-span-3">
+                <p className="text-xs text-muted-foreground">{t("actualCost")}</p>
+                <p className="text-sm font-medium tabular-nums">
+                  {cost.totalActualCost === null
+                    ? t("actualUnavailable")
+                    : formatVnd(cost.totalActualCost, locale)}
                 </p>
-              )}
+                {cost.missingActualCount > 0 && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    {t("actualPending", { count: cost.missingActualCount })}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* ── Lines on this milestone ──────────────────────────────── */}
-        <section className="flex flex-col gap-2">
-          <h3 className="text-sm font-semibold">{t("usage")}</h3>
+          {/* ── Lines on this milestone ──────────────────────────────── */}
+          <section className="flex flex-col gap-2">
+            <h3 className="text-sm font-semibold">{t("usage")}</h3>
 
-          {loadingLines ? (
-            <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              {t("loading")}
-            </div>
-          ) : lines.length === 0 ? (
-            <p className="py-2 text-sm text-muted-foreground">{t("usageEmpty")}</p>
-          ) : (
-            <ScrollArea className="max-h-[28vh] pr-3">
+            {loadingLines ? (
+              <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t("loading")}
+              </div>
+            ) : lines.length === 0 ? (
+              <p className="py-2 text-sm text-muted-foreground">{t("usageEmpty")}</p>
+            ) : (
               <ul className="flex flex-col gap-2">
-                {lines.map((line) => (
-                  <UsageRow
-                    key={line.id}
-                    line={line}
-                    canRecordActual={milestoneStarted}
-                    onSaveActual={(actual) =>
-                      updateUsage.mutate({
-                        id: line.id,
-                        payload: { actualQuantity: actual },
-                      })
-                    }
-                    onRemove={() => setRemovingUsageId(line.id)}
-                    saving={updateUsage.isPending || removeUsage.isPending}
-                  />
-                ))}
+                  {lines.map((line) => (
+                    <UsageRow
+                      key={line.id}
+                      line={line}
+                      canRecordActual={milestoneStarted}
+                      onSaveActual={(actual) =>
+                        updateUsage.mutate({
+                          id: line.id,
+                          payload: { actualQuantity: actual },
+                        })
+                      }
+                      onRemove={() => setRemovingUsageId(line.id)}
+                      saving={updateUsage.isPending || removeUsage.isPending}
+                    />
+                  ))}
               </ul>
-            </ScrollArea>
-          )}
+            )}
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Select value={materialId} onValueChange={setMaterialId}>
-              <SelectTrigger className="w-[220px]">
-                <SelectValue placeholder={t("pickMaterial")} />
-              </SelectTrigger>
-              <SelectContent>
-                {materials.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>
-                    {m.name} — {formatVnd(m.unitPrice, locale)}/{m.unit}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex flex-wrap items-center gap-2">
+              <Select value={materialId} onValueChange={setMaterialId}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder={t("pickMaterial")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {materials.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.name} — {formatVnd(m.unitPrice, locale)}/{m.unit}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Input
-              type="number"
-              min="0"
-              step="any"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder={t("estimated")}
-              className="w-28"
-            />
+              <Input
+                type="number"
+                min="0"
+                step="any"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder={t("estimated")}
+                className="w-28"
+              />
 
-            <Button
-              type="button"
-              onClick={() => void handleAddUsage()}
-              disabled={!materialId || !quantity || addUsage.isPending}
-            >
-              {addUsage.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
-              <span className="ml-1">{t("addUsage")}</span>
-            </Button>
-          </div>
-        </section>
-
-        {/* ── Price list ───────────────────────────────────────────── */}
-        <section className="flex flex-col gap-2 border-t pt-3">
-          <div>
-            <h3 className="text-sm font-semibold">{t("priceList")}</h3>
-            <p className="text-xs text-muted-foreground">{t("priceListHint")}</p>
-          </div>
-
-          {loadingList ? (
-            <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              {t("loading")}
+              <Button
+                type="button"
+                onClick={() => void handleAddUsage()}
+                disabled={!materialId || !quantity || addUsage.isPending}
+              >
+                {addUsage.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+                <span className="ml-1">{t("addUsage")}</span>
+              </Button>
             </div>
-          ) : materials.length === 0 ? (
-            <p className="py-2 text-sm text-muted-foreground">{t("priceListEmpty")}</p>
-          ) : (
-            <ScrollArea className="max-h-[22vh] pr-3">
-              <ul className="flex flex-col gap-1">
-                {materials.map((m) => (
-                  <li
-                    key={m.id}
-                    className="flex items-center justify-between rounded border px-2 py-1.5 text-sm"
-                  >
-                    <span className="min-w-0 truncate">{m.name}</span>
-                    <span className="flex items-center gap-3">
-                      <span className="tabular-nums text-muted-foreground">
-                        {formatVnd(m.unitPrice, locale)}/{m.unit}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeletingMaterialId(m.id)}
-                        disabled={deleteMaterial.isPending}
-                        aria-label={t("remove")}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </ScrollArea>
-          )}
+          </section>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t("materialNamePlaceholder")}
-              className="min-w-[180px] flex-1"
-            />
+          {/* ── Price list ───────────────────────────────────────────── */}
+          <section className="flex flex-col gap-2 border-t pt-3">
+            <div>
+              <h3 className="text-sm font-semibold">{t("priceList")}</h3>
+              <p className="text-xs text-muted-foreground">{t("priceListHint")}</p>
+            </div>
 
-            <Select value={unit} onValueChange={(v) => setUnit(v as MaterialUnit)}>
-              <SelectTrigger className="w-[110px]">
-                <SelectValue placeholder={t("unit")} />
-              </SelectTrigger>
-              <SelectContent>
-                {MATERIAL_UNITS.map((u) => (
-                  <SelectItem key={u} value={u}>
-                    {u}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Input
-              type="number"
-              min="0"
-              step="any"
-              value={unitPrice}
-              onChange={(e) => setUnitPrice(e.target.value)}
-              placeholder={t("unitPrice")}
-              className="w-36"
-            />
-
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => void handleAddMaterial()}
-              disabled={!name.trim() || !unitPrice || createMaterial.isPending}
-            >
-              {createMaterial.isPending ? (
+            {loadingList ? (
+              <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
-              <span className="ml-1">{t("addMaterial")}</span>
-            </Button>
-          </div>
+                {t("loading")}
+              </div>
+            ) : materials.length === 0 ? (
+              <p className="py-2 text-sm text-muted-foreground">{t("priceListEmpty")}</p>
+            ) : (
+              <ul className="flex flex-col gap-1">
+                  {materials.map((m) => (
+                    <li
+                      key={m.id}
+                      className="flex items-center justify-between rounded border px-2 py-1.5 text-sm"
+                    >
+                      <span className="min-w-0 truncate">{m.name}</span>
+                      <span className="flex items-center gap-3">
+                        <span className="tabular-nums text-muted-foreground">
+                          {formatVnd(m.unitPrice, locale)}/{m.unit}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeletingMaterialId(m.id)}
+                          disabled={deleteMaterial.isPending}
+                          aria-label={t("remove")}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            )}
 
-          <p className="text-xs text-muted-foreground">{t("priceNote")}</p>
-        </section>
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t("materialNamePlaceholder")}
+                className="min-w-[180px] flex-1"
+              />
+
+              <Select value={unit} onValueChange={(v) => setUnit(v as MaterialUnit)}>
+                <SelectTrigger className="w-[110px]">
+                  <SelectValue placeholder={t("unit")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {MATERIAL_UNITS.map((u) => (
+                    <SelectItem key={u} value={u}>
+                      {u}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Input
+                type="number"
+                min="0"
+                step="any"
+                value={unitPrice}
+                onChange={(e) => setUnitPrice(e.target.value)}
+                placeholder={t("unitPrice")}
+                className="w-36"
+              />
+
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => void handleAddMaterial()}
+                disabled={!name.trim() || !unitPrice || createMaterial.isPending}
+              >
+                {createMaterial.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+                <span className="ml-1">{t("addMaterial")}</span>
+              </Button>
+            </div>
+
+            <p className="text-xs text-muted-foreground">{t("priceNote")}</p>
+          </section>
+        </div>
       </DialogContent>
 
       <ConfirmDialog
