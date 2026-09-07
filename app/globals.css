@@ -46,6 +46,39 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Outcome colours. The palette had exactly one signal colour — --destructive
+     — so every "this went well" and "look at this" in the app was written as a
+     raw Tailwind green-600 or amber-500: cold, off-palette, and invisible to
+     the dark-mode swap because those literals do not respond to it.
+     Both are pulled toward the warm end of their hue ranges so they sit beside
+     the espresso primary rather than fighting it. */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  /* `text-destructive-foreground` was already being used in six components —
+     confirm-dialog, notification-bell, both sidebars and others — but the
+     variable behind it was never declared, so the utility resolved to nothing
+     and those labels fell back to whatever they inherited. Destructive text on
+     a destructive fill was landing dark-on-dark. */
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* A visible boundary for controls. --border sits at roughly 1.6:1 against the
+     page, which is fine for decorative rules but under the 3:1 that WCAG 1.4.11
+     asks of anything that delimits an interactive control. Same hue and chroma,
+     lower lightness. */
+  --color-input-border: var(--input-border);
+
+  /* Elevation. Nothing in the app cast a shadow — surfaces were separated by a
+     single 1px border, which is why cards, popovers and dialogs all read as
+     living on the same flat plane. These are tinted with the foreground brown
+     rather than neutral black: a grey shadow over a warm off-white background
+     reads as dirt, a warm one reads as depth. */
+  --shadow-e1: var(--elevation-1);
+  --shadow-e2: var(--elevation-2);
+  --shadow-e3: var(--elevation-3);
 }
 
 :root {
@@ -81,6 +114,22 @@
   --sidebar-accent-foreground: oklch(0.28 0.04 48);
   --sidebar-border: oklch(0.84 0.02 62);
   --sidebar-ring: oklch(0.52 0.18 55);
+
+  /* Chroma held near --primary's 0.18 so these read as members of the same
+     family. Foregrounds are the near-white already used by
+     --primary-foreground, so contrast behaves the same way it does on primary. */
+  --success: oklch(0.55 0.14 152);
+  --success-foreground: oklch(0.97 0.01 90);
+  --warning: oklch(0.68 0.15 78);
+  --warning-foreground: oklch(0.25 0.03 55);
+  --destructive-foreground: oklch(0.97 0.01 90);
+  --input-border: oklch(0.62 0.02 62);
+
+  /* Hue 55 = --foreground's hue, so the shade is a deeper tone of the page's
+     own brown instead of a grey wash over it. */
+  --elevation-1: 0 1px 2px -1px oklch(0.25 0.03 55 / 0.10), 0 1px 3px 0 oklch(0.25 0.03 55 / 0.07);
+  --elevation-2: 0 2px 4px -2px oklch(0.25 0.03 55 / 0.10), 0 4px 10px -2px oklch(0.25 0.03 55 / 0.09);
+  --elevation-3: 0 8px 16px -6px oklch(0.25 0.03 55 / 0.14), 0 16px 32px -8px oklch(0.25 0.03 55 / 0.12);
 }
 
 .dark {
@@ -115,6 +164,22 @@
   --sidebar-accent-foreground: oklch(0.93 0.01 80);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.68 0.16 70);
+
+  /* Lifted the way the rest of the dark block lifts its colours, so both stay
+     legible on the near-black espresso background. */
+  --success: oklch(0.72 0.15 152);
+  --success-foreground: oklch(0.2 0.04 40);
+  --warning: oklch(0.78 0.14 78);
+  --warning-foreground: oklch(0.2 0.04 40);
+  --destructive-foreground: oklch(0.2 0.04 40);
+  --input-border: oklch(1 0 0 / 20%);
+
+  /* Shadow does almost no work on a dark ground — depth there comes from the
+     surface getting lighter, not from cast shade. These stay deliberately
+     subtle and lean on pure black so they darken rather than muddy. */
+  --elevation-1: 0 1px 2px -1px oklch(0 0 0 / 0.40), 0 1px 3px 0 oklch(0 0 0 / 0.30);
+  --elevation-2: 0 2px 4px -2px oklch(0 0 0 / 0.45), 0 4px 10px -2px oklch(0 0 0 / 0.35);
+  --elevation-3: 0 8px 16px -6px oklch(0 0 0 / 0.55), 0 16px 32px -8px oklch(0 0 0 / 0.45);
 }
 
 @layer base {

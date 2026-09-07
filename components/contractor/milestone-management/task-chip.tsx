@@ -57,7 +57,7 @@ export function TaskChip({
         // Reacts to a hover anywhere on the chip, including the dead
         // space between the toggle and the title — the whole pill is one
         // task, so lighting up only the text would read as two things.
-        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-foreground/25 hover:shadow-sm",
+        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-foreground/25 hover:shadow-e1",
         done
           ? "border-emerald-500/40 bg-emerald-500/5"
           : inProgress

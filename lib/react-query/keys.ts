@@ -8,6 +8,17 @@ export const queryKeys = {
     revenue: (params?: unknown) => ["admin", "revenue", params] as const,
     transactions: (params?: unknown) => ["admin", "transactions", params] as const,
     accounts: (params?: unknown) => ["admin", "accounts", params] as const,
+    /**
+     * Prefix for EVERY paginated/filtered accounts list, for invalidation.
+     *
+     * `accounts()` called with no argument does not do this job: it yields
+     * `["admin", "accounts", undefined]`, and the live queries are keyed
+     * `["admin", "accounts", { page, search, ... }]`. TanStack compares keys
+     * element by element, so `undefined` never matches the params object and
+     * the invalidation silently hit nothing — suspending or deleting an
+     * account left the table showing the old row until a hard reload.
+     */
+    accountsAll: () => ["admin", "accounts"] as const,
     account: (id: string | null) => ["admin", "account", id] as const,
   },
   users: {

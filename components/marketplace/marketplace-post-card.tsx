@@ -117,7 +117,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
         // Card tier, minus the cursor: the card isn't the click target —
         // the footer link is — so the pointer stays an arrow until it
         // reaches the actual affordance.
-        "transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out hover:border-primary/40 hover:bg-primary/[0.04] hover:shadow-md motion-safe:hover:-translate-y-0.5",
+        "transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out hover:border-primary/40 hover:bg-primary/[0.04] hover:shadow-e2 motion-safe:hover:-translate-y-0.5",
         post.status === "closed" && "opacity-90",
       )}
     >

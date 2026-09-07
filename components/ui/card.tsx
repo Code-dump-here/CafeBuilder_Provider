@@ -12,7 +12,14 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card flex flex-col gap-4 overflow-hidden rounded-lg bg-card py-4 text-xs/relaxed text-card-foreground ring-1 ring-foreground/10 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 *:[img:first-child]:rounded-t-lg *:[img:last-child]:rounded-b-lg",
+        // The hairline ring stays — it holds the card's edge at any zoom and in
+        // high-contrast mode, where shadows are dropped. `shadow-e1` is what
+        // was missing: a card was previously distinguished from the page by
+        // 1px of 10%-opacity brown and nothing else, so a screen of cards read
+        // as a flat sheet with lines drawn on it rather than as objects laid on
+        // a surface. All 27 render sites take this uniformly — none of them
+        // overrides shadow or ring.
+        "group/card flex flex-col gap-4 overflow-hidden rounded-lg bg-card py-4 text-xs/relaxed text-card-foreground shadow-e1 ring-1 ring-foreground/10 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 *:[img:first-child]:rounded-t-lg *:[img:last-child]:rounded-b-lg",
         className
       )}
       {...props}

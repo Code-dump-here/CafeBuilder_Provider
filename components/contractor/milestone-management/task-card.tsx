@@ -38,7 +38,7 @@ export function TaskCard({
     <div
       className={cn(
         "group relative flex items-start gap-2 rounded-md border border-border/40 bg-card px-2 py-1.5",
-        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-foreground/25 hover:shadow-sm",
+        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-foreground/25 hover:shadow-e1",
         done && "bg-muted/40"
       )}
     >

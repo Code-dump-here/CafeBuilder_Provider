@@ -15,10 +15,22 @@ import { Button } from "@/components/ui/button";
 export interface ErrorStateProps {
   title: string;
   subtitle: string;
-  retryLabel: string;
   /** Raw server message, rendered small and monospaced. Optional. */
   message?: string;
-  onRetry: () => void;
+  /**
+   * Retry affordance. Both are optional now, because not every failure is
+   * worth retrying: a 401/403/404 will return the identical answer however
+   * many times it is asked, and a button promising otherwise is a lie the
+   * user can sit and click. Omit them and no retry is offered.
+   */
+  retryLabel?: string;
+  onRetry?: () => void;
+  /**
+   * A way out, for failures the user cannot resolve where they are — most
+   * obviously "you don't have access to this", where the only useful move is
+   * back to somewhere they do.
+   */
+  action?: { label: string; onClick: () => void };
 }
 
 export function ErrorState({
@@ -27,6 +39,7 @@ export function ErrorState({
   retryLabel,
   message,
   onRetry,
+  action,
 }: ErrorStateProps) {
   return (
     <div
@@ -45,15 +58,25 @@ export function ErrorState({
           </p>
         ) : null}
       </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        onClick={onRetry}
-        className="mt-1"
-      >
-        {retryLabel}
-      </Button>
+      {onRetry || action ? (
+        <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+          {onRetry && retryLabel ? (
+            <Button type="button" variant="outline" size="lg" onClick={onRetry}>
+              {retryLabel}
+            </Button>
+          ) : null}
+          {action ? (
+            <Button
+              type="button"
+              variant={onRetry ? "ghost" : "outline"}
+              size="lg"
+              onClick={action.onClick}
+            >
+              {action.label}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

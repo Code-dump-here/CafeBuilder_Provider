@@ -73,7 +73,7 @@ export function IssueCard({
         // Row tier, not card tier: these stack at `gap-1.5`, so a lift on
         // hover would have the card bumping into its neighbour.
         interactive && interactiveRow,
-        interactive && !active && "hover:border-foreground/20 hover:shadow-sm",
+        interactive && !active && "hover:border-foreground/20 hover:shadow-e1",
       )}
     >
       {/* LEFT — primary info */}

@@ -99,7 +99,7 @@ export default function AdminProjectsPage() {
         <SummaryStat label="Drafts" value={summary.drafts} tone="muted" />
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-border/60 bg-card/60 p-3 shadow-sm">
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-border/60 bg-card/60 p-3 shadow-e1">
         <div className="relative w-full sm:w-72">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
           <Input
@@ -167,7 +167,7 @@ export default function AdminProjectsPage() {
           ) : null}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border/60 bg-card/60 shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-border/60 bg-card/60 shadow-e1">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-[11px] uppercase tracking-wide text-muted-foreground">
               <tr>
@@ -233,7 +233,7 @@ function ProjectCard({
   return (
     <Link
       href={`/projects/${project.id}`}
-      className="group flex flex-col gap-3 rounded-lg border border-border/60 bg-card/60 p-4 shadow-sm transition-colors hover:border-primary/60 hover:bg-card"
+      className="group flex flex-col gap-3 rounded-lg border border-border/60 bg-card/60 p-4 shadow-e1 transition-colors hover:border-primary/60 hover:bg-card"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-col">

@@ -172,7 +172,7 @@ export function PlanCard({
         // is presence only — it lifts out of the row under the cursor so
         // you can tell which plan you're reading, without pretending the
         // whole tile is a button.
-        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-primary/40 hover:shadow-lg",
+        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-primary/40 hover:shadow-e3",
         highlighted
           ? "border-primary/60 shadow-[0_18px_50px_-22px_oklch(0.45_0.12_240_/_0.45)]"
           : "border-border/70",
@@ -181,7 +181,7 @@ export function PlanCard({
       {highlighted ? (
         <Badge
           variant="default"
-          className="absolute -top-3 start-6 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground shadow-sm"
+          className="absolute -top-3 start-6 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground shadow-e1"
         >
           <Sparkles aria-hidden className="size-3" />
           {highlightLabel}

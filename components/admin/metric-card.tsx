@@ -30,7 +30,7 @@ export function MetricCard({ label, value, delta, inverse, icon: Icon, className
   const Arrow = inverse ? (delta < 0 ? ArrowUp : ArrowDown) : delta < 0 ? ArrowDown : ArrowUp;
 
   return (
-    <div className={cn("rounded-lg border bg-card/60 p-4 shadow-sm", tone, className)}>
+    <div className={cn("rounded-lg border bg-card/60 p-4 shadow-e1", tone, className)}>
       <div className="flex items-start justify-between gap-2">
         <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
           {label}

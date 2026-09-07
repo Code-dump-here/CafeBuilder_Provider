@@ -906,7 +906,7 @@ function DesignImageViewer({
               src={image.thumbnailUrl}
               alt={image.name}
               onError={() => setImgError(true)}
-              className="max-h-full max-w-full rounded-md border border-border/40 bg-white object-contain shadow-sm dark:bg-stone-100"
+              className="max-h-full max-w-full rounded-md border border-border/40 bg-white object-contain shadow-e1 dark:bg-stone-100"
             />
           ) : (
             <div className="flex aspect-video w-full max-w-5xl items-center justify-center gap-2 rounded-md border border-dashed border-border/60 bg-muted text-xs text-muted-foreground">

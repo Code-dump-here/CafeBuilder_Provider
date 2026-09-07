@@ -236,7 +236,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
               href={directionsUrl(brand.companyLatitude, brand.companyLongitude)}
               target="_blank"
               rel="noreferrer noopener"
-              className="block overflow-hidden rounded-lg border border-border/60 transition-shadow hover:shadow-md"
+              className="block overflow-hidden rounded-lg border border-border/60 transition-shadow hover:shadow-e2"
               aria-label={t("identity.openAddressInMaps")}
             >
               {/* Fixed pixel box — the tile grid is laid out against these

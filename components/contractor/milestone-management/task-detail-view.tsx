@@ -209,7 +209,7 @@ function ImagesGallery({
           <img
             src={active}
             alt=""
-            className="max-h-full max-w-full rounded-md shadow-2xl"
+            className="max-h-full max-w-full rounded-md shadow-e3"
           />
         </div>
       ) : null}

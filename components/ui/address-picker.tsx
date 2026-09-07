@@ -275,7 +275,7 @@ export function AddressPicker({
       </div>
 
       {isOpen ? (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-md border border-border bg-popover shadow-md">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-md border border-border bg-popover shadow-e2">
           {suggestions.length > 0 ? (
             <ul className="max-h-64 overflow-y-auto py-1">
               {suggestions.map((suggestion) => (

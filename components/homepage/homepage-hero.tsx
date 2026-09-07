@@ -71,7 +71,7 @@ export function HomepageHero() {
             <Button
               asChild
               size="2xl"
-              className="h-11 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-sm transition-transform hover:-translate-y-px"
+              className="h-11 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-e1 transition-transform hover:-translate-y-px"
             >
               <Link href={primaryHref}>
                 {t("primaryCta")}

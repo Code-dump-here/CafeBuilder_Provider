@@ -62,7 +62,21 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-xs/relaxed text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          // `max-h-[90dvh] overflow-y-auto` is load-bearing, not styling. The
+          // panel is centred with `-translate-y-1/2` and had no height bound at
+          // all, so a dialog taller than the window grew off both ends of it
+          // with nothing to scroll — the title unreachable above, the submit
+          // button unreachable below. 28 files render a DialogContent and only
+          // 16 passed a `max-h-*` of their own, so twelve of them were one
+          // long form or one short laptop away from being unusable.
+          //
+          // `dvh` rather than `vh` so mobile browser chrome is accounted for.
+          // A consumer that passes its own `max-h-*` or `overflow-*` still
+          // wins: `cn` runs tailwind-merge, and `className` is appended last.
+          // `shadow-e3`: a dialog floats above everything, so it takes the top
+          // of the elevation scale. It previously had the same 1px ring as a
+          // card sitting flat on the page.
+          "fixed top-1/2 left-1/2 z-50 grid max-h-[90dvh] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl bg-popover p-4 text-xs/relaxed text-popover-foreground shadow-e3 ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}

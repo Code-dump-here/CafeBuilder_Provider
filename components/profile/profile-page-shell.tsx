@@ -129,14 +129,14 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
         {/* Avatar */}
         <div className="absolute -top-16 left-1/2 -translate-x-1/2 sm:left-6 sm:translate-x-0">
           <div className="relative">
-            <Avatar className="size-32 border-4 border-background shadow-xl sm:size-36">
+            <Avatar className="size-32 border-4 border-background shadow-e3 sm:size-36">
               <AvatarImage src="" alt={sp.displayName} />
               <AvatarFallback className="bg-linear-to-br from-amber-500 to-orange-600 text-3xl font-bold text-white">
                 {initials}
               </AvatarFallback>
             </Avatar>
             {sp.isVerified && (
-              <div className="absolute bottom-2 right-2 rounded-full bg-primary p-1.5 shadow-lg">
+              <div className="absolute bottom-2 right-2 rounded-full bg-primary p-1.5 shadow-e3">
                 <Check className="size-4 text-primary-foreground" />
               </div>
             )}
@@ -144,7 +144,7 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
               <Button
                 variant="secondary"
                 size="icon"
-                className="absolute -bottom-1 -right-1 size-8 rounded-full shadow-md"
+                className="absolute -bottom-1 -right-1 size-8 rounded-full shadow-e2"
               >
                 <Edit3 className="size-4" />
               </Button>
@@ -380,7 +380,7 @@ function ProjectsList() {
       {projects.map((project) => (
         <div
           key={project.id}
-          className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-md"
+          className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-e2"
         >
           <div className="flex size-14 items-center justify-center rounded-xl bg-linear-to-br from-amber-100 to-orange-100">
             <Briefcase className="size-6 text-amber-600" />
@@ -475,7 +475,7 @@ function ReviewsList() {
             </div>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            "{review.comment}"
+            &ldquo;{review.comment}&rdquo;
           </p>
           <p className="mt-3 text-xs text-muted-foreground/60">{review.date}</p>
         </div>

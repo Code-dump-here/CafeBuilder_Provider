@@ -56,13 +56,13 @@ export function RoleSelector({ selected, onChange, error }: RoleSelectorProps) {
                 "relative flex flex-col items-center gap-2.5 rounded-xl border-2 p-4 transition-all duration-200 cursor-pointer",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2",
                 isSelected
-                  ? "border-primary bg-primary/5 shadow-sm"
+                  ? "border-primary bg-primary/5 shadow-e1"
                   : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/30"
               )}
             >
               {/* Selected check */}
               {isSelected && (
-                <div className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+                <div className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-e1">
                   <Check className="size-3" strokeWidth={3} />
                 </div>
               )}

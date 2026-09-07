@@ -161,7 +161,7 @@ export function DrawingViewer({
               src={drawing.thumbnailUrl}
               alt={drawing.name}
               onError={() => setImgError(true)}
-              className="max-h-full max-w-full rounded-md border border-border/40 bg-white object-contain shadow-sm dark:bg-stone-100"
+              className="max-h-full max-w-full rounded-md border border-border/40 bg-white object-contain shadow-e1 dark:bg-stone-100"
             />
           ) : (
             <div

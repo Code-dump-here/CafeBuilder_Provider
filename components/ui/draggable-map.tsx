@@ -193,7 +193,7 @@ function ZoomButton({
       // otherwise nudge the map every time someone zooms.
       onPointerDown={(event) => event.stopPropagation()}
       onClick={onClick}
-      className="grid size-7 place-items-center rounded bg-background shadow-sm transition-colors hover:bg-accent disabled:opacity-40"
+      className="grid size-7 place-items-center rounded bg-background shadow-e1 transition-colors hover:bg-accent disabled:opacity-40"
     >
       {children}
     </button>
