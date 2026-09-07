@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useConstructionTasks } from "@/features/projects/use-construction";
 
 import type {
   MilestonePhase,
@@ -23,6 +24,8 @@ import type {
 
 interface MilestoneDetailCardProps {
   phase: MilestonePhase;
+  /** Scopes the task query; without it the card cannot count anything. */
+  projectWorkingId?: string | null;
   /** Drives "Open phase detail" CTA. */
   onOpenDetail: () => void;
 }
@@ -31,10 +34,15 @@ interface MilestoneDetailCardProps {
  * Detail card for the phase the user selected on the track. Carries:
  *   - phase meta (status pill, target date, progress %)
  *   - open-issue counter (driven by `phase.blockerCount`, real data)
- *   - tasks preview (kept as an empty-state slot — full task list lives
- *     inside the phase-detail drawer now that we render real
- *     `ConstructionTask[]` data there)
+ *   - tasks summary — the real count and how many are done
  *   - shortcut button to open the per-phase drawer
+ *
+ * The task line used to be a hardcoded "No tasks tracked for this phase yet.",
+ * printed unconditionally with no query behind it. It was left as a slot when
+ * the full list moved into the drawer, and it read as fact: a phase with four
+ * finished tasks showed a 100% progress bar directly above a card claiming it
+ * had no tasks at all. The same query the drawer uses answers it properly, and
+ * because the query key matches, this costs no extra request.
  *
  * Fields dropped from the mock-data version:
  *   - `lead` — no API surface; the contact-pill is moved to the drawer.
@@ -42,11 +50,22 @@ interface MilestoneDetailCardProps {
  */
 export function MilestoneDetailCard({
   phase,
+  projectWorkingId,
   onOpenDetail,
 }: MilestoneDetailCardProps) {
   const t = useTranslations("ConstructionOverview.detail");
   const tStatus = useTranslations("ConstructionOverview.status");
   const format = useFormatter();
+
+  const tasksQuery = useConstructionTasks({
+    constructionItemId: phase.id,
+    enabled: Boolean(phase.id) && Boolean(projectWorkingId),
+    // Matches the drawer: the backend caps at 10 otherwise, which would
+    // under-report a long phase.
+    pageSize: 200,
+  });
+  const tasks = tasksQuery.items;
+  const doneTasks = tasks.filter((task) => task.status === "completed").length;
 
   const tone = STATUS_TONE[phase.status];
 
@@ -108,7 +127,11 @@ export function MilestoneDetailCard({
           {t("tasks")}
         </h3>
         <p className="mt-2 rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-          {t("noTasks")}
+          {tasksQuery.isLoading
+            ? t("tasksLoading")
+            : tasks.length === 0
+              ? t("noTasks")
+              : t("tasksSummary", { done: doneTasks, total: tasks.length })}
         </p>
       </CardContent>
     </Card>

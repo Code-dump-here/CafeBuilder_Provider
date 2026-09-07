@@ -50,6 +50,7 @@ import {
   byScheduleDate,
 } from "@/features/projects/use-construction";
 import { useDragReorder } from "@/hooks/use-drag-reorder";
+import { useInvalidateCostSummaries } from "@/features/projects/use-cost-summary";
 import { useApplyConstructionTemplateMutation } from "@/features/projects/use-construction-templates";
 import type {
   ConstructionItem,
@@ -244,6 +245,14 @@ export default function MilestoneManagementPage() {
   const updateTask = useUpdateConstructionTaskMutation();
   const setTaskStatus = useSetConstructionTaskStatusMutation();
   const deleteTask = useDeleteConstructionTaskMutation();
+
+  // This page refreshes itself with `refetchItems` / `refetchTasks`, which only
+  // reach its own two queries. The cost summary is a separate query on the
+  // construction-overview page, and cost rolls up milestone status — so closing
+  // a phase here left that card showing the status it had before, with no way
+  // back: `refetchOnWindowFocus` is off, so a card already on screen never
+  // reconsiders.
+  const invalidateCostSummaries = useInvalidateCostSummaries();
 
   // Group tasks by constructionItemId
   const tasksByItem = React.useMemo(() => {
@@ -500,6 +509,8 @@ export default function MilestoneManagementPage() {
       payload: { status: nextStatus },
     });
     void refetchTasks();
+    // A task's materials roll into its milestone's cost.
+    invalidateCostSummaries();
   };
 
   const handleOpenTask = (itemId: string, taskIndex: number) => {
@@ -634,6 +645,7 @@ export default function MilestoneManagementPage() {
       // Refetch either way: the intermediate hop may have landed even when
       // the second call failed, so the UI must not keep showing "pending".
       void refetchItems();
+      invalidateCostSummaries();
     }
   };
 

@@ -264,6 +264,7 @@ export default function ConstructionOverviewPage() {
 
         <MilestoneDetailCard
           phase={selectedPhase}
+          projectWorkingId={engagementId}
           onOpenDetail={handleOpenDetail}
         />
 

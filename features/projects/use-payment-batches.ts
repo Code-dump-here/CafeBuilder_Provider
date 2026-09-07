@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { AppError } from "@/lib/http/errors";
 import { notifyError, notifySuccess } from "@/lib/notify";
+import { COST_SUMMARY_KEYS } from "./use-cost-summary";
 import {
   confirmPaymentBatchApi,
   getPaymentBatchApi,
@@ -133,7 +134,12 @@ function usePaymentBatchInvalidator() {
     void queryClient.invalidateQueries({ queryKey: ["payment-batch"] });
     void queryClient.invalidateQueries({ queryKey: ["construction-items"] });
     void queryClient.invalidateQueries({ queryKey: ["change-orders"] });
-    void queryClient.invalidateQueries({ queryKey: ["cost-summary"] });
+    // Was `["cost-summary"]`, which matched nothing: the real roots are
+    // `engagement-cost-summary` and `construction-item-cost-summary`, and
+    // TanStack matches by key prefix, not by substring.
+    for (const key of COST_SUMMARY_KEYS) {
+      void queryClient.invalidateQueries({ queryKey: [key] });
+    }
   };
 }
 

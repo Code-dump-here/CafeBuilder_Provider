@@ -126,19 +126,34 @@ export function PhaseDetailDrawer({
     [issuesQuery.items],
   );
 
-  // Per-drawer-open task completion. Reset every time `phase` changes
-  // so reopening the drawer for a different phase starts fresh. Local
-  // toggle only — the real mutation lands on the dedicated tasks page.
-  const [doneTaskIds, setDoneTaskIds] = React.useState<Record<string, boolean>>(
-    {},
-  );
+  // Ticks the user has made in this drawer, held apart from the server's own
+  // answer rather than replacing it.
+  //
+  // This used to BE the completion state: a map that started empty and was
+  // reset to empty on every open, with `task.status` never read. A phase whose
+  // four tasks were all `completed` therefore opened as "0 of 4" with four
+  // blank circles, directly beside a progress bar reading 100% — the count came
+  // from this map, the percentage came from the server, and only one of them
+  // was telling the truth.
+  //
+  // Seeding the map on open would not fix it either: the tasks arrive from a
+  // query, so at first render there is nothing to seed from. Overlaying instead
+  // of storing sidesteps that — the server's status is the answer until the
+  // user says otherwise, whenever it happens to load.
+  const [taskOverrides, setTaskOverrides] = React.useState<
+    Record<string, boolean>
+  >({});
   useResetOnChange(phase?.id, () => {
-    setDoneTaskIds({});
+    setTaskOverrides({});
   });
 
   if (!phase) return null;
 
-  const doneCount = Object.values(doneTaskIds).filter(Boolean).length;
+  // Local tick wins if there is one; otherwise the task's real status.
+  const isTaskDone = (task: (typeof tasks)[number]) =>
+    taskOverrides[task.id] ?? task.status === "completed";
+
+  const doneCount = tasks.filter(isTaskDone).length;
   const totalTasks = tasks.length;
   const blockersCount = openIssues.length;
 
@@ -242,13 +257,10 @@ export function PhaseDetailDrawer({
             {/* Tasks */}
             <Section
               title={t("sections.tasks")}
-              meta={
-                doneCount > 0
-                  ? `${doneCount}/${totalTasks}`
-                  : totalTasks > 0
-                    ? `${totalTasks}`
-                    : undefined
-              }
+              // Always the fraction once there are tasks. Showing a bare total
+              // when none are done reads as "4 tasks" next to a KPI saying
+              // "0 of 4", which is the same number said two ways.
+              meta={totalTasks > 0 ? `${doneCount}/${totalTasks}` : undefined}
             >
               {tasksQuery.isLoading ? (
                 <Empty>{t("loadingTasks")}</Empty>
@@ -260,11 +272,11 @@ export function PhaseDetailDrawer({
                     <TaskRow
                       key={task.id}
                       task={task}
-                      done={Boolean(doneTaskIds[task.id])}
+                      done={isTaskDone(task)}
                       onToggle={() =>
-                        setDoneTaskIds((prev) => ({
+                        setTaskOverrides((prev) => ({
                           ...prev,
-                          [task.id]: !prev[task.id],
+                          [task.id]: !isTaskDone(task),
                         }))
                       }
                       tDone={t("taskDone")}
