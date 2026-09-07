@@ -384,6 +384,50 @@ function VersionListTableInner({
                     </span>
                   ),
                 },
+                // Spec §6.3: `revisionCount` is the number of rounds the
+                // owner has requested. Rendered as a small badge so the
+                // provider can see how close they are to exceeding the
+                // free quota without opening each design.
+                {
+                  id: "revisionCount",
+                  header: t("table.revisions"),
+                  accessor: "revisionCount",
+                  align: "right",
+                  widthClass: "w-[8%]",
+                  sortable: true,
+                  cell: (row) =>
+                    row.revisionCount > 0 ? (
+                      <span
+                        title={t("table.revisionsTooltip", {
+                          count: row.revisionCount,
+                        })}
+                        className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-muted px-1.5 font-mono text-[10px] font-semibold tabular-nums text-foreground/80"
+                      >
+                        {row.revisionCount}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground/60">·</span>
+                    ),
+                },
+                // Spec §6.5 / §8.3: provider-supplied change summary for
+                // the current round. Trimmed to one line so the row
+                // stays compact; the full text is in the detail page.
+                {
+                  id: "changeSummary",
+                  header: t("table.changeSummary"),
+                  accessor: "changeSummary",
+                  widthClass: "w-[20%]",
+                  cell: (row) =>
+                    row.changeSummary ? (
+                      <span className="line-clamp-1 text-xs text-foreground/80">
+                        {row.changeSummary}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground/60">
+                        {t("table.changeSummaryEmpty")}
+                      </span>
+                    ),
+                },
                 {
                   id: "updatedAt",
                   header: t("table.lastUpdated"),

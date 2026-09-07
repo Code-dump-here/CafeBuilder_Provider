@@ -53,6 +53,7 @@ import {
   useRemoveCertificateMutation,
   useRemoveServiceAreaMutation,
   useRemoveSocialLinkMutation,
+  useUpdateCertificateMutation,
   useUpdateProviderBrandMutation,
 } from "@/features/service-provider-profiles/use-brand";
 import {
@@ -88,6 +89,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
   const [addingLink, setAddingLink] = React.useState(false);
   const [addingArea, setAddingArea] = React.useState(false);
   const [addingCert, setAddingCert] = React.useState(false);
+  const [editingCert, setEditingCert] = React.useState<ProviderCertificate | null>(null);
   const [removingLink, setRemovingLink] = React.useState<ProviderSocialLink | null>(null);
   const [removingArea, setRemovingArea] = React.useState<ProviderServiceArea | null>(null);
   const [removingCert, setRemovingCert] = React.useState<ProviderCertificate | null>(null);
@@ -98,6 +100,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
   const addArea = useAddServiceAreaMutation();
   const removeArea = useRemoveServiceAreaMutation();
   const addCert = useAddCertificateMutation();
+  const updateCert = useUpdateCertificateMutation();
   const removeCert = useRemoveCertificateMutation();
 
   if (isLoading) {
@@ -309,14 +312,25 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
                   </p>
                 </div>
                 {editable ? (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setRemovingCert(cert)}
-                  >
-                    <Trash2 className="size-4 text-destructive" aria-hidden />
-                    <span className="sr-only">{t("certificates.remove")}</span>
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditingCert(cert)}
+                      aria-label={t("certificates.edit")}
+                    >
+                      <Pencil className="size-4 text-muted-foreground" aria-hidden />
+                      <span className="sr-only">{t("certificates.edit")}</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setRemovingCert(cert)}
+                    >
+                      <Trash2 className="size-4 text-destructive" aria-hidden />
+                      <span className="sr-only">{t("certificates.remove")}</span>
+                    </Button>
+                  </div>
                 ) : null}
               </div>
             ))
@@ -372,6 +386,24 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
             { onSuccess: () => setAddingCert(false) },
           )
         }
+      />
+
+      <CertificateDialog
+        open={editingCert !== null}
+        onOpenChange={(next) => {
+          if (!next) setEditingCert(null);
+        }}
+        pending={updateCert.isPending}
+        initial={editingCert}
+        onSubmit={(payload) => {
+          if (!editingCert) return;
+          updateCert.mutate(
+            { certificateId: editingCert.id, payload },
+            {
+              onSuccess: () => setEditingCert(null),
+            },
+          );
+        }}
       />
 
       <ConfirmDialog
@@ -531,12 +563,14 @@ function Field({
   onChange,
   placeholder,
   type = "text",
+  disabled = false,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   type?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -545,6 +579,7 @@ function Field({
         type={type}
         value={value}
         placeholder={placeholder}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
       />
     </div>
@@ -570,6 +605,8 @@ function BrandDialog({
     website: string | null;
     brandStory: string | null;
     companyAddress: string | null;
+    companyLatitude: number | null;
+    companyLongitude: number | null;
     foundedYear: number | null;
     employeeCount: number | null;
   };
@@ -581,6 +618,9 @@ function BrandDialog({
     website?: string;
     brandStory?: string;
     companyAddress?: string;
+    companyLatitude?: number;
+    companyLongitude?: number;
+    clearCompanyCoordinates?: boolean;
     foundedYear?: number;
     employeeCount?: number;
   }) => void;
@@ -593,6 +633,9 @@ function BrandDialog({
   const [website, setWebsite] = React.useState("");
   const [brandStory, setBrandStory] = React.useState("");
   const [companyAddress, setCompanyAddress] = React.useState("");
+  const [companyLatitude, setCompanyLatitude] = React.useState("");
+  const [companyLongitude, setCompanyLongitude] = React.useState("");
+  const [clearCompanyCoordinates, setClearCompanyCoordinates] = React.useState(false);
   const [foundedYear, setFoundedYear] = React.useState("");
   const [employeeCount, setEmployeeCount] = React.useState("");
 
@@ -603,14 +646,55 @@ function BrandDialog({
     setWebsite(initial.website ?? "");
     setBrandStory(initial.brandStory ?? "");
     setCompanyAddress(initial.companyAddress ?? "");
+    setCompanyLatitude(
+      initial.companyLatitude === null ? "" : String(initial.companyLatitude),
+    );
+    setCompanyLongitude(
+      initial.companyLongitude === null ? "" : String(initial.companyLongitude),
+    );
+    // Reset to the "show what we have" state. If no lat/lng existed, the
+    // checkbox should be unchecked — that matches the absence of values.
+    setClearCompanyCoordinates(
+      initial.companyLatitude === null && initial.companyLongitude === null
+        ? false
+        : false,
+    );
     setFoundedYear(initial.foundedYear === null ? "" : String(initial.foundedYear));
     setEmployeeCount(initial.employeeCount === null ? "" : String(initial.employeeCount));
   });
 
   const num = (value: string) => {
-    const parsed = Number(value.trim());
-    return value.trim() === "" || !Number.isFinite(parsed) ? undefined : parsed;
+    const trimmed = value.trim();
+    if (trimmed.length === 0) return undefined;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : undefined;
   };
+
+  const currentYear = new Date().getFullYear();
+  const foundedYearNum = num(foundedYear);
+  const employeeCountNum = num(employeeCount);
+
+  // Spec §4.2.1 validation rules.
+  const foundedYearValid =
+    foundedYearNum === undefined ||
+    (foundedYearNum >= 1900 && foundedYearNum <= currentYear);
+  const employeeCountValid =
+    employeeCountNum === undefined || employeeCountNum > 0;
+
+  // Coordinates: lat/lng pair must travel together.
+  const latFilled = companyLatitude.trim().length > 0;
+  const lngFilled = companyLongitude.trim().length > 0;
+  const coordinatesPaired = latFilled === lngFilled;
+  // `clearCompanyCoordinates` is mutually exclusive with new lat/lng values.
+  const coordinatesExclusive = !(clearCompanyCoordinates && (latFilled || lngFilled));
+  const coordinatesValid = coordinatesPaired && coordinatesExclusive;
+
+  const formValid =
+    foundedYearValid && employeeCountValid && coordinatesValid;
+
+  // When "clear" is checked, the lat/lng inputs are not used, but we keep
+  // them visible-but-disabled so the user sees what state they're in.
+  const latLngDisabled = clearCompanyCoordinates;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -639,6 +723,7 @@ function BrandDialog({
             value={foundedYear}
             onChange={setFoundedYear}
             type="number"
+            placeholder={t("identity.foundedYearHint", { year: currentYear })}
           />
           <Field
             label={t("identity.employeeCount")}
@@ -653,6 +738,43 @@ function BrandDialog({
               onChange={setCompanyAddress}
             />
           </div>
+
+          {/* Coordinates: pair + clear flag. */}
+          <Field
+            label={t("identity.companyLatitude")}
+            value={companyLatitude}
+            onChange={setCompanyLatitude}
+            type="number"
+            placeholder="10.776"
+            disabled={latLngDisabled}
+          />
+          <Field
+            label={t("identity.companyLongitude")}
+            value={companyLongitude}
+            onChange={setCompanyLongitude}
+            type="number"
+            placeholder="106.701"
+            disabled={latLngDisabled}
+          />
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <input
+              id="brand-clear-coordinates"
+              type="checkbox"
+              checked={clearCompanyCoordinates}
+              onChange={(e) => setClearCompanyCoordinates(e.target.checked)}
+              className="size-4 rounded border-border text-primary accent-current"
+            />
+            <label
+              htmlFor="brand-clear-coordinates"
+              className="text-sm font-medium leading-none"
+            >
+              {t("identity.clearCompanyCoordinates")}
+            </label>
+            <span className="text-xs text-muted-foreground">
+              {t("identity.coordinatesHint")}
+            </span>
+          </div>
+
           <div className="flex flex-col gap-1.5 sm:col-span-2">
             <label className="text-sm font-medium">{t("identity.story")}</label>
             <Textarea
@@ -664,24 +786,51 @@ function BrandDialog({
           </div>
         </div>
 
+        {/* Inline validation hints — match the spec rules so the user fixes
+            the form instead of discovering a 400 from the backend. */}
+        <div className="flex flex-col gap-1 text-xs">
+          {!foundedYearValid ? (
+            <p className="text-destructive">
+              {t("identity.foundedYearError", { min: 1900, max: currentYear })}
+            </p>
+          ) : null}
+          {!employeeCountValid ? (
+            <p className="text-destructive">{t("identity.employeeCountError")}</p>
+          ) : null}
+          {!coordinatesValid ? (
+            <p className="text-destructive">
+              {coordinatesExclusive
+                ? t("identity.coordinatesPairError")
+                : t("identity.coordinatesClearError")}
+            </p>
+          ) : null}
+        </div>
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("common.cancel")}
           </Button>
           <Button
-            disabled={pending}
-            onClick={() =>
-              onSubmit({
+            disabled={pending || !formValid}
+            onClick={() => {
+              const payload: Parameters<typeof onSubmit>[0] = {
                 logoUrl: logoUrl.trim() || undefined,
                 coverImageUrl: coverImageUrl.trim() || undefined,
                 introVideoUrl: introVideoUrl.trim() || undefined,
                 website: website.trim() || undefined,
                 brandStory: brandStory.trim() || undefined,
                 companyAddress: companyAddress.trim() || undefined,
-                foundedYear: num(foundedYear),
-                employeeCount: num(employeeCount),
-              })
-            }
+                foundedYear: foundedYearNum,
+                employeeCount: employeeCountNum,
+              };
+              if (clearCompanyCoordinates) {
+                payload.clearCompanyCoordinates = true;
+              } else if (latFilled && lngFilled) {
+                payload.companyLatitude = num(companyLatitude);
+                payload.companyLongitude = num(companyLongitude);
+              }
+              onSubmit(payload);
+            }}
           >
             {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
             {t("common.save")}
@@ -828,11 +977,13 @@ function CertificateDialog({
   open,
   onOpenChange,
   pending,
+  initial,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pending: boolean;
+  initial?: ProviderCertificate | null;
   onSubmit: (payload: {
     kind: CertificateKind;
     name: string;
@@ -844,30 +995,43 @@ function CertificateDialog({
   }) => void;
 }) {
   const t = useTranslations("ProviderBrand");
-  const [kind, setKind] = React.useState<string>("certificate");
-  const [name, setName] = React.useState("");
-  const [issuer, setIssuer] = React.useState("");
-  const [certificateNo, setCertificateNo] = React.useState("");
-  const [issuedAt, setIssuedAt] = React.useState("");
-  const [expiresAt, setExpiresAt] = React.useState("");
-  const [fileUrl, setFileUrl] = React.useState("");
+  const isEdit = initial !== null && initial !== undefined;
+  const [kind, setKind] = React.useState<string>(initial?.kind ?? "certificate");
+  const [name, setName] = React.useState(initial?.name ?? "");
+  const [issuer, setIssuer] = React.useState(initial?.issuer ?? "");
+  const [certificateNo, setCertificateNo] = React.useState(initial?.certificateNo ?? "");
+  const [issuedAt, setIssuedAt] = React.useState(initial?.issuedAt ?? "");
+  const [expiresAt, setExpiresAt] = React.useState(initial?.expiresAt ?? "");
+  const [fileUrl, setFileUrl] = React.useState(initial?.fileUrl ?? "");
 
   useResetOnChange(open, () => {
-    setKind("certificate");
-    setName("");
-    setIssuer("");
-    setCertificateNo("");
-    setIssuedAt("");
-    setExpiresAt("");
-    setFileUrl("");
+    setKind(initial?.kind ?? "certificate");
+    setName(initial?.name ?? "");
+    setIssuer(initial?.issuer ?? "");
+    setCertificateNo(initial?.certificateNo ?? "");
+    setIssuedAt(initial?.issuedAt ?? "");
+    setExpiresAt(initial?.expiresAt ?? "");
+    setFileUrl(initial?.fileUrl ?? "");
   });
+
+  // Spec §4.2.4: `expiresAt >= issuedAt`. Returns true if OK (or both empty).
+  const dateRangeOk = (() => {
+    if (!issuedAt || !expiresAt) return true;
+    return new Date(expiresAt) >= new Date(issuedAt);
+  })();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t("certificates.dialogTitle")}</DialogTitle>
-          <DialogDescription>{t("certificates.dialogDescription")}</DialogDescription>
+          <DialogTitle>
+            {isEdit ? t("certificates.editTitle") : t("certificates.dialogTitle")}
+          </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? t("certificates.editDescription")
+              : t("certificates.dialogDescription")}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -914,6 +1078,10 @@ function CertificateDialog({
           </div>
         </div>
 
+        {!dateRangeOk ? (
+          <p className="text-xs text-destructive">{t("certificates.dateRangeError")}</p>
+        ) : null}
+
         <p className="text-[11px] text-muted-foreground">{t("certificates.verifyNote")}</p>
 
         <DialogFooter>
@@ -921,7 +1089,7 @@ function CertificateDialog({
             {t("common.cancel")}
           </Button>
           <Button
-            disabled={pending || name.trim().length === 0}
+            disabled={pending || name.trim().length === 0 || !dateRangeOk}
             onClick={() =>
               onSubmit({
                 kind: kind as CertificateKind,
@@ -935,7 +1103,7 @@ function CertificateDialog({
             }
           >
             {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-            {t("common.add")}
+            {isEdit ? t("common.save") : t("common.add")}
           </Button>
         </DialogFooter>
       </DialogContent>

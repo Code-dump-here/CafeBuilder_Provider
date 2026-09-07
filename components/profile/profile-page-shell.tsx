@@ -3,8 +3,6 @@
 import * as React from "react";
 import {
   MapPin,
-  Mail,
-  Link2,
   Calendar,
   Edit3,
   Settings,
@@ -12,30 +10,45 @@ import {
   Shield,
   Briefcase,
   Award,
-  Users,
-  Grid3X3,
-  List,
-  Heart,
-  MessageCircle,
-  Share2,
-  MoreHorizontal,
-  Camera,
-  Check,
-  Loader2,
-  TriangleAlert,
   Images,
   Sparkles,
+  TriangleAlert,
+  Globe,
+  Check,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { toast } from "react-toastify";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BrandMediaUploader } from "@/components/profile/brand-media-uploader";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/features/auth/user-context";
 import type { NormalizedAccount } from "@/features/auth/auth-me-types";
 import { AppError } from "@/lib/http/errors";
+import {
+  useProviderBrand,
+  useProviderPortfolios,
+} from "@/features/service-provider-profiles/use-brand";
+import {
+  useProviderRatingSummary,
+} from "@/features/service-provider-profiles/use-providers";
+import {
+  RatingStars,
+} from "@/components/provider-profile/capability-badge";
+import {
+  ReviewDimensionsList,
+} from "@/components/provider-profile/review-dimensions-list";
 
 import { ProviderProfileEditor } from "./provider-profile-editor";
 import { BrandTab } from "./brand-tab";
@@ -49,11 +62,32 @@ interface ProfileHeaderProps {
    *  account record. */
   account: Pick<NormalizedAccount, "email" | "serviceProvider">;
   isOwner: boolean;
+  /**
+   * Owned callbacks for the header CTAs. Optional so the header still
+   * renders in preview contexts where wiring doesn't matter.
+   */
+  onEdit?: () => void;
+  onOpenSettings?: () => void;
+  /** Number of portfolio entries (already loaded). Shown as the stat. */
+  portfolioCount?: number;
 }
 
-function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
+function ProfileHeader({
+  account,
+  isOwner,
+  onEdit,
+  onOpenSettings,
+  portfolioCount,
+}: ProfileHeaderProps) {
   const t = useTranslations("Profile");
+  const locale = useLocale();
   const sp = account.serviceProvider;
+
+  // Live data — the cover image, address and website come from the
+  // brand endpoint, not from the bare ServiceProviderProfile. Calling
+  // it for the header (in addition to the Brand tab) keeps the cover
+  // fresh after edits without forcing the tab to be mounted first.
+  const { brand } = useProviderBrand({ serviceProviderProfileId: sp?.id ?? null });
 
   // Defensive null-check — `NormalizedAccount.serviceProvider` is `null`
   // for non-provider accounts (and for providers mid-onboarding). The
@@ -71,7 +105,7 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
 
   const initials = sp.displayName
     .split(" ")
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
@@ -88,67 +122,89 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
       ? t("fields.providerTypeIndividual")
       : t("fields.providerTypeCompany");
 
-  const memberSince = sp.createdAt.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
+  const memberSince = sp.createdAt.toLocaleDateString(
+    locale === "vi" ? "vi-VN" : "en-US",
+    { month: "long", year: "numeric" },
+  );
 
   return (
     <div className="relative">
       {/* Cover Image */}
       <div className="relative h-48 w-full overflow-hidden rounded-2xl bg-linear-to-br from-amber-600 via-amber-500 to-orange-500 sm:h-56">
-        {/* Decorative Pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <svg className="h-full w-full" viewBox="0 0 400 200">
-            <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
-        
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
-        
-        {isOwner && (
-          <Button
-            variant="secondary"
-            size="sm"
-            className="absolute bottom-4 right-4 gap-2 bg-white/90 backdrop-blur-sm hover:bg-white"
-          >
-            <Camera className="size-4" />
-            {t("actions.changeCover")}
-          </Button>
+        {brand?.coverImageViewUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={brand.coverImageViewUrl}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <>
+            {/* Decorative pattern — only when there's no cover image */}
+            <div className="absolute inset-0 opacity-20">
+              <svg className="h-full w-full" viewBox="0 0 400 200">
+                <defs>
+                  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+              </svg>
+            </div>
+            <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
+          </>
         )}
+        {isOwner && sp ? (
+          <BrandMediaUploader
+            kind="cover"
+            serviceProviderProfileId={sp.id}
+            currentViewUrl={brand?.coverImageViewUrl ?? undefined}
+            currentRawUrl={brand?.coverImageUrl ?? undefined}
+            variant="cover"
+          />
+        ) : null}
       </div>
 
       {/* Profile Info Section */}
       <div className="relative px-4 sm:px-6">
         {/* Avatar */}
         <div className="absolute -top-16 left-1/2 -translate-x-1/2 sm:left-6 sm:translate-x-0">
-          <div className="relative">
-            <Avatar className="size-32 border-4 border-background shadow-xl sm:size-36">
-              <AvatarImage src="" alt={sp.displayName} />
-              <AvatarFallback className="bg-linear-to-br from-amber-500 to-orange-600 text-3xl font-bold text-white">
-                {initials}
-              </AvatarFallback>
+          {/* Single `rounded-full overflow-hidden` wrapper around both the
+              avatar and its overlays so the hover affordance and the
+              verified badge can never visually spill outside the circle.
+              Without this clip, the `border-4` on `<Avatar>` would push
+              its bounding box larger than the inner circle and any
+              absolutely-positioned child rendered as a sibling would
+              bleed into the 4px ring area. */}
+          <div className="relative size-32 overflow-hidden rounded-full sm:size-36">
+            <Avatar className="!size-full border-4 border-background shadow-xl [&]:after:hidden">
+              {brand?.logoViewUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={brand.logoViewUrl}
+                  alt={sp.displayName}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <AvatarFallback className="bg-linear-to-br from-amber-500 to-orange-600 text-3xl font-bold text-white">
+                  {initials}
+                </AvatarFallback>
+              )}
             </Avatar>
-            {sp.isVerified && (
-              <div className="absolute bottom-2 right-2 rounded-full bg-primary p-1.5 shadow-lg">
+            {sp.isVerified ? (
+              <div className="absolute bottom-2 right-2 z-10 rounded-full bg-primary p-1.5 shadow-lg">
                 <Check className="size-4 text-primary-foreground" />
               </div>
-            )}
-            {isOwner && (
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute -bottom-1 -right-1 size-8 rounded-full shadow-md"
-              >
-                <Edit3 className="size-4" />
-              </Button>
-            )}
+            ) : null}
+            {isOwner && sp ? (
+              <BrandMediaUploader
+                kind="avatar"
+                serviceProviderProfileId={sp.id}
+                currentViewUrl={brand?.logoViewUrl ?? undefined}
+                currentRawUrl={brand?.logoUrl ?? undefined}
+                variant="avatar"
+              />
+            ) : null}
           </div>
         </div>
 
@@ -156,27 +212,25 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
         <div className="flex justify-end gap-2 pt-4 sm:pt-6">
           {isOwner ? (
             <>
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={onOpenSettings}
+              >
                 <Settings className="size-4" />
                 {t("actions.settings")}
               </Button>
-              <Button size="sm" className="gap-2">
+              <Button
+                size="sm"
+                className="gap-2"
+                onClick={onEdit}
+              >
                 <Edit3 className="size-4" />
                 {t("actions.editProfile")}
               </Button>
             </>
-          ) : (
-            <>
-              <Button variant="outline" size="sm" className="gap-2">
-                <MessageCircle className="size-4" />
-                Message
-              </Button>
-              <Button size="sm" className="gap-2">
-                <UserPlus className="size-4" />
-                Follow
-              </Button>
-            </>
-          )}
+          ) : null}
         </div>
 
         {/* Name & Username */}
@@ -207,69 +261,91 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
           </p>
         )}
 
-        {/* Meta Info */}
+        {/* Meta Info — only render rows whose data we actually have */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground sm:justify-start">
-          <div className="flex items-center gap-1.5">
-            <MapPin className="size-4" />
-            <span>Vietnam</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Link2 className="size-4" />
-            <a href="#" className="hover:text-primary hover:underline">
-              portfolio.com
-            </a>
-          </div>
+          {brand?.companyAddress ? (
+            <div className="flex items-center gap-1.5">
+              <MapPin className="size-4" />
+              <span>{brand.companyAddress}</span>
+            </div>
+          ) : null}
+          {brand?.website ? (
+            <div className="flex items-center gap-1.5">
+              <Globe className="size-4" />
+              <a
+                href={brand.website}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="max-w-xs truncate hover:text-primary hover:underline"
+              >
+                {brand.website.replace(/^https?:\/\//, "")}
+              </a>
+            </div>
+          ) : null}
           <div className="flex items-center gap-1.5">
             <Calendar className="size-4" />
-            <span>Joined {memberSince}</span>
+            <span>
+              {t("meta.joined", { date: memberSince })}
+            </span>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="mt-6 flex items-center justify-center gap-8 border-t border-border pt-6 sm:justify-start">
-          <div className="text-center sm:text-left">
-            <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-              <Briefcase className="size-5 text-primary" />
-              <span className="text-xl font-bold text-foreground">24</span>
-            </div>
-            <span className="text-xs text-muted-foreground">Projects</span>
-          </div>
-          <div className="text-center sm:text-left">
-            <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-              <Users className="size-5 text-primary" />
-              <span className="text-xl font-bold text-foreground">1.2k</span>
-            </div>
-            <span className="text-xs text-muted-foreground">Followers</span>
-          </div>
-          <div className="text-center sm:text-left">
-            <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-              <Star className="size-5 text-amber-500 fill-amber-500" />
-              <span className="text-xl font-bold text-foreground">
-                {sp.avgRating?.toFixed(1) ?? "New"}
-              </span>
-            </div>
-            <span className="text-xs text-muted-foreground">Rating</span>
-          </div>
-          {sp.yearsExperience !== null && sp.yearsExperience > 0 && (
-            <div className="text-center sm:text-left">
-              <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-                <Award className="size-5 text-primary" />
-                <span className="text-xl font-bold text-foreground">
-                  {sp.yearsExperience}
-                </span>
-              </div>
-              <span className="text-xs text-muted-foreground">Years Exp.</span>
-            </div>
-          )}
+        {/* Stats — only render the rows we actually have data for */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-8 border-t border-border pt-6 sm:justify-start">
+          <StatBlock
+            icon={Briefcase}
+            value={String(portfolioCount ?? 0)}
+            label={t("header.stats.portfolio")}
+          />
+          <StatBlock
+            icon={Star}
+            iconClassName="text-amber-500 fill-amber-500"
+            value={
+              typeof sp.avgRating === "number" && sp.avgRating > 0
+                ? sp.avgRating.toFixed(1)
+                : t("header.stats.newRating")
+            }
+            label={t("header.stats.rating")}
+          />
+          {sp.yearsExperience !== null && sp.yearsExperience > 0 ? (
+            <StatBlock
+              icon={Award}
+              value={String(sp.yearsExperience)}
+              label={t("header.stats.yearsExperience")}
+            />
+          ) : null}
         </div>
       </div>
     </div>
   );
 }
 
+/** Small icon + value + label row, used for the header stats strip. */
+function StatBlock({
+  icon: Icon,
+  value,
+  label,
+  iconClassName,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  value: string;
+  label: string;
+  iconClassName?: string;
+}) {
+  return (
+    <div className="text-center sm:text-left">
+      <div className="flex items-center justify-center gap-1.5 sm:justify-start">
+        <Icon className={cn("size-5 text-primary", iconClassName)} />
+        <span className="text-xl font-bold text-foreground">{value}</span>
+      </div>
+      <span className="text-xs text-muted-foreground">{label}</span>
+    </div>
+  );
+}
+
 // ─── Tab Navigation ─────────────────────────────────────────────────────────────
 
-type TabType = "posts" | "portfolio" | "brand" | "projects" | "reviews";
+type TabType = "portfolio" | "brand" | "reviews";
 
 function TabNavigation({
   activeTab,
@@ -279,12 +355,10 @@ function TabNavigation({
   onTabChange: (tab: TabType) => void;
 }) {
   const t = useTranslations("Profile");
-  
+
   const tabs: { id: TabType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: "posts", label: t("tabs.posts"), icon: Grid3X3 },
     { id: "portfolio", label: t("tabs.portfolio"), icon: Images },
     { id: "brand", label: t("tabs.brand"), icon: Sparkles },
-    { id: "projects", label: t("tabs.projects"), icon: Briefcase },
     { id: "reviews", label: t("tabs.reviews"), icon: Star },
   ];
 
@@ -318,169 +392,84 @@ function TabNavigation({
 
 // ─── Content Grid ─────────────────────────────────────────────────────────────
 
-function PostsGrid() {
-  // Mock posts data
-  const posts = [
-    { id: "1", title: "Modern Cafe Design Concept", likes: 24, comments: 5 },
-    { id: "2", title: "Industrial Kitchen Layout", likes: 18, comments: 3 },
-    { id: "3", title: "Minimalist Space Planning", likes: 32, comments: 8 },
-    { id: "4", title: "Color Theory in Cafe Design", likes: 15, comments: 2 },
-    { id: "5", title: "Lighting Design Tips", likes: 28, comments: 6 },
-    { id: "6", title: "Budget-Friendly Renovations", likes: 41, comments: 12 },
-  ];
-
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-      {posts.map((post) => (
-        <div
-          key={post.id}
-          className="group relative aspect-square cursor-pointer overflow-hidden rounded-xl bg-muted"
-        >
-          {/* Placeholder Image */}
-          <div className="absolute inset-0 bg-linear-to-br from-amber-100 to-orange-100 flex items-center justify-center">
-            <div className="text-center">
-              <Briefcase className="size-8 text-amber-600/50" />
-            </div>
-          </div>
-          
-          {/* Hover Overlay */}
-          <div className="absolute inset-0 flex items-center justify-center gap-4 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-            <div className="flex items-center gap-1 text-white">
-              <Heart className="size-5" />
-              <span className="font-medium">{post.likes}</span>
-            </div>
-            <div className="flex items-center gap-1 text-white">
-              <MessageCircle className="size-5" />
-              <span className="font-medium">{post.comments}</span>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ProjectsList() {
+/**
+ * Reviews tab — live aggregate from `GET /api/reviews/providers/{id}/summary`.
+ *
+ * We don't yet have a paginated review list endpoint, so we display the
+ * summary (overall + per-dimension averages) plus the review count.
+ */
+function ReviewsList({ profileId }: { profileId: string }) {
   const t = useTranslations("Profile");
-  
-  const projects = [
-    { id: "1", name: "District Coffee House", status: "completed", rating: 5 },
-    { id: "2", name: "Urban Beans Cafe", status: "ongoing", rating: null },
-    { id: "3", name: "Morning Glory Bistro", status: "completed", rating: 4 },
-  ];
+  const { summary, isLoading, isError, error, refetch } =
+    useProviderRatingSummary(profileId);
 
-  const statusColors: Record<string, string> = {
-    completed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-    ongoing: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-    pending: "bg-muted text-muted-foreground",
-  };
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-3">
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-40 w-full" />
+      </div>
+    );
+  }
 
-  return (
-    <div className="space-y-4">
-      {projects.map((project) => (
-        <div
-          key={project.id}
-          className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-md"
-        >
-          <div className="flex size-14 items-center justify-center rounded-xl bg-linear-to-br from-amber-100 to-orange-100">
-            <Briefcase className="size-6 text-amber-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-foreground truncate">
-              {project.name}
-            </h3>
-            <div className="mt-1 flex items-center gap-2">
-              <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium capitalize", statusColors[project.status])}>
-                {project.status}
-              </span>
-              {project.rating && (
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={cn(
-                        "size-3",
-                        i < project.rating!
-                          ? "text-amber-500 fill-amber-500"
-                          : "text-muted-foreground/30",
-                      )}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-            View
-          </Button>
-        </div>
-      ))}
-    </div>
-  );
-}
+  if (isError) {
+    return (
+      <EmptyState
+        icon={Star}
+        title={t("tabs.reviewsError.title")}
+        description={
+          error instanceof Error && error.message
+            ? error.message
+            : t("tabs.reviewsError.description")
+        }
+        actionLabel={t("tabs.reviewsError.retry")}
+        onAction={() => {
+          void refetch();
+        }}
+      />
+    );
+  }
 
-function ReviewsList() {
-  const t = useTranslations("Profile");
-  
-  const reviews = [
-    {
-      id: "1",
-      author: "Nguyen Van A",
-      project: "District Coffee House",
-      rating: 5,
-      comment: "Outstanding design work! The team understood our vision perfectly and delivered beyond expectations.",
-      date: "2 weeks ago",
-    },
-    {
-      id: "2",
-      author: "Tran Thi B",
-      project: "Urban Beans Cafe",
-      rating: 4,
-      comment: "Great communication and professional execution. Highly recommended for cafe projects.",
-      date: "1 month ago",
-    },
-  ];
+  if (!summary || summary.reviewCount === 0) {
+    return (
+      <EmptyState
+        icon={Star}
+        title={t("tabs.reviewsEmpty.title")}
+        description={t("tabs.reviewsEmpty.description")}
+      />
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      {reviews.map((review) => (
-        <div
-          key={review.id}
-          className="rounded-xl border border-border bg-card p-5"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="size-10">
-                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                  {review.author.split(" ").map(n => n[0]).join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold text-foreground">{review.author}</p>
-                <p className="text-sm text-muted-foreground">{review.project}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={cn(
-                    "size-4",
-                    i < review.rating
-                      ? "text-amber-500 fill-amber-500"
-                      : "text-muted-foreground/30",
-                  )}
-                />
-              ))}
-            </div>
-          </div>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            "{review.comment}"
+    <Card>
+      <CardContent className="flex flex-col gap-5 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <RatingStars
+            value={summary.averageRating}
+            count={summary.reviewCount}
+            size="lg"
+          />
+          <p className="text-xs text-muted-foreground">
+            {t("tabs.reviewsSummary.basedOn", {
+              count: summary.reviewCount,
+            })}
           </p>
-          <p className="mt-3 text-xs text-muted-foreground/60">{review.date}</p>
         </div>
-      ))}
-    </div>
+
+        {summary.dimensionAverages ? (
+          <div className="rounded-lg border border-border/60 p-3">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("tabs.reviewsSummary.byDimension")}
+            </p>
+            <ReviewDimensionsList dimensions={summary.dimensionAverages} />
+          </div>
+        ) : null}
+
+        <p className="text-xs italic text-muted-foreground">
+          {t("tabs.reviewsSummary.listComingSoon")}
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -492,8 +481,17 @@ export function ProfilePageShell() {
   const { account, isLoading, isAuthenticated, isError, error, refetch } =
     useCurrentUser();
 
-  const [activeTab, setActiveTab] = React.useState<TabType>("posts");
-  const [showEditor, setShowEditor] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<TabType>("portfolio");
+  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
+
+  // Owner's portfolio count drives the header's "Projects" stat.
+  // We keep the call enabled as soon as we know the id, regardless of
+  // which tab is open, so the number is always fresh by the time the
+  // user clicks through.
+  const profileId = account?.serviceProvider?.id ?? null;
+  const { portfolios } = useProviderPortfolios({
+    serviceProviderProfileId: profileId,
+  });
 
   // ── Loading skeleton ────────────────────────────────────────────────────
   if (isLoading && !account) {
@@ -527,31 +525,19 @@ export function ProfilePageShell() {
     return <WrongRoleState role={account.role} />;
   }
 
-  // ── Edit Mode ──────────────────────────────────────────────────────────
-  if (showEditor) {
-    return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="font-heading text-xl font-semibold text-foreground">
-            {t("actions.editProfile")}
-          </h2>
-          <Button variant="ghost" size="sm" onClick={() => setShowEditor(false)}>
-            {t("actions.cancel")}
-          </Button>
-        </div>
-        <ProviderProfileEditor account={account} />
-      </div>
-    );
-  }
-
   // ── Render the profile ─────────────────────────────────────────────────
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-      <ProfileHeader account={account} isOwner={true} />
+      <ProfileHeader
+        account={account}
+        isOwner
+        onEdit={() => setIsEditDialogOpen(true)}
+        onOpenSettings={() => setActiveTab("brand")}
+        portfolioCount={portfolios.length}
+      />
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-      
+
       <div className="mt-6">
-        {activeTab === "posts" && <PostsGrid />}
         {activeTab === "portfolio" && (
           <PortfolioTab
             serviceProviderProfileId={account.serviceProvider.id}
@@ -559,11 +545,38 @@ export function ProfilePageShell() {
           />
         )}
         {activeTab === "brand" && (
-          <BrandTab serviceProviderProfileId={account.serviceProvider.id} editable />
+          <BrandTab
+            serviceProviderProfileId={account.serviceProvider.id}
+            editable
+          />
         )}
-        {activeTab === "projects" && <ProjectsList />}
-        {activeTab === "reviews" && <ReviewsList />}
+        {activeTab === "reviews" && (
+          <ReviewsList profileId={account.serviceProvider.id} />
+        )}
       </div>
+
+      <Dialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      >
+        <DialogContent
+          className="sm:max-w-lg"
+          // The form has its own sticky footer; suppress the built-in
+          // close button so it doesn't visually collide with the X.
+          showCloseButton={false}
+        >
+          <DialogHeader>
+            <DialogTitle>{t("actions.editProfile")}</DialogTitle>
+            <DialogDescription>
+              {t("actions.editProfileDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <ProviderProfileEditor
+            account={account}
+            onSaved={() => setIsEditDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -571,7 +584,6 @@ export function ProfilePageShell() {
 // ─── Sub-states ────────────────────────────────────────────────────────────
 
 function LoadingShell() {
-  const t = useTranslations("Profile");
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       <div className="h-56 w-full animate-pulse rounded-2xl bg-muted" />
@@ -703,26 +715,5 @@ function NoticeShell({ title, subtitle }: NoticeShellProps) {
         ) : null}
       </div>
     </div>
-  );
-}
-
-// Missing icon
-function UserPlus({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <line x1="19" x2="19" y1="8" y2="14" />
-      <line x1="22" x2="16" y1="11" y2="11" />
-    </svg>
   );
 }

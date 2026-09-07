@@ -25,12 +25,20 @@ interface AddPhaseDialogProps {
     name: string;
     category?: string;
     description?: string;
+    startAt?: string;
     estimateAt?: string;
+    estimatedLaborCost?: number;
   }) => void | Promise<void>;
 }
 
 /**
- * Modal for creating a brand-new phase. Matches ConstructionItem API payload.
+ * Modal for creating a brand-new phase. Matches `CreateConstructionItemPayload`:
+ *   • `name` — required.
+ *   • `startAt` / `estimateAt` — optional; `estimateAt` is checked client-side
+ *     for not-in-past (the server rechecks too, but failing earlier saves a
+ *     round trip).
+ *   • `estimatedLaborCost` — optional labour estimate for the milestone alone;
+ *     task labour is added on top when the cost summary rolls up.
  */
 export function AddPhaseDialog({
   open,
@@ -38,12 +46,18 @@ export function AddPhaseDialog({
   onSubmit,
 }: AddPhaseDialogProps) {
   const t = useTranslations("MilestoneManagement.addPhase");
+  const tShared = useTranslations("ConstructionShared");
 
   const [name, setName] = React.useState("");
   const [category, setCategory] = React.useState("");
   const [description, setDescription] = React.useState("");
+  const [startAt, setStartAt] = React.useState("");
   const [estimateAt, setEstimateAt] = React.useState("");
+  const [laborCostText, setLaborCostText] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
+  const [estimateAtError, setEstimateAtError] = React.useState<string | null>(
+    null,
+  );
 
   useResetOnChange(open, () => {
     if (open) {
@@ -55,14 +69,40 @@ export function AddPhaseDialog({
       setName("");
       setCategory("");
       setDescription("");
+      setStartAt("");
       setEstimateAt("");
+      setLaborCostText("");
       setSubmitting(false);
+      setEstimateAtError(null);
     }
   });
+
+  const handleEstimateAtChange = (value: string) => {
+    setEstimateAt(value);
+    if (value && value < todayDateInputValue()) {
+      setEstimateAtError(tShared("validation.estimateAtPast"));
+    } else {
+      setEstimateAtError(null);
+    }
+  };
+
+  const parsedLaborCost = React.useMemo(() => {
+    const trimmed = laborCostText.trim();
+    if (!trimmed) return undefined;
+    const parsed = Number(trimmed.replace(/[\s.,]/g, ""));
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+  }, [laborCostText]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || submitting) return;
+
+    // Re-check at submit time: the user may have typed a past date, then
+    // bumped the system clock — better to fail than to send an invalid payload.
+    if (estimateAt && estimateAt < todayDateInputValue()) {
+      setEstimateAtError(tShared("validation.estimateAtPast"));
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -70,7 +110,9 @@ export function AddPhaseDialog({
         name: name.trim(),
         category: category.trim() || undefined,
         description: description.trim() || undefined,
+        startAt: startAt || undefined,
         estimateAt: estimateAt || undefined,
+        estimatedLaborCost: parsedLaborCost,
       });
       onOpenChange(false);
     } catch {
@@ -114,12 +156,35 @@ export function AddPhaseDialog({
               rows={2}
             />
           </Field>
-          <Field label={t("targetDate")}>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={t("startDate")}>
+              <Input
+                type="date"
+                value={startAt}
+                onChange={(e) => setStartAt(e.target.value)}
+              />
+            </Field>
+            <Field
+              label={t("targetDate")}
+              error={estimateAtError ?? undefined}
+            >
+              <Input
+                type="date"
+                value={estimateAt}
+                onChange={(e) => handleEstimateAtChange(e.target.value)}
+                min={todayDateInputValue()}
+              />
+            </Field>
+          </div>
+          <Field label={t("estimatedLaborCost")} hint={t("estimatedLaborCostHint")}>
             <Input
-              type="date"
-              value={estimateAt}
-              onChange={(e) => setEstimateAt(e.target.value)}
-              min={todayDateInputValue()}
+              type="number"
+              inputMode="numeric"
+              min={0}
+              step={1000}
+              value={laborCostText}
+              onChange={(e) => setLaborCostText(e.target.value)}
+              placeholder="0"
             />
           </Field>
           <DialogFooter className="gap-2">
@@ -131,7 +196,11 @@ export function AddPhaseDialog({
             <Button
               type="submit"
               size="sm"
-              disabled={!name.trim() || submitting}
+              disabled={
+                !name.trim() ||
+                submitting ||
+                estimateAtError !== null
+              }
             >
               {t("create")}
             </Button>

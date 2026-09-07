@@ -116,8 +116,14 @@ export interface ApplyConstructionTemplatePayload {
 export interface ApplyConstructionTemplateResult {
   constructionTemplateId: string;
   projectWorkingId: string;
+  /** Number of milestones copied from the template. */
   createdItems: number;
+  /** Number of tasks copied from the template. */
   createdTasks: number;
-  /** ISO `yyyy-MM-dd` the generated schedule runs to. */
+  /**
+   * ISO `yyyy-MM-dd` the generated schedule runs to — the last item's
+   * `estimateAt` after the server has spread `EstimateDays` forward from
+   * `startDate`.
+   */
   plannedFinishAt: string;
 }

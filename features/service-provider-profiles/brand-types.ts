@@ -96,6 +96,10 @@ export interface ProviderBrand {
   website: string | null;
   brandStory: string | null;
   companyAddress: string | null;
+  /** Pair of office / workshop coordinates. Backend returns `null` for
+   *  either when no location has been set; both fields travel together. */
+  companyLatitude: number | null;
+  companyLongitude: number | null;
   foundedYear: number | null;
   employeeCount: number | null;
   yearsExperience: number | null;
@@ -114,6 +118,19 @@ export interface UpdateProviderBrandPayload {
   website?: string;
   brandStory?: string;
   companyAddress?: string;
+  /**
+   * Pair of office / workshop coordinates. Send together — the backend
+   * rejects either field without the other (`GeoCoordinates.EnsurePairValid`).
+   * To erase an existing pair, set `clearCompanyCoordinates: true` and OMIT
+   * the two fields below (the backend treats that as "set to null").
+   */
+  companyLatitude?: number;
+  companyLongitude?: number;
+  /**
+   * `true` → ask the backend to null both lat/lng. Mutually exclusive with
+   * the fields above: if you also send a new pair the request will 400.
+   */
+  clearCompanyCoordinates?: boolean;
   foundedYear?: number;
   employeeCount?: number;
 }

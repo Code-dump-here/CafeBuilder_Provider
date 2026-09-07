@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { AlertTriangle, Loader2, Plus, Trash2 } from "lucide-react";
 
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { formatVndParts } from "@/lib/format-currency";
 
 import {
   useAddConstructionMaterialMutation,
@@ -34,7 +35,7 @@ import {
   useUpdateConstructionMaterialMutation,
 } from "@/features/projects/use-materials";
 import {
-  MATERIAL_UNITS,
+  MATERIAL_UNIT_OPTIONS,
   type ConstructionMaterial,
   type MaterialUnit,
 } from "@/features/projects/material-types";
@@ -50,10 +51,8 @@ interface MaterialsDialogProps {
   milestoneStarted?: boolean;
 }
 
-/** VND, no decimals — the currency has no minor unit in practice here. */
-function formatVnd(value: number): string {
-  return new Intl.NumberFormat("vi-VN").format(Math.round(value)) + " VND";
-}
+const money = (value: number, locale: string) =>
+  formatVndParts(value, locale).full;
 
 /**
  * Materials for a milestone: the project's published price list, the lines
@@ -79,6 +78,9 @@ export function MaterialsDialog({
   milestoneStarted = false,
 }: MaterialsDialogProps) {
   const t = useTranslations("MilestoneManagement.materials");
+  const tShared = useTranslations("ConstructionShared");
+  const tUnits = useTranslations("ConstructionShared.units");
+  const locale = useLocale();
 
   const { materials, isLoading: loadingList, isError: listError } = useMaterials({
     projectWorkingId: open ? projectWorkingId : null,
@@ -98,7 +100,7 @@ export function MaterialsDialog({
 
   // New price-list row
   const [name, setName] = React.useState("");
-  const [unit, setUnit] = React.useState<MaterialUnit>("m2");
+  const [unit, setUnit] = React.useState<MaterialUnit>("md");
   const [unitPrice, setUnitPrice] = React.useState("");
 
   // New usage line
@@ -108,7 +110,8 @@ export function MaterialsDialog({
   const handleAddMaterial = async () => {
     const trimmed = name.trim();
     const price = Number(unitPrice);
-    if (!trimmed || !Number.isFinite(price) || price < 0 || !projectWorkingId) return;
+    if (!trimmed || !Number.isFinite(price) || price < 0 || !projectWorkingId)
+      return;
 
     await createMaterial.mutateAsync({
       projectWorkingId: String(projectWorkingId),
@@ -135,9 +138,9 @@ export function MaterialsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-5xl gap-6 p-6">
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogTitle className="text-base">{t("title")}</DialogTitle>
           <DialogDescription>
             {milestoneLabel
               ? t("subtitleWithPhase", { phase: milestoneLabel })
@@ -154,24 +157,32 @@ export function MaterialsDialog({
 
         {/* ── Cost roll-up ─────────────────────────────────────────── */}
         {cost && (
-          <div className="grid grid-cols-2 gap-3 rounded-md border p-3 sm:grid-cols-3">
-            <Figure label={t("ownLines")} value={formatVnd(cost.ownEstimatedCost)} />
-            <Figure label={t("taskLines")} value={formatVnd(cost.tasksEstimatedCost)} />
+          <div className="grid grid-cols-2 gap-3 rounded-md border p-4 sm:grid-cols-4">
+            <Figure
+              label={t("ownLines")}
+              value={money(cost.ownEstimatedCost, locale)}
+            />
+            <Figure
+              label={t("taskLines")}
+              value={money(cost.tasksEstimatedCost, locale)}
+            />
             <Figure
               label={t("estimatedCost")}
-              value={formatVnd(cost.totalEstimatedCost)}
+              value={money(cost.totalEstimatedCost, locale)}
               emphasis
             />
-            <div className="col-span-2 sm:col-span-3">
+            <div className="flex flex-col gap-1">
               <p className="text-xs text-muted-foreground">{t("actualCost")}</p>
               <p className="text-sm font-medium tabular-nums">
                 {cost.totalActualCost === null
-                  ? t("actualUnavailable")
-                  : formatVnd(cost.totalActualCost)}
+                  ? tShared("cost.unavailable")
+                  : money(cost.totalActualCost, locale)}
               </p>
               {cost.missingActualCount > 0 && (
                 <p className="text-xs text-amber-600 dark:text-amber-400">
-                  {t("actualPending", { count: cost.missingActualCount })}
+                  {tShared("cost.missingLines", {
+                    count: cost.missingActualCount,
+                  })}
                 </p>
               )}
             </div>
@@ -188,9 +199,11 @@ export function MaterialsDialog({
               {t("loading")}
             </div>
           ) : lines.length === 0 ? (
-            <p className="py-2 text-sm text-muted-foreground">{t("usageEmpty")}</p>
+            <p className="py-2 text-sm text-muted-foreground">
+              {t("usageEmpty")}
+            </p>
           ) : (
-            <ScrollArea className="max-h-[28vh] pr-3">
+            <ScrollArea className="max-h-[40vh] pr-3">
               <ul className="flex flex-col gap-2">
                 {lines.map((line) => (
                   <UsageRow
@@ -205,21 +218,24 @@ export function MaterialsDialog({
                     }
                     onRemove={() => removeUsage.mutate(line.id)}
                     saving={updateUsage.isPending || removeUsage.isPending}
+                    t={t}
+                    tShared={tShared}
+                    moneyFn={(n) => money(n, locale)}
                   />
                 ))}
               </ul>
             </ScrollArea>
           )}
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             <Select value={materialId} onValueChange={setMaterialId}>
-              <SelectTrigger className="w-[220px]">
+              <SelectTrigger className="min-w-[260px] flex-1 sm:max-w-sm">
                 <SelectValue placeholder={t("pickMaterial")} />
               </SelectTrigger>
               <SelectContent>
                 {materials.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {m.name} — {formatVnd(m.unitPrice)}/{m.unit}
+                    {m.name} — {money(m.unitPrice, locale)}/{tUnits(m.unit)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -232,7 +248,7 @@ export function MaterialsDialog({
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               placeholder={t("estimated")}
-              className="w-28"
+              className="w-32"
             />
 
             <Button
@@ -263,9 +279,11 @@ export function MaterialsDialog({
               {t("loading")}
             </div>
           ) : materials.length === 0 ? (
-            <p className="py-2 text-sm text-muted-foreground">{t("priceListEmpty")}</p>
+            <p className="py-2 text-sm text-muted-foreground">
+              {t("priceListEmpty")}
+            </p>
           ) : (
-            <ScrollArea className="max-h-[22vh] pr-3">
+            <ScrollArea className="max-h-[32vh] pr-3">
               <ul className="flex flex-col gap-1">
                 {materials.map((m) => (
                   <li
@@ -275,7 +293,7 @@ export function MaterialsDialog({
                     <span className="min-w-0 truncate">{m.name}</span>
                     <span className="flex items-center gap-3">
                       <span className="tabular-nums text-muted-foreground">
-                        {formatVnd(m.unitPrice)}/{m.unit}
+                        {money(m.unitPrice, locale)}/{tUnits(m.unit)}
                       </span>
                       <Button
                         type="button"
@@ -302,14 +320,17 @@ export function MaterialsDialog({
               className="min-w-[180px] flex-1"
             />
 
-            <Select value={unit} onValueChange={(v) => setUnit(v as MaterialUnit)}>
+            <Select
+              value={unit}
+              onValueChange={(v) => setUnit(v as MaterialUnit)}
+            >
               <SelectTrigger className="w-[110px]">
                 <SelectValue placeholder={t("unit")} />
               </SelectTrigger>
               <SelectContent>
-                {MATERIAL_UNITS.map((u) => (
-                  <SelectItem key={u} value={u}>
-                    {u}
+                {MATERIAL_UNIT_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {tUnits(opt.value)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -359,7 +380,9 @@ function Figure({
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className={cn("text-sm tabular-nums", emphasis && "font-semibold")}>{value}</p>
+      <p className={cn("text-sm tabular-nums", emphasis && "font-semibold")}>
+        {value}
+      </p>
     </div>
   );
 }
@@ -370,21 +393,31 @@ function UsageRow({
   onSaveActual,
   onRemove,
   saving,
+  t,
+  tShared,
+  moneyFn,
 }: {
   line: ConstructionMaterial;
   canRecordActual: boolean;
   onSaveActual: (actual: number) => void;
   onRemove: () => void;
   saving: boolean;
+  t: ReturnType<typeof useTranslations<"MilestoneManagement.materials">>;
+  tShared: ReturnType<typeof useTranslations<"ConstructionShared">>;
+  moneyFn: (n: number) => string;
 }) {
-  const t = useTranslations("MilestoneManagement.materials");
-  const [draft, setDraft] = React.useState(
-    line.actualQuantity === null ? "" : String(line.actualQuantity),
+  // Track the upstream value we last mirrored into the draft. Only when
+  // it changes do we re-sync; otherwise we'd reset the user's in-progress
+  // edit on every render of the parent.
+  const lastActualRef = React.useRef<number | null>(line.actualQuantity);
+  const [draft, setDraft] = React.useState<string>(
+    () =>
+      line.actualQuantity === null ? "" : String(line.actualQuantity),
   );
 
-  // Keep the field in step when the server value changes under us (another
-  // tab, a refetch) — without this the input keeps a stale local edit.
   React.useEffect(() => {
+    if (line.actualQuantity === lastActualRef.current) return;
+    lastActualRef.current = line.actualQuantity;
     setDraft(line.actualQuantity === null ? "" : String(line.actualQuantity));
   }, [line.actualQuantity]);
 
@@ -397,14 +430,16 @@ function UsageRow({
 
   return (
     <li className="flex flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-sm">
-      <span className="min-w-0 flex-1 truncate font-medium">{line.materialName}</span>
+      <span className="min-w-0 flex-1 truncate font-medium">
+        {line.materialName}
+      </span>
 
       <span className="tabular-nums text-muted-foreground">
         {t("estimated")}: {line.estimatedQuantity} {line.unit}
       </span>
 
       <span className="tabular-nums text-muted-foreground">
-        {formatVnd(line.estimatedCost)}
+        {moneyFn(line.estimatedCost)}
       </span>
 
       <span className="flex items-center gap-1">
@@ -414,7 +449,9 @@ function UsageRow({
           step="any"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder={canRecordActual ? t("actualPlaceholder") : t("actualLocked")}
+          placeholder={
+            canRecordActual ? t("actualPlaceholder") : t("actualLocked")
+          }
           disabled={!canRecordActual || saving}
           title={canRecordActual ? undefined : t("actualLocked")}
           className="w-32"
@@ -440,6 +477,20 @@ function UsageRow({
       >
         <Trash2 className="h-4 w-4" />
       </Button>
+
+      {/* Surface the snapshot-vs-list distinction explicitly: a line's
+          price is locked at selection time, so the price list rate is
+          not what was applied here. */}
+      <p className="basis-full text-[10px] text-muted-foreground">
+        {t("priceNote")}
+      </p>
+      {/* `tShared` is plumbed for the upcoming actualCost label that
+          distinguishes "0 because nothing was used" from "null because
+          the row hasn't been reconciled" — keep the prop so the
+          signature stays stable. */}
+      <span className="hidden" aria-hidden>
+        {tShared("cost.labor")}
+      </span>
     </li>
   );
 }

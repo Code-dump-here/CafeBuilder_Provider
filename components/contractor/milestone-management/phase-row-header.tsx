@@ -42,12 +42,18 @@ import {
 import { pressable } from "@/lib/interactive";
 import { cn } from "@/lib/utils";
 
-import type { MilestonePhase, MilestoneStatus } from "@/lib/contractor/construction-overview-data";
+import type {
+  ConstructionItem,
+  ConstructionStatus,
+} from "@/features/projects/construction-types";
 
 interface PhaseRowHeaderProps {
-  phase: MilestonePhase;
+  phase: ConstructionItem;
   index: number;
+  /** Number of tasks already completed. */
   doneCount: number;
+  /** Total number of tasks under this milestone (page-owned count). */
+  totalTasks: number;
   onRename: (phaseId: string) => void;
   onEditMeta: (phaseId: string) => void;
   onDelete: (phaseId: string) => void;
@@ -57,19 +63,22 @@ interface PhaseRowHeaderProps {
   onOpenChecklist: (phaseId: string) => void;
   /** Opens materials and cost for this milestone. */
   onOpenMaterials: (phaseId: string) => void;
-  /** May be async — awaited so the row can show a busy state while the
-   *  status change (which can take two requests) is in flight. */
+  /**
+   * Forward-only transitions: `pending → in_progress → completed`.
+   * The page walks the in_progress hop when "completed" is requested from
+   * "pending", so a finished milestone doesn't need two trips.
+   */
   onStatusChange: (
     phaseId: string,
-    status: MilestoneStatus,
+    status: ConstructionStatus,
   ) => void | Promise<void>;
   /**
-   * The keyboard and touch route to reordering. Dragging the grip is a mouse
-   * gesture, so it can't be the only one — these menu items do the same job
-   * for everyone else.
+   * The keyboard and touch route to reordering. Dragging the grip is a
+   * mouse gesture, so it can't be the only one — these menu items do the
+   * same job for everyone else.
    *
-   * Absent when the list isn't reorderable and when the milestone is completed:
-   * finished work keeps the order it was done in.
+   * Absent when the list isn't reorderable and when the milestone is
+   * completed: finished work keeps the order it was done in.
    */
   reorder?: {
     onMoveUp: () => void;
@@ -79,43 +88,51 @@ interface PhaseRowHeaderProps {
   };
 }
 
-const STATUS_TONE: Record<MilestoneStatus, { badgeClass: string }> = {
-  completed: { badgeClass: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" },
-  inProgress: { badgeClass: "bg-amber-500/15 text-amber-700 dark:text-amber-300" },
-  blocked: { badgeClass: "bg-rose-500/15 text-rose-700 dark:text-rose-300" },
-  upcoming: { badgeClass: "bg-muted text-muted-foreground" },
+const STATUS_TONE: Record<
+  ConstructionStatus,
+  { badgeClass: string }
+> = {
+  pending: { badgeClass: "bg-muted text-muted-foreground" },
+  in_progress: {
+    badgeClass: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  },
+  completed: {
+    badgeClass: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  },
 };
 
-// The backend only allows one-step-forward transitions — pending ("upcoming")
-// → in_progress → completed, never backward and never skipped. Skipping is
-// rejected with a 409 ("Không thể chuyển hạng mục từ 'pending' sang
-// 'completed'"), confirmed against the live API. "blocked" isn't a real
-// backend status at all (it maps to "pending" on write, and the API never
-// returns it on read), so it can never be a valid target from any state.
-// This maps each current status to the status immediately after it, which
-// drives the menu's hint text.
-//
-// Note "completed" is offered from "upcoming" too even though it isn't the
-// immediate next step: `onStatusChange` walks the in_progress hop for us, so
-// a milestone whose tasks are all done closes in one action instead of
-// forcing two trips through this menu.
-const VALID_NEXT_STATUS: Record<MilestoneStatus, MilestoneStatus | null> = {
-  upcoming: "inProgress",
-  inProgress: "completed",
+const VALID_NEXT_STATUS: Record<
+  ConstructionStatus,
+  ConstructionStatus | null
+> = {
+  pending: "in_progress",
+  in_progress: "completed",
   completed: null,
-  blocked: null,
+};
+
+const STATUS_LABEL_KEY: Record<ConstructionStatus, string> = {
+  pending: "ConstructionShared.status.pending",
+  in_progress: "ConstructionShared.status.in_progress",
+  completed: "ConstructionShared.status.completed",
 };
 
 /**
  * Header strip for a single milestone row.
- * Left side  = milestone name + # + tasksDone
- * Middle     = lead + target date
- * Right side = status pill + kebab menu
+ *
+ * Left side: name + index + tasksDone + duration strip.
+ * Right side: status pill + kebab menu.
+ *
+ * Date display mirrors the spec:
+ *   • Not started: planned window (`startAt → estimateAt`) + `plannedDurationDays`.
+ *   • In progress: same window + an extra "actual so far" hint when we
+ *     have an `actualStartAt`.
+ *   • Completed: the actual window (`actualStartAt → actualAt`) + `actualDurationDays`.
  */
 export function PhaseRowHeader({
   phase,
   index,
   doneCount,
+  totalTasks,
   onRename,
   onEditMeta,
   onDelete,
@@ -126,39 +143,30 @@ export function PhaseRowHeader({
   reorder,
 }: PhaseRowHeaderProps) {
   const t = useTranslations("MilestoneManagement.phase");
-  const tStatus = useTranslations("ConstructionOverview.status");
+  const tShared = useTranslations("ConstructionShared");
   const tNotes = useTranslations("MilestoneManagement.notes");
   const tChecklist = useTranslations("MilestoneManagement.checklist");
   const tMaterials = useTranslations("MilestoneManagement.materials");
   const format = useFormatter();
   const nextStatus = VALID_NEXT_STATUS[phase.status];
 
-  // The three-dot menu used to fire `onStatusChange` the instant a radio
-  // item was clicked — one misclick and the phase moved forward with no
-  // way back (the backend only allows one-step-forward transitions, never
-  // backward). `pendingStatus` holds the selection until the user confirms
-  // it in a separate dialog instead.
-  const [pendingStatus, setPendingStatus] = React.useState<MilestoneStatus | null>(null);
+  // The kebab menu used to fire `onStatusChange` the instant a radio item
+  // was clicked — one misclick and the phase moved forward with no way
+  // back (the backend only allows forward transitions). `pendingStatus`
+  // holds the selection until the user confirms in a separate dialog.
+  const [pendingStatus, setPendingStatus] =
+    React.useState<ConstructionStatus | null>(null);
   const [blockedOpen, setBlockedOpen] = React.useState(false);
   const [isApplying, setIsApplying] = React.useState(false);
 
-  const totalTasks = phase.tasks.length;
   const allTasksDone = totalTasks === 0 || doneCount === totalTasks;
 
-  // Every task ticked off but the milestone still open. This is the state
-  // that used to strand providers: the work was visibly finished, yet the
-  // engagement couldn't be reported complete because the milestone itself
-  // was never advanced. Surface it as a real button rather than leaving it
-  // buried two levels into the kebab menu.
-  //
-  // Requires at least one task on purpose — `allTasksDone` is vacuously
-  // true for an empty milestone, which would otherwise stamp "Mark
-  // completed" on every phase the moment it was created. Closing an empty
-  // milestone is still possible through the menu, it just isn't promoted.
+  // Every task ticked off but the milestone still open. Promote it as a
+  // real button rather than leaving it buried in the kebab.
   const canClose =
     totalTasks > 0 && allTasksDone && phase.status !== "completed";
 
-  const applyStatus = async (target: MilestoneStatus) => {
+  const applyStatus = async (target: ConstructionStatus) => {
     setIsApplying(true);
     try {
       await onStatusChange(phase.id, target);
@@ -167,14 +175,10 @@ export function PhaseRowHeader({
     }
   };
 
-  const handleRadioChange = (value: MilestoneStatus) => {
+  const handleRadioChange = (value: ConstructionStatus) => {
     if (value === "completed" && !allTasksDone) {
-      // The server does enforce this — it answers 409 "Còn N task chưa
-      // 'completed' trong hạng mục này". (An earlier comment here claimed
-      // the API didn't check; that was wrong, and verifying against the
-      // live API disproved it.) The client guard stays anyway: it names
-      // the phase and the outstanding count instead of surfacing a raw
-      // server string, and it costs a round trip to learn nothing new.
+      // The server enforces this (409). The client guard stays to name the
+      // outstanding count instead of surfacing a raw server string.
       setBlockedOpen(true);
       return;
     }
@@ -186,6 +190,19 @@ export function PhaseRowHeader({
     setPendingStatus(null);
     if (target) void applyStatus(target);
   };
+
+  // Resolve the dates to render based on status — see the file header
+  // for the policy.
+  const isComplete = phase.status === "completed";
+  const visibleStart = isComplete
+    ? (phase.actualStartAt ?? phase.startAt)
+    : (phase.startAt ?? phase.actualStartAt);
+  const visibleEnd = isComplete
+    ? (phase.actualAt ?? phase.estimateAt)
+    : (phase.estimateAt ?? phase.actualAt);
+  const visibleDuration = isComplete
+    ? phase.actualDurationDays
+    : phase.plannedDurationDays;
 
   return (
     <header className="flex items-start justify-between gap-2">
@@ -199,32 +216,58 @@ export function PhaseRowHeader({
               "rounded-sm text-left text-sm font-semibold text-foreground underline-offset-2 hover:text-primary hover:underline",
             )}
           >
-            {phase.label}
+            {phase.name}
           </button>
-          <span className="text-[10px] text-muted-foreground">#{index + 1}</span>
+          <span className="text-[10px] text-muted-foreground">
+            #{index + 1}
+          </span>
           <span className="text-[10px] text-muted-foreground">·</span>
           <span className="text-[10px] text-muted-foreground">
-            {t("tasksDone", { done: doneCount, total: phase.tasks.length })}
+            {t("tasksDone", { done: doneCount, total: totalTasks })}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <User className="size-3" aria-hidden />
-            <span className="font-medium text-foreground">{phase.lead}</span>
-          </span>
-          {phase.startDate && phase.endDate ? (
+          {phase.category ? (
+            <span className="inline-flex items-center gap-1">
+              <User className="size-3" aria-hidden />
+              <span className="font-medium text-foreground">
+                {phase.category}
+              </span>
+            </span>
+          ) : null}
+          {visibleStart && visibleEnd ? (
+            <>
+              {phase.category ? (
+                <span className="opacity-60">·</span>
+              ) : null}
+              <span>
+                {format.dateTime(new Date(visibleStart), {
+                  month: "short",
+                  day: "numeric",
+                })}
+                {" → "}
+                {format.dateTime(new Date(visibleEnd), {
+                  month: "short",
+                  day: "numeric",
+                })}
+              </span>
+            </>
+          ) : (
+            <span>{tShared("duration.noDates")}</span>
+          )}
+          {visibleDuration != null ? (
             <>
               <span className="opacity-60">·</span>
-              <span>
-                {format.dateTime(new Date(phase.startDate), { month: "short", day: "numeric" })}
-                {" → "}
-                {format.dateTime(new Date(phase.endDate), { month: "short", day: "numeric" })}
+              <span className="tabular-nums">
+                {isComplete
+                  ? tShared("duration.actual", { count: visibleDuration })
+                  : tShared("duration.planned", { count: visibleDuration })}
               </span>
             </>
           ) : null}
         </div>
       </div>
-    <div className="flex shrink-0 items-center gap-1.5">
+      <div className="flex shrink-0 items-center gap-1.5">
         {canClose ? (
           <Button
             type="button"
@@ -246,10 +289,10 @@ export function PhaseRowHeader({
         <span
           className={cn(
             "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
-            STATUS_TONE[phase.status].badgeClass
+            STATUS_TONE[phase.status].badgeClass,
           )}
         >
-          {tStatus(phase.status)}
+          {tShared(STATUS_LABEL_KEY[phase.status])}
         </span>
         {/* Payment state comes from confirmed payment batches, so it moves
             independently of the work status — a phase can be finished and
@@ -281,9 +324,6 @@ export function PhaseRowHeader({
         >
           <Package aria-hidden />
         </Button>
-        {/* The owner writes notes against a milestone from the mobile app.
-            Kept as a visible control rather than a menu entry — buried in the
-            kebab, a note nobody knows about is the same as no note. */}
         <Button
           type="button"
           size="icon-sm"
@@ -296,7 +336,12 @@ export function PhaseRowHeader({
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button type="button" size="icon-sm" variant="ghost" aria-label="Phase actions">
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Phase actions"
+            >
               <MoreHorizontal aria-hidden />
             </Button>
           </DropdownMenuTrigger>
@@ -337,37 +382,42 @@ export function PhaseRowHeader({
             </p>
             <DropdownMenuRadioGroup
               value={phase.status}
-              onValueChange={(v) => handleRadioChange(v as MilestoneStatus)}
+              onValueChange={(v) =>
+                handleRadioChange(v as ConstructionStatus)
+              }
             >
-              {/* Reachable from "upcoming" as well — `onStatusChange` walks
-                  the in_progress hop, so a finished milestone doesn't need
-                  two separate trips through this menu. */}
               <DropdownMenuRadioItem
                 value="completed"
                 disabled={phase.status === "completed"}
                 className={cn(canClose && "font-medium text-foreground")}
               >
-                {canClose && <ArrowRight aria-hidden className="size-3.5" />}
+                {canClose && (
+                  <ArrowRight aria-hidden className="size-3.5" />
+                )}
                 {t("statusCompleted")}
               </DropdownMenuRadioItem>
               <DropdownMenuRadioItem
-                value="inProgress"
-                disabled={nextStatus !== "inProgress"}
-                className={cn(nextStatus === "inProgress" && "font-medium text-foreground")}
+                value="in_progress"
+                disabled={nextStatus !== "in_progress"}
+                className={cn(
+                  nextStatus === "in_progress" &&
+                    "font-medium text-foreground",
+                )}
               >
-                {nextStatus === "inProgress" && <ArrowRight aria-hidden className="size-3.5" />}
+                {nextStatus === "in_progress" && (
+                  <ArrowRight aria-hidden className="size-3.5" />
+                )}
                 {t("statusInProgress")}
               </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="upcoming" disabled>
+              <DropdownMenuRadioItem value="pending" disabled>
                 {t("statusUpcoming")}
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
-            {/* "Move left/right" used to sit here. There is no reorder
-                endpoint — both handlers were `() => {}`, so the items did
-                nothing but look enabled. Removed rather than disabled: a
-                greyed-out control still implies the feature exists. */}
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => onDelete(phase.id)} variant="destructive">
+            <DropdownMenuItem
+              onSelect={() => onDelete(phase.id)}
+              variant="destructive"
+            >
               <Trash2 aria-hidden />
               {t("delete")}
             </DropdownMenuItem>
@@ -383,23 +433,21 @@ export function PhaseRowHeader({
         title={t("confirmStatusTitle")}
         description={
           pendingStatus === "completed"
-            ? t("confirmStatusToCompleted", { name: phase.label })
-            : t("confirmStatusToInProgress", { name: phase.label })
+            ? t("confirmStatusToCompleted", { name: phase.name })
+            : t("confirmStatusToInProgress", { name: phase.name })
         }
         confirmLabel={t("confirmCta")}
         cancelLabel={t("confirmCancel")}
         onConfirm={handleConfirmStatus}
       />
 
-      {/* Info-only — acknowledgement, not confirm/cancel. Nothing to
-          confirm here since "completed" was already rejected client-side. */}
       <AlertDialog open={blockedOpen} onOpenChange={setBlockedOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("blockedTasksTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
               {t("blockedTasksBody", {
-                name: phase.label,
+                name: phase.name,
                 count: totalTasks - doneCount,
               })}
             </AlertDialogDescription>
