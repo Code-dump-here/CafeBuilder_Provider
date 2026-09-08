@@ -2,24 +2,20 @@
 
 import * as React from "react";
 import {
-  MapPin,
   Mail,
   Link2,
   Calendar,
   Edit3,
-  Settings,
   Star,
   Shield,
   Briefcase,
   Award,
-  Users,
   Grid3X3,
   List,
   Heart,
   MessageCircle,
   Share2,
   MoreHorizontal,
-  Camera,
   Check,
   Loader2,
   TriangleAlert,
@@ -49,9 +45,14 @@ interface ProfileHeaderProps {
    *  account record. */
   account: Pick<NormalizedAccount, "email" | "serviceProvider">;
   isOwner: boolean;
+  /** Opens the profile editor. Threaded down from `ProfilePageShell`, which
+   *  owns the `showEditor` state. Without this the "Edit profile" button was
+   *  inert and `ProviderProfileEditor` was unreachable — a provider had no
+   *  way to edit their own profile at all. */
+  onEditProfile?: () => void;
 }
 
-function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
+function ProfileHeader({ account, isOwner, onEditProfile }: ProfileHeaderProps) {
   const t = useTranslations("Profile");
   const sp = account.serviceProvider;
 
@@ -112,16 +113,13 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
         
-        {isOwner && (
-          <Button
-            variant="secondary"
-            size="sm"
-            className="absolute bottom-4 right-4 gap-2 bg-white/90 backdrop-blur-sm hover:bg-white"
-          >
-            <Camera className="size-4" />
-            {t("actions.changeCover")}
-          </Button>
-        )}
+        {/*
+          "Change cover", the avatar edit pencil and "Settings" were all
+          removed: none had a handler, and there is no cover upload, no avatar
+          field on the account API and no settings screen to wire them to.
+          "Edit profile" below is the one that now works, and it covers what a
+          provider actually came here to do.
+        */}
       </div>
 
       {/* Profile Info Section */}
@@ -140,15 +138,6 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
                 <Check className="size-4 text-primary-foreground" />
               </div>
             )}
-            {isOwner && (
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute -bottom-1 -right-1 size-8 rounded-full shadow-e2"
-              >
-                <Edit3 className="size-4" />
-              </Button>
-            )}
           </div>
         </div>
 
@@ -156,11 +145,7 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
         <div className="flex justify-end gap-2 pt-4 sm:pt-6">
           {isOwner ? (
             <>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Settings className="size-4" />
-                {t("actions.settings")}
-              </Button>
-              <Button size="sm" className="gap-2">
+              <Button size="sm" className="gap-2" onClick={onEditProfile}>
                 <Edit3 className="size-4" />
                 {t("actions.editProfile")}
               </Button>
@@ -210,10 +195,6 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
         {/* Meta Info */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground sm:justify-start">
           <div className="flex items-center gap-1.5">
-            <MapPin className="size-4" />
-            <span>Vietnam</span>
-          </div>
-          <div className="flex items-center gap-1.5">
             <Link2 className="size-4" />
             <a href="#" className="hover:text-primary hover:underline">
               portfolio.com
@@ -221,34 +202,28 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
           </div>
           <div className="flex items-center gap-1.5">
             <Calendar className="size-4" />
-            <span>Joined {memberSince}</span>
+            <span>{t("stats.joined", { date: memberSince })}</span>
           </div>
         </div>
 
         {/* Stats */}
         <div className="mt-6 flex items-center justify-center gap-8 border-t border-border pt-6 sm:justify-start">
-          <div className="text-center sm:text-left">
-            <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-              <Briefcase className="size-5 text-primary" />
-              <span className="text-xl font-bold text-foreground">24</span>
-            </div>
-            <span className="text-xs text-muted-foreground">Projects</span>
-          </div>
-          <div className="text-center sm:text-left">
-            <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-              <Users className="size-5 text-primary" />
-              <span className="text-xl font-bold text-foreground">1.2k</span>
-            </div>
-            <span className="text-xs text-muted-foreground">Followers</span>
-          </div>
+          {/*
+            A "24 Projects" and "1.2k Followers" pair used to sit here with
+            those figures written in as literals — every provider saw the
+            same two numbers presented as their own. Neither has a data
+            source: the account profile carries no project count, and the
+            schema has no notion of followers at all. Removed rather than
+            translated; inventing a user's stats is worse than omitting them.
+          */}
           <div className="text-center sm:text-left">
             <div className="flex items-center gap-1.5 justify-center sm:justify-start">
               <Star className="size-5 text-amber-500 fill-amber-500" />
               <span className="text-xl font-bold text-foreground">
-                {sp.avgRating?.toFixed(1) ?? "New"}
+                {sp.avgRating?.toFixed(1) ?? t("stats.newRating")}
               </span>
             </div>
-            <span className="text-xs text-muted-foreground">Rating</span>
+            <span className="text-xs text-muted-foreground">{t("stats.rating")}</span>
           </div>
           {sp.yearsExperience !== null && sp.yearsExperience > 0 && (
             <div className="text-center sm:text-left">
@@ -258,7 +233,9 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
                   {sp.yearsExperience}
                 </span>
               </div>
-              <span className="text-xs text-muted-foreground">Years Exp.</span>
+              <span className="text-xs text-muted-foreground">
+                {t("stats.yearsExperience")}
+              </span>
             </div>
           )}
         </div>
@@ -530,7 +507,7 @@ export function ProfilePageShell() {
   // ── Edit Mode ──────────────────────────────────────────────────────────
   if (showEditor) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="font-heading text-xl font-semibold text-foreground">
             {t("actions.editProfile")}
@@ -547,7 +524,11 @@ export function ProfilePageShell() {
   // ── Render the profile ─────────────────────────────────────────────────
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-      <ProfileHeader account={account} isOwner={true} />
+      <ProfileHeader
+        account={account}
+        isOwner={true}
+        onEditProfile={() => setShowEditor(true)}
+      />
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       
       <div className="mt-6">

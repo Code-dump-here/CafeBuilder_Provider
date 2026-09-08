@@ -31,7 +31,7 @@ export function DefinitionRow({
         className,
       )}
     >
-      <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
       <p className="text-sm font-medium text-foreground break-words">

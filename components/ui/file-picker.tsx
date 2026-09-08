@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { validateUploadFile } from "@/lib/upload-constraints";
 
 export interface FilePickerProps {
   /** Ties an outer <label htmlFor> to the real input. */
@@ -24,6 +26,17 @@ export interface FilePickerProps {
     remove: string;
   };
   className?: string;
+  /**
+   * Validate against the image-only endpoint (POST /api/files/images) rather
+   * than the general one. Must match whichever endpoint the caller uploads to.
+   */
+  imageOnly?: boolean;
+  /**
+   * Called instead of `onSelect` when the pick fails the server's own rules,
+   * with a ready translated message. Without a handler the file is still
+   * rejected — the caller just says nothing about it.
+   */
+  onReject?: (message: string) => void;
 }
 
 /**
@@ -48,12 +61,35 @@ export function FilePicker({
   hideClear,
   labels,
   className,
+  imageOnly = false,
+  onReject,
 }: FilePickerProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const tUpload = useTranslations("Upload");
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const picked = event.target.files?.[0];
-    if (picked) onSelect(picked);
+    if (!picked) return;
+
+    // `accept` is a hint, not a gate: the OS dialog lets the user switch to
+    // "All files", and a drag-and-drop never consults it at all. Without this
+    // the first real check happened on the server, after the whole file had
+    // been uploaded.
+    const check = validateUploadFile(picked, { imageOnly });
+    if (!check.ok) {
+      onReject?.(
+        check.reason === "too-large"
+          ? tUpload("tooLarge", { sizeMb: check.sizeMb, limitMb: check.limitMb })
+          : check.reason === "bad-type"
+            ? tUpload("badType", { extension: check.extension, allowed: check.allowed })
+            : tUpload("empty"),
+      );
+      // Clear it, or re-picking the same corrected file fires no change event.
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+
+    onSelect(picked);
   };
 
   const handleClear = () => {

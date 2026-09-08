@@ -39,7 +39,7 @@ export function PricingPage() {
           <CreditCard aria-hidden className="size-3.5 text-primary" />
           {t("header.eyebrow")}
         </span>
-        <h1 className="font-heading text-3xl leading-[1.1] tracking-tight text-foreground md:text-4xl">
+        <h1 className="font-heading text-3xl font-bold leading-[1.1] tracking-tight text-foreground md:text-4xl">
           {t("header.title")}
         </h1>
         <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
@@ -71,7 +71,7 @@ function WrongRoleNotice() {
   const t = useTranslations("Payments.states");
   return (
     <div className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-6 text-center md:p-8">
-      <h2 className="font-heading text-lg text-foreground md:text-xl">
+      <h2 className="font-heading text-lg font-semibold text-foreground md:text-xl">
         {t("wrongRoleTitle")}
       </h2>
       <p className="mx-auto max-w-md text-xs leading-relaxed text-muted-foreground md:text-sm">

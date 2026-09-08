@@ -114,7 +114,7 @@ export function MyProjectsFilterTabs({
             {showCount ? (
               <span
                 className={cn(
-                  "ms-1 rounded-full px-1.5 text-[10px] font-semibold",
+                  "ms-1 rounded-full px-1.5 text-[11px] font-semibold",
                   isActive
                     ? "bg-primary-foreground/20 text-primary-foreground"
                     : "bg-muted text-muted-foreground",

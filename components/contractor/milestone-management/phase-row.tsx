@@ -145,7 +145,7 @@ export function PhaseRow(props: PhaseRowProps) {
       {/* Tasks indented below the milestone name */}
       <div className="flex flex-col gap-1.5 pl-4 sm:pl-10">
         {phase.tasks.length === 0 ? (
-          <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-3 text-[11px] text-muted-foreground">
+          <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-3 text-[12px] text-muted-foreground">
             {t("noTasks")}
           </p>
         ) : (

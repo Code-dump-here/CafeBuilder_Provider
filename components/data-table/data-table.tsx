@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import {
@@ -235,7 +236,7 @@ function DataTableHeaderCell<T>({
     return (
       <TableHead
         className={cn(
-          "h-8 bg-muted/40 text-[10px] font-medium uppercase tracking-wide text-muted-foreground",
+          "h-8 bg-muted/40 text-[11px] font-medium uppercase tracking-wide text-muted-foreground",
           align === "right" && "text-right",
           align === "center" && "text-center",
           column.widthClass,
@@ -249,7 +250,7 @@ function DataTableHeaderCell<T>({
   return (
     <TableHead
       className={cn(
-        "h-8 bg-muted/40 text-[10px] font-medium uppercase tracking-wide text-muted-foreground",
+        "h-8 bg-muted/40 text-[11px] font-medium uppercase tracking-wide text-muted-foreground",
         align === "right" && "text-right",
         align === "center" && "text-center",
         column.widthClass,
@@ -385,6 +386,7 @@ function ClickableRow({
   onClick?: () => void;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("DataTable");
   const router = useRouter();
   const isLink = href !== null;
 
@@ -407,14 +409,18 @@ function ClickableRow({
     <TableRow
       role={isLink ? "link" : "button"}
       tabIndex={0}
+      // The row semantics here were already right — role, tabIndex and an
+      // Enter/Space handler — but the accessible name was hardcoded English,
+      // so a Vietnamese screen-reader user heard "Open <Vietnamese project
+      // name>" in the middle of an otherwise translated page.
       aria-label={
         label
           ? isLink
-            ? `Open ${label}`
-            : `Select ${label}`
+            ? t("openRow", { label })
+            : t("selectRow", { label })
           : isLink
-            ? "Open"
-            : "Select"
+            ? t("open")
+            : t("select")
       }
       onClick={go}
       onKeyDown={onKeyDown}

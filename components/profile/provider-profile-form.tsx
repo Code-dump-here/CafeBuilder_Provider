@@ -155,7 +155,7 @@ function VerificationPill({ isVerified, label }: VerificationPillProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[12px] font-medium",
         isVerified
           ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
           : "border-border bg-muted/40 text-muted-foreground",
@@ -319,7 +319,7 @@ export function ProviderProfileForm({
             }
           />
           {typeof avgRating === "number" && avgRating > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-0.5 text-[11px] font-medium text-foreground">
+            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-0.5 text-[12px] font-medium text-foreground">
               ★ {avgRating.toFixed(2)}
             </span>
           ) : null}

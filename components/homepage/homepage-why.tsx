@@ -64,7 +64,7 @@ export function HomepageWhy() {
   return (
     <section className="bg-background py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <Reveal as="h2" className="max-w-2xl font-heading text-3xl leading-[1.1] tracking-tight text-foreground md:text-4xl">
+        <Reveal as="h2" className="max-w-2xl font-heading text-3xl font-semibold leading-[1.1] tracking-tight text-foreground md:text-4xl">
           {t("title")}
         </Reveal>
         <Reveal
@@ -86,7 +86,7 @@ export function HomepageWhy() {
           >
             <div className="relative z-10 flex h-full flex-col justify-between gap-6">
               <div className="flex flex-col gap-2">
-                <h3 className={cn("font-heading text-2xl md:text-3xl", TONE_FOREGROUND[items[0]!.tone])}>
+                <h3 className={cn("font-heading text-2xl font-semibold md:text-3xl", TONE_FOREGROUND[items[0]!.tone])}>
                   {items[0]!.title}
                 </h3>
                 <p
@@ -101,7 +101,7 @@ export function HomepageWhy() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] uppercase tracking-[0.18em] opacity-70">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] opacity-70">
                   Live in platform
                 </span>
               </div>
@@ -157,7 +157,7 @@ export function HomepageWhy() {
               TONE_BACKGROUND[items[2]!.tone],
             )}
           >
-            <h3 className={cn("font-heading text-lg md:text-xl", TONE_FOREGROUND[items[2]!.tone])}>
+            <h3 className={cn("font-heading text-lg font-semibold md:text-xl", TONE_FOREGROUND[items[2]!.tone])}>
               {items[2]!.title}
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -184,7 +184,7 @@ export function HomepageWhy() {
               className="absolute inset-0 h-full w-full object-cover opacity-60 mix-blend-multiply transition-transform duration-700 motion-safe:group-hover:scale-[1.04] dark:mix-blend-screen dark:opacity-30"
             />
             <div className="relative z-10 flex h-full flex-col justify-end gap-2 p-5 md:p-6">
-              <h3 className={cn("font-heading text-base md:text-lg", TONE_FOREGROUND[items[3]!.tone])}>
+              <h3 className={cn("font-heading text-base font-semibold md:text-lg", TONE_FOREGROUND[items[3]!.tone])}>
                 {items[3]!.title}
               </h3>
               <p className="text-[12px] leading-relaxed text-foreground/80">

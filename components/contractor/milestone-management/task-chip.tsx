@@ -109,7 +109,7 @@ export function TaskChip({
           {task.title}
         </span>
 
-        <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] text-muted-foreground">
+        <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-muted-foreground">
           {task.dueDate ? (
             <span className="inline-flex items-center gap-0.5">
               <CalendarDays className="size-2.5" aria-hidden />

@@ -217,7 +217,7 @@ export function ApplyDialog({
             />
             <p
               id="apply-dialog-proposal-hint"
-              className="text-[11px] text-muted-foreground"
+              className="text-[12px] text-muted-foreground"
             >
               {proposalValid
                 ? t("proposalHint", { min: PROPOSAL_MIN_LENGTH })
@@ -254,7 +254,7 @@ export function ApplyDialog({
             </div>
             <p
               id="apply-dialog-duration-hint"
-              className="text-[11px] text-muted-foreground"
+              className="text-[12px] text-muted-foreground"
             >
               {durationValid
                 ? t("durationHint")

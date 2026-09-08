@@ -153,7 +153,7 @@ function ProviderEngagementActionsInner({
       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
         <span
           aria-hidden
-          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border/40 bg-card/40 px-1.5 py-1 text-[10px] text-muted-foreground"
+          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border/40 bg-card/40 px-1.5 py-1 text-[11px] text-muted-foreground"
         >
           <CircleDashed className="size-3 animate-spin" />
           {t("loading")}
@@ -169,7 +169,7 @@ function ProviderEngagementActionsInner({
   return (
     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
       {showAwaiting ? (
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[10px] font-medium text-sky-700 dark:text-sky-300">
+        <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:text-sky-300">
           <CircleDashed className="size-3" aria-hidden />
           {t("awaitingAcceptance")}
         </span>
@@ -178,7 +178,7 @@ function ProviderEngagementActionsInner({
           type="button"
           variant="outline"
           size="sm"
-          className="h-6 gap-1 px-2 text-[10px]"
+          className="h-6 gap-1 px-2 text-[11px]"
           onClick={handleRequestCompletion}
           disabled={pendingKind !== null}
           aria-busy={pendingKind === "request-completion" || undefined}
@@ -194,7 +194,7 @@ function ProviderEngagementActionsInner({
         type="button"
         variant="ghost"
         size="sm"
-        className="h-6 gap-1 px-2 text-[10px] text-muted-foreground hover:text-destructive"
+        className="h-6 gap-1 px-2 text-[11px] text-muted-foreground hover:text-destructive"
         onClick={handleTerminate}
         disabled={pendingKind !== null}
         aria-busy={pendingKind === "terminate" || undefined}

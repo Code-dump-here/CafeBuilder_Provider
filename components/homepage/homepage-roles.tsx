@@ -31,7 +31,7 @@ export function HomepageRoles() {
   return (
     <section className="bg-muted/30 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <Reveal as="h2" className="max-w-2xl font-heading text-3xl leading-[1.1] tracking-tight text-foreground md:text-4xl">
+        <Reveal as="h2" className="max-w-2xl font-heading text-3xl font-semibold leading-[1.1] tracking-tight text-foreground md:text-4xl">
           {t("title")}
         </Reveal>
         <Reveal
@@ -51,10 +51,10 @@ export function HomepageRoles() {
               className="flex flex-col gap-4 rounded-2xl border border-border/60 bg-card p-6 transition-transform motion-safe:hover:-translate-y-0.5 md:p-7"
             >
               <div className="flex items-baseline justify-between">
-                <h3 className="font-heading text-xl text-foreground md:text-2xl">
+                <h3 className="font-heading text-xl font-semibold text-foreground md:text-2xl">
                   {role.role}
                 </h3>
-                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                   0{index + 1}
                 </span>
               </div>

@@ -169,7 +169,12 @@ export default function ProjectDetailPage() {
         <ErrorState
           title={tErrors("noAccessTitle")}
           subtitle={tErrors("noAccessSubtitle")}
-          message={message}
+          // Deliberately no `message`. The server's own sentence here is
+          // "This project is not open for public bidding, and the signed-in
+          // account is not part of it" — which is what `noAccessSubtitle`
+          // already says in plainer words, so passing both printed the same
+          // fact twice. Other branches below still surface it, because for a
+          // 5xx or a network failure the raw text is diagnostic, not an echo.
           // No retry: the only useful move is somewhere they can actually go.
           action={{
             label: tErrors("backToProjects"),
@@ -301,7 +306,7 @@ export default function ProjectDetailPage() {
         !isInitialLoading && !isLoadingAi ? (
           <p
             aria-live="polite"
-            className="flex items-center justify-center gap-2 text-center text-[10px] uppercase tracking-wider text-muted-foreground"
+            className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
           >
             <Loader2 className="size-3 animate-spin" aria-hidden />
             Refreshing…

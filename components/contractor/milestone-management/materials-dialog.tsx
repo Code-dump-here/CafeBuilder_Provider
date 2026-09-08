@@ -153,8 +153,19 @@ export function MaterialsDialog({
         minimum is its content, which would let the body push the panel back
         past its own max-height instead of scrolling.
       */}
-      <DialogContent className="max-h-[90dvh] max-w-3xl grid-rows-[auto_minmax(0,1fr)] overflow-hidden">
-        <DialogHeader>
+      {/*
+        This was the ONE call site that treated DialogContent as its own grid
+        parent (`grid-rows-[auto_minmax(0,1fr)] overflow-hidden`) with a
+        private scroll region below a fixed header. DialogContent now owns
+        that structure for every dialog, so both are redundant here — keeping
+        them would nest a second scroller inside the shared one.
+
+        The header keeps its pinned behaviour via `sticky` instead: the
+        negative margins let it span the shared wrapper's padding so scrolled
+        content passes underneath it rather than beside it.
+      */}
+      <DialogContent className="max-h-[90dvh] sm:max-w-3xl">
+        <DialogHeader className="sticky top-0 z-10 -mx-4 -mt-4 bg-popover px-4 pt-4 pb-1">
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
             {milestoneLabel
@@ -169,7 +180,7 @@ export function MaterialsDialog({
           height before anything else was measured and then nested a second
           scrollbar inside the first once the panel was bounded.
         */}
-        <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1">
+        <div className="flex flex-col gap-4">
           {listError && (
             <div className="flex items-center gap-2 text-sm text-destructive">
               <AlertTriangle className="h-4 w-4" />

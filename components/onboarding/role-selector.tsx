@@ -13,21 +13,28 @@ interface RoleOption {
   color: string;
 }
 
+// The -50 backgrounds and -200 borders here are light-mode values with no
+// dark counterpart, so selecting a role in dark mode painted a near-white
+// block on the card. Expressed as translucent tints of the same hue instead:
+// they read the same on a light ground and darken with the surface behind
+// them, and the text shade flips so it stays legible in both themes.
 const ROLES: RoleOption[] = [
   {
     value: "shop_owner",
     icon: Building2,
-    color: "bg-amber-50 border-amber-200 text-amber-700",
+    color:
+      "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300",
   },
   {
     value: "designer",
     icon: Ruler,
-    color: "bg-sky-50 border-sky-200 text-sky-700",
+    color: "bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-300",
   },
   {
     value: "construction_company",
     icon: HardHat,
-    color: "bg-emerald-50 border-emerald-200 text-emerald-700",
+    color:
+      "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300",
   },
 ];
 
@@ -85,7 +92,7 @@ export function RoleSelector({ selected, onChange, error }: RoleSelectorProps) {
                 )}>
                   {t(`roles.${role.value}.name`)}
                 </p>
-                <p className="text-[10px] leading-tight text-muted-foreground">
+                <p className="text-[11px] leading-tight text-muted-foreground">
                   {t(`roles.${role.value}.shortDesc`)}
                 </p>
               </div>

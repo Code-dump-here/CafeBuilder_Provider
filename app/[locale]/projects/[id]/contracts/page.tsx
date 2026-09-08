@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -298,7 +299,7 @@ export default function ContractsPage() {
       {isFetching && !isLoadingContracts && (
         <p
           aria-live="polite"
-          className="flex items-center justify-center gap-2 text-center text-[10px] uppercase tracking-wider text-muted-foreground"
+          className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
         >
           <Loader2 className="size-3 animate-spin" aria-hidden />
           {t("refreshing")}
@@ -732,7 +733,7 @@ function CreateContractDialog({
               rows={4}
               className="resize-none"
             />
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[12px] text-muted-foreground">
               {t("termsHint")}
             </p>
           </div>
@@ -775,6 +776,7 @@ function CreateContractDialog({
                   accept=".pdf,.doc,.docx"
                   file={documentFile}
                   onSelect={handleFileSelect}
+                  onReject={(message) => toast.error(message)}
                   onClear={clearSelectedFile}
                   disabled={isUploading}
                   hideClear={isUploading}
@@ -935,7 +937,7 @@ function OtpConfirmDialog({
                   placeholder={t("otpCodePlaceholder")}
                   className="text-center text-2xl tracking-widest font-mono"
                 />
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[12px] text-muted-foreground">
                   {t("otpCodeHint")}
                 </p>
               </div>

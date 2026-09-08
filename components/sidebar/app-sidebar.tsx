@@ -224,7 +224,7 @@ function SecondaryMenu({
               <item.icon className="size-4" aria-hidden />
               <span>{item.title}</span>
               {item.badge != null ? (
-                <span className="ml-auto inline-flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
+                <span className="ml-auto inline-flex size-4 items-center justify-center rounded-full bg-destructive text-[11px] font-medium text-destructive-foreground">
                   {item.badge}
                 </span>
               ) : null}

@@ -131,7 +131,7 @@ export function AiRecommendationCard({
             />
             <span className="truncate">{recommendation.conceptSummary}</span>
           </h3>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-[12px] text-muted-foreground">
             {createdAt ? (
               <>
                 {formatDateTime(recommendation.createdAt, format)}
@@ -206,7 +206,7 @@ function StateBadge({ variant, label }: { variant: Variant; label: string }) {
             : "secondary"
       }
       className={cn(
-        "shrink-0 gap-1 text-[10px] font-semibold uppercase tracking-wide",
+        "shrink-0 gap-1 text-[11px] font-semibold uppercase tracking-wide",
         variant === "running" && "animate-pulse",
       )}
     >
@@ -239,7 +239,7 @@ function QueuedBody({
           {jobId ?? noJobLabel}
         </span>
       </span>
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground/70">
+      <span className="text-[11px] uppercase tracking-wide text-muted-foreground/70">
         {jobLabel}
       </span>
     </div>
@@ -272,15 +272,15 @@ function FailedBody({
         <div className="min-w-0 flex-1">
           <p className="font-semibold">{t("failedTitle")}</p>
           {error ? (
-            <pre className="mt-1 max-h-32 overflow-auto whitespace-pre-wrap wrap-break-word font-mono text-[11px] leading-relaxed text-destructive/90">
+            <pre className="mt-1 max-h-32 overflow-auto whitespace-pre-wrap wrap-break-word font-mono text-[12px] leading-relaxed text-destructive/90">
               {error}
             </pre>
           ) : null}
-          <p className="mt-2 text-[11px] text-destructive/80">
+          <p className="mt-2 text-[12px] text-destructive/80">
             {t("failedHint")}
           </p>
           {jobId ? (
-            <p className="mt-1 font-mono text-[10px] text-destructive/70">
+            <p className="mt-1 font-mono text-[11px] text-destructive/70">
               {t("jobId")}: {jobId}
             </p>
           ) : null}
@@ -457,12 +457,12 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
               >
                 <span
                   aria-hidden
-                  className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary"
+                  className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary"
                 >
                   {i + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
                     {step.stage}
                   </p>
                   <p className="wrap-break-word text-foreground/90">
@@ -492,7 +492,7 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
                 <span
                   aria-hidden
                   className={cn(
-                    "mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+                    "mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold",
                     priorityTone(item.priority),
                   )}
                 >
@@ -503,7 +503,7 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
                     {item.title}
                   </p>
                   {item.rationale ? (
-                    <p className="mt-0.5 text-[11px] text-muted-foreground wrap-break-word">
+                    <p className="mt-0.5 text-[12px] text-muted-foreground wrap-break-word">
                       {item.rationale}
                     </p>
                   ) : null}
@@ -536,7 +536,7 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
                     {risk.description}
                   </p>
                   {risk.mitigation ? (
-                    <p className="mt-1 text-[11px] text-muted-foreground wrap-break-word">
+                    <p className="mt-1 text-[12px] text-muted-foreground wrap-break-word">
                       {risk.mitigation}
                     </p>
                   ) : null}
@@ -558,7 +558,7 @@ function SectionHeading({
   children: React.ReactNode;
 }) {
   return (
-    <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+    <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
       <Icon className="size-3" aria-hidden />
       {children}
     </p>
@@ -584,7 +584,7 @@ function CostRow({
         className,
       )}
     >
-      <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
       <p className="text-sm font-semibold text-foreground wrap-break-word">

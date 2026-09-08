@@ -65,12 +65,12 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
       className="hidden h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card lg:flex"
     >
       <header className="flex flex-col gap-2 border-b border-border/60 px-3 py-2.5">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {t("rail.heading")}
         </p>
         <h2 className="text-sm font-semibold text-foreground">
           {t("rail.files.title")}
-          <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+          <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
             {thread.attachments.length}
           </span>
         </h2>
@@ -110,7 +110,7 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
           </section>
 
           <section className="flex flex-col gap-2">
-            <h4 className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <h4 className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               <Users aria-hidden className="size-3" />
               {t("rail.members")}
             </h4>
@@ -129,7 +129,7 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
                       name={member.fullName}
                       color={member.avatarColor}
                       size="default"
-                      className="size-7 text-[11px]"
+                      className="size-7 text-[12px]"
                     />
                     <p className="line-clamp-1 flex-1 text-xs font-medium text-foreground">
                       {member.fullName}
@@ -162,7 +162,7 @@ function FileCard({ attachment }: { attachment: MessageAttachment }) {
       <span
         aria-hidden
         className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-md text-[10px] font-bold tracking-wider",
+          "flex size-10 shrink-0 items-center justify-center rounded-md text-[11px] font-bold tracking-wider",
           swatch,
         )}
       >
@@ -177,7 +177,7 @@ function FileCard({ attachment }: { attachment: MessageAttachment }) {
           {attachment.title}
         </p>
         {attachment.subtitle ? (
-          <p className="line-clamp-1 text-[10px] text-muted-foreground">
+          <p className="line-clamp-1 text-[11px] text-muted-foreground">
             {attachment.subtitle}
           </p>
         ) : null}

@@ -108,7 +108,7 @@ function PriceDisplay({
         </span>
       </div>
       <p className="text-xs text-muted-foreground">{durationLabel}</p>
-      <p className="text-[11px] text-muted-foreground/80">
+      <p className="text-[12px] text-muted-foreground/80">
         {renderApproxPerDay(formattedPerDay)}
       </p>
     </div>
@@ -181,7 +181,7 @@ export function PlanCard({
       {highlighted ? (
         <Badge
           variant="default"
-          className="absolute -top-3 start-6 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground shadow-e1"
+          className="absolute -top-3 start-6 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[12px] font-semibold text-primary-foreground shadow-e1"
         >
           <Sparkles aria-hidden className="size-3" />
           {highlightLabel}
@@ -189,7 +189,7 @@ export function PlanCard({
       ) : null}
 
       <header className="flex flex-col gap-2">
-        <h2 className="font-heading text-xl text-foreground md:text-2xl">
+        <h2 className="font-heading text-xl font-semibold text-foreground md:text-2xl">
           {plan.name}
         </h2>
         <p className="text-xs leading-relaxed text-muted-foreground md:text-sm">
@@ -243,7 +243,7 @@ export function PlanCard({
             subscribeLabel
           )}
         </Button>
-        <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+        <p className="text-center text-[12px] leading-relaxed text-muted-foreground">
           {subscribeNote}
         </p>
       </div>

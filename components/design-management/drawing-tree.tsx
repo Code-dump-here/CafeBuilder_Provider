@@ -119,7 +119,7 @@ export function DrawingTree({
       className="flex h-full flex-col gap-3 overflow-y-auto p-4"
     >
       <header className="flex flex-col gap-1.5">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {t("tree.heading")}
         </p>
         <div className="relative">
@@ -160,7 +160,7 @@ export function DrawingTree({
                 <span className="flex-1 truncate font-semibold uppercase tracking-wider">
                   {t(`tabs.${group.labelKey}`)}
                 </span>
-                <span className="rounded bg-muted px-1.5 text-[10px] font-medium text-muted-foreground">
+                <span className="rounded bg-muted px-1.5 text-[11px] font-medium text-muted-foreground">
                   {group.drawings.length}
                 </span>
               </button>
@@ -195,7 +195,7 @@ export function DrawingTree({
                           <span className="min-w-0 flex-1 truncate">
                             {drawing.name}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-[10px] font-mono text-muted-foreground">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground">
                             <Hash
                               aria-hidden
                               className="size-2.5"

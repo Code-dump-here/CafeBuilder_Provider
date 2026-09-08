@@ -8,7 +8,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -70,6 +71,10 @@
      asks of anything that delimits an interactive control. Same hue and chroma,
      lower lightness. */
   --color-input-border: var(--input-border);
+  --color-success-tint: var(--success-tint);
+  --color-warning-tint: var(--warning-tint);
+  --color-destructive-tint: var(--destructive-tint);
+  --color-primary-tint: var(--primary-tint);
 
   /* Elevation. Nothing in the app cast a shadow — surfaces were separated by a
      single 1px border, which is why cards, popovers and dialogs all read as
@@ -81,8 +86,49 @@
   --shadow-e3: var(--elevation-3);
 }
 
+/* ─── Type scale ──────────────────────────────────────────────────────────────
+
+   The app was built at roughly 0.85x a normal scale: 403 elements at text-xs
+   (12px), 245 more at hardcoded 10-11px, and only 61 at text-base. Coherent,
+   but it read as cramped rather than refined, and it is the single biggest
+   reason the UI looked utilitarian instead of designed.
+
+   Redefining the SIZE TOKENS lifts every one of those call sites at once —
+   `text-xs` still means "the small one", it is just no longer 12px. Editing
+   650 class strings by hand would have produced the same result with 650
+   chances to break a layout.
+
+   The small end moves +1px and the display end moves further, which widens the
+   interval between body copy and headings — that contrast is what makes a page
+   feel composed rather than uniform. Line heights go up with the sizes so the
+   text breathes instead of just growing.
+
+   Palette untouched, per the brief. */
+@theme {
+  --text-xs: 0.8125rem;          /* 12 -> 13 */
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.9375rem;          /* 14 -> 15 */
+  --text-sm--line-height: 1.55;
+  --text-base: 1.0625rem;        /* 16 -> 17 */
+  --text-base--line-height: 1.65;
+  --text-lg: 1.1875rem;          /* 18 -> 19 */
+  --text-lg--line-height: 1.55;
+  --text-xl: 1.375rem;           /* 20 -> 22 */
+  --text-xl--line-height: 1.4;
+  --text-2xl: 1.625rem;          /* 24 -> 26 */
+  --text-2xl--line-height: 1.3;
+  --text-3xl: 2rem;              /* 30 -> 32 */
+  --text-3xl--line-height: 1.22;
+  --text-4xl: 2.5rem;            /* 36 -> 40 */
+  --text-4xl--line-height: 1.15;
+  --text-5xl: 3.25rem;           /* 48 -> 52 */
+  --text-5xl--line-height: 1.08;
+  --text-6xl: 4rem;              /* 60 -> 64 */
+  --text-6xl--line-height: 1.05;
+}
+
 :root {
-  --background: oklch(0.985 0.002 80);
+  --background: oklch(0.968 0.009 78);
   --foreground: oklch(0.25 0.03 55);
   --card: oklch(0.99 0.003 75);
   --card-foreground: oklch(0.25 0.03 55);
@@ -105,7 +151,7 @@
   --chart-3: oklch(0.48 0.1 38);
   --chart-4: oklch(0.38 0.08 28);
   --chart-5: oklch(0.3 0.06 18);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --sidebar: oklch(0.95 0.012 62);
   --sidebar-foreground: oklch(0.28 0.035 48);
   --sidebar-primary: oklch(0.52 0.18 55);
@@ -125,6 +171,18 @@
   --destructive-foreground: oklch(0.97 0.01 90);
   --input-border: oklch(0.62 0.02 62);
 
+  /* Soft grounds for status pills. --success and --warning were declared and
+     never used once, while 530 raw Tailwind hue classes (200 amber, 181
+     emerald, 51 sky...) were hand-written at call sites to do the same job.
+     Cold emerald beside espresso is the loudest off-brand note in the app.
+     These tints are the missing half: a coloured TEXT token needs a matching
+     low-chroma GROUND to sit on, which is what every hand-rolled pill was
+     improvising with bg-emerald-50. */
+  --success-tint: oklch(0.955 0.03 152);
+  --warning-tint: oklch(0.955 0.045 78);
+  --destructive-tint: oklch(0.955 0.035 27);
+  --primary-tint: oklch(0.955 0.028 62);
+
   /* Hue 55 = --foreground's hue, so the shade is a deeper tone of the page's
      own brown instead of a grey wash over it. */
   --elevation-1: 0 1px 2px -1px oklch(0.25 0.03 55 / 0.10), 0 1px 3px 0 oklch(0.25 0.03 55 / 0.07);
@@ -135,7 +193,7 @@
 .dark {
   --background: oklch(0.14 0.025 45);
   --foreground: oklch(0.93 0.01 80);
-  --card: oklch(0.18 0.03 45);
+  --card: oklch(0.205 0.032 45);
   --card-foreground: oklch(0.93 0.01 80);
   --popover: oklch(0.18 0.03 45);
   --popover-foreground: oklch(0.93 0.01 80);
@@ -173,6 +231,13 @@
   --warning-foreground: oklch(0.2 0.04 40);
   --destructive-foreground: oklch(0.2 0.04 40);
   --input-border: oklch(1 0 0 / 20%);
+
+  /* Dark counterparts: a 0.955-lightness tint would be a glowing block here,
+     so the ground drops and the coloured foreground carries the signal. */
+  --success-tint: oklch(0.25 0.05 152);
+  --warning-tint: oklch(0.27 0.06 78);
+  --destructive-tint: oklch(0.26 0.06 27);
+  --primary-tint: oklch(0.26 0.05 62);
 
   /* Shadow does almost no work on a dark ground — depth there comes from the
      surface getting lighter, not from cast shade. These stay deliberately

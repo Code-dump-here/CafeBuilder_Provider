@@ -7,11 +7,8 @@ import {
   ArrowLeft,
   Bell,
   LayoutDashboard,
-  Search,
-  Settings,
 } from "lucide-react";
 
-import { Input } from "@/components/ui/input";
 import { AdminGuard } from "@/components/auth/admin-guard";
 
 export default function AdminLayout({
@@ -28,13 +25,6 @@ export default function AdminLayout({
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-            <div className="relative hidden sm:block sm:w-72">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-              <Input
-                placeholder="Search accounts, projects…"
-                className="h-9 pl-8 text-sm"
-              />
-            </div>
           </div>
           <div className="flex items-center gap-2">
             {/* "/workspace" never existed as a route — points at "/" now,
@@ -46,11 +36,10 @@ export default function AdminLayout({
                 Back to client view
               </Link>
             </Button>
-            <Button variant="ghost" size="icon-sm" aria-label="Notifications">
-              <Bell aria-hidden />
-            </Button>
-            <Button variant="ghost" size="icon-sm" aria-label="Settings">
-              <Settings aria-hidden />
+            <Button asChild variant="ghost" size="icon-sm">
+              <Link href="/notifications" aria-label="Notifications">
+                <Bell aria-hidden />
+              </Link>
             </Button>
           </div>
         </header>

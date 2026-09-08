@@ -245,7 +245,7 @@ function VersionListTableInner({
             </h2>
             {/* Tiny badge — surfaces the count of `Design` rows so the
                 user knows how many version entries they're scanning. */}
-            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               {t("history.totalBadge", { count: versions.length })}
             </span>
           </div>
@@ -355,7 +355,7 @@ function VersionListTableInner({
                           {row.name}
                         </span>
                         {row.latestNote ? (
-                          <span className="line-clamp-1 text-[11px] text-muted-foreground">
+                          <span className="line-clamp-1 text-[12px] text-muted-foreground">
                             {row.latestNote}
                           </span>
                         ) : null}
@@ -464,7 +464,7 @@ function VersionListTableInner({
       {isFetching && !isLoading && !isError ? (
         <p
           aria-live="polite"
-          className="flex items-center justify-center gap-2 text-center text-[10px] uppercase tracking-wider text-muted-foreground"
+          className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
         >
           <Loader2 className="size-3 animate-spin" aria-hidden />
           {t("refreshing")}

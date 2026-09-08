@@ -109,7 +109,7 @@ function StatusBreakdown({
       </div>
       <div className="flex flex-wrap gap-2">
         {Object.entries(counts).map(([status, count]) => (
-          <div key={status} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <div key={status} className="flex items-center gap-1 text-[11px] text-muted-foreground">
             <StatusBadge status={status} />
             <span>{count}</span>
           </div>

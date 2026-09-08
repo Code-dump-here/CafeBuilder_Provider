@@ -204,13 +204,18 @@ export function ThemeProvider({
     return () => media.removeEventListener("change", onChange);
   }, []);
 
+  // `enableSystem` is honoured here, not just accepted. The pre-paint script
+  // in `lib/theme-init.ts` resolves "system" to "light" when the flag is off;
+  // this used to follow the OS regardless, so the two halves would have
+  // disagreed for anyone passing `enableSystem={false}` — the document would
+  // paint light, then React would swap it to the system preference.
   const resolvedTheme: "light" | "dark" =
-    theme === "system" ? systemTheme : theme;
+    theme === "system" ? (enableSystem ? systemTheme : "light") : theme;
 
   // Apply the resolved theme to the DOM every time it changes. This is the
-  // runtime half — the FOUC-prevention half lives in the inline script
-  // injected below. When `disableTransitionOnChange` is true we briefly
-  // disable CSS transitions so the colour swap doesn't animate.
+  // runtime half — the before-paint half is server-rendered into <head> by
+  // `app/[locale]/layout.tsx`. When `disableTransitionOnChange` is true we
+  // briefly disable CSS transitions so the colour swap doesn't animate.
   React.useEffect(() => {
     const restore = disableTransitionOnChange
       ? disableTransitions()
@@ -224,39 +229,12 @@ export function ThemeProvider({
     };
   }, [attribute, resolvedTheme, enableColorScheme, disableTransitionOnChange]);
 
-  // ─── FOUC-prevention script injection ─────────────────────────────────────
-  //
-  // Inject an inline script that reads the persisted theme *synchronously*
-  // before paint. We do this from `useEffect` so React 19's SSR pass never
-  // sees a `<script>` element in the JSX tree (which is what triggers the
-  // "Scripts inside React components are never executed" error in Next 16
-  // + React 19 + Turbopack).
-  //
-  // The script runs on its own in the document and is removed after
-  // first paint so we don't keep a redundant tag in the DOM.
-  React.useEffect(() => {
-    if (typeof document === "undefined") return;
-    if (document.getElementById("theme-fouc-script")) return;
-
-    const params = JSON.stringify([
-      attribute,
-      storageKey,
-      defaultTheme,
-      themes,
-      enableSystem,
-      enableColorScheme,
-    ]).slice(1, -1);
-
-    const script = document.createElement("script");
-    script.id = "theme-fouc-script";
-    script.textContent = `(${foucScriptBody.toString()})(${params});`;
-    document.head.appendChild(script);
-
-    return () => {
-      const node = document.getElementById("theme-fouc-script");
-      if (node) node.remove();
-    };
-  }, [attribute, storageKey, defaultTheme, themes, enableSystem, enableColorScheme]);
+  // The pre-paint theme script is NOT injected from here any more. It ran
+  // from a `useEffect`, i.e. after hydration and after first paint, so it
+  // could never prevent the flash it was named for. It is now server-
+  // rendered into <head> by `app/[locale]/layout.tsx` via
+  // `buildThemeInitScript` in `lib/theme-init.ts`, which is where a
+  // before-paint script has to live to do its job.
 
   const setTheme = React.useCallback<ThemeContextValue["setTheme"]>(
     (next) => {
@@ -311,52 +289,4 @@ export function useTheme(): ThemeContextValue {
   // Real values come from the provider once it mounts.
   if (!ctx) return defaultContext;
   return ctx;
-}
-
-// ─── Inline FOUC script body ─────────────────────────────────────────────────
-//
-// Pure DOM read/write that runs synchronously before the first paint. Lives
-// in a separate closure so the source remains inspectable and isn't buried
-// in the React tree (which is what causes React 19's SSR error).
-
-function foucScriptBody(
-  attribute: string,
-  storageKey: string,
-  defaultTheme: string,
-  themes: string[],
-  enableSystem: boolean,
-  enableColorScheme: boolean,
-) {
-  const root = document.documentElement;
-  const system = window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-
-  function resolve(stored: string | null): "light" | "dark" {
-    if (stored === "light" || stored === "dark") return stored;
-    if (stored === "system" && enableSystem) return system;
-    if (enableSystem) return system;
-    return "light";
-  }
-
-  let stored: string | null = null;
-  try {
-    stored = window.localStorage.getItem(storageKey);
-  } catch {
-    stored = null;
-  }
-  if (!stored || !themes.includes(stored)) {
-    stored = defaultTheme;
-  }
-  const resolved = resolve(stored);
-
-  if (attribute === "class") {
-    root.classList.remove("light", "dark");
-    if (resolved === "dark") root.classList.add("dark");
-  } else {
-    root.setAttribute(attribute, resolved);
-  }
-  if (enableColorScheme) {
-    root.style.colorScheme = resolved;
-  }
 }

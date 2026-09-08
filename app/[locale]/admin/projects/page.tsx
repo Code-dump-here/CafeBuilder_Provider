@@ -13,7 +13,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { useFormatter, useLocale, useNow } from "next-intl";
+import { useFormatter, useLocale, useNow, useTranslations } from "next-intl";
 
 import { PageHead } from "@/components/admin/page-head";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,7 @@ const VIEW_OPTIONS = ["grid", "list"] as const;
 type ViewMode = (typeof VIEW_OPTIONS)[number];
 
 export default function AdminProjectsPage() {
+  const tTable = useTranslations("Admin.projectsTable");
   const format = useFormatter();
   const locale = useLocale();
   const now = useNow({ updateInterval: 60_000 });
@@ -169,15 +170,29 @@ export default function AdminProjectsPage() {
       ) : (
         <div className="overflow-hidden rounded-lg border border-border/60 bg-card/60 shadow-e1">
           <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-[11px] uppercase tracking-wide text-muted-foreground">
+            <thead className="bg-muted/40 text-[12px] uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th className="px-4 py-2.5 text-left font-medium">Project</th>
-                <th className="px-4 py-2.5 text-left font-medium">Owner</th>
-                <th className="px-4 py-2.5 text-left font-medium">Contractor</th>
-                <th className="px-4 py-2.5 text-left font-medium">Status</th>
-                <th className="px-4 py-2.5 text-right font-medium">Progress</th>
-                <th className="px-4 py-2.5 text-right font-medium">Budget</th>
-                <th className="px-4 py-2.5 text-left font-medium">Updated</th>
+                <th className="px-4 py-2.5 text-left font-medium">
+                  {tTable("project")}
+                </th>
+                <th className="px-4 py-2.5 text-left font-medium">
+                  {tTable("owner")}
+                </th>
+                <th className="px-4 py-2.5 text-left font-medium">
+                  {tTable("contractor")}
+                </th>
+                <th className="px-4 py-2.5 text-left font-medium">
+                  {tTable("status")}
+                </th>
+                <th className="px-4 py-2.5 text-right font-medium">
+                  {tTable("progress")}
+                </th>
+                <th className="px-4 py-2.5 text-right font-medium">
+                  {tTable("budget")}
+                </th>
+                <th className="px-4 py-2.5 text-left font-medium">
+                  {tTable("updated")}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -197,7 +212,7 @@ export default function AdminProjectsPage() {
                           style={{ width: `${p.progress}%` }}
                         />
                       </div>
-                      <span className="text-[11px] tabular-nums text-muted-foreground">
+                      <span className="text-[12px] tabular-nums text-muted-foreground">
                         {p.progress}%
                       </span>
                     </div>
@@ -229,6 +244,7 @@ function ProjectCard({
   locale: string;
   now: Date;
 }) {
+  const tTable = useTranslations("Admin.projectsTable");
   const overspent = project.spent > project.budget;
   return (
     <Link
@@ -238,7 +254,7 @@ function ProjectCard({
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-col">
           <span className="truncate text-sm font-semibold">{project.name}</span>
-          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
             <MapPin className="size-3" aria-hidden /> {project.city}
           </span>
         </div>
@@ -246,7 +262,7 @@ function ProjectCard({
       </div>
 
       <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="flex items-center justify-between text-[12px] text-muted-foreground">
           <span>Progress</span>
           <span className="tabular-nums text-foreground">{project.progress}%</span>
         </div>
@@ -258,16 +274,16 @@ function ProjectCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 text-[11px]">
-        <Field label="Owner">
+      <div className="grid grid-cols-2 gap-2 text-[12px]">
+        <Field label={tTable("owner")}>
           <span className="text-foreground">{project.ownerName}</span>
         </Field>
-        <Field label="Contractor">
+        <Field label={tTable("contractor")}>
           <span className="text-foreground">{project.contractorName}</span>
         </Field>
       </div>
 
-      <div className="flex items-end justify-between border-t border-border/60 pt-2 text-[11px]">
+      <div className="flex items-end justify-between border-t border-border/60 pt-2 text-[12px]">
         <div className="flex flex-col">
           <span className="text-muted-foreground">Budget</span>
           <span className="tabular-nums font-medium text-foreground">
@@ -291,7 +307,7 @@ function ProjectCard({
           <span className="text-foreground">{format.relativeTime(new Date(project.updatedAt), now)}</span>
         </div>
       </div>
-      <span className="inline-flex items-center gap-1 self-end text-[11px] text-primary opacity-0 transition-opacity group-hover:opacity-100">
+      <span className="inline-flex items-center gap-1 self-end text-[12px] text-primary opacity-0 transition-opacity group-hover:opacity-100">
         Open project <ArrowUpRight className="size-3" aria-hidden />
       </span>
     </Link>
@@ -300,7 +316,7 @@ function ProjectCard({
 
 function StatusBadge({ status }: { status: AdminProject["status"] }) {
   return (
-    <span className={cn("inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium", STATUS_TONE[status])}>
+    <span className={cn("inline-flex rounded-full px-2 py-0.5 text-[12px] font-medium", STATUS_TONE[status])}>
       {status === "on_hold" ? (
         <Pause className="mr-1 mt-px size-3" aria-hidden />
       ) : null}
@@ -351,7 +367,7 @@ function SummaryStat({ label, value, tone }: { label: string; value: number; ton
   }[tone];
   return (
     <div className="flex flex-col rounded-lg border border-border/60 bg-card/60 p-3">
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
+      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</span>
       <span className={cn("mt-1 text-xl font-semibold tabular-nums", toneClass)}>{value}</span>
     </div>
   );

@@ -53,7 +53,7 @@ export function ErrorState({
         <p className="text-base font-semibold text-foreground">{title}</p>
         <p className="max-w-md text-sm text-muted-foreground">{subtitle}</p>
         {message ? (
-          <p className="mt-1 font-mono text-[11px] text-muted-foreground/80">
+          <p className="mt-1 font-mono text-[12px] text-muted-foreground/80">
             {message}
           </p>
         ) : null}

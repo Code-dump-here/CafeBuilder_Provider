@@ -21,7 +21,7 @@ export function CodeBadge({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide",
+        "inline-flex shrink-0 items-center rounded px-1.5 py-0.5 font-mono text-[11px] font-semibold tracking-wide",
         variant === "default" &&
           "bg-primary/15 text-primary",
         variant === "muted" &&

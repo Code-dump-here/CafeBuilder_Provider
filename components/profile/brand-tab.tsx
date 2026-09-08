@@ -657,7 +657,7 @@ function BrandDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[85dvh] sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("identity.dialogTitle")}</DialogTitle>
           <DialogDescription>{t("identity.dialogDescription")}</DialogDescription>
@@ -984,7 +984,7 @@ function CertificateDialog({
           </div>
         </div>
 
-        <p className="text-[11px] text-muted-foreground">{t("certificates.verifyNote")}</p>
+        <p className="text-[12px] text-muted-foreground">{t("certificates.verifyNote")}</p>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

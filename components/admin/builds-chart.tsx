@@ -77,7 +77,7 @@ export function BuildsChart({ data }: BuildsChartProps) {
         <circle cx={lastX} cy={lastY} r={10} className="fill-primary/30" />
       </svg>
 
-      <div className="absolute right-1 top-1 flex flex-col rounded-md border border-border/60 bg-background/80 px-2 py-1 text-[10px] shadow-e1 backdrop-blur">
+      <div className="absolute right-1 top-1 flex flex-col rounded-md border border-border/60 bg-background/80 px-2 py-1 text-[11px] shadow-e1 backdrop-blur">
         <span className="text-muted-foreground">Latest</span>
         <span className="text-sm font-semibold tabular-nums text-foreground">
           {last.builds}

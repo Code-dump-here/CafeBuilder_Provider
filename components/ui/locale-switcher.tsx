@@ -33,7 +33,7 @@ export function LocaleSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" aria-label={t("label")}>
-          <span className="text-[11px] font-semibold uppercase leading-none">
+          <span className="text-[12px] font-semibold uppercase leading-none">
             {label}
           </span>
         </Button>

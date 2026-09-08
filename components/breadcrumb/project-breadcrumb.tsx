@@ -101,7 +101,7 @@ export function ProjectBreadcrumb({ localePrefix }: ProjectBreadcrumbProps) {
   return (
     <nav
       aria-label="Breadcrumb"
-      className="flex items-center gap-1 text-sm"
+      className="flex min-w-0 items-center gap-1 text-sm"
     >
       {/* Root crumb — without it, a page deep under /projects/{id} had no
           in-page way back to the project list at all (the sidebar's own
@@ -109,20 +109,20 @@ export function ProjectBreadcrumb({ localePrefix }: ProjectBreadcrumbProps) {
           out of view). */}
       <Link
         href={`/${locale}/my-projects`}
-        className="text-muted-foreground transition-colors hover:text-foreground"
+        className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
       >
         {t("Breadcrumb.myProjects")}
       </Link>
       <ChevronRight
-        className="size-4 text-muted-foreground/60"
+        className="size-4 shrink-0 text-muted-foreground/60"
         aria-hidden="true"
       />
       <Link
         href={projectHref}
         className={
           subPageLabel
-            ? "text-muted-foreground transition-colors hover:text-foreground"
-            : "font-semibold text-foreground"
+            ? "min-w-0 truncate text-muted-foreground transition-colors hover:text-foreground"
+            : "min-w-0 truncate font-semibold text-foreground"
         }
       >
         <ProjectCrumbLabel projectId={projectId} />
@@ -130,10 +130,12 @@ export function ProjectBreadcrumb({ localePrefix }: ProjectBreadcrumbProps) {
       {subPageLabel && (
         <>
           <ChevronRight
-            className="size-4 text-muted-foreground/60"
+            className="size-4 shrink-0 text-muted-foreground/60"
             aria-hidden="true"
           />
-          <span className="font-semibold text-foreground">{subPageLabel}</span>
+          <span className="shrink-0 font-semibold text-foreground">
+            {subPageLabel}
+          </span>
         </>
       )}
     </nav>

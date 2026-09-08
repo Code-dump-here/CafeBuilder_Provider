@@ -41,7 +41,7 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
               <p className="text-xs leading-relaxed text-foreground/90">
                 <span className="font-medium text-foreground">{item.actorName}</span> {item.text}
               </p>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[11px] text-muted-foreground">
                 {format.relativeTime(new Date(item.at))}
               </span>
             </div>
