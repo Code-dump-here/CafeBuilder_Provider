@@ -165,6 +165,52 @@ const ENGAGEMENTS = page([
   },
 ]);
 
+const ISSUE_TYPES = page([
+  { id: "t1", code: "finish", name: "Finish defect" },
+  { id: "t2", code: "mep", name: "MEP clash" },
+  { id: "t3", code: "dimension", name: "Dimension mismatch" },
+]);
+
+/** One issue per lifecycle state, so all four status tones are on screen. */
+const ISSUES = page([
+  {
+    id: "i1", projectWorkingId: WORKING_ID, constructionItemId: "m2",
+    issueTypeId: "t2", issueTypeName: "MEP clash",
+    cause: "Waste pipe runs through the bar carcass return.",
+    reason: null, solution: null,
+    issueImage: null, confirmImage: null,
+    estimateAt: "2026-04-04", actualAt: null,
+    status: "open", createdBy: "Site lead", createdAt: NOW, updatedAt: NOW,
+  },
+  {
+    id: "i2", projectWorkingId: WORKING_ID, constructionItemId: "m2",
+    issueTypeId: "t3", issueTypeName: "Dimension mismatch",
+    cause: "Counter is 40mm over the drawn length; end panel will not seat.",
+    reason: null, solution: "Trim the end panel on site.",
+    issueImage: null, confirmImage: null,
+    estimateAt: "2026-03-30", actualAt: null,
+    status: "in_progress", createdBy: "Site lead", createdAt: NOW, updatedAt: NOW,
+  },
+  {
+    id: "i3", projectWorkingId: WORKING_ID, constructionItemId: "m1",
+    issueTypeId: "t1", issueTypeName: "Finish defect",
+    cause: "Skim coat blown on the north wall.",
+    reason: null, solution: "Cut out and re-skim.",
+    issueImage: null, confirmImage: null,
+    estimateAt: "2026-03-18", actualAt: "2026-03-19",
+    status: "resolved", createdBy: "Site lead", createdAt: NOW, updatedAt: NOW,
+  },
+  {
+    id: "i4", projectWorkingId: WORKING_ID, constructionItemId: "m1",
+    issueTypeId: "t1", issueTypeName: "Finish defect",
+    cause: "Threshold strip missing at the entrance.",
+    reason: null, solution: "Fitted and signed off.",
+    issueImage: null, confirmImage: null,
+    estimateAt: "2026-03-14", actualAt: "2026-03-14",
+    status: "closed", createdBy: "Site lead", createdAt: NOW, updatedAt: NOW,
+  },
+]);
+
 const PROJECT = {
   id: PROJECT_ID,
   name: "Nhà Nâu Coffee — Quận 1",
@@ -176,7 +222,41 @@ const PROJECT = {
   longitude: null,
   createdAt: NOW,
   updatedAt: NOW,
-  providers: [],
+  /**
+   * The second load-bearing field, alongside the engagement list.
+   *
+   * Several screens gate on `project.providers` rather than on
+   * /api/project-workings — the issues page, for one, looks here for an
+   * accepted `construction` or `both` engagement belonging to the viewer, and
+   * shows "no construction engagement" without it. `providerId` therefore has
+   * to match the demo account's serviceProvider id exactly.
+   */
+  providers: [
+    {
+      projectWorkingId: WORKING_ID,
+      serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+      displayName: "Xưởng Mộc Bình Minh",
+      providerType: "constructor",
+      capability: "both",
+      isVerified: true,
+      avgRating: 4.6,
+      contractType: "both",
+      status: "accepted",
+      createdAt: NOW,
+    },
+    {
+      projectWorkingId: "33333333-3333-4333-8333-333333333333",
+      serviceProviderProfileId: "00000000-0000-4000-8000-000000000003",
+      displayName: "Studio Lá",
+      providerType: "designer",
+      capability: "design",
+      isVerified: false,
+      avgRating: 4.2,
+      contractType: "design",
+      status: "requested",
+      createdAt: NOW,
+    },
+  ],
 };
 
 /** Endpoint → fixture. Matched in order; the first hit wins. */
@@ -186,7 +266,9 @@ const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/contracts/, CONTRACTS],
   [/\/api\/designs/, DESIGNS],
   [/\/api\/construction-items/, CONSTRUCTION_ITEMS],
-  [/\/api\/projects\/[^/]+$/, PROJECT],
+  [/\/api\/issue-types/, ISSUE_TYPES],
+  [/\/api\/issues/, ISSUES],
+  [/\/api\/project-shop-owners\/[^/?]+/, PROJECT],
   [/\/api\/notifications\/unread-count/, { count: 2 }],
 ];
 

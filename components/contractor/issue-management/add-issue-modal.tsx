@@ -118,7 +118,7 @@ export function AddIssueModal({
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <TriangleAlert aria-hidden className="size-4 text-amber-500" />
+            <TriangleAlert aria-hidden className="size-4 text-warning" />
             {t("title")}
           </DialogTitle>
           <DialogDescription>{t("subtitle")}</DialogDescription>

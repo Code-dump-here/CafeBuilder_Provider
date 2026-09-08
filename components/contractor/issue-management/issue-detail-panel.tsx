@@ -118,7 +118,7 @@ export function IssueDetailPanel({
                   icon={
                     <CheckCircle2
                       aria-hidden
-                      className="size-3.5 text-emerald-600 dark:text-emerald-400"
+                      className="size-3.5 text-success"
                     />
                   }
                   label={t("actualAt")}
@@ -190,7 +190,7 @@ function DateRow({
       <span
         className={
           tone === "success"
-            ? "font-medium text-emerald-600 dark:text-emerald-400"
+            ? "font-medium text-success"
             : "font-medium"
         }
       >
