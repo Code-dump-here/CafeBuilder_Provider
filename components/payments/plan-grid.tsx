@@ -220,8 +220,19 @@ export function PlanGridContainer({ targetRole }: PlanGridContainerProps) {
       createSubscription.mutate(
         { planId, platform: "web" },
         {
-          onSuccess: () => {
-            toast.success(tCta("subscribeSuccess"));
+          onSuccess: (payment) => {
+            // The POST only mints a payOS link — the plan stays `pending`
+            // until the user actually pays. Showing a success toast and
+            // staying put (what this did before) told people they had
+            // subscribed when no money had moved and no checkout had opened.
+            if (!payment.checkoutUrl) {
+              toast.error(tCta("subscribeError"));
+              return;
+            }
+            toast.success(tCta("redirecting"));
+            // A full navigation, not `router.push`: payOS is a different
+            // origin, so the Next router cannot route to it.
+            window.location.assign(payment.checkoutUrl);
           },
           onError: (err) => {
             const message =

@@ -32,6 +32,14 @@ export const queryKeys = {
      * viewer without re-issuing the request.
      */
     plans: () => ["payments", "plans"] as const,
+    /**
+     * One transaction's outcome: `GET /api/payments/status?orderCode={n}`.
+     * Keyed by order code because the return page polls a specific
+     * transaction, and two tabs coming back from different checkouts must
+     * not share a cache entry.
+     */
+    status: (orderCode: number | null) =>
+      ["payments", "status", orderCode] as const,
   },
   notifications: {
     /**

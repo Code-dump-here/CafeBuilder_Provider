@@ -69,23 +69,102 @@ export interface CreateSubscriptionPayload {
   platform: SubscriptionPlatform;
 }
 
+/** Lifecycle of a payOS transaction. Ordinals, see `decodeEnum` below. */
+export type PaymentTransactionStatus =
+  | "pending"
+  | "paid"
+  | "cancelled"
+  | "failed";
+
+/** What the transaction was for. */
+export type PaymentPurpose = "subscription" | "post_boost";
+
 /**
- * Response of `POST /api/payments/subscriptions`. The shape mirrors
- * what the rest of the codebase expects for created entities (id +
- * timestamps + the user-supplied fields echoed back). If the backend
- * returns a richer record (e.g. with payment URLs, gateway references,
- * ...) the consumer can extend this type without touching call sites.
+ * The API serialises enums as their **ordinal**, not their name: `Program.cs`
+ * registers no `JsonStringEnumConverter`, which is also why `targetRole`
+ * above is typed `0 | 1`. Read a `status` of `1` as the string `"paid"` and
+ * these lists are the only place that mapping lives — keep the order in step
+ * with `Repository/Models/Enums/Enums.cs`.
  */
-export interface SubscriptionCreated {
-  id: string;
-  accountId: string;
-  planId: PaymentPlanId;
-  platform: SubscriptionPlatform;
-  status: SubscriptionStatus;
-  startedAt: string;
-  expiresAt: string;
-  createdAt: string;
-  updatedAt: string;
+const TRANSACTION_STATUSES: readonly PaymentTransactionStatus[] = [
+  "pending",
+  "paid",
+  "cancelled",
+  "failed",
+];
+const PURPOSES: readonly PaymentPurpose[] = ["subscription", "post_boost"];
+const SUBSCRIPTION_STATUSES: readonly SubscriptionStatus[] = [
+  "pending",
+  "active",
+  "expired",
+  "cancelled",
+];
+
+/**
+ * Turn an ordinal into its name.
+ *
+ * Also accepts the name itself, so that the day someone registers a string
+ * enum converter on the backend this keeps reporting the truth instead of
+ * silently calling a paid order `"pending"` — the failure mode that a bare
+ * `names[value]` lookup would have.
+ */
+function decodeEnum<T extends string>(
+  names: readonly T[],
+  value: unknown,
+  fallback: T,
+): T {
+  if (typeof value === "number") return names[value] ?? fallback;
+  if (typeof value === "string") {
+    return names.find((name) => name === value) ?? fallback;
+  }
+  return fallback;
+}
+
+/**
+ * Response of `POST /api/payments/subscriptions`.
+ *
+ * This is a **payOS payment link**, not the subscription record — the
+ * subscription is created server-side in `pending` and only becomes `active`
+ * when payOS calls the webhook. The important field is `checkoutUrl`: nothing
+ * is paid until the browser actually goes there.
+ */
+export interface CreatePaymentResponse {
+  purpose: PaymentPurpose;
+  /** Set when `purpose === "subscription"`. */
+  subscriptionId: string | null;
+  /** Set when `purpose === "post_boost"`. */
+  postId: string | null;
+  /** payOS order code — the handle the return page polls with. */
+  orderCode: number;
+  paymentLinkId: string;
+  /** Hosted payOS checkout. Send the user here. */
+  checkoutUrl: string;
+  qrCode: string;
+  amount: number;
+  /** Unix seconds. The link stops working after this. */
+  expiredAt: number;
+}
+
+/**
+ * Response of `GET /api/payments/status`.
+ *
+ * The webhook is what settles a transaction, so the client must never decide
+ * on its own that a payment succeeded — it polls until `isFinal`.
+ */
+export interface PaymentStatusResponse {
+  success: boolean;
+  /** `true` once paid / cancelled / failed — stop polling. */
+  isFinal: boolean;
+  status: PaymentTransactionStatus;
+  purpose: PaymentPurpose;
+  orderCode: number;
+  paymentLinkId: string;
+  subscriptionId: string | null;
+  subscriptionStatus: SubscriptionStatus | null;
+  postId: string | null;
+  postBoostedUntil: string | null;
+  amount: number;
+  message: string;
 }
 
 // ─── Endpoints ───────────────────────────────────────────────────────────────
@@ -140,13 +219,76 @@ export function selectPaymentPlansForRole(
 export async function createSubscriptionApi(
   payload: CreateSubscriptionPayload,
   config?: RequestConfig,
-): Promise<SubscriptionCreated> {
-  const response = await api.post<SubscriptionCreated>(
+): Promise<CreatePaymentResponse> {
+  const response = await api.post<Record<string, unknown>>(
     "/api/payments/subscriptions",
     payload,
     config,
   );
-  return response.data;
+  const raw = response.data ?? {};
+  return {
+    purpose: decodeEnum(PURPOSES, raw.purpose, "subscription"),
+    subscriptionId: (raw.subscriptionId as string | null) ?? null,
+    postId: (raw.postId as string | null) ?? null,
+    orderCode: Number(raw.orderCode ?? 0),
+    paymentLinkId: String(raw.paymentLinkId ?? ""),
+    checkoutUrl: String(raw.checkoutUrl ?? ""),
+    qrCode: String(raw.qrCode ?? ""),
+    amount: Number(raw.amount ?? 0),
+    expiredAt: Number(raw.expiredAt ?? 0),
+  };
+}
+
+/**
+ * GET /api/payments/status — where a transaction stands right now.
+ *
+ * Authenticated on purpose server-side: an `orderCode` is a millisecond
+ * timestamp and therefore guessable, so an anonymous endpoint would leak
+ * other people's amounts. The bearer token the interceptor attaches is what
+ * scopes this to the caller's own transactions.
+ */
+export async function fetchPaymentStatusApi(
+  params: { orderCode?: number; paymentLinkId?: string },
+  config?: RequestConfig,
+): Promise<PaymentStatusResponse> {
+  const response = await api.get<Record<string, unknown>>(
+    "/api/payments/status",
+    { ...config, params },
+  );
+  const raw = response.data ?? {};
+  return {
+    success: raw.success === true,
+    isFinal: raw.isFinal === true,
+    status: decodeEnum(TRANSACTION_STATUSES, raw.status, "pending"),
+    purpose: decodeEnum(PURPOSES, raw.purpose, "subscription"),
+    orderCode: Number(raw.orderCode ?? 0),
+    paymentLinkId: String(raw.paymentLinkId ?? ""),
+    subscriptionId: (raw.subscriptionId as string | null) ?? null,
+    subscriptionStatus:
+      raw.subscriptionStatus === null || raw.subscriptionStatus === undefined
+        ? null
+        : decodeEnum(SUBSCRIPTION_STATUSES, raw.subscriptionStatus, "pending"),
+    postId: (raw.postId as string | null) ?? null,
+    postBoostedUntil: (raw.postBoostedUntil as string | null) ?? null,
+    amount: Number(raw.amount ?? 0),
+    message: String(raw.message ?? ""),
+  };
+}
+
+/**
+ * POST /api/payments/cancel — mark a pending transaction cancelled.
+ *
+ * Idempotent server-side, so the cancel page can fire it on mount without
+ * guarding against a double render or a refresh.
+ */
+export async function cancelPaymentApi(
+  orderCode: number,
+  config?: RequestConfig,
+): Promise<void> {
+  // The order code goes in the URL rather than `config.params`: axios types
+  // `post`'s config against the request body, so a `params` object there
+  // fights the generic. It is a number, so there is nothing to encode.
+  await api.post(`/api/payments/cancel?orderCode=${orderCode}`, null, config);
 }
 
 /**

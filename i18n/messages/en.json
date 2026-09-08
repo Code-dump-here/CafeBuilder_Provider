@@ -2185,7 +2185,8 @@
       "subscribing": "Subscribing…",
       "subscribeSuccess": "Subscription started. We'll email the receipt shortly.",
       "subscribeError": "Couldn't start your subscription.",
-      "subscribeNote": "You'll be redirected to a secure checkout to complete payment."
+      "subscribeNote": "You'll be redirected to a secure checkout to complete payment.",
+      "redirecting": "Taking you to the secure checkout…"
     },
     "states": {
       "loading": "Loading plans…",
@@ -2196,6 +2197,26 @@
       "emptySubtitle": "Once the team publishes new plans they'll show up here.",
       "wrongRoleTitle": "Pricing is currently only enabled for service providers.",
       "wrongRoleSubtitle": "Switch to a provider account (or finish onboarding) to view plans."
+    },
+    "result": {
+      "orderCode": "Order code",
+      "amount": "Amount",
+      "backToPricing": "Back to plans",
+      "backHome": "Go to dashboard",
+      "checkingTitle": "Checking your payment…",
+      "checkingSubtitle": "One moment while we ask the server what happened.",
+      "pendingTitle": "Payment not confirmed yet",
+      "pendingSubtitle": "payOS has not finished settling this transaction. This page updates on its own, so you can safely leave it open.",
+      "paidTitle": "Payment received",
+      "paidSubtitle": "Your plan is active. Thanks!",
+      "failedTitle": "Payment did not go through",
+      "failedSubtitle": "Nothing was charged. You can start the checkout again whenever you like.",
+      "errorTitle": "Couldn't check this payment",
+      "errorSubtitle": "We couldn't reach the server to confirm the transaction. Your plan is unchanged — try again in a moment.",
+      "unknownTitle": "Nothing to confirm here",
+      "unknownSubtitle": "This page opens after a checkout, and needs an order code to look anything up.",
+      "cancelTitle": "Checkout cancelled",
+      "cancelSubtitle": "You backed out before paying, so nothing was charged. The plan is still there whenever you want it."
     }
   },
   "Notifications": {
