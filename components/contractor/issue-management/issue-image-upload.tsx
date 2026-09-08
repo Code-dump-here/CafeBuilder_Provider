@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+
+import { ACCEPT_IMAGES, validateUploadFile } from "@/lib/upload-constraints";
 import { useTranslations } from "next-intl";
 import { Loader2, Upload, X } from "lucide-react";
 
@@ -27,6 +29,7 @@ export function IssueImageUpload({
   disabled,
 }: IssueImageUploadProps) {
   const t = useTranslations("MilestoneManagement.issue");
+  const tUpload = useTranslations("Upload");
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -44,8 +47,20 @@ export function IssueImageUpload({
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
-    if (!file.type.startsWith("image/")) {
-      setError(t("uploadFailed"));
+    // Was `file.type.startsWith("image/")`, which is the wrong test twice
+    // over: it passes .heic, .svg, .bmp and .avif — all of them image/* to the
+    // browser and all of them refused by the server, which matches on
+    // extension — and it checked no size at all, so a 40MB photo uploaded in
+    // full before failing. This mirrors the server's own rule instead.
+    const check = validateUploadFile(file, { imageOnly: true });
+    if (!check.ok) {
+      setError(
+        check.reason === "too-large"
+          ? tUpload("tooLarge", { sizeMb: check.sizeMb, limitMb: check.limitMb })
+          : check.reason === "bad-type"
+            ? tUpload("badType", { extension: check.extension, allowed: check.allowed })
+            : tUpload("empty"),
+      );
       return;
     }
 
@@ -75,7 +90,7 @@ export function IssueImageUpload({
       <input
         ref={fileRef}
         type="file"
-        accept="image/*"
+        accept={ACCEPT_IMAGES}
         className="hidden"
         onChange={(e) => {
           void handleFiles(e.target.files);

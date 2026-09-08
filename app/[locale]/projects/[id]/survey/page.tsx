@@ -1,6 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "react-toastify";
+
+import { ACCEPT_ANY_UPLOAD } from "@/lib/upload-constraints";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FileText, Loader2, Plus, Upload } from "lucide-react";
@@ -41,12 +44,10 @@ import { EmptyState } from "@/components/ui/empty-state";
 // Constants
 
 const CONDITION_NOTE_MIN_LENGTH = 10;
-const ACCEPTED_FILE_TYPES = {
-  "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
-  "application/pdf": [".pdf"],
-  ".doc": [".doc"],
-  ".docx": [".docx"],
-};
+// Was a local map keyed by "image/*" — the same wildcard trap as everywhere
+// else, since the server matches on extension and would refuse the .heic the
+// browser offered under it. It also omitted .xls/.xlsx, which the server does
+// accept. Now sourced from the one module that mirrors the server contract.
 
 /** `yyyy-MM-dd` for a date input, in the viewer's own timezone. */
 function todayInputValue(): string {
@@ -262,7 +263,7 @@ export default function SurveyPage() {
       {isFetching && !isLoadingSurveys && (
         <p
           aria-live="polite"
-          className="flex items-center justify-center gap-2 text-center text-[10px] uppercase tracking-wider text-muted-foreground"
+          className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
         >
           <Loader2 className="size-3 animate-spin" aria-hidden />
           {t("refreshing")}
@@ -313,7 +314,7 @@ function SurveyCard({ survey, isLatest, onEdit, canEdit }: SurveyCardProps) {
               {t("surveyLabel")}
             </CardTitle>
             {isLatest && (
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
                 {t("latest")}
               </span>
             )}
@@ -520,7 +521,7 @@ function SurveyDialog({
             />
             <p
               id="survey-surveyed-on-hint"
-              className="text-[11px] text-muted-foreground"
+              className="text-[12px] text-muted-foreground"
             >
               {t("surveyedOnHint")}
             </p>
@@ -546,7 +547,7 @@ function SurveyDialog({
             />
             <p
               id="survey-condition-note-hint"
-              className="text-[11px] text-muted-foreground"
+              className="text-[12px] text-muted-foreground"
             >
               {isValid
                 ? t("conditionNoteHint")
@@ -591,9 +592,10 @@ function SurveyDialog({
               <div className="flex flex-col gap-2">
                 <FilePicker
                   id="survey-report-file"
-                  accept={Object.keys(ACCEPTED_FILE_TYPES).join(",")}
+                  accept={ACCEPT_ANY_UPLOAD}
                   file={reportFile}
                   onSelect={handleFileSelect}
+                  onReject={(message) => toast.error(message)}
                   onClear={clearSelectedFile}
                   disabled={isUploading}
                   hideClear={isUploading}
@@ -614,7 +616,7 @@ function SurveyDialog({
                 )}
               </div>
             )}
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[12px] text-muted-foreground">
               {t("reportFileHint")}
             </p>
           </div>

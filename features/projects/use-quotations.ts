@@ -147,9 +147,16 @@ function useQuotationInvalidator() {
   return () => {
     void queryClient.invalidateQueries({ queryKey: ["quotations"] });
     void queryClient.invalidateQueries({ queryKey: ["quotation"] });
-    void queryClient.invalidateQueries({ queryKey: ["project-applications"] });
+    // These two were `["project-applications"]` and `["my-project-workings"]`,
+    // neither of which is registered as a query key anywhere in the app — both
+    // strings appeared only on these lines. TanStack matches keys by prefix, so
+    // they invalidated nothing at all, and the comment above promising the
+    // applications and my-projects lists would refresh was simply not true:
+    // after awarding a quotation the marketplace kept offering "apply" on a
+    // post that had just been closed.
+    void queryClient.invalidateQueries({ queryKey: ["applies"] });
     void queryClient.invalidateQueries({ queryKey: ["engagements"] });
-    void queryClient.invalidateQueries({ queryKey: ["my-project-workings"] });
+    void queryClient.invalidateQueries({ queryKey: ["myProjects"] });
     void queryClient.invalidateQueries({ queryKey: ["marketplace"] });
   };
 }

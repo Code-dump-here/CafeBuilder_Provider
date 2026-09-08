@@ -188,7 +188,9 @@
       "pricing": "Pricing",
       "contact": "Contact",
       "projects": "Projects",
-      "myProjects": "My Projects"
+      "myProjects": "My Projects",
+      "menuTitle": "Navigation menu",
+      "menuAria": "Open navigation menu"
     },
     "cta": {
       "signIn": "Sign in",
@@ -595,7 +597,10 @@
     "errors": {
       "title": "Couldn't load this project",
       "subtitle": "We hit a snag while fetching the project details. Please try again — the issue is usually temporary.",
-      "retry": "Try again"
+      "retry": "Try again",
+      "noAccessTitle": "You don't have access to this project",
+      "noAccessSubtitle": "It isn't open for public bidding, and this account isn't part of it. If you expected access, ask the owner to invite you — or check you're signed in as the right account.",
+      "backToProjects": "Back to My Projects"
     },
     "designBrief": {
       "detailsCard": {
@@ -1385,7 +1390,8 @@
           "confirmImage": "As-fixed photo",
           "status": "Status"
         }
-      }
+      },
+      "loadProjectError": "Failed to load project."
     },
     "addPhase": {
       "title": "Add a phase",
@@ -1405,7 +1411,8 @@
     },
     "errorEmpty": "No phases yet. Add the first one to start tracking.",
     "summaryError": "Couldn't update milestone state.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "loadProjectError": "Failed to load project."
   },
   "Sidebar": {
     "common": {
@@ -2145,6 +2152,12 @@
     "unsaved": {
       "title": "Unsaved changes",
       "message": "You have unsaved edits. Leave anyway and lose them?"
+    },
+    "stats": {
+      "joined": "Joined {date}",
+      "rating": "Rating",
+      "yearsExperience": "Years Exp.",
+      "newRating": "New"
     }
   },
   "Payments": {
@@ -2405,6 +2418,15 @@
       "loadFailed": "Failed to load data",
       "noData": "No data available",
       "tryAgain": "Please try again"
+    },
+    "projectsTable": {
+      "project": "Project",
+      "owner": "Owner",
+      "contractor": "Contractor",
+      "status": "Status",
+      "progress": "Progress",
+      "budget": "Budget",
+      "updated": "Updated"
     }
   },
   "SiteProfile": {
@@ -3109,5 +3131,21 @@
       "uploadFailed": "Could not upload. Please try again.",
       "save": "Save entry"
     }
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "subtitle": "The page you were looking for doesn't exist or has moved.",
+    "backHome": "Go home"
+  },
+  "DataTable": {
+    "openRow": "Open {label}",
+    "selectRow": "Select {label}",
+    "open": "Open",
+    "select": "Select"
+  },
+  "Upload": {
+    "tooLarge": "That file is {sizeMb}MB. The limit is {limitMb}MB.",
+    "badType": "{extension} files aren't supported. Allowed: {allowed}.",
+    "empty": "That file is empty."
   }
 }

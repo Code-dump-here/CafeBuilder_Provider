@@ -34,7 +34,7 @@ export default async function ProjectsLayout({
         <AppSidebar locale={locale} />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border/50 px-4">
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2">
               <SidebarTrigger className="-ml-1" />
               <Separator
                 orientation="vertical"
@@ -42,7 +42,7 @@ export default async function ProjectsLayout({
               />
               <ProjectBreadcrumb localePrefix={locale} />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2">
               {/* The sidebar footer carries identity (NavUser) instead of a
                   navbar-style user menu, but notifications had no
                   equivalent here at all — they simply vanished the moment

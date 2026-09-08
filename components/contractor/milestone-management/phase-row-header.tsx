@@ -201,13 +201,13 @@ export function PhaseRowHeader({
           >
             {phase.label}
           </button>
-          <span className="text-[10px] text-muted-foreground">#{index + 1}</span>
-          <span className="text-[10px] text-muted-foreground">·</span>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[11px] text-muted-foreground">#{index + 1}</span>
+          <span className="text-[11px] text-muted-foreground">·</span>
+          <span className="text-[11px] text-muted-foreground">
             {t("tasksDone", { done: doneCount, total: phase.tasks.length })}
           </span>
         </div>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <User className="size-3" aria-hidden />
             <span className="font-medium text-foreground">{phase.lead}</span>
@@ -230,7 +230,7 @@ export function PhaseRowHeader({
             type="button"
             size="sm"
             variant="outline"
-            className="h-6 gap-1 px-2 text-[10px]"
+            className="h-6 gap-1 px-2 text-[11px]"
             onClick={() => setPendingStatus("completed")}
             disabled={isApplying}
             aria-busy={isApplying || undefined}
@@ -245,7 +245,7 @@ export function PhaseRowHeader({
         ) : null}
         <span
           className={cn(
-            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide",
             STATUS_TONE[phase.status].badgeClass
           )}
         >
@@ -256,7 +256,7 @@ export function PhaseRowHeader({
             unpaid, or paid while still running. Only shown when true: an
             "unpaid" badge on every phase would be noise. */}
         {phase.isPaid ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
             <Wallet className="size-3" aria-hidden />
             {t("paid")}
           </span>
@@ -329,10 +329,10 @@ export function PhaseRowHeader({
               </>
             ) : null}
             <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <DropdownMenuLabel className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
               {t("setStatus")}
             </DropdownMenuLabel>
-            <p className="px-2 pb-1.5 text-[11px] leading-snug text-muted-foreground">
+            <p className="px-2 pb-1.5 text-[12px] leading-snug text-muted-foreground">
               {nextStatus ? t("statusMoveHint") : t("statusTerminalHint")}
             </p>
             <DropdownMenuRadioGroup

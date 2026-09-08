@@ -194,7 +194,7 @@ function MyProjectsResults({ status, contractType }: MyProjectsResultsProps) {
       {isFetching && !isLoading ? (
         <p
           aria-live="polite"
-          className="flex items-center justify-center gap-2 text-center text-[10px] uppercase tracking-wider text-muted-foreground"
+          className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
         >
           <Loader2 className="size-3 animate-spin" aria-hidden />
           {t("refreshing")}

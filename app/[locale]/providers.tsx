@@ -63,7 +63,7 @@ export default function Providers({ children }: { children: ReactNode }) {
           draggable
           pauseOnHover
           theme={resolvedTheme === "dark" ? "dark" : "light"}
-          toastClassName="rounded-lg shadow-lg border border-border text-sm font-medium"
+          toastClassName="rounded-lg shadow-e3 border border-border text-sm font-medium"
         />
       </UserProvider>
     </QueryClientProvider>

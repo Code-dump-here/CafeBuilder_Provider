@@ -1,6 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "react-toastify";
+
+import { ACCEPT_IMAGES, validateUploadFile } from "@/lib/upload-constraints";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -123,7 +126,7 @@ export default function ProviderDailyLogsPage() {
 
   if (loadingEngagements) {
     return (
-      <div className="flex flex-col gap-4 p-6">
+      <div className="flex flex-col gap-4">
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-40 w-full" />
       </div>
@@ -132,7 +135,7 @@ export default function ProviderDailyLogsPage() {
 
   if (!engagement) {
     return (
-      <div className="p-6">
+      <div>
         <EmptyState
           icon={ClipboardList}
           title={t("noEngagement.title")}
@@ -143,7 +146,7 @@ export default function ProviderDailyLogsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
@@ -456,6 +459,7 @@ function DailyLogEditorDialog({
   onSubmit: (values: DailyLogFormValues) => void;
 }) {
   const t = useTranslations("DailyLogs");
+  const tUpload = useTranslations("Upload");
 
   const [logDate, setLogDate] = React.useState(todayInVietnam());
   const [itemId, setItemId] = React.useState<string>(NO_ITEM);
@@ -483,6 +487,25 @@ function DailyLogEditorDialog({
   });
 
   const handleUpload = async (files: FileList) => {
+    // Checked up front, for the whole batch: these upload in a Promise.all, so
+    // letting one bad file through means some succeed and the rest fail, and
+    // the gallery is left half-populated with no clear way to tell which.
+    // imageOnly is deliberately stricter than the endpoint (POST /api/files
+    // would take a .pdf) — this is a site-photo gallery.
+    for (const file of Array.from(files)) {
+      const check = validateUploadFile(file, { imageOnly: true });
+      if (!check.ok) {
+        toast.error(
+          check.reason === "too-large"
+            ? tUpload("tooLarge", { sizeMb: check.sizeMb, limitMb: check.limitMb })
+            : check.reason === "bad-type"
+              ? tUpload("badType", { extension: check.extension, allowed: check.allowed })
+              : tUpload("empty"),
+        );
+        return;
+      }
+    }
+
     setUploading(true);
     try {
       const uploaded = await Promise.all(
@@ -508,7 +531,7 @@ function DailyLogEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[90dvh] sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {initial ? t("editor.editTitle") : t("editor.createTitle")}
@@ -619,7 +642,7 @@ function DailyLogEditorDialog({
                 <input
                   type="file"
                   multiple
-                  accept="image/*,video/*"
+                  accept={ACCEPT_IMAGES}
                   className="hidden"
                   disabled={uploading}
                   onChange={(e) => {

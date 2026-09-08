@@ -122,7 +122,7 @@ export default function SiteProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4 p-6">
+      <div className="flex flex-col gap-4">
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-32 w-full" />
@@ -132,7 +132,7 @@ export default function SiteProfilePage() {
 
   if (isError) {
     return (
-      <div className="p-6">
+      <div>
         <ErrorState
           title={t("error.title")}
           subtitle={t("error.subtitle")}
@@ -145,7 +145,7 @@ export default function SiteProfilePage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
@@ -393,7 +393,7 @@ function Fact({
         {label}
       </p>
       <p className="text-sm font-medium text-foreground">{value}</p>
-      {hint ? <p className="text-[11px] text-muted-foreground/80">{hint}</p> : null}
+      {hint ? <p className="text-[12px] text-muted-foreground/80">{hint}</p> : null}
     </div>
   );
 }
@@ -462,7 +462,7 @@ function MeasurementsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[85dvh] sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {mode === "create" ? t("dialog.createTitle") : t("dialog.editTitle")}
@@ -582,7 +582,7 @@ function NumberField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      {hint ? <p className="text-[11px] text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="text-[12px] text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }

@@ -477,8 +477,24 @@ export function ChatView({ projectId }: ChatViewProps) {
         isPending={createMutation.isPending}
       />
 
-      <div className="grid h-[calc(100vh-7rem)] grid-cols-1 gap-3 lg:grid-cols-[300px_minmax(0,1fr)_300px]">
-        <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
+      {/*
+        The fixed height is applied from `lg` UP only. Below that the grid
+        collapses to one column, so the thread list and the conversation stack
+        — inside a container pinned to `100vh-7rem` with no overflow handling.
+        The stacked content was taller than the box it was locked into, so on
+        a phone the composer ended up outside the visible area entirely.
+        Letting the height go auto below `lg` makes the page scroll normally.
+
+        `dvh` rather than `vh`: `100vh` on mobile is the height WITHOUT the
+        browser's address bar, so the last rem of the conversation sat under
+        the chrome even at desktop widths in a mobile browser.
+
+        The thread list is capped at 45vh while stacked so the conversation is
+        reachable without scrolling past every thread first. The context rail
+        needs no change here — it is already `hidden lg:flex` internally.
+      */}
+      <div className="grid grid-cols-1 gap-3 lg:h-[calc(100dvh-7rem)] lg:grid-cols-[300px_minmax(0,1fr)_300px]">
+        <div className="max-h-[45vh] overflow-hidden rounded-xl border border-border/60 bg-card lg:max-h-none">
           <ThreadList
             threads={threads}
             selectedId={effectiveThreadId}

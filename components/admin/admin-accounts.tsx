@@ -128,7 +128,7 @@ function AccountRow({
               {isEmailVerified ? t("accounts.verified") : t("accounts.pending")}
             </p>
             {emailVerifiedAt && (
-              <p className="mt-0.5 text-[11px] text-muted-foreground" title={emailVerifiedAt}>
+              <p className="mt-0.5 text-[12px] text-muted-foreground" title={emailVerifiedAt}>
                 {t("accounts.verifiedOn", { date: emailVerifiedAt })}
               </p>
             )}
@@ -261,7 +261,7 @@ function AccountDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("accounts.details")}</DialogTitle>
         </DialogHeader>

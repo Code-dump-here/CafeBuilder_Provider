@@ -305,7 +305,7 @@ export function NotificationsPage() {
           <Bell aria-hidden className="size-3.5 text-primary" />
           {t("eyebrow")}
         </span>
-        <h1 className="font-heading text-3xl leading-[1.1] tracking-tight text-foreground md:text-4xl">
+        <h1 className="font-heading text-3xl font-semibold leading-[1.1] tracking-tight text-foreground md:text-4xl">
           {t("title")}
         </h1>
         <p className="text-sm leading-relaxed text-muted-foreground">

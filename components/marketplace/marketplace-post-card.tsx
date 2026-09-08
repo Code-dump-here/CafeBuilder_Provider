@@ -117,7 +117,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
         // Card tier, minus the cursor: the card isn't the click target —
         // the footer link is — so the pointer stays an arrow until it
         // reaches the actual affordance.
-        "transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out hover:border-primary/40 hover:bg-primary/[0.04] hover:shadow-md motion-safe:hover:-translate-y-0.5",
+        "transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out hover:border-primary/40 hover:bg-primary/[0.04] hover:shadow-e2 motion-safe:hover:-translate-y-0.5",
         post.status === "closed" && "opacity-90",
       )}
     >
@@ -126,7 +126,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
         <Badge
           variant="outline"
           className={cn(
-            "gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold tracking-wide",
+            "gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold tracking-wide",
             status.pill,
           )}
         >
@@ -143,7 +143,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
 
         <Badge
           variant="secondary"
-          className="gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium"
+          className="gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium"
         >
           <ServiceIcon className="size-3" aria-hidden />
           {t(`serviceKind.${post.serviceKind}`)}
@@ -166,7 +166,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
       </p>
 
       {/* Address. */}
-      <div className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
+      <div className="flex items-start gap-1.5 text-[12px] text-muted-foreground">
         <MapPin className="mt-0.5 size-3 shrink-0" aria-hidden />
         <span className="line-clamp-1">{post.projectAddress}</span>
       </div>
@@ -204,7 +204,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
 
       {/* Footer: CTA. */}
       <footer className="mt-auto flex items-center justify-between border-t border-border/40 pt-3">
-        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
           {t("submitted")}{" "}
           <time
             dateTime={post.createdAt.toISOString()}
@@ -214,17 +214,31 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
           </time>
         </span>
 
-        <Link
-          href={`/projects/${post.projectShopOwnerId}`}
-          aria-label={t("viewPostAria", { title: post.title })}
-          className={cn(
-            "inline-flex items-center gap-1 text-xs font-medium text-primary",
-            "transition-transform group-hover:translate-x-0.5",
-          )}
-        >
-          {t("viewPost")}
-          <ArrowUpRight className="size-3.5" aria-hidden />
-        </Link>
+        {/*
+          Only an open post gets a link. The target page is gated server-side
+          on "post is open for bidding OR viewer is part of the project", and
+          a card cannot know the second half — so for anything not open this
+          rendered a CTA that answered 401. A provider who IS engaged on a
+          closed project still reaches it from My Projects, which is the
+          route that actually knows they have access.
+        */}
+        {post.status === "open" ? (
+          <Link
+            href={`/projects/${post.projectShopOwnerId}`}
+            aria-label={t("viewPostAria", { title: post.title })}
+            className={cn(
+              "inline-flex items-center gap-1 text-xs font-medium text-primary",
+              "transition-transform group-hover:translate-x-0.5",
+            )}
+          >
+            {t("viewPost")}
+            <ArrowUpRight className="size-3.5" aria-hidden />
+          </Link>
+        ) : (
+          <span className="text-xs font-medium text-muted-foreground">
+            {t(`status.${post.status}`)}
+          </span>
+        )}
       </footer>
     </article>
   );
@@ -257,7 +271,7 @@ interface FactProps {
 function Fact({ icon: Icon, label, primary, secondary, secondaryTone = "muted" }: FactProps) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+      <dt className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-muted-foreground">
         <Icon className="size-2.5" aria-hidden />
         {label}
       </dt>
@@ -266,7 +280,7 @@ function Fact({ icon: Icon, label, primary, secondary, secondaryTone = "muted" }
           {primary}
         </span>
         {secondary ? (
-          <span className={cn("text-[10px]", DEADLINE_TONE[secondaryTone])}>
+          <span className={cn("text-[11px]", DEADLINE_TONE[secondaryTone])}>
             {secondary}
           </span>
         ) : null}

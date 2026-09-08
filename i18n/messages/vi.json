@@ -188,7 +188,9 @@
       "pricing": "Bảng giá",
       "contact": "Liên hệ",
       "projects": "Dự án",
-      "myProjects": "Dự án của tôi"
+      "myProjects": "Dự án của tôi",
+      "menuTitle": "Menu điều hướng",
+      "menuAria": "Mở menu điều hướng"
     },
     "cta": {
       "signIn": "Đăng nhập",
@@ -595,7 +597,10 @@
     "errors": {
       "title": "Không thể tải dự án này",
       "subtitle": "Đã xảy ra sự cố khi tải thông tin dự án. Vui lòng thử lại — sự cố thường chỉ diễn ra tạm thời.",
-      "retry": "Thử lại"
+      "retry": "Thử lại",
+      "noAccessTitle": "Bạn không có quyền xem dự án này",
+      "noAccessSubtitle": "Dự án không mở đấu thầu công khai và tài khoản này không tham gia. Nếu bạn nghĩ mình phải có quyền, hãy nhờ chủ dự án mời — hoặc kiểm tra xem đã đăng nhập đúng tài khoản chưa.",
+      "backToProjects": "Về Dự án của tôi"
     },
     "designBrief": {
       "detailsCard": {
@@ -1385,7 +1390,8 @@
           "status": "Trạng thái"
         }
       },
-      "reportCta": "Báo sự cố"
+      "reportCta": "Báo sự cố",
+      "loadProjectError": "Không tải được dự án."
     },
     "addPhase": {
       "title": "Thêm mốc",
@@ -1405,7 +1411,8 @@
     },
     "errorEmpty": "Chưa có mốc nào. Thêm mốc đầu tiên để bắt đầu.",
     "summaryError": "Không cập nhật được trạng thái mốc.",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "loadProjectError": "Không tải được dự án."
   },
   "Sidebar": {
     "common": {
@@ -2145,6 +2152,12 @@
     "unsaved": {
       "title": "Chưa lưu thay đổi",
       "message": "Bạn có thay đổi chưa lưu. Rời trang và mất hết chỉnh sửa?"
+    },
+    "stats": {
+      "joined": "Tham gia {date}",
+      "rating": "Đánh giá",
+      "yearsExperience": "Năm kinh nghiệm",
+      "newRating": "Mới"
     }
   },
   "Payments": {
@@ -2405,6 +2418,15 @@
       "loadFailed": "Không tải được dữ liệu",
       "noData": "Không có dữ liệu",
       "tryAgain": "Vui lòng thử lại"
+    },
+    "projectsTable": {
+      "project": "Dự án",
+      "owner": "Chủ quán",
+      "contractor": "Nhà thầu",
+      "status": "Trạng thái",
+      "progress": "Tiến độ",
+      "budget": "Ngân sách",
+      "updated": "Cập nhật"
     }
   },
   "SiteProfile": {
@@ -3109,5 +3131,21 @@
       "uploadFailed": "Không tải lên được. Vui lòng thử lại.",
       "save": "Lưu nhật ký"
     }
+  },
+  "NotFound": {
+    "title": "Không tìm thấy trang",
+    "subtitle": "Trang bạn tìm không tồn tại hoặc đã được chuyển đi.",
+    "backHome": "Về trang chủ"
+  },
+  "DataTable": {
+    "openRow": "Mở {label}",
+    "selectRow": "Chọn {label}",
+    "open": "Mở",
+    "select": "Chọn"
+  },
+  "Upload": {
+    "tooLarge": "Tệp này nặng {sizeMb}MB. Giới hạn là {limitMb}MB.",
+    "badType": "Không hỗ trợ tệp {extension}. Cho phép: {allowed}.",
+    "empty": "Tệp này rỗng."
   }
 }

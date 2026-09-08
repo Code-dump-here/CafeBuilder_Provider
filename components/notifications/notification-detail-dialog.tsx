@@ -79,12 +79,12 @@ export function NotificationDetailDialog({
             <DialogHeader>
               <div className="flex flex-wrap items-center gap-2 pb-1">
                 {item.type ? (
-                  <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                  <span className="rounded-full bg-muted px-2.5 py-0.5 text-[12px] font-medium text-muted-foreground">
                     {typeLabel(item.type)}
                   </span>
                 ) : null}
                 {!item.isRead ? (
-                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[12px] font-medium text-primary">
                     {t("unread")}
                   </span>
                 ) : null}

@@ -30,9 +30,9 @@ export function MetricCard({ label, value, delta, inverse, icon: Icon, className
   const Arrow = inverse ? (delta < 0 ? ArrowUp : ArrowDown) : delta < 0 ? ArrowDown : ArrowUp;
 
   return (
-    <div className={cn("rounded-lg border bg-card/60 p-4 shadow-sm", tone, className)}>
+    <div className={cn("rounded-lg border bg-card/60 p-4 shadow-e1", tone, className)}>
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+        <span className="text-[12px] uppercase tracking-wide text-muted-foreground">
           {label}
         </span>
         <span className="flex size-7 items-center justify-center rounded-md bg-foreground/5 text-foreground/70">
@@ -42,7 +42,7 @@ export function MetricCard({ label, value, delta, inverse, icon: Icon, className
       <div className="mt-2 text-2xl font-semibold tabular-nums text-foreground">{value}</div>
       <div
         className={cn(
-          "mt-1 flex items-center gap-1 text-[11px] font-medium",
+          "mt-1 flex items-center gap-1 text-[12px] font-medium",
           neutral
             ? "text-muted-foreground"
             : positive

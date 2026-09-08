@@ -33,7 +33,7 @@ export function ProgressStepper({ currentStep }: ProgressStepperProps) {
                   isCompleted
                     ? "border-primary bg-primary text-primary-foreground"
                     : isActive
-                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                    ? "border-primary bg-primary text-primary-foreground shadow-e1"
                     : "border-border bg-muted text-muted-foreground"
                 }`}
               >

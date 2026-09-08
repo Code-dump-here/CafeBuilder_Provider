@@ -32,7 +32,7 @@ export function MarketplaceHero({ openCount }: MarketplaceHeroProps) {
       <div className="flex flex-col gap-3">
         <Badge
           variant="outline"
-          className="w-fit gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
+          className="w-fit gap-1.5 text-[12px] font-medium uppercase tracking-wide text-muted-foreground"
         >
           <Sparkles className="size-3" aria-hidden />
           {t("eyebrow")}

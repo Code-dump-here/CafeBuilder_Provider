@@ -17,7 +17,7 @@ import { tokenStore } from "@/features/auth/token-store";
 import { authEvents } from "@/features/auth/auth-events";
 import { normalizeAxiosError } from "./errors";
 import { refreshAccessToken } from "./refresh-token";
-import { isJwtExpiredOrExpiring } from "@/features/auth/jwt";
+import { isJwtExpiredOrExpiring, secondsUntilExpiry } from "@/features/auth/jwt";
 import type { ApiErrorPayload, RetryableAxiosRequestConfig } from "./types";
 
 export const api = axios.create({
@@ -88,6 +88,39 @@ function isBrowser(): boolean {
  * minute lifetimes).
  */
 const JWT_EXPIRY_SAFETY_WINDOW_SECONDS = 60;
+
+/**
+ * `true` when the access token we currently hold is present and has NOT yet
+ * expired — i.e. the credential we just sent was still good.
+ *
+ * This is what lets the response interceptor tell apart the two very
+ * different things this backend answers with 401:
+ *
+ *   1. "your session is gone" — a genuine authentication failure, written by
+ *      the JwtBearer challenge handler. Refreshing is the right move.
+ *   2. "you may not see this" — an authorization refusal. The backend maps
+ *      `UnauthorizedAccessException` -> 401 for every ownership check, where
+ *      HTTP says 403 (see the exception table in the backend's CLAUDE.md).
+ *      Refreshing here is worse than pointless: it rotates — and thereby
+ *      burns — a perfectly good refresh token, fires a duplicate request that
+ *      is refused all over again, and if that refresh ever fails it logs the
+ *      user out for opening a URL they simply weren't allowed to see.
+ *
+ * A token with no parseable `exp` returns `false`: we cannot tell what state
+ * it is in, so we keep the old behaviour and let the refresh attempt decide.
+ *
+ * Known trade-off: if the client clock runs behind the server's, a genuinely
+ * expired token can still look valid here and we will skip the refresh. That
+ * same skew already defeats the proactive refresh in the request interceptor
+ * above, so this does not introduce a new failure mode.
+ */
+function accessTokenStillValid(): boolean {
+  const token = tokenStore.getAccessToken();
+  if (typeof token !== "string" || token.length === 0) return false;
+  const remaining = secondsUntilExpiry(token);
+  if (remaining === null) return false;
+  return remaining > 0;
+}
 
 let interceptorsAttached = false;
 
@@ -183,10 +216,22 @@ function attachApiInterceptors(): void {
 
       const status = error.response?.status;
       const isUnauthorized = status === 401;
+
+      // Only treat a 401 as "the session is gone" when the credential we
+      // actually sent was expired or missing. A 401 answering a still-valid
+      // token is an authorization refusal — see `accessTokenStillValid`.
+      //
+      // `skipAuth` requests (login / register / refresh / forgot-password)
+      // ship without a Bearer on purpose, so their 401 is the endpoint's own
+      // answer — "wrong password" — and never an expired session. Refreshing
+      // on those used to clear the store and fire `auth:expired` on a plain
+      // failed login.
       const canRefresh =
         !originalRequest._retry &&
         !originalRequest.skipRefresh &&
-        !originalRequest.url?.includes("/auth/refresh");
+        !originalRequest.skipAuth &&
+        !originalRequest.url?.includes("/auth/refresh") &&
+        !accessTokenStillValid();
 
       if (isUnauthorized && canRefresh) {
         originalRequest._retry = true;

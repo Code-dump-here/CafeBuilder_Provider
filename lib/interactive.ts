@@ -37,7 +37,7 @@
  * anything that changes size on hover visibly lag.
  */
 export const pressable =
-  "cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50";
+  "cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70";
 
 /**
  * A card or tile you click to go somewhere. Lifts slightly, warms

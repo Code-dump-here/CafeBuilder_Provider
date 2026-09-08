@@ -1,6 +1,7 @@
 "use client";
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useTranslations } from "next-intl";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,14 +16,16 @@ import { NavMenu } from "./nav-menu";
 import { AuthControls } from "./auth-controls";
 
 export const NavigationSheet = () => {
+  const t = useTranslations("Navbar.nav");
+
   return (
     <Sheet>
       <VisuallyHidden>
-        <SheetTitle>Navigation Menu</SheetTitle>
+        <SheetTitle>{t("menuTitle")}</SheetTitle>
       </VisuallyHidden>
 
       <SheetTrigger asChild>
-        <Button size="icon" variant="outline">
+        <Button size="icon" variant="outline" aria-label={t("menuAria")}>
           <Menu />
         </Button>
       </SheetTrigger>

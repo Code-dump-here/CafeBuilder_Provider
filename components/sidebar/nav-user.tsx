@@ -6,7 +6,6 @@ import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
-  CreditCard,
   LogOut,
   Sparkles,
 } from "lucide-react";
@@ -30,6 +29,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { useLogoutMutation } from "@/features/auth/hooks";
+import { Link } from "@/i18n/navigation";
 
 /**
  * User footer pinned to the bottom of the sidebar. Click the avatar to
@@ -47,6 +47,26 @@ export function NavUser({
   };
 }) {
   const t = useTranslations("Sidebar.navUser");
+
+  // The avatar fallback was the literal "CN" from the shadcn demo, so every
+  // signed-in user saw the same two letters on all 15 workspace routes.
+  // `app-sidebar` hardcodes `avatar: undefined` (the account API has no
+  // avatar field yet), which means this fallback is what ALWAYS renders --
+  // it is the whole avatar, not a fallback. Split on whitespace and on the
+  // punctuation found in emails so it degrades sensibly when the display
+  // name is missing entirely.
+  const initials = React.useMemo(() => {
+    const source = user.name?.trim() || user.email || "";
+    return (
+      source
+        .split(/[s@._-]+/)
+        .map((part) => part[0])
+        .filter(Boolean)
+        .slice(0, 2)
+        .join("")
+        .toUpperCase() || "?"
+    );
+  }, [user.name, user.email]);
   const { isMobile } = useSidebar();
   const logoutMutation = useLogoutMutation();
 
@@ -75,7 +95,7 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
@@ -94,7 +114,7 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
@@ -103,25 +123,35 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {/*
+              These four items shipped from the shadcn demo with no onSelect
+              and no href, so the menu looked complete but did nothing: only
+              "Log out" ever worked. Each survivor now points at a route that
+              actually exists. "Billing" is deleted rather than wired — there
+              is no billing page to send anyone to, and inventing a
+              destination is worse than removing a control nobody could use.
+            */}
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                {t("upgradeToPro")}
+              <DropdownMenuItem asChild>
+                <Link href="/pricing">
+                  <Sparkles />
+                  {t("upgradeToPro")}
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                {t("account")}
+              <DropdownMenuItem asChild>
+                <Link href="/profile">
+                  <BadgeCheck />
+                  {t("account")}
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                {t("billing")}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                {t("notifications")}
+              <DropdownMenuItem asChild>
+                <Link href="/notifications">
+                  <Bell />
+                  {t("notifications")}
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
