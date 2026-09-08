@@ -80,9 +80,9 @@ interface PhaseRowHeaderProps {
 }
 
 const STATUS_TONE: Record<MilestoneStatus, { badgeClass: string }> = {
-  completed: { badgeClass: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" },
-  inProgress: { badgeClass: "bg-amber-500/15 text-amber-700 dark:text-amber-300" },
-  blocked: { badgeClass: "bg-rose-500/15 text-rose-700 dark:text-rose-300" },
+  completed: { badgeClass: "bg-success/15 text-success-muted-foreground" },
+  inProgress: { badgeClass: "bg-warning/15 text-warning-muted-foreground" },
+  blocked: { badgeClass: "bg-danger/15 text-danger-muted-foreground" },
   upcoming: { badgeClass: "bg-muted text-muted-foreground" },
 };
 
@@ -256,7 +256,7 @@ export function PhaseRowHeader({
             unpaid, or paid while still running. Only shown when true: an
             "unpaid" badge on every phase would be noise. */}
         {phase.isPaid ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+          <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-success-muted-foreground">
             <Wallet className="size-3" aria-hidden />
             {t("paid")}
           </span>

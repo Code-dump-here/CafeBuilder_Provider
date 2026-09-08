@@ -177,7 +177,7 @@ export function MaterialsDialog({
                   : formatVnd(cost.totalActualCost, locale)}
               </p>
               {cost.missingActualCount > 0 && (
-                <p className="text-xs text-amber-600 dark:text-amber-400">
+                <p className="text-xs text-warning">
                   {t("actualPending", { count: cost.missingActualCount })}
                 </p>
               )}

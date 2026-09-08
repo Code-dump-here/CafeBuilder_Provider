@@ -1,6 +1,7 @@
 "use client";
 
 import { paletteIndexForAll } from "@/lib/id-hash";
+import { AVATAR_PALETTE } from "@/lib/avatar-palette";
 import * as React from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { BadgeCheck, Star, UserPlus, Users } from "lucide-react";
@@ -32,16 +33,6 @@ import {
 // avatar colour (the backend doesn't send one), so we hash a couple of
 // stable fields and pick from the palette.
 
-const AVATAR_PALETTE = [
-  "#A07B5A",
-  "#3B5BA9",
-  "#5A8F7B",
-  "#8E5A3B",
-  "#7B5A9B",
-  "#5A7B8F",
-  "#A95A8E",
-  "#9B8B5A",
-] as const;
 
 function avatarColorFor(provider: ProjectProvider): string {
   const palette = AVATAR_PALETTE;
@@ -215,7 +206,7 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
                     </p>
                     {provider.isVerified ? (
                       <BadgeCheck
-                        className="size-3.5 shrink-0 text-sky-500"
+                        className="size-3.5 shrink-0 text-info"
                         aria-label={t("verified")}
                       />
                     ) : null}
@@ -300,7 +291,15 @@ function StatusBadge({
   );
 }
 
-/** Tone class per capability — `both` gets its own hue so it reads as distinct. */
+/**
+ * Tone per capability. Deliberately literal hues rather than status tokens:
+ * a designer is not "a success" and a constructor is not "a warning" — these
+ * only need to be told apart from one another.
+ *
+ * They are not on the `--chart-*` ramp either. That ramp is sequential (five
+ * steps of the same warm hue), so using it here would make the three
+ * capabilities nearly indistinguishable, which is the one job this has.
+ */
 const CAPABILITY_TONE: Record<ProjectProviderCapability, string> = {
   designer:
     "border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300",
@@ -312,11 +311,11 @@ const CAPABILITY_TONE: Record<ProjectProviderCapability, string> = {
 /** Tone class per status — survives dark mode via paired CSS vars. */
 const STATUS_TONE: Record<ProjectProviderStatus, string> = {
   accepted:
-    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+    "bg-success/10 text-success-muted-foreground border-success/30",
   requested:
-    "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30",
+    "bg-warning/10 text-warning-muted-foreground border-warning/30",
   completed:
-    "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30",
+    "bg-info/10 text-info-muted-foreground border-info/30",
   rejected: "bg-destructive/10 text-destructive border-destructive/30",
   terminated: "bg-muted text-muted-foreground border-border/60",
 };
@@ -329,7 +328,7 @@ function RatingChip({ rating }: { rating: number }) {
   return (
     <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-foreground">
       <Star
-        className="size-2.5 fill-amber-400 text-amber-400"
+        className="size-2.5 fill-rating text-rating"
         aria-hidden
       />
       <span className="font-mono">{rounded.toFixed(1)}</span>

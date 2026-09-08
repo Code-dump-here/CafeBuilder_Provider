@@ -169,7 +169,7 @@ function ProviderEngagementActionsInner({
   return (
     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
       {showAwaiting ? (
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[10px] font-medium text-sky-700 dark:text-sky-300">
+        <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-info/30 bg-info/10 px-2 py-0.5 text-[10px] font-medium text-info-muted-foreground">
           <CircleDashed className="size-3" aria-hidden />
           {t("awaitingAcceptance")}
         </span>

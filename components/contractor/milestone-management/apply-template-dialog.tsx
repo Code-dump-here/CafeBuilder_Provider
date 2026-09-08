@@ -161,7 +161,7 @@ export function ApplyTemplateDialog({
           ) : null}
 
           {hasExistingPhases ? (
-            <p className="rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
+            <p className="rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs text-muted-foreground">
               {t("appendWarning")}
             </p>
           ) : null}
