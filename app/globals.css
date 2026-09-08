@@ -118,7 +118,12 @@
   --chart-3: oklch(0.48 0.1 38);
   --chart-4: oklch(0.38 0.08 28);
   --chart-5: oklch(0.3 0.06 18);
-  --radius: 0.625rem;
+  /* Square by default. Every other step of the scale is calc()'d from this
+     line, so the geometry of the whole app is one value. The soft-pill look
+     was the loudest tell of the old style. Avatars, spinners and scrollbar
+     thumbs keep their own rounded-full — those are round because of what they
+     are, not because of the theme. */
+  --radius: 0rem;
   --sidebar: oklch(0.95 0.012 62);
   --sidebar-foreground: oklch(0.28 0.035 48);
   --sidebar-primary: oklch(0.52 0.18 55);
