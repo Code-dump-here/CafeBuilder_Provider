@@ -160,10 +160,10 @@ const STATUS_CONFIG: Record<
   Design["status"],
   { label: string; color: string }
 > = {
-  in_progress: { label: "In Progress", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
-  submitted: { label: "Submitted", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" },
-  approved: { label: "Approved", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" },
-  revision: { label: "Revision", color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" },
+  in_progress: { label: "In Progress", color: "bg-info-muted text-info-muted-foreground" },
+  submitted: { label: "Submitted", color: "bg-warning-muted text-warning-muted-foreground" },
+  approved: { label: "Approved", color: "bg-success-muted text-success-muted-foreground" },
+  revision: { label: "Revision", color: "bg-danger-muted text-danger-muted-foreground" },
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────
@@ -733,7 +733,7 @@ function ImageListPanel({
                       }}
                       disabled={isDeleting}
                       aria-label="Delete image"
-                      className="shrink-0 rounded p-1 text-muted-foreground hover:bg-red-100 hover:text-red-600 disabled:opacity-50"
+                      className="shrink-0 rounded p-1 text-muted-foreground hover:bg-danger/10 hover:text-danger disabled:opacity-50"
                     >
                       <Trash2 aria-hidden className="size-3" />
                     </button>
@@ -899,9 +899,12 @@ function DesignImageViewer({
       </header>
 
       {/* Image area */}
-      <div className="relative flex-1 bg-stone-50 px-4 py-4 dark:bg-stone-950/40">
+      <div className="relative flex-1 bg-muted/40 px-4 py-4">
         <div className="mx-auto flex h-full max-w-5xl items-center justify-center">
           {image.thumbnailUrl && !imgError ? (
+            /* The white plate stays light in both themes on purpose: a
+               drawing is ink on paper, and inverting its backing makes the
+               linework unreadable. Not a theme colour to migrate. */
             <img
               src={image.thumbnailUrl}
               alt={image.name}
@@ -1014,7 +1017,7 @@ function VersionInfoRail({
             version — it read as a second revision request for work already
             redone. Past reasons remain in the approval history panel. */}
         {design.status === "revision" && design.reason && (
-          <p className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1.5 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+          <p className="rounded-md border border-warning/30 bg-warning-muted px-2 py-1.5 text-xs text-warning-muted-foreground">
             <span className="font-semibold">{t("version.revisionReason")}:</span>{" "}
             {design.reason}
           </p>

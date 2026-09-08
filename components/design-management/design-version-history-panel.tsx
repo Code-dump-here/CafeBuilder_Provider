@@ -65,17 +65,17 @@ const SNAPSHOT_TONE: Record<
 > = {
   submitted: {
     icon: Send,
-    dotClass: "text-amber-500",
+    dotClass: "text-warning",
     labelKey: "snapshotSubmitted",
   },
   approved: {
     icon: CheckCircle2,
-    dotClass: "text-emerald-500",
+    dotClass: "text-success",
     labelKey: "snapshotApproved",
   },
   revision: {
     icon: RotateCcw,
-    dotClass: "text-rose-500",
+    dotClass: "text-danger",
     labelKey: "snapshotRevision",
   },
 };
@@ -255,7 +255,7 @@ function SnapshotRow({
                 reason happened to be on the design at the time, which belongs to
                 the PREVIOUS round and reads as if it applied to this one. */}
             {snapshot.snapshotKind === "revision" && snapshot.reason ? (
-              <span className="mt-0.5 rounded-sm border-l-2 border-rose-400/60 bg-rose-50/60 py-0.5 pl-1.5 text-[10px] leading-relaxed text-foreground/80 dark:bg-rose-950/20">
+              <span className="mt-0.5 rounded-sm border-l-2 border-danger/50 bg-danger/5 py-0.5 pl-1.5 text-[10px] leading-relaxed text-foreground/80">
                 {snapshot.reason}
               </span>
             ) : null}

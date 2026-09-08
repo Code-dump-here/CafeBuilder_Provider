@@ -380,20 +380,20 @@ function ContractCard({
     },
     pending_otp: {
       label: t("status.pendingOtp"),
-      color: "text-yellow-600 dark:text-yellow-400",
-      bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
+      color: "text-warning-muted-foreground",
+      bgColor: "bg-warning-muted",
       icon: Clock,
     },
     confirmed: {
       label: t("status.confirmed"),
-      color: "text-green-600 dark:text-green-400",
-      bgColor: "bg-green-100 dark:bg-green-900/30",
+      color: "text-success-muted-foreground",
+      bgColor: "bg-success-muted",
       icon: CheckCircle2,
     },
     cancelled: {
       label: t("status.cancelled"),
-      color: "text-red-600 dark:text-red-400",
-      bgColor: "bg-red-100 dark:bg-red-900/30",
+      color: "text-danger-muted-foreground",
+      bgColor: "bg-danger-muted",
       icon: XCircle,
     },
   };
@@ -515,7 +515,7 @@ function ContractCard({
 
         {/* OTP Expires Info */}
         {contract.otpExpiresAt && contract.status === "pending_otp" && (
-          <div className="flex items-center gap-2 text-xs text-yellow-600 dark:text-yellow-400">
+          <div className="flex items-center gap-2 text-xs text-warning">
             <Clock className="size-3.5" aria-hidden />
             {t("otpExpiresAt", {
               time: new Date(contract.otpExpiresAt).toLocaleString("vi-VN"),
@@ -525,7 +525,7 @@ function ContractCard({
 
         {/* Confirmed Info */}
         {contract.confirmedAt && contract.status === "confirmed" && (
-          <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
+          <div className="flex items-center gap-2 text-xs text-success">
             <CheckCircle2 className="size-3.5" aria-hidden />
             {t("confirmedAt", {
               time: new Date(contract.confirmedAt).toLocaleString("vi-VN"),
@@ -548,15 +548,15 @@ function ConfirmedContractBanner({ contract }: ConfirmedContractBannerProps) {
   const t = useTranslations("Contracts");
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-900/20">
-      <div className="grid size-10 place-items-center rounded-full bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400">
+    <div className="flex items-center gap-3 rounded-xl border border-success/30 bg-success-muted p-4">
+      <div className="grid size-10 place-items-center rounded-full bg-success/20 text-success">
         <CheckCircle2 className="size-5" aria-hidden />
       </div>
       <div className="flex flex-1 flex-col gap-0.5">
-        <p className="text-sm font-semibold text-green-800 dark:text-green-300">
+        <p className="text-sm font-semibold text-success-muted-foreground">
           {t("confirmedBanner.title")}
         </p>
-        <p className="text-xs text-green-700 dark:text-green-400/80">
+        <p className="text-xs text-success-muted-foreground/85">
           {t("confirmedBanner.description", { title: contract.title })}
         </p>
       </div>
@@ -568,7 +568,7 @@ function ConfirmedContractBanner({ contract }: ConfirmedContractBannerProps) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 rounded-md bg-green-200 px-3 py-1.5 text-xs font-medium text-green-800 hover:bg-green-300 dark:bg-green-900 dark:text-green-300"
+            className="shrink-0 rounded-md bg-success/20 px-3 py-1.5 text-xs font-medium text-success-muted-foreground hover:bg-success/30"
           >
             {t("viewDocument")}
           </a>
