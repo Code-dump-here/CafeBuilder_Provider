@@ -320,7 +320,7 @@ export function AddressPicker({
         <p
           className={cn(
             "flex items-center gap-1.5 text-[11px]",
-            pinned ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground",
+            pinned ? "text-success" : "text-muted-foreground",
           )}
         >
           {pinned ? (

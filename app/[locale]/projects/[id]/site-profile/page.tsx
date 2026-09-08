@@ -314,8 +314,8 @@ function MeasurementsCard({
           <div
             className={`col-span-full flex flex-col gap-1 rounded-md border p-3 ${
               profile.isAreaSyncedToProject
-                ? "border-emerald-600/30 bg-emerald-600/5"
-                : "border-amber-600/30 bg-amber-600/5"
+                ? "border-success/30 bg-success/5"
+                : "border-warning/30 bg-warning/5"
             }`}
           >
             <p className="text-sm font-medium">

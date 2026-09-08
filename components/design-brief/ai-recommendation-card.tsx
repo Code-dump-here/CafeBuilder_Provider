@@ -608,7 +608,7 @@ function riskLevelTone(level: RiskNote["level"]) {
     case "high":
       return "border-destructive/40 bg-destructive/5 text-destructive";
     case "medium":
-      return "border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-300";
+      return "border-warning/40 bg-warning/5 text-warning-muted-foreground";
     case "low":
     default:
       return "border-border/60 bg-background/40 text-foreground/90";

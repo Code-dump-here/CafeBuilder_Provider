@@ -199,7 +199,7 @@ export function ResultCard({
       <span
         className={
           tone === "success"
-            ? "grid size-14 place-items-center bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+            ? "grid size-14 place-items-center bg-success/10 text-success-muted-foreground"
             : "grid size-14 place-items-center bg-destructive/10 text-destructive"
         }
       >

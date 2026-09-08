@@ -538,9 +538,9 @@ function QuotationEditorBase({
                 it, or asks for more than was quoted. Say so here, where it can
                 still be fixed. */}
             {terms.length > 0 && !balance.isBalanced ? (
-              <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3">
+              <div className="flex items-start gap-2 rounded-md border border-warning/40 bg-warning/10 p-3">
                 <TriangleAlert
-                  className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-500"
+                  className="mt-0.5 size-4 shrink-0 text-warning-muted-foreground"
                   aria-hidden
                 />
                 <p className="text-xs">

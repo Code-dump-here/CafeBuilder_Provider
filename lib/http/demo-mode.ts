@@ -122,12 +122,27 @@ const DESIGNS = page([
 ]);
 
 const CONSTRUCTION_ITEMS = page([
-  { id: "m1", projectWorkingId: WORKING_ID, name: "Demolition & site prep", status: "completed",
-    sortOrder: 1, estimateAt: "2026-03-12", isPaid: true, createdAt: NOW, updatedAt: NOW },
-  { id: "m2", projectWorkingId: WORKING_ID, name: "Bar carcass & plumbing", status: "in_progress",
-    sortOrder: 2, estimateAt: "2026-03-26", isPaid: false, createdAt: NOW, updatedAt: NOW },
-  { id: "m3", projectWorkingId: WORKING_ID, name: "Electrical first fix", status: "pending",
-    sortOrder: 3, estimateAt: "2026-04-02", isPaid: false, createdAt: NOW, updatedAt: NOW },
+  // `parentId: null` marks a top-level phase. The milestones board filters on
+  // it, so omitting the field entirely leaves the board empty — `undefined`
+  // does not equal `null`.
+  { id: "m1", projectWorkingId: WORKING_ID, parentId: null, name: "Demolition & site prep",
+    description: "Strip out the previous tenant's fit-out and make good.",
+    category: "site-prep", sortOrder: 1, status: "completed",
+    startAt: "2026-03-02", estimateAt: "2026-03-12", isPaid: true,
+    createdAt: NOW, updatedAt: NOW },
+  { id: "m2", projectWorkingId: WORKING_ID, parentId: null, name: "Bar carcass & plumbing",
+    description: "Build the bar run and take services to it.",
+    category: "joinery", sortOrder: 2, status: "in_progress",
+    startAt: "2026-03-13", estimateAt: "2026-03-26", isPaid: false,
+    createdAt: NOW, updatedAt: NOW },
+  { id: "m3", projectWorkingId: WORKING_ID, parentId: null, name: "Electrical first fix",
+    description: null, category: "mep", sortOrder: 3, status: "pending",
+    startAt: "2026-03-27", estimateAt: "2026-04-02", isPaid: false,
+    createdAt: NOW, updatedAt: NOW },
+  { id: "m4", projectWorkingId: WORKING_ID, parentId: null, name: "Joinery & finishes",
+    description: null, category: "finishing", sortOrder: 4, status: "pending",
+    startAt: "2026-04-03", estimateAt: "2026-04-18", isPaid: false,
+    createdAt: NOW, updatedAt: NOW },
 ]);
 
 /**

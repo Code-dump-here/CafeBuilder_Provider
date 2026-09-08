@@ -149,8 +149,8 @@ function FileCard({ attachment }: { attachment: MessageAttachment }) {
   const Icon = attachment.kind === "MEDIA" ? Image : FileText;
   const swatch =
     attachment.kind === "MEDIA"
-      ? "bg-blue-500/15 text-blue-700 dark:text-blue-300"
-      : "bg-stone-500/15 text-stone-700 dark:text-stone-300";
+      ? "bg-info/15 text-info-muted-foreground"
+      : "bg-muted text-muted-foreground";
 
   return (
     <article

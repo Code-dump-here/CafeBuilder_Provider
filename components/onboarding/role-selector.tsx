@@ -13,6 +13,12 @@ interface RoleOption {
   color: string;
 }
 
+/**
+ * Colour per role. Categorical, not status — an owner is not "a warning" and a
+ * designer is not "info". These three only need to be distinguishable from one
+ * another, which is why they stay literal while the status colours around them
+ * moved onto tokens.
+ */
 const ROLES: RoleOption[] = [
   {
     value: "shop_owner",

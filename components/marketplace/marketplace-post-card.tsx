@@ -54,9 +54,9 @@ const STATUS_TONE: Record<
   { dot: string; pill: string }
 > = {
   open: {
-    dot: "bg-emerald-500",
+    dot: "bg-success",
     pill:
-      "border-emerald-300/50 bg-emerald-50 text-emerald-700 dark:border-emerald-700/40 dark:bg-emerald-950/40 dark:text-emerald-300",
+      "border-success/50 bg-success-muted text-success-muted-foreground",
   },
   closed: {
     dot: "bg-muted-foreground/50",
@@ -241,8 +241,8 @@ const DEADLINE_TONE: Record<
   string
 > = {
   muted: "text-muted-foreground",
-  urgent: "font-semibold text-rose-600 dark:text-rose-400",
-  soon: "font-medium text-amber-700 dark:text-amber-300",
+  urgent: "font-semibold text-danger-muted-foreground",
+  soon: "font-medium text-warning-muted-foreground",
   ok: "text-foreground/70",
 };
 

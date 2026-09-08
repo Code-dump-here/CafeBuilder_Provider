@@ -67,6 +67,9 @@ export function TileMap({
       ))}
 
       {/* Nudged up so the pin's point, not its middle, sits on the coordinate. */}
+      {/* Red because a map pin is red — a convention older than this app and
+          not a status. It must not follow --danger, or every pin turns
+          whatever colour "something went wrong" becomes. */}
       <MapPin
         className="absolute left-1/2 top-1/2 size-7 -translate-x-1/2 -translate-y-full fill-red-500 text-red-700 drop-shadow"
         aria-hidden

@@ -243,7 +243,7 @@ function ProfileHeader({ account, isOwner }: ProfileHeaderProps) {
           </div>
           <div className="text-center sm:text-left">
             <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-              <Star className="size-5 text-amber-500 fill-amber-500" />
+              <Star className="size-5 text-rating fill-rating" />
               <span className="text-xl font-bold text-foreground">
                 {sp.avgRating?.toFixed(1) ?? "New"}
               </span>
@@ -337,9 +337,9 @@ function PostsGrid() {
           className="group relative aspect-square cursor-pointer overflow-hidden rounded-xl bg-muted"
         >
           {/* Placeholder Image */}
-          <div className="absolute inset-0 bg-linear-to-br from-amber-100 to-orange-100 flex items-center justify-center">
+          <div className="absolute inset-0 bg-muted flex items-center justify-center">
             <div className="text-center">
-              <Briefcase className="size-8 text-amber-600/50" />
+              <Briefcase className="size-8 text-muted-foreground/50" />
             </div>
           </div>
           
@@ -370,8 +370,8 @@ function ProjectsList() {
   ];
 
   const statusColors: Record<string, string> = {
-    completed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-    ongoing: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+    completed: "bg-success-muted text-success-muted-foreground",
+    ongoing: "bg-warning-muted text-warning-muted-foreground",
     pending: "bg-muted text-muted-foreground",
   };
 
@@ -382,8 +382,8 @@ function ProjectsList() {
           key={project.id}
           className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-md"
         >
-          <div className="flex size-14 items-center justify-center rounded-xl bg-linear-to-br from-amber-100 to-orange-100">
-            <Briefcase className="size-6 text-amber-600" />
+          <div className="flex size-14 items-center justify-center rounded-xl bg-muted">
+            <Briefcase className="size-6 text-muted-foreground" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-foreground truncate">
@@ -401,7 +401,7 @@ function ProjectsList() {
                       className={cn(
                         "size-3",
                         i < project.rating!
-                          ? "text-amber-500 fill-amber-500"
+                          ? "text-rating fill-rating"
                           : "text-muted-foreground/30",
                       )}
                     />
@@ -467,7 +467,7 @@ function ReviewsList() {
                   className={cn(
                     "size-4",
                     i < review.rating
-                      ? "text-amber-500 fill-amber-500"
+                      ? "text-rating fill-rating"
                       : "text-muted-foreground/30",
                   )}
                 />

@@ -228,9 +228,9 @@ export default function ChangeOrdersPage() {
               interrupting over — it is invisible everywhere else. */}
           {summary.unbilledAmount > 0 ? (
             <CardContent className="px-4 pb-4 pt-0">
-              <div className="flex items-start gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 p-3">
+              <div className="flex items-start gap-3 rounded-md border border-warning/40 bg-warning/10 p-3">
                 <TriangleAlert
-                  className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-500"
+                  className="mt-0.5 size-4 shrink-0 text-warning-muted-foreground"
                   aria-hidden
                 />
                 <div className="flex flex-col gap-0.5">
@@ -333,7 +333,7 @@ export default function ChangeOrdersPage() {
                           {t(`billing.${order.paymentBatchStatus ?? "pending"}`)}
                         </p>
                       ) : order.status === "accepted" && order.amount > 0 ? (
-                        <p className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-500">
+                        <p className="flex items-center gap-1.5 text-xs text-warning-muted-foreground">
                           <TriangleAlert className="size-3.5" aria-hidden />
                           {t("billing.notBilled")}
                         </p>

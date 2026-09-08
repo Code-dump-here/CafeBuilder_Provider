@@ -81,7 +81,7 @@ export function MilestoneTrack({
                       "motion-safe:group-hover:scale-110",
                       tone.badgeClass,
                       isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-card",
-                      phase.status === "inProgress" && !isSelected && "ring-2 ring-amber-400/40 ring-offset-2 ring-offset-card motion-safe:animate-pulse"
+                      phase.status === "inProgress" && !isSelected && "ring-2 ring-warning/40 ring-offset-2 ring-offset-card motion-safe:animate-pulse"
                     )}
                   >
                     <NodeIcon status={phase.status} />
@@ -131,16 +131,16 @@ const STATUS_TONE: Record<
   }
 > = {
   completed: {
-    badgeClass: "border-emerald-500/60 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-    className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    badgeClass: "border-success/60 bg-success/15 text-success-muted-foreground",
+    className: "bg-success/15 text-success-muted-foreground",
   },
   inProgress: {
-    badgeClass: "border-amber-500/60 bg-amber-500/15 text-amber-700 dark:text-amber-300",
-    className: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+    badgeClass: "border-warning/60 bg-warning/15 text-warning-muted-foreground",
+    className: "bg-warning/15 text-warning-muted-foreground",
   },
   blocked: {
-    badgeClass: "border-rose-500/60 bg-rose-500/15 text-rose-700 dark:text-rose-300",
-    className: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+    badgeClass: "border-danger/60 bg-danger/15 text-danger-muted-foreground",
+    className: "bg-danger/15 text-danger-muted-foreground",
   },
   upcoming: {
     badgeClass: "border-border/70 bg-card text-muted-foreground",

@@ -115,11 +115,11 @@ export function HomepageHeroVisual() {
         </div>
         <ol className="flex flex-col gap-1.5 text-xs text-foreground">
           <li className="flex items-center gap-2">
-            <span className="size-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+            <span className="size-1.5 shrink-0 rounded-full bg-success" aria-hidden />
             <span className="line-through text-muted-foreground">Site prep</span>
           </li>
           <li className="flex items-center gap-2">
-            <span className="size-1.5 shrink-0 rounded-full bg-amber-500 motion-safe:animate-pulse" aria-hidden />
+            <span className="size-1.5 shrink-0 rounded-full bg-warning motion-safe:animate-pulse" aria-hidden />
             <span>Foundation</span>
             <span className="ms-auto text-[10px] text-muted-foreground">62%</span>
           </li>

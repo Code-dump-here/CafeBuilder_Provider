@@ -82,7 +82,7 @@ export function NotificationListItem({
         aria-hidden
         className={cn(
           "mt-1.5 size-2 shrink-0 rounded-full",
-          item.isRead ? "bg-muted-foreground/30" : "bg-red-500",
+          item.isRead ? "bg-muted-foreground/30" : "bg-danger",
         )}
       />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
