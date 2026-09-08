@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+
+import { ACCEPT_IMAGES, validateUploadFile } from "@/lib/upload-constraints";
 import { useTranslations } from "next-intl";
 import { Loader2, Plus, Upload, X } from "lucide-react";
 
@@ -50,6 +52,7 @@ export function AddTaskModal({
   onSubmit,
 }: AddTaskModalProps) {
   const t = useTranslations("MilestoneManagement.task.addTask");
+  const tUpload = useTranslations("Upload");
   const tFields = useTranslations("MilestoneManagement.task.detail.fields");
   const tCommon = useTranslations("MilestoneManagement.common");
 
@@ -82,8 +85,18 @@ export function AddTaskModal({
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
-    if (!file.type.startsWith("image/")) {
-      setUploadError(t("uploadFailed"));
+    // `file.type.startsWith("image/")` passed .heic/.svg/.bmp — image/* to the
+    // browser, refused by the server, which matches on extension — and never
+    // looked at size.
+    const check = validateUploadFile(file, { imageOnly: true });
+    if (!check.ok) {
+      setUploadError(
+        check.reason === "too-large"
+          ? tUpload("tooLarge", { sizeMb: check.sizeMb, limitMb: check.limitMb })
+          : check.reason === "bad-type"
+            ? tUpload("badType", { extension: check.extension, allowed: check.allowed })
+            : tUpload("empty"),
+      );
       return;
     }
 
@@ -129,7 +142,7 @@ export function AddTaskModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[85dvh] sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>{phaseLabel ?? t("subtitle")}</DialogDescription>
@@ -168,7 +181,7 @@ export function AddTaskModal({
             <input
               ref={fileRef}
               type="file"
-              accept="image/*"
+              accept={ACCEPT_IMAGES}
               className="hidden"
               onChange={(e) => {
                 void handleFiles(e.target.files);

@@ -213,11 +213,11 @@ export function ApplyDialog({
               placeholder={t("proposalPlaceholder")}
               aria-describedby="apply-dialog-proposal-hint"
               aria-invalid={proposal.length > 0 && !proposalValid}
-              className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/40 flex w-full rounded-md border bg-transparent px-3 py-2 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+              className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/40 flex w-full rounded-md border bg-transparent px-3 py-2 text-xs shadow-e1 transition-colors focus-visible:outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
             />
             <p
               id="apply-dialog-proposal-hint"
-              className="text-[11px] text-muted-foreground"
+              className="text-[12px] text-muted-foreground"
             >
               {proposalValid
                 ? t("proposalHint", { min: PROPOSAL_MIN_LENGTH })
@@ -254,7 +254,7 @@ export function ApplyDialog({
             </div>
             <p
               id="apply-dialog-duration-hint"
-              className="text-[11px] text-muted-foreground"
+              className="text-[12px] text-muted-foreground"
             >
               {durationValid
                 ? t("durationHint")

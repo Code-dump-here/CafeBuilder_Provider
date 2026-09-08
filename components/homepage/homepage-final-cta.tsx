@@ -25,7 +25,7 @@ export function HomepageFinalCta() {
   return (
     <section className="bg-foreground py-20 text-background md:py-28">
       <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-        <Reveal as="h2" className="font-heading text-3xl leading-[1.1] tracking-tight md:text-5xl">
+        <Reveal as="h2" className="font-heading text-3xl font-bold leading-[1.1] tracking-tight md:text-5xl">
           {t("title")}
         </Reveal>
         <Reveal

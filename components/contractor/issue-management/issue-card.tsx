@@ -73,13 +73,13 @@ export function IssueCard({
         // Row tier, not card tier: these stack at `gap-1.5`, so a lift on
         // hover would have the card bumping into its neighbour.
         interactive && interactiveRow,
-        interactive && !active && "hover:border-foreground/20 hover:shadow-sm",
+        interactive && !active && "hover:border-foreground/20 hover:shadow-e1",
       )}
     >
       {/* LEFT — primary info */}
       <div className="flex min-w-0 flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+          <span className="rounded-md bg-muted px-2 py-0.5 text-[12px] font-medium text-muted-foreground">
             {issue.issueTypeName}
           </span>
           <IssueStatusPill status={issue.status} />
@@ -127,7 +127,7 @@ export function IssueCard({
           ) : null}
         </div>
 
-        <div className="flex flex-col items-end gap-1 text-[11px] text-muted-foreground">
+        <div className="flex flex-col items-end gap-1 text-[12px] text-muted-foreground">
           {issue.estimateAt ? (
             <time dateTime={issue.estimateAt} className="font-medium text-foreground/70">
               {formatDate(issue.estimateAt)}

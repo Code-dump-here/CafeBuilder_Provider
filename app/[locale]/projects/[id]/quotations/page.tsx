@@ -1,6 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "react-toastify";
+
+import { ACCEPT_ANY_UPLOAD, validateUploadFile } from "@/lib/upload-constraints";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -72,6 +75,7 @@ const STATUS_VARIANT: Record<
 
 export default function ProviderQuotationsPage() {
   const t = useTranslations("Quotations");
+  const tUpload = useTranslations("Upload");
   const locale = useLocale();
   const params = useParams<{ id: string }>();
   const projectId = params?.id ?? "";
@@ -199,6 +203,18 @@ export default function ProviderQuotationsPage() {
   };
 
   const handleAttach = async (quotationId: string, file: File) => {
+    const check = validateUploadFile(file);
+    if (!check.ok) {
+toast.error(
+        check.reason === "too-large"
+          ? tUpload("tooLarge", { sizeMb: check.sizeMb, limitMb: check.limitMb })
+          : check.reason === "bad-type"
+            ? tUpload("badType", { extension: check.extension, allowed: check.allowed })
+            : tUpload("empty"),
+      );
+      return;
+    }
+
     setUploadingFor(quotationId);
     try {
       const uploaded = await uploadFileApi(file);
@@ -217,7 +233,7 @@ export default function ProviderQuotationsPage() {
 
   if (loadingEngagements || loadingApplies) {
     return (
-      <div className="flex flex-col gap-4 p-6">
+      <div className="flex flex-col gap-4">
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-32 w-full" />
@@ -227,7 +243,7 @@ export default function ProviderQuotationsPage() {
 
   if (!projectWorkingId && !applyId) {
     return (
-      <div className="p-6">
+      <div>
         <EmptyState
           icon={FileSpreadsheet}
           title={t("noAnchor.title")}
@@ -249,7 +265,7 @@ export default function ProviderQuotationsPage() {
   );
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
@@ -391,6 +407,7 @@ export default function ProviderQuotationsPage() {
                       {t("attachments.add")}
                       <input
                         type="file"
+                        accept={ACCEPT_ANY_UPLOAD}
                         className="hidden"
                         disabled={uploadingFor !== null}
                         onChange={(e) => {

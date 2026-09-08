@@ -183,7 +183,7 @@ function AdminSidebarActions() {
         <SidebarMenuButton asChild tooltip="Notifications">
           <Link href="/admin/notifications">
             <Bell className="size-4" aria-hidden /> Notifications
-            <span className="ml-auto inline-flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
+            <span className="ml-auto inline-flex size-4 items-center justify-center rounded-full bg-destructive text-[11px] font-medium text-destructive-foreground">
               5
             </span>
           </Link>
@@ -242,7 +242,7 @@ function AdminUserChip({
           </Avatar>
           <div className="min-w-0 flex-1">
             <div className="truncate text-xs font-medium">{user.name}</div>
-            <div className="truncate text-[10px] text-muted-foreground">{user.email}</div>
+            <div className="truncate text-[11px] text-muted-foreground">{user.email}</div>
           </div>
         </button>
       </DropdownMenuTrigger>

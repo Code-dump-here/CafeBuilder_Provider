@@ -61,7 +61,7 @@ export function NavMain({ sections }: NavMainProps) {
                         {item.badge != null && (
                           <Badge
                             variant="secondary"
-                            className="ml-auto h-4 min-w-4 items-center justify-center px-1 text-[9px]"
+                            className="ml-auto h-4 min-w-4 items-center justify-center px-1 text-[11px]"
                           >
                             {item.badge}
                           </Badge>

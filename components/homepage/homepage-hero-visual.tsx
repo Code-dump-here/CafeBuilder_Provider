@@ -88,10 +88,10 @@ export function HomepageHeroVisual() {
       {/* Foreground card 1 — brief */}
       <div className="absolute -start-6 top-6 w-60 origin-bottom-right rotate-[-3deg] rounded-xl border border-border/60 bg-card/95 p-3 shadow-[0_18px_40px_-12px_oklch(0.25_0.03_55_/_0.4)] backdrop-blur-sm">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+          <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
             Brief
           </span>
-          <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">
+          <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary">
             Open
           </span>
         </div>
@@ -101,7 +101,7 @@ export function HomepageHeroVisual() {
         <p className="mt-1 text-xs text-muted-foreground">
           86 m², specialty coffee, target customers: freelancers and weekend groups.
         </p>
-        <div className="mt-3 flex items-center gap-2 text-[10px] text-muted-foreground">
+        <div className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
           <span className="rounded-full bg-muted px-2 py-0.5">Specialty coffee</span>
           <span className="rounded-full bg-muted px-2 py-0.5">$48k</span>
         </div>
@@ -109,7 +109,7 @@ export function HomepageHeroVisual() {
 
       {/* Foreground card 2 — milestone timeline */}
       <div className="absolute -end-4 top-1/3 w-56 origin-top-left rotate-[2deg] rounded-xl border border-border/60 bg-card/95 p-3 shadow-[0_18px_40px_-12px_oklch(0.25_0.03_55_/_0.4)] backdrop-blur-sm">
-        <div className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+        <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
           <CalendarCheck2 aria-hidden className="size-3 text-primary" />
           Milestone timeline
         </div>
@@ -121,7 +121,7 @@ export function HomepageHeroVisual() {
           <li className="flex items-center gap-2">
             <span className="size-1.5 shrink-0 rounded-full bg-amber-500 motion-safe:animate-pulse" aria-hidden />
             <span>Foundation</span>
-            <span className="ms-auto text-[10px] text-muted-foreground">62%</span>
+            <span className="ms-auto text-[11px] text-muted-foreground">62%</span>
           </li>
           <li className="flex items-center gap-2 text-muted-foreground">
             <span className="size-1.5 shrink-0 rounded-full bg-border" aria-hidden />
@@ -132,7 +132,7 @@ export function HomepageHeroVisual() {
 
       {/* Foreground card 3 — messaging */}
       <div className="absolute bottom-6 start-4 w-52 rotate-[1.5deg] rounded-xl border border-border/60 bg-card/95 p-3 shadow-[0_18px_40px_-12px_oklch(0.25_0.03_55_/_0.4)] backdrop-blur-sm">
-        <div className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+        <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
           <MessagesSquare aria-hidden className="size-3 text-primary" />
           Crew chat
         </div>
@@ -144,7 +144,7 @@ export function HomepageHeroVisual() {
             Got it, on site.
           </div>
         </div>
-        <div className="mt-2 flex items-center gap-1 text-[10px] text-muted-foreground">
+        <div className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground">
           <Hammer aria-hidden className="size-2.5" />
           Hung, contractor
         </div>

@@ -253,7 +253,7 @@ function QuotationEditorBase({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[90dvh] sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
             {isNewVersion
@@ -303,7 +303,7 @@ function QuotationEditorBase({
               />
               <p
                 id="quotation-duration-hint"
-                className="text-[11px] text-muted-foreground"
+                className="text-[12px] text-muted-foreground"
               >
                 {durationValid
                   ? t("editor.durationHint")

@@ -121,7 +121,7 @@ export default function ProviderPaymentsPage() {
 
   if (loadingEngagements) {
     return (
-      <div className="flex flex-col gap-4 p-6">
+      <div className="flex flex-col gap-4">
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-40 w-full" />
@@ -131,7 +131,7 @@ export default function ProviderPaymentsPage() {
 
   if (!engagement) {
     return (
-      <div className="p-6">
+      <div>
         <EmptyState
           icon={Wallet}
           title={t("noEngagement.title")}
@@ -142,7 +142,7 @@ export default function ProviderPaymentsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
@@ -431,7 +431,7 @@ function Stat({
       >
         {value}
       </p>
-      {hint ? <p className="text-[11px] text-muted-foreground/80">{hint}</p> : null}
+      {hint ? <p className="text-[12px] text-muted-foreground/80">{hint}</p> : null}
     </div>
   );
 }

@@ -93,7 +93,7 @@ export default function MarketplacePage() {
         {isFetching && !isLoading ? (
           <p
             aria-live="polite"
-            className="text-center text-[10px] uppercase tracking-wider text-muted-foreground"
+            className="text-center text-[11px] uppercase tracking-wider text-muted-foreground"
           >
             Refreshing…
           </p>

@@ -179,7 +179,7 @@ export function NextStepsCard({ engagement, projectId }: NextStepsCardProps) {
                   <span
                     aria-hidden
                     className={cn(
-                      "mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-[10px] font-semibold",
+                      "mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-[11px] font-semibold",
                       step.actionable
                         ? "bg-primary/10 text-primary"
                         : "bg-muted text-muted-foreground",

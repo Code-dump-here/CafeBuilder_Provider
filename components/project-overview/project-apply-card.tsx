@@ -354,7 +354,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
                   : t("applied.surveyRequired")}
               </span>
             </div>
-            <p className="text-[11px] leading-relaxed text-amber-800/90 dark:text-amber-300/80">
+            <p className="text-[12px] leading-relaxed text-amber-800/90 dark:text-amber-300/80">
               {surveyBooked
                 ? t("applied.surveyBookedHint")
                 : t("applied.surveyRequiredHint")}
@@ -381,7 +381,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
               className="size-3.5 shrink-0 text-green-600"
               aria-hidden
             />
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-[12px] text-muted-foreground">
               {t("applied.surveyDone")}
             </span>
           </div>

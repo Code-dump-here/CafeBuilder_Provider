@@ -217,7 +217,7 @@ export function PortfolioTab({ serviceProviderProfileId, editable }: PortfolioTa
                         </button>
                       ) : null}
                       {image.caption ? (
-                        <figcaption className="mt-1 w-28 truncate text-[11px] text-muted-foreground">
+                        <figcaption className="mt-1 w-28 truncate text-[12px] text-muted-foreground">
                           {image.caption}
                         </figcaption>
                       ) : null}
@@ -369,7 +369,7 @@ function PortfolioDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[85dvh] sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{initial ? t("editTitle") : t("addTitle")}</DialogTitle>
           <DialogDescription>{t("dialogDescription")}</DialogDescription>

@@ -159,7 +159,7 @@ export function ProviderProfileEditor({ account }: ProviderProfileEditorProps) {
         <div className="text-sm font-medium text-foreground">
           {account.email}
         </div>
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
+        <p className="text-[12px] leading-relaxed text-muted-foreground">
           {t("fields.emailHelp")}
         </p>
       </div>

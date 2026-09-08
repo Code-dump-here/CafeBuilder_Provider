@@ -40,7 +40,7 @@ export function IssueToolbar({
         <p className="max-w-prose text-xs text-muted-foreground">
           {t("subtitle")}
         </p>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px]">
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
           <Pill>{t("total", { count: totalCount })}</Pill>
           <Pill highlight={openCount > 0}>{t("open", { count: openCount })}</Pill>
           <Pill>{t("resolved", { count: resolvedCount })}</Pill>

@@ -115,7 +115,7 @@ function SummaryRow({ rec }: { rec: EngagementAiSummary }) {
           imageLabel={t("image")}
         />
       ) : null}
-      <p className="font-mono text-[11px] text-muted-foreground">#{rec.id}</p>
+      <p className="font-mono text-[12px] text-muted-foreground">#{rec.id}</p>
     </article>
   );
 }
@@ -146,7 +146,7 @@ function SummaryStateBadge({
             : "secondary"
       }
       className={cn(
-        "shrink-0 gap-1 text-[10px] font-semibold uppercase tracking-wide",
+        "shrink-0 gap-1 text-[11px] font-semibold uppercase tracking-wide",
         stateKey === "running" && "animate-pulse",
       )}
     >

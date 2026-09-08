@@ -119,7 +119,7 @@ export function MilestoneNotesDialog({
                     <span className="text-xs font-semibold text-foreground">
                       {note.createdByName ?? t("unknownAuthor")}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       {format.dateTime(new Date(note.createdAt), {
                         dateStyle: "medium",
                         timeStyle: "short",

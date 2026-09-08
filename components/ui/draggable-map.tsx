@@ -157,7 +157,7 @@ export function DraggableMap({
           treated like one, and nobody discovers it moves. */}
       <span
         className={cn(
-          "pointer-events-none absolute left-2 top-2 rounded bg-background/90 px-2 py-1 text-[10px] text-muted-foreground transition-opacity",
+          "pointer-events-none absolute left-2 top-2 rounded bg-background/90 px-2 py-1 text-[11px] text-muted-foreground transition-opacity",
           isDragging ? "opacity-0" : "opacity-100",
         )}
       >
@@ -165,7 +165,7 @@ export function DraggableMap({
       </span>
 
       {/* Attribution is a licence condition of the OpenStreetMap data. */}
-      <span className="pointer-events-none absolute bottom-0 right-0 bg-white/75 px-1 text-[8px] leading-tight text-black">
+      <span className="pointer-events-none absolute bottom-0 right-0 bg-white/75 px-1 text-[10px] leading-tight text-black">
         © MapTiler © OpenStreetMap
       </span>
     </div>
@@ -193,7 +193,7 @@ function ZoomButton({
       // otherwise nudge the map every time someone zooms.
       onPointerDown={(event) => event.stopPropagation()}
       onClick={onClick}
-      className="grid size-7 place-items-center rounded bg-background shadow-sm transition-colors hover:bg-accent disabled:opacity-40"
+      className="grid size-7 place-items-center rounded bg-background shadow-e1 transition-colors hover:bg-accent disabled:opacity-40"
     >
       {children}
     </button>

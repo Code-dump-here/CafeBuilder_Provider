@@ -28,7 +28,7 @@ export function HomepageHowItWorks() {
   return (
     <section className="bg-muted/30 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <Reveal as="h2" className="max-w-2xl font-heading text-3xl leading-[1.1] tracking-tight text-foreground md:text-4xl">
+        <Reveal as="h2" className="max-w-2xl font-heading text-3xl font-semibold leading-[1.1] tracking-tight text-foreground md:text-4xl">
           {t("title")}
         </Reveal>
 
@@ -45,15 +45,15 @@ export function HomepageHowItWorks() {
             return (
               <Reveal key={step.label} delay={index * 80} as="li" className="group relative flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <span className="font-mono text-[12px] uppercase tracking-[0.18em] text-muted-foreground">
                     {step.label}
                   </span>
                   <span aria-hidden className="h-px flex-1 bg-border" />
-                  <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+                  <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
                     0{index + 1}
                   </span>
                 </div>
-                <h3 className="font-heading text-xl text-foreground md:text-2xl">
+                <h3 className="font-heading text-xl font-semibold text-foreground md:text-2xl">
                   {step.title}
                 </h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">

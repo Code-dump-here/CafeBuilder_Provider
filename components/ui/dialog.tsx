@@ -62,17 +62,52 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-xs/relaxed text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          // `max-h-[90dvh] overflow-y-auto` is load-bearing, not styling. The
+          // panel is centred with `-translate-y-1/2` and had no height bound at
+          // all, so a dialog taller than the window grew off both ends of it
+          // with nothing to scroll — the title unreachable above, the submit
+          // button unreachable below. 28 files render a DialogContent and only
+          // 16 passed a `max-h-*` of their own, so twelve of them were one
+          // long form or one short laptop away from being unusable.
+          //
+          // `dvh` rather than `vh` so mobile browser chrome is accounted for.
+          // A consumer that passes its own `max-h-*` or `overflow-*` still
+          // wins: `cn` runs tailwind-merge, and `className` is appended last.
+          // `shadow-e3`: a dialog floats above everything, so it takes the top
+          // of the elevation scale. It previously had the same 1px ring as a
+          // card sitting flat on the page.
+          // The panel is bounded but does NOT scroll itself — the inner
+          // wrapper below does. That distinction is the whole point: the close
+          // button is absolutely positioned against this element, and an
+          // absolutely-positioned child of a SCROLL container is positioned
+          // against its padding box, so it scrolls with the content. When the
+          // panel was the scroller, the X slid out of view on exactly the
+          // long dialogs the height cap was added to rescue. Keeping the
+          // scroll one level in pins the X for all 44 dialog call sites at
+          // once, whatever they pass in `className`.
+          //
+          // `grid-rows-[minmax(0,1fr)]` lets that single child shrink below
+          // its content height; without it the row sizes to the content and
+          // the cap has nothing to push against.
+          //
+          // `dvh` rather than `vh` so mobile browser chrome is accounted for.
+          "fixed top-1/2 left-1/2 z-50 grid max-h-[90dvh] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 grid-rows-[minmax(0,1fr)] overflow-hidden rounded-xl bg-popover text-xs/relaxed text-popover-foreground shadow-e3 ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}
       >
-        {children}
+        {/*
+          `p-4` and `gap-4` moved here from the panel so the scrollbar tracks
+          the panel edge and content scrolls under the padding rather than
+          clipping against it. Verified no call site overrides either on
+          DialogContent, so this is invisible to consumers.
+        */}
+        <div className="grid gap-4 overflow-y-auto p-4">{children}</div>
         {showCloseButton && (
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
             <Button
               variant="ghost"
-              className="absolute top-2 right-2"
+              className="absolute top-2 right-2 z-10"
               size="icon-sm"
             >
               <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />

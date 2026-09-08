@@ -105,7 +105,7 @@ export function ApprovedDrawingsView({
                   <span className="truncate text-sm font-semibold text-foreground">
                     {design.title}
                   </span>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-[12px] text-muted-foreground">
                     {versionLabel}
                   </span>
                 </div>
@@ -129,7 +129,7 @@ export function ApprovedDrawingsView({
       {isFetching && !isLoading && !isError ? (
         <p
           aria-live="polite"
-          className="flex items-center justify-center gap-2 text-center text-[10px] uppercase tracking-wider text-muted-foreground"
+          className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
         >
           <Loader2 className="size-3 animate-spin" aria-hidden />
           {labels.loading}
@@ -137,7 +137,7 @@ export function ApprovedDrawingsView({
       ) : null}
 
       {!isLoading && approvedDesigns.length > 0 && !isError ? (
-        <p className="text-center text-[11px] text-muted-foreground">
+        <p className="text-center text-[12px] text-muted-foreground">
           {labels.footer}
         </p>
       ) : null}

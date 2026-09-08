@@ -13,21 +13,28 @@ interface RoleOption {
   color: string;
 }
 
+// The -50 backgrounds and -200 borders here are light-mode values with no
+// dark counterpart, so selecting a role in dark mode painted a near-white
+// block on the card. Expressed as translucent tints of the same hue instead:
+// they read the same on a light ground and darken with the surface behind
+// them, and the text shade flips so it stays legible in both themes.
 const ROLES: RoleOption[] = [
   {
     value: "shop_owner",
     icon: Building2,
-    color: "bg-amber-50 border-amber-200 text-amber-700",
+    color:
+      "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300",
   },
   {
     value: "designer",
     icon: Ruler,
-    color: "bg-sky-50 border-sky-200 text-sky-700",
+    color: "bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-300",
   },
   {
     value: "construction_company",
     icon: HardHat,
-    color: "bg-emerald-50 border-emerald-200 text-emerald-700",
+    color:
+      "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300",
   },
 ];
 
@@ -56,13 +63,13 @@ export function RoleSelector({ selected, onChange, error }: RoleSelectorProps) {
                 "relative flex flex-col items-center gap-2.5 rounded-xl border-2 p-4 transition-all duration-200 cursor-pointer",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2",
                 isSelected
-                  ? "border-primary bg-primary/5 shadow-sm"
+                  ? "border-primary bg-primary/5 shadow-e1"
                   : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/30"
               )}
             >
               {/* Selected check */}
               {isSelected && (
-                <div className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+                <div className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-e1">
                   <Check className="size-3" strokeWidth={3} />
                 </div>
               )}
@@ -85,7 +92,7 @@ export function RoleSelector({ selected, onChange, error }: RoleSelectorProps) {
                 )}>
                   {t(`roles.${role.value}.name`)}
                 </p>
-                <p className="text-[10px] leading-tight text-muted-foreground">
+                <p className="text-[11px] leading-tight text-muted-foreground">
                   {t(`roles.${role.value}.shortDesc`)}
                 </p>
               </div>

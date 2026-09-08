@@ -269,7 +269,7 @@ function TemplateOption({
               {template.name}
             </span>
             {template.isPublic ? (
-              <span className="rounded-full border border-border/60 bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+              <span className="rounded-full border border-border/60 bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
                 {t("systemBadge")}
               </span>
             ) : null}
@@ -279,7 +279,7 @@ function TemplateOption({
               {template.description}
             </span>
           ) : null}
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-[12px] text-muted-foreground">
             {t("counts", {
               phases: template.items.length,
               days: template.totalEstimateDays,
@@ -291,7 +291,7 @@ function TemplateOption({
       <button
         type="button"
         onClick={onToggleExpand}
-        className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+        className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground"
       >
         <ChevronDown
           className={cn("size-3 transition-transform", expanded && "rotate-180")}
@@ -362,7 +362,7 @@ function TemplateOption({
                     ) : null}
                   </span>
                   {item.tasks.length > 0 ? (
-                    <span className="text-[11px] leading-relaxed text-muted-foreground">
+                    <span className="text-[12px] leading-relaxed text-muted-foreground">
                       {item.tasks.map((task) => task.name).join(" • ")}
                     </span>
                   ) : null}

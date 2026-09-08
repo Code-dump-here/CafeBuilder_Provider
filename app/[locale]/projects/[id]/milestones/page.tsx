@@ -727,7 +727,7 @@ export default function MilestoneManagementPage() {
     return (
       <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-16 text-center">
         <AlertTriangle className="size-6 text-destructive" />
-        <p className="text-sm text-muted-foreground">Failed to load project.</p>
+        <p className="text-sm text-muted-foreground">{t("loadProjectError")}</p>
         <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
           {t("retry")}
         </Button>
