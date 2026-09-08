@@ -224,3 +224,10 @@ export function setupInterceptors(): void {
 // possibility of a TDZ error — by the time this line runs, `api` has
 // already been initialized.
 attachApiInterceptors();
+
+// Development only, and only when nobody is signed in: answer requests from
+// fixtures so every screen renders without a backend. Compiled out of a
+// production build (see `DEMO_ENABLED` in ./demo-mode), and inert the moment a
+// real token exists. Loaded last so it wraps the adapter after the
+// interceptors above are in place.
+void import("./demo-mode").then(({ installDemoMode }) => installDemoMode(api));

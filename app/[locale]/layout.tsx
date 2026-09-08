@@ -7,6 +7,7 @@ import "../globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { I18nProvider } from "@/components/providers/i18n-provider";
+import { DemoModeBanner } from "@/components/providers/demo-mode-banner";
 import Providers from "./providers";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -56,6 +57,7 @@ export default async function RootLayout({
           <Providers>
             <I18nProvider locale={locale} messages={messages}>
               {children}
+              <DemoModeBanner />
             </I18nProvider>
           </Providers>
         </ThemeProvider>
