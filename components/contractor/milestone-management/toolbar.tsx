@@ -55,7 +55,7 @@ export function MilestoneManagementToolbar({
         <p className="max-w-prose text-xs text-muted-foreground">
           <MilestoneManagementSubtitle />
         </p>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px]">
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
           <Pill>{t("totalPhases", { count: phaseCount })}</Pill>
           <Pill>{t("totalTasks", { count: taskCount })}</Pill>
           <Pill highlight>{t("doneTasks", { done: doneTaskCount, total: taskCount })}</Pill>

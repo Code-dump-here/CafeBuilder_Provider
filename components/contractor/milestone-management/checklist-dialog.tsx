@@ -104,7 +104,7 @@ export function ChecklistDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
@@ -265,7 +265,7 @@ function ChecklistRow({
           <span className="text-sm font-medium">{item.name}</span>
           <span
             className={cn(
-              "rounded px-1.5 py-0.5 text-[11px]",
+              "rounded px-1.5 py-0.5 text-[12px]",
               item.isRequired
                 ? "bg-muted text-foreground"
                 : "text-muted-foreground",
@@ -273,7 +273,7 @@ function ChecklistRow({
           >
             {item.isRequired ? t("required") : t("optional")}
           </span>
-          <span className={cn("text-[11px]", style.className)}>
+          <span className={cn("text-[12px]", style.className)}>
             {t(`status.${item.status}`)}
           </span>
         </div>
@@ -291,7 +291,7 @@ function ChecklistRow({
         )}
 
         {item.checkedAt && (
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-[12px] text-muted-foreground">
             {t("checkedAt", {
               date: format.dateTime(new Date(item.checkedAt), {
                 dateStyle: "medium",

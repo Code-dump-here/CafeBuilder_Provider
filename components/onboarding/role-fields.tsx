@@ -90,7 +90,7 @@ function Segmented<TValue extends string>({
                 "relative flex flex-col items-start gap-2 rounded-xl border-2 px-4 py-3 text-left transition-all duration-200 cursor-pointer",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2",
                 isSelected
-                  ? "border-primary bg-primary/5 shadow-sm"
+                  ? "border-primary bg-primary/5 shadow-e1"
                   : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/30",
               )}
             >

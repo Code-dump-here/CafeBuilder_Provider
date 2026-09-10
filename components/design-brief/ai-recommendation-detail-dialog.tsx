@@ -186,7 +186,7 @@ function RecommendationBody({
             <Sparkles className="size-4 shrink-0 text-primary" aria-hidden />
             <span className="truncate">{rec.conceptSummary}</span>
           </DialogTitle>
-          <DialogDescription className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
+          <DialogDescription className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px]">
             <span className="font-mono text-foreground/80">
               #{rec.id} · {t("jobId")}: {rec.jobId ?? t("noJobId")}
             </span>
@@ -332,7 +332,7 @@ function RecommendationBody({
               </dl>
               {rec.costNotes ? (
                 <p className="text-sm text-foreground/90 wrap-break-word">
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                     {tDetails("costNotes")}
                   </span>{" "}
                   {rec.costNotes}
@@ -494,7 +494,7 @@ function Section({
     >
       <header className="flex items-center gap-2">
         <Icon className="size-3.5 text-primary" aria-hidden />
-        <h3 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           {title}
         </h3>
       </header>
@@ -534,7 +534,7 @@ function VariantBadge({
             : "secondary"
       }
       className={cn(
-        "shrink-0 gap-1 text-[10px] font-semibold uppercase tracking-wide",
+        "shrink-0 gap-1 text-[11px] font-semibold uppercase tracking-wide",
         variant === "running" && "animate-pulse",
       )}
     >
@@ -560,7 +560,7 @@ function MetaField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
         <Icon className="size-3" aria-hidden />
         {label}
       </p>
@@ -646,7 +646,7 @@ function ReferenceUrls({
   if (urls.length === 0) {
     return (
       <p className="text-xs text-muted-foreground">
-        <span className="text-[10px] font-semibold uppercase tracking-wide">
+        <span className="text-[11px] font-semibold uppercase tracking-wide">
           {label}:
         </span>{" "}
         {emptyLabel}
@@ -655,7 +655,7 @@ function ReferenceUrls({
   }
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
       <ul className="flex flex-col gap-1">
@@ -703,13 +703,13 @@ function CollapsibleCode({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex items-center justify-between gap-2 px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
+        className="flex items-center justify-between gap-2 px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
       >
         <span>{label}</span>
-        <span className="text-[10px]">{open ? "Hide" : "Show"}</span>
+        <span className="text-[11px]">{open ? "Hide" : "Show"}</span>
       </button>
       {open ? (
-        <pre className="max-h-72 overflow-auto border-t border-border/60 px-3 py-2 font-mono text-[11px] leading-relaxed text-foreground/90 wrap-break-word">
+        <pre className="max-h-72 overflow-auto border-t border-border/60 px-3 py-2 font-mono text-[12px] leading-relaxed text-foreground/90 wrap-break-word">
           {children}
         </pre>
       ) : null}
@@ -775,7 +775,7 @@ function ZoneGridVisual({ zones }: { zones: LayoutZone[] }) {
               key={zone.id}
               title={`${zone.label} — ${zone.purpose}`}
               className={cn(
-                "absolute flex items-center justify-center rounded-sm border border-border/70 p-1 text-[9px] font-medium text-foreground/90 backdrop-blur-sm",
+                "absolute flex items-center justify-center rounded-sm border border-border/70 p-1 text-[11px] font-medium text-foreground/90 backdrop-blur-sm",
                 palette,
               )}
               style={{
@@ -804,13 +804,13 @@ function ZoneListRow({ zone }: { zone: LayoutZone }) {
         <p className="mt-0.5 wrap-break-word text-muted-foreground">
           {zone.purpose}
         </p>
-        <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+        <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
           {zone.id} · ({zone.x},{zone.y}) → {EMPTY_ZONE}{zone.w} × {EMPTY_ZONE}
           {zone.h}
         </p>
       </div>
       {zone.is_staff_only ? (
-        <Badge variant="secondary" className="shrink-0 text-[10px]">
+        <Badge variant="secondary" className="shrink-0 text-[11px]">
           Staff
         </Badge>
       ) : null}
@@ -831,12 +831,12 @@ function CustomerFlowSteps({ steps }: { steps: CustomerFlowStep[] }) {
         >
           <span
             aria-hidden
-            className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary"
+            className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[12px] font-semibold text-primary"
           >
             {idx + 1}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+            <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
               {step.stage}
             </p>
             <p className="mt-0.5 wrap-break-word text-foreground/90">
@@ -872,7 +872,7 @@ function PlanRecommendationsList({ items }: { items: PlanRecommendation[] }) {
             <span
               aria-hidden
               className={cn(
-                "mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+                "mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold",
                 priorityTone(item.priority),
               )}
             >
@@ -880,18 +880,18 @@ function PlanRecommendationsList({ items }: { items: PlanRecommendation[] }) {
             </span>
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-foreground">{item.title}</p>
-              <p className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+              <p className="mt-0.5 text-[11px] uppercase tracking-wide text-muted-foreground">
                 {tDetails("recPriority", { priority: item.priority })}
               </p>
               {item.rationale ? (
                 <p className="mt-1.5 wrap-break-word text-foreground/90">
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                     {tDetails("recRationale")}:
                   </span>{" "}
                   {item.rationale}
                 </p>
               ) : (
-                <p className="mt-1 text-[10px] text-muted-foreground">
+                <p className="mt-1 text-[11px] text-muted-foreground">
                   {tDetails("noRationale")}
                 </p>
               )}
@@ -935,7 +935,7 @@ function RiskNotesList({ items }: { items: RiskNote[] }) {
               </p>
               <p className="mt-0.5 wrap-break-word">{risk.description}</p>
               {risk.mitigation ? (
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide opacity-80">
+                <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide opacity-80">
                   Mitigation: {risk.mitigation}
                 </p>
               ) : null}

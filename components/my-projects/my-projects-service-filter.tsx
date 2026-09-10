@@ -87,7 +87,7 @@ export function MyProjectsServiceFilter({
             className={cn(
               "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
               isActive
-                ? "bg-primary text-primary-foreground shadow-sm"
+                ? "bg-primary text-primary-foreground shadow-e1"
                 : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
             )}
           >

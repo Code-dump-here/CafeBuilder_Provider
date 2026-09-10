@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { I18nProvider } from "@/components/providers/i18n-provider";
 import { DemoModeBanner } from "@/components/providers/demo-mode-banner";
 import Providers from "./providers";
+import { buildThemeInitScript } from "@/lib/theme-init";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin", "vietnamese"],
@@ -47,6 +48,23 @@ export default async function RootLayout({
         "font-sans",
       )}
     >
+      <head>
+        {/*
+          Applies the persisted theme BEFORE first paint. This has to be
+          server-rendered and inline: the script previously lived in a
+          `useEffect` inside ThemeProvider, which by definition runs after
+          hydration and after the browser has already painted — so every cold
+          load and hard navigation flashed a white page at dark-mode users
+          before the class landed on <html>.
+
+          `suppressHydrationWarning` on <html> above is what makes this safe:
+          the script mutates className/style before React hydrates, and React
+          would otherwise report the mismatch it deliberately caused.
+        */}
+        <script
+          dangerouslySetInnerHTML={{ __html: buildThemeInitScript() }}
+        />
+      </head>
       <body>
         <ThemeProvider
           attribute="class"

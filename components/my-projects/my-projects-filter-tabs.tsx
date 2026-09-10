@@ -105,7 +105,7 @@ export function MyProjectsFilterTabs({
             className={cn(
               "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
               isActive
-                ? "bg-primary text-primary-foreground shadow-sm"
+                ? "bg-primary text-primary-foreground shadow-e1"
                 : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
             )}
           >
@@ -114,7 +114,7 @@ export function MyProjectsFilterTabs({
             {showCount ? (
               <span
                 className={cn(
-                  "ms-1 rounded-full px-1.5 text-[10px] font-semibold",
+                  "ms-1 rounded-full px-1.5 text-[11px] font-semibold",
                   isActive
                     ? "bg-primary-foreground/20 text-primary-foreground"
                     : "bg-muted text-muted-foreground",

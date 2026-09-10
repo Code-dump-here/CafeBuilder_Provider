@@ -227,7 +227,7 @@ export function AddressPicker({
           disabled={disabled}
           onChange={(event) => handleType(event.target.value)}
         />
-        <p className="text-[11px] text-muted-foreground">{labels.unavailable}</p>
+        <p className="text-[12px] text-muted-foreground">{labels.unavailable}</p>
       </div>
     );
   }
@@ -275,7 +275,7 @@ export function AddressPicker({
       </div>
 
       {isOpen ? (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-md border border-border bg-popover shadow-md">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-md border border-border bg-popover shadow-e2">
           {suggestions.length > 0 ? (
             <ul className="max-h-64 overflow-y-auto py-1">
               {suggestions.map((suggestion) => (
@@ -297,7 +297,7 @@ export function AddressPicker({
                         {suggestion.mainText}
                       </span>
                       {suggestion.secondaryText ? (
-                        <span className="block truncate text-[11px] text-muted-foreground">
+                        <span className="block truncate text-[12px] text-muted-foreground">
                           {suggestion.secondaryText}
                         </span>
                       ) : null}
@@ -307,7 +307,7 @@ export function AddressPicker({
               ))}
             </ul>
           ) : searched && !isSearching ? (
-            <p className="px-3 py-2.5 text-[11px] text-muted-foreground">
+            <p className="px-3 py-2.5 text-[12px] text-muted-foreground">
               {labels.noResults}
             </p>
           ) : null}
@@ -319,7 +319,7 @@ export function AddressPicker({
       {query.trim().length > 0 ? (
         <p
           className={cn(
-            "flex items-center gap-1.5 text-[11px]",
+            "flex items-center gap-1.5 text-[12px]",
             pinned ? "text-success" : "text-muted-foreground",
           )}
         >
@@ -375,7 +375,7 @@ export function AddressPicker({
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="h-6 gap-1.5 px-2 text-[11px]"
+                className="h-6 gap-1.5 px-2 text-[12px]"
                 onClick={() => setAdjusting((open) => !open)}
               >
                 {adjusting ? (
@@ -390,7 +390,7 @@ export function AddressPicker({
               ) : null}
             </div>
           ) : (
-            <p className="text-[11px] text-muted-foreground">{labels.placeFirstPin}</p>
+            <p className="text-[12px] text-muted-foreground">{labels.placeFirstPin}</p>
           )}
         </div>
       ) : null}

@@ -126,19 +126,34 @@ export function PhaseDetailDrawer({
     [issuesQuery.items],
   );
 
-  // Per-drawer-open task completion. Reset every time `phase` changes
-  // so reopening the drawer for a different phase starts fresh. Local
-  // toggle only — the real mutation lands on the dedicated tasks page.
-  const [doneTaskIds, setDoneTaskIds] = React.useState<Record<string, boolean>>(
-    {},
-  );
+  // Ticks the user has made in this drawer, held apart from the server's own
+  // answer rather than replacing it.
+  //
+  // This used to BE the completion state: a map that started empty and was
+  // reset to empty on every open, with `task.status` never read. A phase whose
+  // four tasks were all `completed` therefore opened as "0 of 4" with four
+  // blank circles, directly beside a progress bar reading 100% — the count came
+  // from this map, the percentage came from the server, and only one of them
+  // was telling the truth.
+  //
+  // Seeding the map on open would not fix it either: the tasks arrive from a
+  // query, so at first render there is nothing to seed from. Overlaying instead
+  // of storing sidesteps that — the server's status is the answer until the
+  // user says otherwise, whenever it happens to load.
+  const [taskOverrides, setTaskOverrides] = React.useState<
+    Record<string, boolean>
+  >({});
   useResetOnChange(phase?.id, () => {
-    setDoneTaskIds({});
+    setTaskOverrides({});
   });
 
   if (!phase) return null;
 
-  const doneCount = Object.values(doneTaskIds).filter(Boolean).length;
+  // Local tick wins if there is one; otherwise the task's real status.
+  const isTaskDone = (task: (typeof tasks)[number]) =>
+    taskOverrides[task.id] ?? task.status === "completed";
+
+  const doneCount = tasks.filter(isTaskDone).length;
   const totalTasks = tasks.length;
   const blockersCount = openIssues.length;
 
@@ -146,6 +161,10 @@ export function PhaseDetailDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
+        // This drawer draws its own close button in the header below, so the
+        // one SheetContent renders by default at `absolute top-4 right-4` sat
+        // directly on top of it — two overlapping X icons in the same corner.
+        showCloseButton={false}
         className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-xl"
       >
         {/* Header */}
@@ -153,7 +172,7 @@ export function PhaseDetailDrawer({
           <div className="flex min-w-0 flex-col gap-1">
             <span
               className={cn(
-                "inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
+                "inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
                 STATUS_TONE[phase.status].className
                   .split(" ")
                   .filter((c) => c.startsWith("bg-") || c.startsWith("text-"))
@@ -242,13 +261,10 @@ export function PhaseDetailDrawer({
             {/* Tasks */}
             <Section
               title={t("sections.tasks")}
-              meta={
-                doneCount > 0
-                  ? `${doneCount}/${totalTasks}`
-                  : totalTasks > 0
-                    ? `${totalTasks}`
-                    : undefined
-              }
+              // Always the fraction once there are tasks. Showing a bare total
+              // when none are done reads as "4 tasks" next to a KPI saying
+              // "0 of 4", which is the same number said two ways.
+              meta={totalTasks > 0 ? `${doneCount}/${totalTasks}` : undefined}
             >
               {tasksQuery.isLoading ? (
                 <Empty>{t("loadingTasks")}</Empty>
@@ -260,11 +276,11 @@ export function PhaseDetailDrawer({
                     <TaskRow
                       key={task.id}
                       task={task}
-                      done={Boolean(doneTaskIds[task.id])}
+                      done={isTaskDone(task)}
                       onToggle={() =>
-                        setDoneTaskIds((prev) => ({
+                        setTaskOverrides((prev) => ({
                           ...prev,
-                          [task.id]: !prev[task.id],
+                          [task.id]: !isTaskDone(task),
                         }))
                       }
                       tDone={t("taskDone")}
@@ -312,7 +328,7 @@ export function PhaseDetailDrawer({
 
         {/* Footer */}
         <div className="flex items-center justify-between gap-2 border-t border-border/60 px-5 py-3">
-          <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
             <TriangleAlert className="size-3" aria-hidden />
             {blockersCount > 0 ? tStatus("blocked") : tStatus(phase.status)}
           </span>
@@ -345,7 +361,7 @@ export function PhaseDetailDrawer({
 function Kpi({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="rounded-md border border-border/40 bg-card/60 px-3 py-2">
-      <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">
+      <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
         {label}
       </dt>
       <dd className="mt-0.5 text-sm font-semibold text-foreground">{value}</dd>
@@ -369,7 +385,7 @@ function Section({
           {title}
         </h3>
         {meta ? (
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium tabular-nums text-foreground">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium tabular-nums text-foreground">
             {meta}
           </span>
         ) : null}
@@ -450,7 +466,7 @@ function TaskRow({
         {task.reason ? (
           <span
             title={task.reason}
-            className="ml-2 line-clamp-1 max-w-[40%] text-[10px] text-muted-foreground"
+            className="ml-2 line-clamp-1 max-w-[40%] text-[11px] text-muted-foreground"
           >
             {task.reason}
           </span>
@@ -485,7 +501,7 @@ function IssueRow({
         </p>
         <span
           className={cn(
-            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+            "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide",
             tone.badgeClass,
           )}
         >
@@ -495,7 +511,7 @@ function IssueRow({
       {issue.cause ? (
         <p className="mt-1 text-xs text-muted-foreground">{issue.cause}</p>
       ) : null}
-      <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+      <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
         {targetLabel}
         {" · "}
         {format.dateTime(new Date(issue.createdAt), {
@@ -540,13 +556,19 @@ const ISSUE_TONE: Record<
     badgeClass:
       "bg-warning/15 text-warning-muted-foreground",
   },
+  // resolved = fixed, awaiting the owner's sign-off; closed = signed off and
+  // done. This drawer used to invert that reading — emerald for resolved and
+  // plain grey for closed — while IssueStatusPill (the same statuses, on the
+  // Issues tab of the same project) used sky then emerald. One issue changed
+  // colour depending on which screen you opened it from, and grey read as
+  // "inactive" for what is actually the completed state. Aligned to the pill,
+  // which documents the lifecycle it is colouring.
   resolved: {
-    boxClass: "border-success/40 bg-success/5",
-    badgeClass:
-      "bg-success/15 text-success-muted-foreground",
+    boxClass: "border-info/40 bg-info/5",
+    badgeClass: "bg-info/15 text-info-muted-foreground",
   },
   closed: {
-    boxClass: "border-border/60 bg-card",
-    badgeClass: "bg-muted text-muted-foreground",
+    boxClass: "border-success/40 bg-success/5",
+    badgeClass: "bg-success/15 text-success-muted-foreground",
   },
 };

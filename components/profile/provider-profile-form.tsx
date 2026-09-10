@@ -103,7 +103,7 @@ function Segmented<TValue extends string>({
                 "relative flex flex-col items-start gap-2 rounded-xl border-2 px-4 py-3 text-left transition-all duration-200 cursor-pointer",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2",
                 isSelected
-                  ? "border-primary bg-primary/5 shadow-sm"
+                  ? "border-primary bg-primary/5 shadow-e1"
                   : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/30",
               )}
             >
@@ -155,7 +155,7 @@ function VerificationPill({ isVerified, label }: VerificationPillProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[12px] font-medium",
         isVerified
           ? "border-success/30 bg-success/10 text-success-muted-foreground"
           : "border-border bg-muted/40 text-muted-foreground",
@@ -319,7 +319,7 @@ export function ProviderProfileForm({
             }
           />
           {typeof avgRating === "number" && avgRating > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-0.5 text-[11px] font-medium text-foreground">
+            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-0.5 text-[12px] font-medium text-foreground">
               ★ {avgRating.toFixed(2)}
             </span>
           ) : null}

@@ -87,7 +87,7 @@ export function ThreadList({
       <header className="flex flex-col gap-2 border-b border-border/60 p-3">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               {t("list.heading")}
             </p>
             <h2 className="text-sm font-semibold text-foreground">
@@ -247,7 +247,7 @@ function ThreadRow({
             </span>
             <span
               className={cn(
-                "shrink-0 text-[10px] font-medium uppercase tracking-wider",
+                "shrink-0 text-[11px] font-medium uppercase tracking-wider",
                 thread.unreadCount > 0
                   ? "font-semibold text-primary"
                   : "text-muted-foreground",
@@ -258,7 +258,7 @@ function ThreadRow({
           </div>
           <p
             className={cn(
-              "line-clamp-1 text-[11px] wrap-break-word",
+              "line-clamp-1 text-[12px] wrap-break-word",
               thread.unreadCount > 0
                 ? "font-semibold text-foreground/90"
                 : "text-muted-foreground",
@@ -268,7 +268,7 @@ function ThreadRow({
           </p>
           <div className="mt-1 flex items-center justify-between gap-2">
             {thread.channelLabel ? (
-              <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {thread.channelLabel}
               </span>
             ) : (
@@ -278,7 +278,7 @@ function ThreadRow({
               {thread.pinned ? (
                 <span
                   title={t("list.pinned")}
-                  className="inline-flex items-center text-[10px] font-medium text-warning-muted-foreground"
+                  className="inline-flex items-center text-[11px] font-medium text-warning-muted-foreground"
                 >
                   <ChevronDown aria-hidden className="size-2.5 -rotate-90" />
                   <span className="sr-only">{t("list.pinned")}</span>
@@ -289,7 +289,7 @@ function ThreadRow({
                   aria-label={t("list.unreadBadge", {
                     count: thread.unreadCount,
                   })}
-                  className="inline-flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-semibold text-primary-foreground"
+                  className="inline-flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground"
                 >
                   {thread.unreadCount}
                 </span>
@@ -365,7 +365,7 @@ function ParticipantStack({
       <span
         key="overflow"
         aria-label={`${overflowCount} more`}
-        className="inline-flex size-7 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground shadow-[0_0_0_2px_var(--card)] -ml-2"
+        className="inline-flex size-7 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-muted-foreground shadow-[0_0_0_2px_var(--card)] -ml-2"
       >
         +{overflowCount}
       </span>,
@@ -402,7 +402,7 @@ function AvatarChip({
       color={color}
       size="sm"
       className={cn(
-        "size-7 text-[10px]",
+        "size-7 text-[11px]",
         "shadow-[0_0_0_2px_var(--card)]",
         // overlap each chip on the previous one; skip the first
         !isFirst && "-ml-2",

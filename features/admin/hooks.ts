@@ -75,7 +75,7 @@ export function useUpdateAccountStatus() {
       updateAccountStatus(id, payload),
     onSuccess: (_, variables) => {
       // Invalidate accounts list
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.accounts() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.accountsAll() });
       // Invalidate specific account
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.account(variables.id) });
       // Invalidate overview (account counts may have changed)
@@ -91,7 +91,7 @@ export function useDeleteAccount() {
     mutationFn: (id: string) => deleteAccount(id),
     onSuccess: () => {
       // Invalidate accounts list
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.accounts() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.accountsAll() });
       // Invalidate overview
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.overview() });
     },

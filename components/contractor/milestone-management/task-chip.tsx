@@ -57,7 +57,7 @@ export function TaskChip({
         // Reacts to a hover anywhere on the chip, including the dead
         // space between the toggle and the title — the whole pill is one
         // task, so lighting up only the text would read as two things.
-        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-foreground/25 hover:shadow-sm",
+        "transition-[border-color,box-shadow] duration-150 ease-out hover:border-foreground/25 hover:shadow-e1",
         done
           ? "border-success/40 bg-success/5"
           : inProgress
@@ -109,7 +109,7 @@ export function TaskChip({
           {task.title}
         </span>
 
-        <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] text-muted-foreground">
+        <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-muted-foreground">
           {task.dueDate ? (
             <span className="inline-flex items-center gap-0.5">
               <CalendarDays className="size-2.5" aria-hidden />

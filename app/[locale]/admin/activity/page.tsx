@@ -9,7 +9,7 @@ export default function AdminActivityPage() {
         title="Activity"
         description="Every recorded action across accounts, projects, and designs."
       />
-      <div className="rounded-lg border border-border/60 bg-card/60 p-5 shadow-sm">
+      <div className="rounded-lg border border-border/60 bg-card/60 p-5 shadow-e1">
         <ActivityFeed items={ADMIN_ACTIVITY} />
       </div>
     </>

@@ -211,7 +211,7 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
                       />
                     ) : null}
                   </div>
-                  <p className="truncate text-[11px] text-muted-foreground">
+                  <p className="truncate text-[12px] text-muted-foreground">
                     {subtitle}
                     {joinedLabel ? (
                       <>
@@ -264,7 +264,7 @@ function CapabilityBadge({
   return (
     <span
       className={
-        "shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide " +
+        "shrink-0 rounded-full border px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide " +
         CAPABILITY_TONE[capability]
       }
     >
@@ -282,7 +282,7 @@ function StatusBadge({
   return (
     <span
       className={
-        "shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide " +
+        "shrink-0 rounded-full border px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide " +
         STATUS_TONE[status]
       }
     >
@@ -326,7 +326,7 @@ function RatingChip({ rating }: { rating: number }) {
   const clamped = Math.max(0, Math.min(5, rating));
   const rounded = Math.round(clamped * 10) / 10;
   return (
-    <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-foreground">
+    <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-foreground">
       <Star
         className="size-2.5 fill-rating text-rating"
         aria-hidden

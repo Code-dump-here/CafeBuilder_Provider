@@ -56,8 +56,8 @@ export function ConceptImage({
         className="aspect-video w-full bg-muted object-cover"
       />
       {prompt ? (
-        <figcaption className="border-t border-border/60 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
+        <figcaption className="border-t border-border/60 bg-muted/30 px-3 py-2 text-[12px] text-muted-foreground">
+          <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
             {promptLabel}:
           </span>{" "}
           <span className="wrap-break-word">{prompt}</span>

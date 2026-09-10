@@ -76,7 +76,7 @@ export function TileMap({
       />
 
       {/* Attribution is a licence condition of the OpenStreetMap data, not decoration. */}
-      <span className="absolute bottom-0 right-0 bg-white/75 px-1 text-[8px] leading-tight text-black">
+      <span className="absolute bottom-0 right-0 bg-white/75 px-1 text-[10px] leading-tight text-black">
         © MapTiler © OpenStreetMap
       </span>
     </div>

@@ -140,7 +140,7 @@ export function MyProjectCard({ project, className }: MyProjectCardProps) {
           Shows title + agreed value so the provider sees the headline
           terms at a glance without drilling into the contract page. */}
       {project.hasConfirmedContract && contract ? (
-        <div className="flex items-start gap-2 rounded-lg border border-success/40 bg-success/60 px-3 py-2 text-[11px] text-success-muted-foreground">
+        <div className="flex items-start gap-2 rounded-lg border border-success/40 bg-success-muted/60 px-3 py-2 text-[12px] text-success-muted-foreground">
           <CheckCircle2 className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <div className="flex items-center gap-1.5 font-medium">

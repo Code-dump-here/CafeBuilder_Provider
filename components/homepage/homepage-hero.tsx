@@ -39,7 +39,26 @@ export function HomepageHero() {
 
   return (
     <section className="relative overflow-hidden bg-background pt-14 pb-20 md:pt-20 md:pb-28 lg:pt-24 lg:pb-32">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:px-8">
+      {/*
+        Ambient warmth behind the hero. The section was a flat fill, which is
+        what made an otherwise well-composed hero read as a wireframe: nothing
+        receded, so nothing came forward either.
+
+        Both washes are the app's OWN tokens (--primary and --accent) at low
+        alpha and heavy blur, so this reads as light in the room rather than a
+        decorative gradient bolted on — and it cannot drift from the palette.
+        Dark mode gets slightly MORE primary and much less accent: the accent
+        token is a pale warm tint that would turn into a grey haze on a dark
+        ground, while a glow needs to be brighter than what it sits on.
+
+        aria-hidden + pointer-events-none: it is atmosphere, not content.
+      */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-1/4 left-1/2 h-[36rem] w-[56rem] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px] dark:bg-primary/20" />
+        <div className="absolute -right-1/4 -bottom-1/3 h-[28rem] w-[40rem] rounded-full bg-accent/50 blur-[110px] dark:bg-accent/10" />
+      </div>
+
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:px-8">
         {/* ── Left: copy column ─────────────────────────────────────────── */}
         <div className="flex flex-col gap-6 lg:col-span-7">
           <Reveal as="p" className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground">
@@ -50,7 +69,7 @@ export function HomepageHero() {
           <Reveal
             as="h1"
             delay={80}
-            className="font-heading text-4xl leading-[1.05] tracking-tight text-foreground md:text-5xl lg:text-6xl"
+            className="font-heading text-4xl font-bold leading-[1.05] tracking-tight text-foreground md:text-5xl lg:text-6xl"
           >
             {t("headline")}
           </Reveal>
@@ -71,7 +90,7 @@ export function HomepageHero() {
             <Button
               asChild
               size="2xl"
-              className="h-11 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-sm transition-transform hover:-translate-y-px"
+              className="h-11 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-e1 transition-transform hover:-translate-y-px"
             >
               <Link href={primaryHref}>
                 {t("primaryCta")}

@@ -43,7 +43,7 @@ export default function LoginPage() {
               viewBox="0 0 200 200"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="w-48 drop-shadow-2xl"
+              className="w-48 drop-shadow-e3"
             >
               {/* Cup body */}
               <path

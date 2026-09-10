@@ -72,7 +72,7 @@ export function NotificationBell({ count: countProp }: NotificationBellProps = {
           {count > 0 ? (
             <span
               aria-hidden
-              className="absolute -right-0.5 -top-0.5 grid min-h-[18px] min-w-[18px] place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold leading-none text-destructive-foreground ring-2 ring-background"
+              className="absolute -right-0.5 -top-0.5 grid min-h-[18px] min-w-[18px] place-items-center rounded-full bg-destructive px-1 text-[11px] font-semibold leading-none text-destructive-foreground ring-2 ring-background"
             >
               {count > 99 ? "99+" : count}
             </span>
@@ -108,7 +108,7 @@ function NotificationDropdownPreview() {
         <DropdownMenuLabel className="px-0 text-sm font-semibold text-foreground">
           {t("title")}
         </DropdownMenuLabel>
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-[12px] text-muted-foreground">
           {data.totalItems > 0
             ? t("preview.total", { count: data.totalItems })
             : null}

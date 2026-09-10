@@ -67,11 +67,15 @@ export interface MarketplaceFilters {
 
 export const DEFAULT_FILTERS: MarketplaceFilters = {
   serviceKind: "all",
-  // Default to "all" so the request URL is just `?pageNumber=1&pageSize=10`
-  // (no `status` query param) — matches the endpoint contract and avoids
-  // over-filtering the initial page. Power users can still filter down to
-  // `open` / `closed` / `draft` via the filter bar.
-  status: "all",
+  // Default to "open", NOT "all". The marketplace is a place to bid, and a
+  // closed post cannot be bid on — but the bigger problem was that listing
+  // them handed out links nobody could follow. Every card links to
+  // `/projects/{projectShopOwnerId}`, and the API only serves that page when
+  // the post is open for bidding or the viewer is already part of the
+  // project, so each closed card was a guaranteed 401 dressed up as a CTA.
+  // On the current data that is 15 of 18 posts. Filtering to `closed` from
+  // the filter bar still works; the card just stops offering a dead link.
+  status: "open",
   sort: "newest",
   query: "",
   projectShopOwnerId: null,

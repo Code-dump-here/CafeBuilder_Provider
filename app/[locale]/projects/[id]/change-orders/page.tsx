@@ -134,7 +134,7 @@ export default function ChangeOrdersPage() {
 
   if (loadingEngagements) {
     return (
-      <div className="flex flex-col gap-4 p-6">
+      <div className="flex flex-col gap-4">
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-40 w-full" />
@@ -144,7 +144,7 @@ export default function ChangeOrdersPage() {
 
   if (!engagement) {
     return (
-      <div className="p-6">
+      <div>
         <EmptyState
           icon={ReceiptText}
           title={t("noEngagement.title")}
@@ -155,7 +155,7 @@ export default function ChangeOrdersPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
@@ -499,7 +499,7 @@ function Stat({
       >
         {value}
       </p>
-      {hint ? <p className="text-[11px] text-muted-foreground/80">{hint}</p> : null}
+      {hint ? <p className="text-[12px] text-muted-foreground/80">{hint}</p> : null}
     </div>
   );
 }
@@ -603,7 +603,7 @@ function ChangeOrderDialog({
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[12px] text-muted-foreground">
               {topLevelItems.length === 0
                 ? t("dialog.milestoneEmpty")
                 : t("dialog.milestoneHint")}
@@ -629,7 +629,7 @@ function ChangeOrderDialog({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
-            <p className="text-[11px] text-muted-foreground">{t("dialog.amountHint")}</p>
+            <p className="text-[12px] text-muted-foreground">{t("dialog.amountHint")}</p>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -640,7 +640,7 @@ function ChangeOrderDialog({
               placeholder={t("dialog.reasonPlaceholder")}
               onChange={(e) => setReason(e.target.value)}
             />
-            <p className="text-[11px] text-muted-foreground">{t("dialog.reasonHint")}</p>
+            <p className="text-[12px] text-muted-foreground">{t("dialog.reasonHint")}</p>
           </div>
         </div>
 

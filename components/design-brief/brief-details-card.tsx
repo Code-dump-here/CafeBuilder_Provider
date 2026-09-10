@@ -176,7 +176,7 @@ export function BriefDetailsCard({ brief }: BriefDetailsCardProps) {
                 aria-hidden
               />
               <div className="min-w-0">
-                <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                   {t("timeline")}
                 </p>
                 <p className="mt-1 wrap-break-word font-medium">

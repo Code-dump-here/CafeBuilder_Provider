@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FileText, Loader2 } from "lucide-react";
 
@@ -74,6 +74,7 @@ import { ErrorState } from "@/components/ui/error-state";
 export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
   const projectIdParam = params?.id ?? "";
+  const router = useRouter();
   const tErrors = useTranslations("ProjectsOverview.errors");
 
   const {
@@ -150,11 +151,39 @@ export default function ProjectDetailPage() {
   });
 
   if (isProjectError || isBriefError || isAiError) {
-    const message =
-      projectError?.message ??
-      briefError?.message ??
-      aiError?.message ??
-      "Failed to load this project.";
+    const firstError = projectError ?? briefError ?? aiError;
+    const message = firstError?.message ?? "Failed to load this project.";
+
+    // A refusal is not a hiccup. The server answers 401 when the project is
+    // neither open for bidding nor connected to this account (see
+    // ProjectShopOwnerService.EnsureVisibleAsync), and 404 when it does not
+    // exist — both give the identical answer however many times they are
+    // asked. Offering "Try again — the issue is usually temporary" there put
+    // a button in front of the user that could never work, directly above the
+    // server's own sentence explaining that it never would.
+    const status = (firstError as { status?: number } | undefined)?.status;
+    const isRefused = status === 401 || status === 403 || status === 404;
+
+    if (isRefused) {
+      return (
+        <ErrorState
+          title={tErrors("noAccessTitle")}
+          subtitle={tErrors("noAccessSubtitle")}
+          // Deliberately no `message`. The server's own sentence here is
+          // "This project is not open for public bidding, and the signed-in
+          // account is not part of it" — which is what `noAccessSubtitle`
+          // already says in plainer words, so passing both printed the same
+          // fact twice. Other branches below still surface it, because for a
+          // 5xx or a network failure the raw text is diagnostic, not an echo.
+          // No retry: the only useful move is somewhere they can actually go.
+          action={{
+            label: tErrors("backToProjects"),
+            onClick: () => router.push("/my-projects"),
+          }}
+        />
+      );
+    }
+
     return (
       <ErrorState
         title={tErrors("title")}
@@ -277,7 +306,7 @@ export default function ProjectDetailPage() {
         !isInitialLoading && !isLoadingAi ? (
           <p
             aria-live="polite"
-            className="flex items-center justify-center gap-2 text-center text-[10px] uppercase tracking-wider text-muted-foreground"
+            className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
           >
             <Loader2 className="size-3 animate-spin" aria-hidden />
             Refreshing…

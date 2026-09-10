@@ -97,7 +97,7 @@ export function NotificationListItem({
         <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
           {item.message}
         </p>
-        <span className="text-[11px] text-muted-foreground/80">
+        <span className="text-[12px] text-muted-foreground/80">
           {relative(item.createdAt)}
         </span>
       </div>

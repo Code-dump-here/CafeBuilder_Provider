@@ -81,7 +81,7 @@ export function IssueDetailPanel({
     >
       {/* Header */}
       <div className="flex flex-col gap-1 border-b border-border/60 px-5 py-4">
-        <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+        <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
           #{issue.id}
         </span>
         <h2 className="text-base font-semibold leading-tight text-foreground">
@@ -134,7 +134,7 @@ export function IssueDetailPanel({
 
             <Separator />
 
-            <dl className="flex flex-col gap-0.5 text-[11px] text-muted-foreground">
+            <dl className="flex flex-col gap-0.5 text-[12px] text-muted-foreground">
               <div>
                 <dt className="inline font-medium">{t("createdBy")}: </dt>
                 <dd className="inline">#{issue.createdBy}</dd>
@@ -150,7 +150,7 @@ export function IssueDetailPanel({
 
       {/* Footer */}
       <div className="flex items-center justify-between gap-2 border-t border-border/60 bg-popover/95 px-5 py-3 backdrop-blur">
-        <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+        <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
           #{issue.id}
         </span>
         <div className="flex items-center gap-2">
@@ -204,7 +204,7 @@ function Section({ title, body }: { title: string; body: string | null }) {
   if (!body) return null;
   return (
     <section className="flex flex-col gap-1">
-      <h4 className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         {title}
       </h4>
       <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90">
@@ -217,7 +217,7 @@ function Section({ title, body }: { title: string; body: string | null }) {
 function PhotoBlock({ label, url }: { label: string; url: string | null }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         {label}
       </span>
       {url ? (

@@ -115,7 +115,7 @@ export function VersionCommentsPanel({
             <CodeBadge code={version.code} variant="muted" />
           ) : null}
         </div>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-[11px] text-muted-foreground">
           {t("comments.subtitle", { count: comments.length })}
         </p>
       </header>
@@ -156,7 +156,7 @@ export function VersionCommentsPanel({
           className="flex flex-col gap-2 border-t border-border/60 bg-card p-3"
         >
           {replyTo !== null ? (
-            <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
+            <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <CornerDownRight className="size-3" aria-hidden />
                 {t("comments.reply")}
@@ -164,7 +164,7 @@ export function VersionCommentsPanel({
               <button
                 type="button"
                 onClick={() => setReplyTo(null)}
-                className="text-[10px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+                className="text-[11px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
               >
                 ×
               </button>
@@ -219,7 +219,7 @@ function CommentBubble({ comment, onReply }: CommentBubbleProps) {
         color={comment.author.avatarColor}
       />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px]">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px]">
           <span className="font-semibold text-foreground">
             {comment.author.fullName}
           </span>
@@ -230,7 +230,7 @@ function CommentBubble({ comment, onReply }: CommentBubbleProps) {
             })}
           </span>
           {comment.pinned ? (
-            <span className="inline-flex items-center gap-1 rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+            <span className="inline-flex items-center gap-1 rounded bg-primary/15 px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-primary">
               <Pin className="size-2.5" aria-hidden />
               {t("comments.pinned")}
             </span>
@@ -239,7 +239,7 @@ function CommentBubble({ comment, onReply }: CommentBubbleProps) {
             <button
               type="button"
               onClick={() => onReply(comment.id)}
-              className="ml-auto inline-flex items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
+              className="ml-auto inline-flex items-center gap-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
             >
               <CornerDownRight className="size-3" aria-hidden />
               {t("comments.reply")}

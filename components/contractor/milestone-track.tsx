@@ -87,12 +87,12 @@ export function MilestoneTrack({
                     <NodeIcon status={phase.status} />
                   </div>
 
-                  <span className="text-center text-[11px] font-medium text-foreground">
+                  <span className="text-center text-[12px] font-medium text-foreground">
                     {phase.shortLabel}
                   </span>
                   <span
                     className={cn(
-                      "rounded-full px-1.5 py-0 text-[10px]",
+                      "rounded-full px-1.5 py-0 text-[11px]",
                       tone.className
                     )}
                   >

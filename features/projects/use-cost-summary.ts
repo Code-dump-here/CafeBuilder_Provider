@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import * as React from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   getConstructionItemCostSummaryApi,
@@ -10,6 +11,35 @@ import type {
   ConstructionCostSummary,
   EngagementCostSummary,
 } from "./cost-summary-types";
+
+/** The two query-key roots below, in one place so callers cannot mistype them. */
+export const COST_SUMMARY_KEYS = [
+  "engagement-cost-summary",
+  "construction-item-cost-summary",
+] as const;
+
+/**
+ * Marks every cost-summary query stale.
+ *
+ * Cost rolls up milestone status, labour and material actuals, so anything that
+ * moves one of those has to reach these queries — and nothing did. The only
+ * invalidation in the codebase asked for the key `["cost-summary"]`, which is
+ * not a prefix of either root above; TanStack matches keys by prefix, so that
+ * call had always matched zero queries.
+ *
+ * It went unnoticed because the card usually looked right: `staleTime` is 30s,
+ * so navigating back to it later refetches on mount. A card already on screen
+ * is the case that stays wrong — `refetchOnWindowFocus` is off globally, so
+ * without this nothing ever tells it to look again.
+ */
+export function useInvalidateCostSummaries() {
+  const queryClient = useQueryClient();
+  return React.useCallback(() => {
+    for (const key of COST_SUMMARY_KEYS) {
+      void queryClient.invalidateQueries({ queryKey: [key] });
+    }
+  }, [queryClient]);
+}
 
 export function useEngagementCostSummary(options: {
   projectWorkingId: string | null | undefined;

@@ -31,16 +31,25 @@ const TextareaControl = <T extends FieldValues>({
   rows = 4,
   ...rest
 }: TextareaControlProps<T>) => {
+  const generatedId = React.useId();
+  const textareaId = rest.id ?? generatedId;
+  const errorId = error ? `${textareaId}-error` : undefined;
+
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-xs/relaxed font-medium text-foreground">
+        <label
+          htmlFor={textareaId}
+          className="text-xs/relaxed font-medium text-foreground"
+        >
           {label}
         </label>
       )}
       <Textarea
+        id={textareaId}
         rows={rows}
         aria-invalid={Boolean(error) || undefined}
+        aria-describedby={errorId}
         className={cn(
           error && "border-destructive focus-visible:ring-destructive/30",
           className,
@@ -48,7 +57,11 @@ const TextareaControl = <T extends FieldValues>({
         {...register(name, rules)}
         {...rest}
       />
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && (
+        <p id={errorId} className="text-xs text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 };

@@ -6,6 +6,13 @@ import { Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -24,6 +31,7 @@ import {
   type QuotationItemInput,
   type QuotationPaymentTermInput,
 } from "@/features/projects/quotation-types";
+import { quotationUnitOptions } from "@/features/projects/quotation-units";
 import type { QuotationVariant } from "@/features/projects/quotation-variant";
 
 /**
@@ -131,6 +139,14 @@ function QuotationEditorBase({
   const locale = useLocale();
   const isDesign = variant === "design";
 
+  /**
+   * Label for a unit token. A legacy row can hold a string that predates the
+   * fixed list and has no translation, so fall back to the raw value rather
+   * than rendering next-intl's missing-key marker in the dropdown.
+   */
+  const unitLabel = (unit: string) =>
+    t.has(`editor.units.${unit}`) ? t(`editor.units.${unit}`) : unit;
+
   const [title, setTitle] = React.useState("");
   const [note, setNote] = React.useState("");
   const [durationDays, setDurationDays] = React.useState("");
@@ -237,7 +253,7 @@ function QuotationEditorBase({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[90dvh] sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
             {isNewVersion
@@ -287,7 +303,7 @@ function QuotationEditorBase({
               />
               <p
                 id="quotation-duration-hint"
-                className="text-[11px] text-muted-foreground"
+                className="text-[12px] text-muted-foreground"
               >
                 {durationValid
                   ? t("editor.durationHint")
@@ -397,11 +413,29 @@ function QuotationEditorBase({
                     </div>
 
                     <div className="grid gap-2 pl-7 sm:grid-cols-4">
-                      <Input
+                      <Select
                         value={item.unit}
-                        placeholder={t("editor.itemUnit")}
-                        onChange={(e) => patchItem(item.key, { unit: e.target.value })}
-                      />
+                        onValueChange={(value) =>
+                          patchItem(item.key, { unit: value })
+                        }
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder={t("editor.itemUnit")} />
+                        </SelectTrigger>
+                        {/* Capped and scrollable: the construction list is 16
+                            units, and `SelectContent` otherwise grows to the
+                            full height the viewport allows, covering the rest
+                            of the row it is being edited in. `popper` anchors
+                            the panel under the trigger instead of aligning the
+                            selected item over it. */}
+                        <SelectContent position="popper" className="max-h-56">
+                          {quotationUnitOptions(variant, item.unit).map((u) => (
+                            <SelectItem key={u} value={u}>
+                              {unitLabel(u)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <Input
                         type="number"
                         inputMode="decimal"
@@ -429,14 +463,19 @@ function QuotationEditorBase({
                       </p>
                     </div>
 
-                    <Input
-                      className="ml-7"
-                      value={item.description}
-                      placeholder={t("editor.itemDescription")}
-                      onChange={(e) =>
-                        patchItem(item.key, { description: e.target.value })
-                      }
-                    />
+                    {/* The indent is padding on a wrapper, not a margin on the
+                        input: `Input` is `w-full`, so `ml-7` made the field a
+                        full row wide *plus* the indent and it hung over the
+                        right edge of the card. */}
+                    <div className="pl-7">
+                      <Input
+                        value={item.description}
+                        placeholder={t("editor.itemDescription")}
+                        onChange={(e) =>
+                          patchItem(item.key, { description: e.target.value })
+                        }
+                      />
+                    </div>
                   </div>
                 );
               })}

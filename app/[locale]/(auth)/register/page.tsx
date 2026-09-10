@@ -35,7 +35,7 @@ export default function RegisterPage() {
         {/* Center: Coffee illustration */}
         <div className="relative z-10 flex flex-col items-center gap-8">
           <div className="relative" aria-hidden="true">
-            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-48 drop-shadow-2xl">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-48 drop-shadow-e3">
               {/* Cup body */}
               <path d="M40 70 L50 160 C52 172 60 180 80 180 L120 180 C140 180 148 172 150 160 L160 70 Z"
                 fill="rgba(251,191,36,0.12)" stroke="rgba(251,191,36,0.4)" strokeWidth="1.5" />

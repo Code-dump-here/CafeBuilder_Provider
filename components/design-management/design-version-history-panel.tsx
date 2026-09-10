@@ -108,14 +108,14 @@ export function DesignVersionHistoryPanel({
       className="flex h-full flex-col gap-3 overflow-hidden rounded-xl border border-border/60 bg-card"
     >
       <header className="flex flex-col gap-1 border-b border-border/60 bg-muted/40 px-4 py-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {t("snapshotHeading")}
         </p>
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
           <History aria-hidden className="size-3.5 text-muted-foreground" />
           {t("snapshotTitle")}
         </h3>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-[12px] text-muted-foreground">
           {t("snapshotSubtitle", {
             count: totalItems,
           })}
@@ -145,7 +145,7 @@ export function DesignVersionHistoryPanel({
         </ol>
       )}
 
-      <footer className="flex items-center justify-between gap-2 border-t border-border/60 px-3 py-2 text-[10px] text-muted-foreground">
+      <footer className="flex items-center justify-between gap-2 border-t border-border/60 px-3 py-2 text-[11px] text-muted-foreground">
         <span>
           {isFetching && !isLoading ? (
             <span className="inline-flex items-center gap-1">
@@ -240,10 +240,10 @@ function SnapshotRow({
           </span>
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="flex items-center justify-between gap-2">
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <span className="font-mono text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {versionLabel}
               </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 {t(tone.labelKey)}
               </span>
             </span>
@@ -255,11 +255,11 @@ function SnapshotRow({
                 reason happened to be on the design at the time, which belongs to
                 the PREVIOUS round and reads as if it applied to this one. */}
             {snapshot.snapshotKind === "revision" && snapshot.reason ? (
-              <span className="mt-0.5 rounded-sm border-l-2 border-danger/50 bg-danger/5 py-0.5 pl-1.5 text-[10px] leading-relaxed text-foreground/80">
+              <span className="mt-0.5 rounded-sm border-l-2 border-danger/50 bg-danger/5 py-0.5 pl-1.5 text-[11px] leading-relaxed text-foreground/80">
                 {snapshot.reason}
               </span>
             ) : null}
-            <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
               <Clock aria-hidden className="size-2.5" />
               {format.dateTime(snapshot.snapshottedAt, {
                 dateStyle: "medium",
@@ -267,7 +267,7 @@ function SnapshotRow({
               })}
             </span>
             {snapshot.images.length > 0 ? (
-              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                 <FileText aria-hidden className="size-2.5" />
                 {t("imageCount", { count: snapshot.images.length })}
               </span>

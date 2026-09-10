@@ -25,19 +25,36 @@ const InputControl = <T extends FieldValues>({
   ...rest
 }: InputControlProps<T>) => {
   const [showPassword, setShowPassword] = React.useState(false);
+  // A generated id so the label can point at the input. Without `htmlFor`
+  // the caption was decoration: clicking it did not focus the field, and a
+  // screen reader announced the control as an unnamed "edit text".
+  // `rest.id` still wins so a caller can supply its own.
+  const generatedId = React.useId();
+  const inputId = rest.id ?? generatedId;
+  const errorId = error ? `${inputId}-error` : undefined;
   const isPassword = type === "password";
   const effectiveType = isPassword && showPassword ? "text" : type;
 
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-xs/relaxed font-medium text-foreground">
+        <label
+          htmlFor={inputId}
+          className="text-xs/relaxed font-medium text-foreground"
+        >
           {label}
         </label>
       )}
       <div className="relative flex items-center">
         <input
+          id={inputId}
           type={effectiveType}
+          // The error styling was already written into the class list
+          // (`aria-invalid:border-destructive`) but the attribute was never
+          // set, so those variants never matched and assistive tech was told
+          // the field was valid while it rendered red.
+          aria-invalid={Boolean(error) || undefined}
+          aria-describedby={errorId}
           className={cn(
             "h-9 w-full rounded-md border border-input bg-input/20 px-3 pr-10 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
             error && "border-destructive aria-invalid:ring-destructive/20",
@@ -64,7 +81,9 @@ const InputControl = <T extends FieldValues>({
         )}
       </div>
       {error && (
-        <p className="text-xs text-destructive">{error}</p>
+        <p id={errorId} className="text-xs text-destructive">
+          {error}
+        </p>
       )}
     </div>
   );
