@@ -2178,6 +2178,42 @@
     }
   },
   "Payments": {
+  "checkout": {
+   "eyebrow": "Thanh toán",
+   "title": "Xác nhận gói của bạn",
+   "loading": "Đang tải gói của bạn…",
+   "unknownPlanTitle": "Không tìm thấy gói này",
+   "unknownPlanSubtitle": "Liên kết có thể đã cũ, hoặc gói không còn được bán. Hãy chọn lại từ trang bảng giá.",
+   "backToPlans": "Về bảng giá",
+   "payCta": "Tiếp tục thanh toán",
+   "redirecting": "Đang chuyển sang payOS…",
+   "cancel": "Huỷ",
+   "secureNote": "payOS xử lý thanh toán. Chúng tôi không nhìn thấy thông tin thẻ hay tài khoản của bạn.",
+   "summary": {
+    "duration": "Thời hạn",
+    "days": "{count} ngày",
+    "total": "Tổng cộng"
+   }
+  },
+  "result": {
+   "pending": "Đang xác nhận thanh toán…",
+   "pendingNote": "payOS báo kết quả cho chúng tôi tách biệt với việc đưa bạn quay lại đây, nên có thể mất vài giây. Bạn không cần thanh toán lại.",
+   "paidTitle": "Bạn đã đăng ký thành công",
+   "paidBody": "Gói của bạn đang hoạt động. Bạn có thể bắt đầu nhận dự án ngay.",
+   "failedTitle": "Thanh toán chưa thành công",
+   "failedBody": "Chưa có khoản nào bị trừ. Bạn có thể thử lại bất cứ lúc nào.",
+   "cancelledTitle": "Đã huỷ thanh toán",
+   "cancelledBody": "Bạn đã dừng trước khi trả tiền, nên không có khoản nào bị trừ và liên kết thanh toán đã được đóng.",
+   "missingTitle": "Không có gì để hiển thị",
+   "missingBody": "Đây là trang payOS chuyển bạn về sau khi thanh toán, và nó đang được mở mà không có giao dịch nào.",
+   "unknownTitle": "Không kiểm tra được giao dịch",
+   "unknownBody": "Nếu tiền đã bị trừ, hệ thống sẽ tự đối soát — đừng trả lần thứ hai. Hãy liên hệ nếu tình trạng không được xử lý.",
+   "startBrowsing": "Xem marketplace",
+   "viewProfile": "Xem hồ sơ của tôi",
+   "tryAgain": "Thử lại",
+   "keepBrowsing": "Tiếp tục xem",
+   "backToPlans": "Về bảng giá"
+  },
     "meta": {
       "title": "Bảng giá — SmartCafeBuilder",
       "description": "Chọn gói đăng ký phù hợp với tần suất nhận dự án quán cafe của bạn."
@@ -2215,8 +2251,7 @@
       "subscribing": "Đang đăng ký…",
       "subscribeSuccess": "Đã bắt đầu đăng ký. Hoá đơn sẽ được gửi qua email.",
       "subscribeError": "Không thể bắt đầu đăng ký.",
-      "subscribeNote": "Bạn sẽ được chuyển tới trang thanh toán bảo mật để hoàn tất.",
-      "redirecting": "Đang chuyển tới trang thanh toán…"
+      "subscribeNote": "Bạn sẽ được chuyển tới trang thanh toán bảo mật để hoàn tất."
     },
     "states": {
       "loading": "Đang tải các gói…",
@@ -2227,26 +2262,6 @@
       "emptySubtitle": "Khi đội ngũ đăng các gói mới, chúng sẽ hiện ở đây.",
       "wrongRoleTitle": "Bảng giá hiện chỉ mở cho nhà cung cấp dịch vụ.",
       "wrongRoleSubtitle": "Chuyển sang tài khoản nhà cung cấp (hoặc hoàn tất onboarding) để xem các gói."
-    },
-    "result": {
-      "orderCode": "Mã giao dịch",
-      "amount": "Số tiền",
-      "backToPricing": "Về trang gói dịch vụ",
-      "backHome": "Về trang chủ",
-      "checkingTitle": "Đang kiểm tra thanh toán…",
-      "checkingSubtitle": "Chờ một chút, hệ thống đang hỏi máy chủ kết quả giao dịch.",
-      "pendingTitle": "Chưa xác nhận được thanh toán",
-      "pendingSubtitle": "payOS chưa chốt xong giao dịch này. Trang sẽ tự cập nhật, bạn cứ để mở.",
-      "paidTitle": "Đã nhận thanh toán",
-      "paidSubtitle": "Gói của bạn đã được kích hoạt. Cảm ơn bạn!",
-      "failedTitle": "Thanh toán không thành công",
-      "failedSubtitle": "Chưa có khoản tiền nào bị trừ. Bạn có thể thanh toán lại bất cứ lúc nào.",
-      "errorTitle": "Không kiểm tra được giao dịch",
-      "errorSubtitle": "Không kết nối được máy chủ để xác nhận giao dịch. Gói của bạn không thay đổi — thử lại sau giây lát.",
-      "unknownTitle": "Không có giao dịch nào để xác nhận",
-      "unknownSubtitle": "Trang này mở ra sau khi thanh toán, và cần mã giao dịch để tra cứu.",
-      "cancelTitle": "Đã huỷ thanh toán",
-      "cancelSubtitle": "Bạn đã thoát trước khi thanh toán nên không bị trừ tiền. Gói dịch vụ vẫn còn đó khi bạn cần."
     }
   },
   "Notifications": {

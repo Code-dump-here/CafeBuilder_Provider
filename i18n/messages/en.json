@@ -2178,6 +2178,42 @@
     }
   },
   "Payments": {
+  "checkout": {
+   "eyebrow": "Checkout",
+   "title": "Confirm your plan",
+   "loading": "Loading your plan…",
+   "unknownPlanTitle": "We couldn't find that plan",
+   "unknownPlanSubtitle": "The link may be out of date, or the plan is no longer offered. Pick one from the pricing page and try again.",
+   "backToPlans": "Back to plans",
+   "payCta": "Continue to payment",
+   "redirecting": "Taking you to payOS…",
+   "cancel": "Cancel",
+   "secureNote": "Payment is handled by payOS. We never see your card or bank details.",
+   "summary": {
+    "duration": "Duration",
+    "days": "{count} days",
+    "total": "Total"
+   }
+  },
+  "result": {
+   "pending": "Confirming your payment…",
+   "pendingNote": "payOS tells us the result separately from sending you back here, so this can take a few seconds. You don't need to pay again.",
+   "paidTitle": "You're subscribed",
+   "paidBody": "Your plan is active. You can start taking on projects right away.",
+   "failedTitle": "That payment didn't go through",
+   "failedBody": "Nothing has been charged. You can try again whenever you're ready.",
+   "cancelledTitle": "Payment cancelled",
+   "cancelledBody": "You stopped before paying, so nothing was charged and the payment link has been closed.",
+   "missingTitle": "Nothing to show here",
+   "missingBody": "This page is where payOS sends you after a payment, and it was opened without one.",
+   "unknownTitle": "We couldn't check that payment",
+   "unknownBody": "If money left your account, it will be reconciled automatically — don't pay twice. Contact us if it doesn't resolve.",
+   "startBrowsing": "Browse the marketplace",
+   "viewProfile": "View my profile",
+   "tryAgain": "Try again",
+   "keepBrowsing": "Keep browsing",
+   "backToPlans": "Back to plans"
+  },
     "meta": {
       "title": "Pricing — SmartCafeBuilder",
       "description": "Pick a subscription plan that fits how often you take on new cafe projects."
@@ -2215,8 +2251,7 @@
       "subscribing": "Subscribing…",
       "subscribeSuccess": "Subscription started. We'll email the receipt shortly.",
       "subscribeError": "Couldn't start your subscription.",
-      "subscribeNote": "You'll be redirected to a secure checkout to complete payment.",
-      "redirecting": "Taking you to the secure checkout…"
+      "subscribeNote": "You'll be redirected to a secure checkout to complete payment."
     },
     "states": {
       "loading": "Loading plans…",
@@ -2227,26 +2262,6 @@
       "emptySubtitle": "Once the team publishes new plans they'll show up here.",
       "wrongRoleTitle": "Pricing is currently only enabled for service providers.",
       "wrongRoleSubtitle": "Switch to a provider account (or finish onboarding) to view plans."
-    },
-    "result": {
-      "orderCode": "Order code",
-      "amount": "Amount",
-      "backToPricing": "Back to plans",
-      "backHome": "Go to dashboard",
-      "checkingTitle": "Checking your payment…",
-      "checkingSubtitle": "One moment while we ask the server what happened.",
-      "pendingTitle": "Payment not confirmed yet",
-      "pendingSubtitle": "payOS has not finished settling this transaction. This page updates on its own, so you can safely leave it open.",
-      "paidTitle": "Payment received",
-      "paidSubtitle": "Your plan is active. Thanks!",
-      "failedTitle": "Payment did not go through",
-      "failedSubtitle": "Nothing was charged. You can start the checkout again whenever you like.",
-      "errorTitle": "Couldn't check this payment",
-      "errorSubtitle": "We couldn't reach the server to confirm the transaction. Your plan is unchanged — try again in a moment.",
-      "unknownTitle": "Nothing to confirm here",
-      "unknownSubtitle": "This page opens after a checkout, and needs an order code to look anything up.",
-      "cancelTitle": "Checkout cancelled",
-      "cancelSubtitle": "You backed out before paying, so nothing was charged. The plan is still there whenever you want it."
     }
   },
   "Notifications": {

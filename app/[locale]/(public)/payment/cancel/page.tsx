@@ -2,17 +2,17 @@
 
 import * as React from "react";
 
-import { PaymentCancelPage } from "@/components/payments/payment-result";
+import { SubscriptionCancel } from "@/components/payments/subscription-cancel";
 
 /**
  * `/[locale]/payment/cancel` — where payOS sends a web payer who backs out.
- * Configured server-side as `PayOs:CancelUrl`.
+ * The URL is fixed by the server (`PayOs:CancelUrl`); the screen is the shared
+ * one under `/subscription/cancel`. See the success route.
  */
 export default function PaymentCancelRoutePage() {
-  // Reads `?orderCode=` via `useSearchParams` — see the success route.
   return (
     <React.Suspense fallback={null}>
-      <PaymentCancelPage />
+      <SubscriptionCancel />
     </React.Suspense>
   );
 }

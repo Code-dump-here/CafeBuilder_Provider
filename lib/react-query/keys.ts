@@ -44,13 +44,12 @@ export const queryKeys = {
      */
     plans: () => ["payments", "plans"] as const,
     /**
-     * One transaction's outcome: `GET /api/payments/status?orderCode={n}`.
-     * Keyed by order code because the return page polls a specific
-     * transaction, and two tabs coming back from different checkouts must
-     * not share a cache entry.
+     * A single payOS transaction's state: `GET /api/payments/status`.
+     * Keyed on whichever identifier the redirect carried so two different
+     * transactions never share a cache entry.
      */
-    status: (orderCode: number | null) =>
-      ["payments", "status", orderCode] as const,
+    status: (orderCode?: number, paymentLinkId?: string) =>
+      ["payments", "status", orderCode ?? null, paymentLinkId ?? null] as const,
   },
   notifications: {
     /**
