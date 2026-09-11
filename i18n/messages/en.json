@@ -2085,6 +2085,23 @@
       "portfolio": "Portfolio",
       "brand": "Brand"
     },
+    "reviewsTab": {
+      "loading": "Loading reviews…",
+      "error": "Could not load the reviews. Please try again.",
+      "empty": "No reviews yet. They appear once a shop owner signs off on an engagement.",
+      "summaryTitle": "Rating by criterion",
+      "reviewCount": "{count} reviews",
+      "noScore": "No criterion has been scored yet.",
+      "replyLabel": "Your reply",
+      "dimensions": {
+        "progress": "Progress",
+        "quality": "Quality",
+        "communication": "Communication",
+        "cost": "Cost",
+        "professionalism": "Professionalism",
+        "unknown": "Other criterion"
+      }
+    },
     "sections": {
       "basics": {
         "title": "Basics",
