@@ -13,6 +13,12 @@
  *
  * **Currently ON everywhere — see `PREVIEW_ENABLED` below.** That is a
  * deliberate choice for a build people are still reviewing, not an oversight.
+ *
+ * It only ever fires when the URL asks for it. The two implicit paths were
+ * removed: a bare return URL no longer renders the "paid" fixture, and a
+ * checkout whose plan lookup came back empty no longer swaps in a stand-in
+ * plan. Both put a receipt for an imaginary payment in front of real buyers,
+ * on the very URL payOS sends them back to.
  */
 
 export const SUBSCRIPTION_PREVIEW_STATES = [
@@ -66,20 +72,6 @@ export function resolvePreviewState(
 
 /** Amount shown in previews — the real provider monthly plan's price. */
 export const PREVIEW_AMOUNT = 299000;
-
-/**
- * The state a page falls back to when nothing in the URL says otherwise.
- *
- * With this set, opening a bare `/subscription/return` shows the paid screen
- * rather than "nothing to show here". That is the whole point while these are
- * review pages: the URL on its own should render something worth looking at,
- * with no query string, no session and no backend.
- *
- * Real parameters still win — a return URL carrying an `orderCode` polls the
- * real status, because that is a genuine payment and its real outcome matters
- * more than a fixture.
- */
-export const PREVIEW_DEFAULT_STATE: SubscriptionPreviewState = "paid";
 
 /**
  * Stand-in plan for the checkout screen.

@@ -26,6 +26,14 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { toast } from "react-toastify";
 
+import {
+  REVIEW_DIMENSIONS,
+  reviewDimensionKey,
+} from "@/features/projects/review-dimensions";
+import {
+  useProviderRatingSummary,
+  useProviderReviews,
+} from "@/features/reviews/use-provider-reviews";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -396,46 +404,123 @@ function ProjectsList() {
   );
 }
 
-function ReviewsList() {
-  const t = useTranslations("Profile");
-  
-  const reviews = [
-    {
-      id: "1",
-      author: "Nguyen Van A",
-      project: "District Coffee House",
-      rating: 5,
-      comment: "Outstanding design work! The team understood our vision perfectly and delivered beyond expectations.",
-      date: "2 weeks ago",
-    },
-    {
-      id: "2",
-      author: "Tran Thi B",
-      project: "Urban Beans Cafe",
-      rating: 4,
-      comment: "Great communication and professional execution. Highly recommended for cafe projects.",
-      date: "1 month ago",
-    },
-  ];
+/**
+ * Reviews a shop owner left on this provider, plus the per-criterion averages.
+ *
+ * This used to render two hard-coded reviews ("Nguyen Van A", "2 weeks ago")
+ * that every provider saw as their own, and the per-criterion breakdown the
+ * API already returns was not rendered anywhere — `review-dimensions.ts` had
+ * no importer at all. Both now come from the server.
+ */
+function ReviewsList({
+  serviceProviderProfileId,
+}: {
+  serviceProviderProfileId: string;
+}) {
+  const t = useTranslations("Profile.reviewsTab");
+
+  const summaryQuery = useProviderRatingSummary(serviceProviderProfileId);
+  const reviewsQuery = useProviderReviews(serviceProviderProfileId);
+
+  if (summaryQuery.isLoading || reviewsQuery.isLoading) {
+    return (
+      <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
+        <Loader2 className="size-4 animate-spin" />
+        {t("loading")}
+      </div>
+    );
+  }
+
+  if (summaryQuery.isError || reviewsQuery.isError) {
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card py-12 text-sm text-muted-foreground">
+        <TriangleAlert className="size-5 text-amber-500" />
+        {t("error")}
+      </div>
+    );
+  }
+
+  const summary = summaryQuery.data;
+  const reviews = reviewsQuery.data?.items ?? [];
+
+  // Chỉ liệt kê tiêu chí ĐÃ có điểm. Vẽ đủ 5 dòng với 4 dòng trống trông như
+  // provider bị chấm 0 ở những tiêu chí chưa ai chấm.
+  const scoredDimensions = REVIEW_DIMENSIONS.filter(
+    (dimension) => summary?.dimensionAverages?.[dimension] !== undefined,
+  );
 
   return (
     <div className="space-y-4">
-      {reviews.map((review) => (
-        <div
-          key={review.id}
-          className="rounded-xl border border-border bg-card p-5"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="size-10">
-                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                  {review.author.split(" ").map(n => n[0]).join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold text-foreground">{review.author}</p>
-                <p className="text-sm text-muted-foreground">{review.project}</p>
+      {summary && summary.reviewCount > 0 && (
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-baseline justify-between gap-4">
+            <h3 className="font-semibold text-foreground">{t("summaryTitle")}</h3>
+            <span className="text-xs text-muted-foreground">
+              {t("reviewCount", { count: summary.reviewCount })}
+            </span>
+          </div>
+
+          {scoredDimensions.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">{t("noScore")}</p>
+          ) : (
+            <dl className="mt-4 space-y-3">
+              {scoredDimensions.map((dimension) => {
+                const average = summary.dimensionAverages[dimension];
+                return (
+                  <div key={dimension} className="flex items-center gap-3">
+                    <dt className="w-36 shrink-0 text-sm text-muted-foreground">
+                      {t(`dimensions.${reviewDimensionKey(dimension)}`)}
+                    </dt>
+                    <dd className="flex flex-1 items-center gap-3">
+                      {/* Thanh 5 điểm — đọc nhanh hơn con số khi so nhiều tiêu chí. */}
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-amber-500"
+                          style={{ width: `${(average / 5) * 100}%` }}
+                        />
+                      </div>
+                      <span className="w-8 shrink-0 text-right text-sm font-semibold text-foreground">
+                        {average.toFixed(1)}
+                      </span>
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+          )}
+        </div>
+      )}
+
+      {reviews.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card py-12 text-center text-sm text-muted-foreground">
+          {t("empty")}
+        </div>
+      ) : (
+        reviews.map((review) => (
+          <div
+            key={review.id}
+            className="rounded-xl border border-border bg-card p-5"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={cn(
+                      "size-4",
+                      i < Math.round(review.overallRating)
+                        ? "text-amber-500 fill-amber-500"
+                        : "text-muted-foreground/30",
+                    )}
+                  />
+                ))}
+                <span className="ml-1 text-sm font-semibold text-foreground">
+                  {review.overallRating.toFixed(1)}
+                </span>
               </div>
+              <span className="text-xs text-muted-foreground/60">
+                {new Date(review.createdAt).toLocaleDateString()}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
@@ -451,12 +536,8 @@ function ReviewsList() {
               ))}
             </div>
           </div>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            &ldquo;{review.comment}&rdquo;
-          </p>
-          <p className="mt-3 text-xs text-muted-foreground/60">{review.date}</p>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 }
@@ -543,7 +624,9 @@ export function ProfilePageShell() {
           <BrandTab serviceProviderProfileId={account.serviceProvider.id} editable />
         )}
         {activeTab === "projects" && <ProjectsList />}
-        {activeTab === "reviews" && <ReviewsList />}
+        {activeTab === "reviews" && (
+          <ReviewsList serviceProviderProfileId={account.serviceProvider.id} />
+        )}
       </div>
     </div>
   );
