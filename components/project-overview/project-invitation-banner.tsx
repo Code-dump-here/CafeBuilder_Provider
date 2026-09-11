@@ -219,7 +219,7 @@ export function ProjectInvitationBanner({
       size="sm"
       aria-labelledby="project-invitation-title"
       aria-describedby="project-invitation-subtitle"
-      className="border-sky-300/60 bg-sky-50/50 dark:border-sky-700/40 dark:bg-sky-950/20"
+      className="border-info/30 bg-info/5"
     >
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
@@ -227,7 +227,7 @@ export function ProjectInvitationBanner({
             id="project-invitation-title"
             className="flex items-center gap-2 text-base"
           >
-            <Mail className="size-4 text-sky-600 dark:text-sky-400" aria-hidden />
+            <Mail className="size-4 text-info" aria-hidden />
             {t("title")}
           </CardTitle>
           <Badge
@@ -297,7 +297,7 @@ export function ProjectInvitationBanner({
             type="button"
             variant="outline"
             size="sm"
-            className="flex-1 gap-1.5 border-red-200 text-red-600 hover:bg-red-50"
+            className="flex-1 gap-1.5 border-danger/40 text-danger hover:bg-danger/10"
             disabled={mutation.isPending}
             onClick={() => handleResponse("reject")}
           >

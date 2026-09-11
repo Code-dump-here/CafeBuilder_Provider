@@ -45,9 +45,9 @@ function formatDate(date: Date, locale: string): string {
 
 const STATUS_TONE: Record<MyProjectStatus, string> = {
   requested:
-    "border-sky-300/50 bg-sky-50 text-sky-700 dark:border-sky-700/40 dark:bg-sky-950/40 dark:text-sky-300",
+    "border-info/50 bg-info-muted text-info-muted-foreground",
   accepted:
-    "border-emerald-300/50 bg-emerald-50 text-emerald-700 dark:border-emerald-700/40 dark:bg-emerald-950/40 dark:text-emerald-300",
+    "border-success/50 bg-success-muted text-success-muted-foreground",
   completed:
     "border-border bg-muted text-muted-foreground",
 };
@@ -140,7 +140,7 @@ export function MyProjectCard({ project, className }: MyProjectCardProps) {
           Shows title + agreed value so the provider sees the headline
           terms at a glance without drilling into the contract page. */}
       {project.hasConfirmedContract && contract ? (
-        <div className="flex items-start gap-2 rounded-lg border border-emerald-300/40 bg-emerald-50/60 px-3 py-2 text-[12px] text-emerald-700 dark:border-emerald-700/40 dark:bg-emerald-950/30 dark:text-emerald-300">
+        <div className="flex items-start gap-2 rounded-lg border border-success/40 bg-success-muted/60 px-3 py-2 text-[12px] text-success-muted-foreground">
           <CheckCircle2 className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <div className="flex items-center gap-1.5 font-medium">
@@ -148,7 +148,7 @@ export function MyProjectCard({ project, className }: MyProjectCardProps) {
               <span className="line-clamp-1">{contract.title}</span>
             </div>
             {contractValue ? (
-              <span className="text-emerald-700/80 dark:text-emerald-300/80">
+              <span className="text-success-muted-foreground/80">
                 {contractValue.full}
               </span>
             ) : null}

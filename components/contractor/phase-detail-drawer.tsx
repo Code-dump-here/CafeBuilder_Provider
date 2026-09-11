@@ -230,7 +230,7 @@ export function PhaseDetailDrawer({
                   className={cn(
                     "tabular-nums",
                     blockersCount > 0 &&
-                      "text-rose-700 dark:text-rose-300",
+                      "text-danger-muted-foreground",
                   )}
                 >
                   {blockersCount}
@@ -450,7 +450,7 @@ function TaskRow({
           className={cn(
             "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors",
             done
-              ? "border-emerald-500/70 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+              ? "border-success/70 bg-success/15 text-success-muted-foreground"
               : "border-border bg-card text-muted-foreground",
           )}
         >
@@ -530,13 +530,13 @@ const STATUS_TONE: Record<
   { className: string }
 > = {
   completed: {
-    className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    className: "bg-success/15 text-success-muted-foreground",
   },
   inProgress: {
-    className: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+    className: "bg-warning/15 text-warning-muted-foreground",
   },
   blocked: {
-    className: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+    className: "bg-danger/15 text-danger-muted-foreground",
   },
   upcoming: {
     className: "bg-muted text-muted-foreground",
@@ -548,13 +548,13 @@ const ISSUE_TONE: Record<
   { boxClass: string; badgeClass: string }
 > = {
   open: {
-    boxClass: "border-rose-500/40 bg-rose-500/5",
-    badgeClass: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+    boxClass: "border-danger/40 bg-danger/5",
+    badgeClass: "bg-danger/15 text-danger-muted-foreground",
   },
   in_progress: {
-    boxClass: "border-amber-500/40 bg-amber-500/5",
+    boxClass: "border-warning/40 bg-warning/5",
     badgeClass:
-      "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+      "bg-warning/15 text-warning-muted-foreground",
   },
   // resolved = fixed, awaiting the owner's sign-off; closed = signed off and
   // done. This drawer used to invert that reading — emerald for resolved and
@@ -564,11 +564,11 @@ const ISSUE_TONE: Record<
   // "inactive" for what is actually the completed state. Aligned to the pill,
   // which documents the lifecycle it is colouring.
   resolved: {
-    boxClass: "border-sky-500/40 bg-sky-500/5",
-    badgeClass: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
+    boxClass: "border-info/40 bg-info/5",
+    badgeClass: "bg-info/15 text-info-muted-foreground",
   },
   closed: {
-    boxClass: "border-emerald-500/40 bg-emerald-500/5",
-    badgeClass: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    boxClass: "border-success/40 bg-success/5",
+    badgeClass: "bg-success/15 text-success-muted-foreground",
   },
 };

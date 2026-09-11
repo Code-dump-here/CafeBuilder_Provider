@@ -84,7 +84,7 @@ export function MilestoneDetailCard({
                 {tStatus(phase.status)}
               </span>
               {phase.blockerCount > 0 ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 px-2 py-0.5 text-[11px] font-medium text-rose-700 dark:text-rose-300">
+                <span className="inline-flex items-center gap-1 rounded-full bg-danger/15 px-2 py-0.5 text-[11px] font-medium text-danger-muted-foreground">
                   <TriangleAlert className="size-3" aria-hidden />
                   {t("blockers", { count: phase.blockerCount })}
                 </span>
@@ -177,16 +177,16 @@ const STATUS_TONE: Record<
   { className: string; barClass: string }
 > = {
   completed: {
-    className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-    barClass: "bg-emerald-500",
+    className: "bg-success/15 text-success-muted-foreground",
+    barClass: "bg-success",
   },
   inProgress: {
-    className: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-    barClass: "bg-amber-500",
+    className: "bg-warning/15 text-warning-muted-foreground",
+    barClass: "bg-warning",
   },
   blocked: {
-    className: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
-    barClass: "bg-rose-500",
+    className: "bg-danger/15 text-danger-muted-foreground",
+    barClass: "bg-danger",
   },
   upcoming: {
     className: "bg-muted text-muted-foreground",

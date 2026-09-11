@@ -66,7 +66,7 @@ export function MyProjectsInvitationCard({
   }
 
   return (
-    <div className="flex h-full flex-col gap-3 rounded-2xl border border-sky-300/50 bg-sky-50/40 p-5 text-left dark:border-sky-700/40 dark:bg-sky-950/20">
+    <div className="flex h-full flex-col gap-3 rounded-2xl border border-info/50 bg-info/40 p-5 text-left">
       <div className="flex items-start justify-between gap-2">
         <Badge
           variant="outline"
@@ -116,7 +116,7 @@ export function MyProjectsInvitationCard({
           type="button"
           variant="outline"
           size="sm"
-          className="flex-1 gap-1.5 border-red-200 text-red-600 hover:bg-red-50"
+          className="flex-1 gap-1.5 border-danger/30 text-danger-muted-foreground hover:bg-danger-muted"
           disabled={mutation.isPending}
           onClick={() => handleResponse("reject")}
         >

@@ -278,7 +278,7 @@ function ThreadRow({
               {thread.pinned ? (
                 <span
                   title={t("list.pinned")}
-                  className="inline-flex items-center text-[11px] font-medium text-amber-600 dark:text-amber-300"
+                  className="inline-flex items-center text-[11px] font-medium text-warning-muted-foreground"
                 >
                   <ChevronDown aria-hidden className="size-2.5 -rotate-90" />
                   <span className="sr-only">{t("list.pinned")}</span>

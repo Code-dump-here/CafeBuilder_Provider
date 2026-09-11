@@ -111,7 +111,7 @@ export function DrawingViewer({
       </header>
 
       {/* Main preview area with overlay actions at the top right */}
-      <div className="relative flex-1 bg-stone-50 px-4 py-4 dark:bg-stone-950/40">
+      <div className="relative flex-1 bg-muted/40 px-4 py-4">
         <div className="absolute top-6 right-6 z-10 flex items-center gap-1.5">
           <Button
             size="icon-sm"
@@ -157,6 +157,9 @@ export function DrawingViewer({
 
         <div className="mx-auto flex h-full max-w-5xl items-center justify-center">
           {drawing.thumbnailUrl && !imgError ? (
+            /* The white plate stays light in both themes on purpose: a
+               drawing is ink on paper, and inverting its backing makes the
+               linework unreadable. Not a theme colour to migrate. */
             <img
               src={drawing.thumbnailUrl}
               alt={drawing.name}

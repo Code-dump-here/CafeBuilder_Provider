@@ -72,8 +72,8 @@ export function TaskDetailView(props: TaskDetailViewProps) {
               >
                 {(task as { status?: ConstructionStatus }).status === "completed" ? (
                   <>
-                    <CheckCircle className="size-4 text-emerald-500" aria-hidden />
-                    <span className="text-emerald-600 dark:text-emerald-400">Hoàn thành</span>
+                    <CheckCircle className="size-4 text-success" aria-hidden />
+                    <span className="text-success">Hoàn thành</span>
                   </>
                 ) : (
                   <>
@@ -131,7 +131,7 @@ export function TaskDetailView(props: TaskDetailViewProps) {
                   variant="ghost"
                   size="sm"
                   onClick={onReportIssue}
-                  className="text-amber-600 hover:bg-amber-500/10 hover:text-amber-700 dark:text-amber-400"
+                  className="text-warning hover:bg-warning/10 hover:text-warning"
                 >
                   <TriangleAlert aria-hidden />
                   {tIssue("addCta")}

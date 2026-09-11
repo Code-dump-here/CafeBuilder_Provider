@@ -10,26 +10,36 @@ interface IssueStatusPillProps {
   className?: string;
 }
 
-const STYLES: Record<IssueStatus, string> = {
-  open:
-    "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 ring-red-200/70 dark:ring-red-800/60",
-  in_progress:
-    "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 ring-amber-200/70 dark:ring-amber-800/60",
-  resolved:
-    "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300 ring-sky-200/70 dark:ring-sky-800/60",
-  closed:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 ring-emerald-200/70 dark:ring-emerald-800/60",
+/**
+ * Which status family each point in the lifecycle belongs to.
+ *
+ * The lifecycle reads the same as before — open needs attention, in_progress
+ * is waiting, resolved is awaiting sign-off, closed is done — but it is now
+ * stated as *meaning* rather than as a hue. The eight hardcoded utilities this
+ * replaces were one of 65 files each picking their own red and their own
+ * green; naming the meaning is what stops that recurring.
+ */
+const TONE: Record<IssueStatus, "danger" | "warning" | "info" | "success"> = {
+  open: "danger",
+  in_progress: "warning",
+  resolved: "info",
+  closed: "success",
 };
 
-/**
- * Compact colored pill for an issue status. Pill colors map to the
- * lifecycle — open (red, needs attention) → in_progress (amber)
- * → resolved (sky, awaiting sign-off) → closed (emerald, done).
- */
+const STYLES: Record<IssueStatus, string> = {
+  open: "bg-danger-muted text-danger-muted-foreground ring-danger/20",
+  in_progress: "bg-warning-muted text-warning-muted-foreground ring-warning/20",
+  resolved: "bg-info-muted text-info-muted-foreground ring-info/20",
+  closed: "bg-success-muted text-success-muted-foreground ring-success/20",
+};
 export function IssueStatusPill({ status, className }: IssueStatusPillProps) {
   const t = useTranslations("MilestoneManagement.issue.status");
+  // `data-tone` so the pill's meaning is visible in the DOM and in tests,
+  // not only encoded in a class string.
+  const tone = TONE[status];
   return (
     <span
+      data-tone={tone}
       className={cn(
         "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset",
         STYLES[status],

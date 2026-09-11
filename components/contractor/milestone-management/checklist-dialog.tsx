@@ -41,8 +41,8 @@ const STATUS_STYLE: Record<
   { icon: React.ComponentType<{ className?: string }>; className: string }
 > = {
   pending: { icon: CircleDashed, className: "text-muted-foreground" },
-  passed: { icon: Check, className: "text-emerald-600 dark:text-emerald-400" },
-  failed: { icon: X, className: "text-rose-600 dark:text-rose-400" },
+  passed: { icon: Check, className: "text-success" },
+  failed: { icon: X, className: "text-danger" },
 };
 
 /**
@@ -123,9 +123,9 @@ export function ChecklistDialog({
               progress.requiredTotal === 0 && "border-border text-muted-foreground",
               progress.requiredTotal > 0 &&
                 progress.isSatisfied &&
-                "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300",
+                "border-success/40 bg-success/5 text-success-muted-foreground",
               blockedCount > 0 &&
-                "border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-300",
+                "border-warning/40 bg-warning/5 text-warning-muted-foreground",
             )}
           >
             {progress.requiredTotal === 0

@@ -160,8 +160,8 @@ export function VerifyEmailStep({ email, onVerified, onBack, isVerified }: Verif
           <p className="truncate text-sm font-medium text-foreground">{email}</p>
         </div>
         {sent && (
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
-            <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-success-muted">
+            <CheckCircle2 className="size-4 text-success-muted-foreground" />
           </div>
         )}
       </div>
@@ -205,15 +205,15 @@ export function VerifyEmailStep({ email, onVerified, onBack, isVerified }: Verif
         </div>
       ) : isVerified ? (
         /* Verified success state */
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-5 text-center space-y-3">
+        <div className="rounded-xl border border-success/30 bg-success-muted px-5 py-5 text-center space-y-3">
           <div className="flex justify-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-emerald-500/15">
-              <CheckCircle2 className="size-6 text-emerald-600 dark:text-emerald-400" />
+            <div className="flex size-12 items-center justify-center rounded-full bg-success-muted">
+              <CheckCircle2 className="size-6 text-success-muted-foreground" />
             </div>
           </div>
           <div>
-            <p className="font-semibold text-emerald-800 dark:text-emerald-200">{t("verifyEmail.verified.title")}</p>
-            <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">{t("verifyEmail.verified.description")}</p>
+            <p className="font-semibold text-success-muted-foreground">{t("verifyEmail.verified.title")}</p>
+            <p className="mt-1 text-xs text-success-muted-foreground">{t("verifyEmail.verified.description")}</p>
           </div>
         </div>
       ) : (

@@ -23,10 +23,10 @@ interface IssueStatusControlProps {
 }
 
 const DOT_STYLES: Record<IssueStatus, string> = {
-  open: "bg-red-500 ring-red-200 dark:ring-red-900/60",
-  in_progress: "bg-amber-500 ring-amber-200 dark:ring-amber-900/60",
-  resolved: "bg-sky-500 ring-sky-200 dark:ring-sky-900/60",
-  closed: "bg-emerald-500 ring-emerald-200 dark:ring-emerald-900/60",
+  open: "bg-danger ring-danger/25",
+  in_progress: "bg-warning ring-warning/25",
+  resolved: "bg-info ring-info/25",
+  closed: "bg-success ring-success/25",
 };
 
 /**

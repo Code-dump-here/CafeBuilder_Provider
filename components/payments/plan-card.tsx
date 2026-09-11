@@ -208,7 +208,7 @@ export function PlanCard({
       />
 
       {highlighted && savingsPercent !== null && savingsPercent > 0 ? (
-        <p className="-mt-3 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+        <p className="-mt-3 text-xs font-medium text-success-muted-foreground">
           {t("savings", { percent: savingsPercent })}
         </p>
       ) : null}

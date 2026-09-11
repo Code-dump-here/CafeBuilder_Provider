@@ -13,11 +13,18 @@ interface RoleOption {
   color: string;
 }
 
-// The -50 backgrounds and -200 borders here are light-mode values with no
-// dark counterpart, so selecting a role in dark mode painted a near-white
-// block on the card. Expressed as translucent tints of the same hue instead:
-// they read the same on a light ground and darken with the surface behind
-// them, and the text shade flips so it stays legible in both themes.
+/**
+ * Colour per role. Categorical, not status — an owner is not "a warning" and a
+ * designer is not "info". These three only need to be distinguishable from one
+ * another, which is why they stay literal while the status colours around them
+ * moved onto tokens.
+ *
+ * The -50 backgrounds and -200 borders they started as were light-mode values
+ * with no dark counterpart, so selecting a role in dark mode painted a
+ * near-white block on the card. They are translucent tints of the same hue
+ * instead: they read the same on a light ground and darken with the surface
+ * behind them, and the text shade flips so it stays legible in both themes.
+ */
 const ROLES: RoleOption[] = [
   {
     value: "shop_owner",

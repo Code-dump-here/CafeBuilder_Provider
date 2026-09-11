@@ -59,9 +59,9 @@ export function TaskChip({
         // task, so lighting up only the text would read as two things.
         "transition-[border-color,box-shadow] duration-150 ease-out hover:border-foreground/25 hover:shadow-e1",
         done
-          ? "border-emerald-500/40 bg-emerald-500/5"
+          ? "border-success/40 bg-success/5"
           : inProgress
-            ? "border-amber-500/40 bg-amber-500/5"
+            ? "border-warning/40 bg-warning/5"
             : "border-border/60"
       )}
     >
@@ -74,9 +74,9 @@ export function TaskChip({
         className={cn(
           "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           done
-            ? "border-emerald-500/70 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 cursor-default"
+            ? "border-success/70 bg-success/20 text-success-muted-foreground cursor-default"
             : inProgress
-              ? "border-amber-500/70 bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:border-amber-600"
+              ? "border-warning/70 bg-warning/20 text-warning-muted-foreground hover:border-warning"
               : "border-border bg-card text-muted-foreground hover:border-foreground/40"
         )}
       >

@@ -159,7 +159,7 @@ export function ProjectTerminationBanner({
     <Card
       size="sm"
       aria-labelledby="engagement-termination-title"
-      className="border-amber-300/60 bg-amber-50/50 dark:border-amber-700/40 dark:bg-amber-950/20"
+      className="border-warning/30 bg-warning/5"
     >
       <CardHeader>
         <CardTitle
@@ -167,7 +167,7 @@ export function ProjectTerminationBanner({
           className="flex items-center gap-2 text-base"
         >
           <PauseCircle
-            className="size-4 text-amber-600 dark:text-amber-400"
+            className="size-4 text-warning"
             aria-hidden
           />
           {raisedByOwner ? t("titleFromOwner") : t("titleFromYou")}

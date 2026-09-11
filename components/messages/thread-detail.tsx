@@ -122,7 +122,7 @@ export function ThreadDetail({ thread, onOpenInfo, onSend, onDeleteMessage, curr
       <ThreadHeader thread={thread} onOpenInfo={onOpenInfo} />
 
       <ScrollAreaPrimitive.Root
-        className="flex-1 overflow-hidden bg-stone-50 dark:bg-stone-950/40"
+        className="flex-1 overflow-hidden bg-muted/40/40"
       >
         <ScrollAreaPrimitive.Viewport
           ref={viewportRef}
@@ -236,7 +236,7 @@ function ThreadHeader({
           <p className="text-[12px] text-muted-foreground">
             <span
               aria-hidden
-              className="mr-1 inline-block size-1.5 rounded-full bg-emerald-500 align-middle"
+              className="mr-1 inline-block size-1.5 rounded-full bg-success align-middle"
             />
             {t("detail.lastActive", {
               author: lastAuthor.fullName,
@@ -419,7 +419,7 @@ function Bubble({
         "max-w-prose rounded-2xl px-3 py-2 text-sm shadow-xs ring-1",
         "wrap-break-word",
         isMine
-          ? "rounded-tr-sm bg-blue-600 text-white ring-blue-600 dark:bg-blue-500 dark:ring-blue-500"
+          ? "rounded-tr-sm bg-info text-white ring-info"
           : "rounded-tl-sm bg-card text-foreground ring-border/40",
         // canDelete && "group-hover:ring-destructive/40" — removed along
         // with the delete button above; this hover ring hinted at an

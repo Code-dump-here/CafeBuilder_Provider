@@ -127,7 +127,7 @@ export function SubscriptionCheckout() {
           <p className="mx-auto max-w-md text-xs leading-relaxed text-muted-foreground md:text-sm">
             {t("unknownPlanSubtitle")}
           </p>
-          <Button asChild variant="outline" className="mx-auto mt-2 rounded-full">
+          <Button asChild variant="outline" className="mx-auto mt-2">
             <Link href="/pricing">{t("backToPlans")}</Link>
           </Button>
         </div>
@@ -167,7 +167,7 @@ export function SubscriptionCheckout() {
           <Button
             type="button"
             size="xl"
-            className="h-11 w-full rounded-full text-sm font-semibold"
+            className="h-11 w-full text-sm font-semibold"
             disabled={isPending}
             aria-busy={isPending || undefined}
             onClick={handlePay}
@@ -184,7 +184,7 @@ export function SubscriptionCheckout() {
               </>
             )}
           </Button>
-          <Button asChild variant="ghost" size="sm" className="rounded-full">
+          <Button asChild variant="ghost" size="sm" >
             <Link href="/pricing">{t("cancel")}</Link>
           </Button>
         </div>

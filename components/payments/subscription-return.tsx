@@ -190,8 +190,8 @@ export function ResultCard({
       <span
         className={
           tone === "success"
-            ? "grid size-14 place-items-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-            : "grid size-14 place-items-center rounded-full bg-destructive/10 text-destructive"
+            ? "grid size-14 place-items-center bg-success/10 text-success-muted-foreground"
+            : "grid size-14 place-items-center bg-destructive/10 text-destructive"
         }
       >
         <Icon aria-hidden className="size-7" />
@@ -209,11 +209,11 @@ export function ResultCard({
       ) : null}
 
       <div className="mt-2 flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-center">
-        <Button asChild size="lg" className="rounded-full">
+        <Button asChild size="lg" >
           <Link href={primary.href}>{primary.label}</Link>
         </Button>
         {secondary ? (
-          <Button asChild size="lg" variant="outline" className="rounded-full">
+          <Button asChild size="lg" variant="outline" >
             <Link href={secondary.href}>{secondary.label}</Link>
           </Button>
         ) : null}

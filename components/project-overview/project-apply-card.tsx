@@ -304,7 +304,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
       accepted: {
         icon: CheckCircle,
         label: t("applied.accepted"),
-        className: "text-green-600",
+        className: "text-success",
       },
       rejected: {
         icon: CheckCircle,
@@ -342,19 +342,19 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
         </div>
 
         {needsSurvey ? (
-          <div className="flex flex-col gap-1 rounded-md border border-amber-300/70 bg-amber-50 px-3 py-2 dark:border-amber-500/40 dark:bg-amber-950/30">
+          <div className="flex flex-col gap-1 rounded-md border border-warning/40 bg-warning-muted px-3 py-2">
             <div className="flex items-center gap-2">
               <ClipboardCheck
-                className="size-4 shrink-0 text-amber-700 dark:text-amber-400"
+                className="size-4 shrink-0 text-warning-muted-foreground"
                 aria-hidden
               />
-              <span className="text-xs font-medium text-amber-900 dark:text-amber-200">
+              <span className="text-xs font-medium text-warning-muted-foreground">
                 {surveyBooked
                   ? t("applied.surveyBooked")
                   : t("applied.surveyRequired")}
               </span>
             </div>
-            <p className="text-[12px] leading-relaxed text-amber-800/90 dark:text-amber-300/80">
+            <p className="text-[12px] leading-relaxed text-warning-muted-foreground/85">
               {surveyBooked
                 ? t("applied.surveyBookedHint")
                 : t("applied.surveyRequiredHint")}
@@ -364,7 +364,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
               type="button"
               variant="outline"
               size="sm"
-              className="mt-1 w-full border-amber-400/70 bg-transparent text-amber-900 hover:bg-amber-100/60 dark:text-amber-200 dark:hover:bg-amber-900/30"
+              className="mt-1 w-full border-warning/50 bg-transparent text-warning-muted-foreground hover:bg-warning/10"
             >
               <Link href={`/projects/${project.id}/survey`}>
                 <ClipboardCheck aria-hidden />
@@ -378,7 +378,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
           existingApply.hasCompletedSurvey ? (
           <div className="flex items-center gap-2 px-1">
             <ClipboardCheck
-              className="size-3.5 shrink-0 text-green-600"
+              className="size-3.5 shrink-0 text-success"
               aria-hidden
             />
             <span className="text-[12px] text-muted-foreground">
