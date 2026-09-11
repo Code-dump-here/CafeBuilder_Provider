@@ -434,7 +434,7 @@ function ReviewsList({
   if (summaryQuery.isError || reviewsQuery.isError) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card py-12 text-sm text-muted-foreground">
-        <TriangleAlert className="size-5 text-amber-500" />
+        <TriangleAlert className="size-5 text-warning" />
         {t("error")}
       </div>
     );
@@ -475,7 +475,7 @@ function ReviewsList({
                       {/* Thanh 5 điểm — đọc nhanh hơn con số khi so nhiều tiêu chí. */}
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                         <div
-                          className="h-full rounded-full bg-amber-500"
+                          className="h-full rounded-full bg-rating"
                           style={{ width: `${(average / 5) * 100}%` }}
                         />
                       </div>
@@ -509,7 +509,7 @@ function ReviewsList({
                     className={cn(
                       "size-4",
                       i < Math.round(review.overallRating)
-                        ? "text-amber-500 fill-amber-500"
+                        ? "text-rating fill-rating"
                         : "text-muted-foreground/30",
                     )}
                   />
@@ -522,19 +522,39 @@ function ReviewsList({
                 {new Date(review.createdAt).toLocaleDateString()}
               </span>
             </div>
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={cn(
-                    "size-4",
-                    i < review.rating
-                      ? "text-rating fill-rating"
-                      : "text-muted-foreground/30",
-                  )}
-                />
-              ))}
-            </div>
+            {review.comment && (
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                &ldquo;{review.comment}&rdquo;
+              </p>
+            )}
+
+            {review.scores.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {review.scores.map((score) => (
+                  <span
+                    key={score.id}
+                    className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
+                  >
+                    {t(`dimensions.${reviewDimensionKey(score.dimension)}`)}
+                    {": "}
+                    <span className="font-semibold text-foreground">
+                      {score.score}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {review.providerReply && (
+              <div className="mt-4 rounded-lg border-l-2 border-primary bg-muted/40 p-3">
+                <p className="text-xs font-semibold text-foreground">
+                  {t("replyLabel")}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {review.providerReply}
+                </p>
+              </div>
+            )}
           </div>
         ))
       )}
