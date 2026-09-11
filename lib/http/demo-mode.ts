@@ -275,6 +275,90 @@ const PROJECT = {
 };
 
 /** Endpoint → fixture. Matched in order; the first hit wins. */
+/**
+ * Ratings on the demo provider.
+ *
+ * Deliberately uneven: one review carries a reply and a full set of scores,
+ * one has a comment but no reply, one is a bare rating with no comment at all.
+ * A card is mostly conditional blocks, so fixtures where every field is
+ * populated prove only that the happy path renders.
+ */
+const REVIEWS = {
+  items: [
+    {
+      id: "00000000-0000-4000-8000-00000000ra01",
+      projectWorkingId: "00000000-0000-4000-8000-000000000010",
+      projectShopOwnerId: "11111111-1111-4111-8111-111111111111",
+      serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+      overallRating: 5,
+      comment:
+        "Bar run came out exactly as drawn and the site was clean every evening. Handover pack arrived the same week.",
+      scores: [
+        { id: "s1", dimension: "progress", score: 5 },
+        { id: "s2", dimension: "quality", score: 5 },
+        { id: "s3", dimension: "communication", score: 4 },
+        { id: "s4", dimension: "cost", score: 5 },
+      ],
+      providerReply:
+        "Thank you — it was a straightforward brief and the deposit cleared on time, which kept the joinery slot.",
+      repliedAt: "2026-08-02T09:15:00Z",
+      images: [],
+      createdAt: "2026-07-28T11:00:00Z",
+      updatedAt: "2026-08-02T09:15:00Z",
+    },
+    {
+      id: "00000000-0000-4000-8000-00000000ra02",
+      projectWorkingId: "00000000-0000-4000-8000-000000000010",
+      projectShopOwnerId: "11111111-1111-4111-8111-111111111111",
+      serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+      overallRating: 4,
+      comment: "Good work overall. Electrical first fix slipped about a week.",
+      scores: [
+        { id: "s5", dimension: "progress", score: 3 },
+        { id: "s6", dimension: "quality", score: 5 },
+      ],
+      providerReply: null,
+      repliedAt: null,
+      images: [],
+      createdAt: "2026-06-14T08:30:00Z",
+      updatedAt: "2026-06-14T08:30:00Z",
+    },
+    {
+      id: "00000000-0000-4000-8000-00000000ra03",
+      projectWorkingId: "00000000-0000-4000-8000-000000000010",
+      projectShopOwnerId: "11111111-1111-4111-8111-111111111111",
+      serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+      overallRating: 3,
+      comment: null,
+      scores: [],
+      providerReply: null,
+      repliedAt: null,
+      images: [],
+      createdAt: "2026-05-03T16:45:00Z",
+      updatedAt: "2026-05-03T16:45:00Z",
+    },
+  ],
+  pageNumber: 1,
+  pageSize: 10,
+  totalItems: 3,
+  totalPages: 1,
+  hasPrevious: false,
+  hasNext: false,
+};
+
+/** Matches REVIEWS above — 5 + 4 + 3 over three reviews. */
+const REVIEW_SUMMARY = {
+  serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+  reviewCount: 3,
+  averageRating: 4,
+  dimensionAverages: {
+    progress: 4,
+    quality: 5,
+    communication: 4,
+    cost: 5,
+  },
+};
+
 const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/auth\/me$/, DEMO_ACCOUNT],
   [/\/api\/project-workings/, ENGAGEMENTS],
@@ -284,6 +368,8 @@ const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/issue-types/, ISSUE_TYPES],
   [/\/api\/issues/, ISSUES],
   [/\/api\/project-shop-owners\/[^/?]+/, PROJECT],
+  [/\/api\/reviews\/providers\/[^/?]+\/summary/, REVIEW_SUMMARY],
+  [/\/api\/reviews/, REVIEWS],
   [/\/api\/notifications\/unread-count/, { count: 2 }],
 ];
 
