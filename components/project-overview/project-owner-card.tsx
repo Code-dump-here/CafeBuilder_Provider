@@ -1,6 +1,7 @@
 "use client";
 
 import { paletteIndexFor } from "@/lib/id-hash";
+import { AVATAR_PALETTE } from "@/lib/avatar-palette";
 import * as React from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -31,19 +32,9 @@ import type { ProjectDetail, ProjectOwner } from "@/features/projects/project-de
 // owner and the providers feel like they live in the same visual world
 // without forcing identical colours.
 
-const OWNER_AVATAR_PALETTE = [
-  "#A07B5A",
-  "#5A8F7B",
-  "#3B5BA9",
-  "#8E5A3B",
-  "#7B5A9B",
-  "#5A7B8F",
-  "#A95A8E",
-  "#9B8B5A",
-] as const;
 
 function ownerAvatarColorFor(owner: ProjectOwner): string {
-  const palette = OWNER_AVATAR_PALETTE;
+  const palette = AVATAR_PALETTE;
   // Uuid ids: hash instead of multiply, same stable-colour behaviour.
   return palette[paletteIndexFor(owner.id, palette.length)];
 }

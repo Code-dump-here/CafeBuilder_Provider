@@ -2085,6 +2085,23 @@
       "portfolio": "Dự án mẫu",
       "brand": "Thương hiệu"
     },
+    "reviewsTab": {
+      "loading": "Đang tải đánh giá…",
+      "error": "Không tải được đánh giá. Vui lòng thử lại.",
+      "empty": "Chưa có đánh giá nào. Đánh giá xuất hiện sau khi chủ quán nghiệm thu một hợp tác.",
+      "summaryTitle": "Điểm theo tiêu chí",
+      "reviewCount": "{count} đánh giá",
+      "noScore": "Chưa có tiêu chí nào được chấm.",
+      "replyLabel": "Phản hồi của bạn",
+      "dimensions": {
+        "progress": "Tiến độ",
+        "quality": "Chất lượng",
+        "communication": "Trao đổi",
+        "cost": "Chi phí",
+        "professionalism": "Chuyên nghiệp",
+        "unknown": "Tiêu chí khác"
+      }
+    },
     "sections": {
       "basics": {
         "title": "Thông tin cơ bản",
@@ -2232,8 +2249,6 @@
     "cta": {
       "subscribe": "Đăng ký",
       "subscribing": "Đang đăng ký…",
-      "subscribeSuccess": "Đã bắt đầu đăng ký. Hoá đơn sẽ được gửi qua email.",
-      "subscribeError": "Không thể bắt đầu đăng ký.",
       "subscribeNote": "Bạn sẽ được chuyển tới trang thanh toán bảo mật để hoàn tất."
     },
     "states": {

@@ -50,7 +50,7 @@ export function TaskCard({
         className={cn(
           "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           done
-            ? "border-emerald-500/70 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+            ? "border-success/70 bg-success/15 text-success-muted-foreground"
             : "border-border bg-card text-muted-foreground hover:border-foreground/40"
         )}
       >

@@ -148,7 +148,7 @@ function ProviderEngagementHeroInner({
   return (
     <>
       {showAwaiting ? (
-        <span className="inline-flex items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-700 dark:text-sky-300">
+        <span className="inline-flex items-center gap-1 rounded-full border border-info/30 bg-info/10 px-3 py-1 text-xs font-medium text-info-muted-foreground">
           <CircleDashed className="size-3" aria-hidden />
           {t("awaitingAcceptance")}
         </span>

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
@@ -12,12 +12,7 @@ import { usePaymentStatusQuery } from "@/features/payments/hooks";
 import { PAYMENT_TRANSACTION_STATUS } from "@/features/payments/api";
 
 import { CheckoutShell, PendingRow } from "./subscription-checkout";
-import {
-  PREVIEW_AMOUNT,
-  PREVIEW_DEFAULT_STATE,
-  PREVIEW_ENABLED,
-  resolvePreviewState,
-} from "./subscription-preview";
+import { PREVIEW_AMOUNT, resolvePreviewState } from "./subscription-preview";
 
 /**
  * `/subscription/return` — where payOS sends the user after a payment attempt.
@@ -44,15 +39,11 @@ export function SubscriptionReturn() {
   const paymentLinkId = searchParams.get("id") ?? undefined;
 
   // `?preview=` short-circuits the page so a state can be looked at without a
-  // session or a real payment. With no identifiers in the URL there is no
-  // payment to report on either, so rather than showing an empty-handed card
-  // the page falls back to the default state — a bare /subscription/return
-  // renders something worth looking at. A real `orderCode` still wins and is
-  // polled for its real outcome. See subscription-preview.
-  const hasRealPayment = Boolean(orderCodeRaw) || Boolean(paymentLinkId);
-  const preview =
-    resolvePreviewState(searchParams.get("preview")) ??
-    (PREVIEW_ENABLED && !hasRealPayment ? PREVIEW_DEFAULT_STATE : null);
+  // session or a real payment. It has to be asked for in the URL: this page is
+  // also the real payOS return URL, and a bare visit used to fall back to the
+  // "paid" fixture — a receipt for a payment nobody made, shown to anyone who
+  // reopened the link from their history. See subscription-preview.
+  const preview = resolvePreviewState(searchParams.get("preview"));
 
   const { data, isLoading, isError } = usePaymentStatusQuery({
     // Disable the poll entirely while previewing — there is nothing to poll.
@@ -199,8 +190,8 @@ export function ResultCard({
       <span
         className={
           tone === "success"
-            ? "grid size-14 place-items-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-            : "grid size-14 place-items-center rounded-full bg-destructive/10 text-destructive"
+            ? "grid size-14 place-items-center bg-success/10 text-success-muted-foreground"
+            : "grid size-14 place-items-center bg-destructive/10 text-destructive"
         }
       >
         <Icon aria-hidden className="size-7" />
@@ -218,11 +209,11 @@ export function ResultCard({
       ) : null}
 
       <div className="mt-2 flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-center">
-        <Button asChild size="lg" className="rounded-full">
+        <Button asChild size="lg" >
           <Link href={primary.href}>{primary.label}</Link>
         </Button>
         {secondary ? (
-          <Button asChild size="lg" variant="outline" className="rounded-full">
+          <Button asChild size="lg" variant="outline" >
             <Link href={secondary.href}>{secondary.label}</Link>
           </Button>
         ) : null}

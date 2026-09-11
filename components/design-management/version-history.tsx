@@ -29,10 +29,10 @@ const STATUS_ICON: Record<
 };
 
 const STATUS_COLOR: Record<VersionStatus, string> = {
-  in_progress: "text-stone-500",
-  submitted: "text-amber-500",
-  revision: "text-red-500",
-  approved: "text-emerald-500",
+  in_progress: "text-muted-foreground",
+  submitted: "text-warning",
+  revision: "text-danger",
+  approved: "text-success",
 };
 
 /**

@@ -157,7 +157,7 @@ function VerificationPill({ isVerified, label }: VerificationPillProps) {
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[12px] font-medium",
         isVerified
-          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+          ? "border-success/30 bg-success/10 text-success-muted-foreground"
           : "border-border bg-muted/40 text-muted-foreground",
       )}
     >

@@ -722,6 +722,15 @@ function CollapsibleCode({
 // using absolute positioning. Each zone gets a distinct colour from the
 // palette and shows its label on hover.
 
+/**
+ * Categorical, not status. Seven hues whose only job is to be told apart, so
+ * adjacent zones on the plan never read as one shape.
+ *
+ * Deliberately literal. A bulk migration onto the status tokens flattened this
+ * once — amber and orange both map to `warning`, which gave two zones the
+ * identical colour and defeated the whole point. Nothing here means "this zone
+ * is fine" or "this zone is a problem".
+ */
 const ZONE_PALETTE = [
   "bg-primary/15",
   "bg-amber-500/15",
@@ -949,7 +958,7 @@ function riskLevelTone(level: RiskNote["level"]) {
     case "high":
       return "border-destructive/40 bg-destructive/5 text-destructive";
     case "medium":
-      return "border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-300";
+      return "border-warning/40 bg-warning/5 text-warning-muted-foreground";
     case "low":
     default:
       return "border-border/60 bg-background/40 text-foreground/90";

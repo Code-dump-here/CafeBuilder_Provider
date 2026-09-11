@@ -170,7 +170,7 @@ export function NewVersionDialog({
             />
           </Field>
           {!projectWorkingId ? (
-            <p className="rounded-md border border-amber-300/40 bg-amber-50 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-700/40 dark:bg-amber-950/30 dark:text-amber-300">
+            <p className="rounded-md border border-warning/30 bg-warning-muted px-3 py-2 text-[12px] text-warning-muted-foreground">
               {t("dialogs.newVersion.engagementMissing")}
             </p>
           ) : null}

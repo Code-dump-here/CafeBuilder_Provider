@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { CreditCard, Loader2, ShieldCheck } from "lucide-react";
@@ -16,12 +16,7 @@ import {
   useCreateSubscriptionMutation,
 } from "@/features/payments/hooks";
 
-import {
-  PREVIEW_DEFAULT_STATE,
-  PREVIEW_ENABLED,
-  PREVIEW_PLAN,
-  resolvePreviewState,
-} from "./subscription-preview";
+import { PREVIEW_PLAN, resolvePreviewState } from "./subscription-preview";
 
 /**
  * `/subscription/checkout` — the confirmation step before payOS.
@@ -43,6 +38,7 @@ export function SubscriptionCheckout() {
   const tStates = useTranslations("Payments.states");
   const locale = useLocale();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const planId = searchParams.get("planId");
 
   // In development, `?preview=` walks the flow without a session: the pay
@@ -59,27 +55,28 @@ export function SubscriptionCheckout() {
     [plans, planId],
   );
 
-  // While these are review pages the screen has to render whatever the API and
-  // the URL are doing: a missing planId, a stale one, or an unreachable backend
-  // would otherwise park a spinner or an error card in front of someone who
-  // only wanted to look at the layout.
+  // The stand-in plan is only for a URL that asked to preview the layout. It
+  // used to stand in whenever the lookup came back empty — including when the
+  // plans request simply failed — which put a fixture price in front of a real
+  // buyer and sent the pay button to a fake receipt. A real shopper now gets
+  // the error card or the "unknown plan" card, which is the truth.
   //
   // Waiting is still allowed when it can pay off — a planId was given and the
   // lookup is genuinely in flight — so a real plan is not replaced by a
-  // stand-in for a frame on its way in. With no planId there is nothing to wait
-  // for, and once the query settles without a match there is nothing more
-  // coming.
+  // stand-in for a frame on its way in.
   const lookupWorthWaitingFor = Boolean(planId) && isLoading;
-  const usingFallbackPlan = PREVIEW_ENABLED && !realPlan && !lookupWorthWaitingFor;
+  const usingFallbackPlan = Boolean(preview) && !realPlan && !lookupWorthWaitingFor;
   const plan = realPlan ?? (usingFallbackPlan ? PREVIEW_PLAN : null);
 
   const handlePay = React.useCallback(() => {
     if (!plan) return;
-    // No real plan means no real payOS link can be created, so walk to the
+    // Previewing means there is no real transaction to create, so walk to the
     // result screen instead of firing a request that can only fail.
-    const walkThrough = preview ?? (usingFallbackPlan ? PREVIEW_DEFAULT_STATE : null);
+    const walkThrough = preview;
     if (walkThrough) {
-      window.location.assign(`/subscription/return?preview=${walkThrough}`);
+      // An in-app route, so the next-intl router — a bare location.assign here
+      // dropped the locale and sent a /vi payer to the English page.
+      router.push(`/subscription/return?preview=${walkThrough}`);
       return;
     }
     createSubscription.mutate(
@@ -99,7 +96,7 @@ export function SubscriptionCheckout() {
         },
       },
     );
-  }, [createSubscription, plan, preview, usingFallbackPlan, tErrors]);
+  }, [createSubscription, plan, preview, router, tErrors]);
 
   if (lookupWorthWaitingFor) {
     return <CheckoutShell>{<PendingRow label={t("loading")} />}</CheckoutShell>;
@@ -130,7 +127,7 @@ export function SubscriptionCheckout() {
           <p className="mx-auto max-w-md text-xs leading-relaxed text-muted-foreground md:text-sm">
             {t("unknownPlanSubtitle")}
           </p>
-          <Button asChild variant="outline" className="mx-auto mt-2 rounded-full">
+          <Button asChild variant="outline" className="mx-auto mt-2">
             <Link href="/pricing">{t("backToPlans")}</Link>
           </Button>
         </div>
@@ -170,7 +167,7 @@ export function SubscriptionCheckout() {
           <Button
             type="button"
             size="xl"
-            className="h-11 w-full rounded-full text-sm font-semibold"
+            className="h-11 w-full text-sm font-semibold"
             disabled={isPending}
             aria-busy={isPending || undefined}
             onClick={handlePay}
@@ -187,7 +184,7 @@ export function SubscriptionCheckout() {
               </>
             )}
           </Button>
-          <Button asChild variant="ghost" size="sm" className="rounded-full">
+          <Button asChild variant="ghost" size="sm" >
             <Link href="/pricing">{t("cancel")}</Link>
           </Button>
         </div>

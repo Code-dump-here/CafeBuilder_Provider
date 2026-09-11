@@ -126,7 +126,10 @@ export function DraggableMap({
           gap is what makes the pin read as hovering over a moving map rather
           than being dragged across it. */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2">
-        <MapPin
+        {/* Red because a map pin is red — a convention older than this app and
+          not a status. It must not follow --danger, or every pin turns
+          whatever colour "something went wrong" becomes. */}
+      <MapPin
           className={cn(
             "size-8 fill-red-500 text-red-700 drop-shadow transition-transform",
             isDragging ? "-translate-y-[calc(100%+6px)]" : "-translate-y-full",

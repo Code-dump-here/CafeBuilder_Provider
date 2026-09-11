@@ -114,7 +114,7 @@ export function CostSummaryCard({ projectWorkingId }: CostSummaryCardProps) {
           <p
             className={cn(
               "text-sm font-medium",
-              summary.variance > 0 ? "text-destructive" : "text-green-600",
+              summary.variance > 0 ? "text-destructive" : "text-success-muted-foreground",
             )}
           >
             {summary.variance > 0

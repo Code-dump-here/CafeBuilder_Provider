@@ -28,6 +28,30 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+
+  /* Status families. Separate from --primary and --destructive on purpose:
+     an accent says "this is our brand", a status says "this thing is fine /
+     needs you / went wrong". Restyling the brand must not silently restyle
+     what "paid" looks like. */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-muted: var(--success-muted);
+  --color-success-muted-foreground: var(--success-muted-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-muted: var(--warning-muted);
+  --color-warning-muted-foreground: var(--warning-muted-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-danger-muted: var(--danger-muted);
+  --color-danger-muted-foreground: var(--danger-muted-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-muted: var(--info-muted);
+  --color-info-muted-foreground: var(--info-muted-foreground);
+  /* Stars. Deliberately not folded into warning — a 5-star review is not a
+     caution, and they must be free to diverge when warning is restyled. */
+  --color-rating: var(--rating);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -143,6 +167,31 @@
   --accent: oklch(0.86 0.03 62);
   --accent-foreground: oklch(0.28 0.04 48);
   --destructive: oklch(0.577 0.245 27.325);
+
+  /* Status — light. `-muted` is the wash a badge sits on; its
+     `-muted-foreground` is the only text colour guaranteed to pass contrast
+     on that wash. Solid `--success` etc. are for dots, bars and rules. */
+  --success: oklch(0.52 0.11 152);
+  --success-foreground: oklch(0.98 0.01 152);
+  --success-muted: oklch(0.94 0.03 152);
+  --success-muted-foreground: oklch(0.41 0.09 152);
+  /* 0.54 rather than 0.56: text-warning on the page ground was 4.32:1,
+     just under AA, and white on it was 4.48:1 — also just under. This one
+     step down clears 4.5:1 both ways (4.70 and 4.87). */
+  --warning: oklch(0.54 0.11 75);
+  --warning-foreground: oklch(0.98 0.01 90);
+  --warning-muted: oklch(0.94 0.04 85);
+  --warning-muted-foreground: oklch(0.44 0.09 70);
+  --danger: oklch(0.52 0.17 27);
+  --danger-foreground: oklch(0.98 0.01 27);
+  --danger-muted: oklch(0.94 0.03 27);
+  --danger-muted-foreground: oklch(0.44 0.15 27);
+  --info: oklch(0.52 0.19 264);
+  --info-foreground: oklch(0.98 0.01 264);
+  --info-muted: oklch(0.94 0.04 264);
+  --info-muted-foreground: oklch(0.44 0.16 264);
+  --rating: oklch(0.66 0.13 75);
+
   --border: oklch(0.84 0.02 62);
   --input: oklch(0.84 0.02 62);
   --ring: oklch(0.52 0.18 55);
@@ -151,7 +200,12 @@
   --chart-3: oklch(0.48 0.1 38);
   --chart-4: oklch(0.38 0.08 28);
   --chart-5: oklch(0.3 0.06 18);
-  --radius: 0.75rem;
+  /* Square by default. Every other step of the scale is calc()'d from this
+     line, so the geometry of the whole app is one value. The soft-pill look
+     was the loudest tell of the old style. Avatars, spinners and scrollbar
+     thumbs keep their own rounded-full — those are round because of what they
+     are, not because of the theme. */
+  --radius: 0rem;
   --sidebar: oklch(0.95 0.012 62);
   --sidebar-foreground: oklch(0.28 0.035 48);
   --sidebar-primary: oklch(0.52 0.18 55);
@@ -161,13 +215,12 @@
   --sidebar-border: oklch(0.84 0.02 62);
   --sidebar-ring: oklch(0.52 0.18 55);
 
-  /* Chroma held near --primary's 0.18 so these read as members of the same
-     family. Foregrounds are the near-white already used by
-     --primary-foreground, so contrast behaves the same way it does on primary. */
-  --success: oklch(0.55 0.14 152);
-  --success-foreground: oklch(0.97 0.01 90);
-  --warning: oklch(0.68 0.15 78);
-  --warning-foreground: oklch(0.25 0.03 55);
+  /* --success and --warning were redeclared here, later in the same block, so
+     these values won and the ones above were dead. Measured on the surfaces
+     that actually use them: these tokens are overwhelmingly TEXT and status
+     dots on the page ground, not grounds under white. The lighter pair read
+     2.67:1 for text-warning and failed even the 3:1 a dot needs, so the set
+     above stands and the duplicates are gone. */
   --destructive-foreground: oklch(0.97 0.01 90);
   --input-border: oklch(0.62 0.02 62);
 
@@ -206,6 +259,28 @@
   --accent: oklch(0.26 0.03 45);
   --accent-foreground: oklch(0.93 0.01 80);
   --destructive: oklch(0.704 0.191 22.216);
+
+  /* Status — dark. Not an inversion: the solids lift and desaturate so they
+     read on a dark ground, and the washes stay dark so a badge remains a
+     badge rather than becoming a bright block. */
+  --success: oklch(0.78 0.13 152);
+  --success-foreground: oklch(0.18 0.04 152);
+  --success-muted: oklch(0.26 0.04 152);
+  --success-muted-foreground: oklch(0.84 0.11 152);
+  --warning: oklch(0.80 0.12 80);
+  --warning-foreground: oklch(0.20 0.04 70);
+  --warning-muted: oklch(0.27 0.04 75);
+  --warning-muted-foreground: oklch(0.86 0.10 80);
+  --danger: oklch(0.72 0.15 25);
+  --danger-foreground: oklch(0.18 0.04 25);
+  --danger-muted: oklch(0.27 0.05 25);
+  --danger-muted-foreground: oklch(0.82 0.12 25);
+  --info: oklch(0.70 0.16 264);
+  --info-foreground: oklch(0.16 0.04 264);
+  --info-muted: oklch(0.27 0.06 264);
+  --info-muted-foreground: oklch(0.82 0.13 264);
+  --rating: oklch(0.80 0.12 80);
+
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.68 0.16 70);
@@ -223,12 +298,8 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.68 0.16 70);
 
-  /* Lifted the way the rest of the dark block lifts its colours, so both stay
-     legible on the near-black espresso background. */
-  --success: oklch(0.72 0.15 152);
-  --success-foreground: oklch(0.2 0.04 40);
-  --warning: oklch(0.78 0.14 78);
-  --warning-foreground: oklch(0.2 0.04 40);
+  /* Redeclarations dropped for the same reason as in :root. Both sets clear
+     AAA on the dark ground; the ones above clear it by more. */
   --destructive-foreground: oklch(0.2 0.04 40);
   --input-border: oklch(1 0 0 / 20%);
 

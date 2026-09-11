@@ -787,7 +787,7 @@ export default function MilestoneManagementPage() {
           applyTemplateDisabled={!canAddPhase}
         />
         {blockedReason ? (
-          <p className="mt-3 rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
+          <p className="mt-3 rounded-md border border-warning/50 bg-warning/50 px-3 py-2 text-xs text-muted-foreground">
             {blockedReason}
           </p>
         ) : null}
@@ -822,7 +822,7 @@ export default function MilestoneManagementPage() {
         applyTemplateDisabled={!canAddPhase}
       />
       {blockedReason ? (
-        <p className="mt-3 rounded-md border border-amber-300/50 bg-amber-50/50 px-3 py-2 text-xs text-muted-foreground dark:border-amber-700/40 dark:bg-amber-950/20">
+        <p className="mt-3 rounded-md border border-warning/50 bg-warning/50 px-3 py-2 text-xs text-muted-foreground">
           {blockedReason}
         </p>
       ) : null}
