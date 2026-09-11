@@ -2249,8 +2249,6 @@
     "cta": {
       "subscribe": "Subscribe",
       "subscribing": "Subscribing…",
-      "subscribeSuccess": "Subscription started. We'll email the receipt shortly.",
-      "subscribeError": "Couldn't start your subscription.",
       "subscribeNote": "You'll be redirected to a secure checkout to complete payment."
     },
     "states": {

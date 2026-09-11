@@ -2249,8 +2249,6 @@
     "cta": {
       "subscribe": "Đăng ký",
       "subscribing": "Đang đăng ký…",
-      "subscribeSuccess": "Đã bắt đầu đăng ký. Hoá đơn sẽ được gửi qua email.",
-      "subscribeError": "Không thể bắt đầu đăng ký.",
       "subscribeNote": "Bạn sẽ được chuyển tới trang thanh toán bảo mật để hoàn tất."
     },
     "states": {
