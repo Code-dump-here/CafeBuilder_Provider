@@ -9,7 +9,6 @@ import {
   Images,
   Link2,
   MapPin,
-  MessageCircle,
   ShieldCheck,
   Star,
   Video,
@@ -172,27 +171,19 @@ export function ProviderPublicProfile({ profileId }: ProviderPublicProfileProps)
               </div>
             </div>
 
-            {!isSelf ? (
-              <div className="flex flex-wrap gap-2">
-                <Button asChild>
-                  <Link href="/marketplace">
-                    <Briefcase aria-hidden className="size-4" />
-                    {t("actions.inviteToProject")}
-                  </Link>
-                </Button>
-                <Button variant="outline" type="button">
-                  <MessageCircle aria-hidden className="size-4" />
-                  {t("actions.contact")}
-                </Button>
-              </div>
-            ) : (
+            {/* The web app is for providers; owners hire through the mobile
+                app. So another provider's profile carries no actions — the
+                "Invite to a project" and "Message" buttons that were here are
+                owner actions, and on web the first only linked to the
+                marketplace while the second had no handler at all. */}
+            {isSelf ? (
               <Button variant="outline" asChild>
                 <Link href="/profile">
                   <ShieldCheck aria-hidden className="size-4" />
                   {t("actions.manageOwnProfile")}
                 </Link>
               </Button>
-            )}
+            ) : null}
           </div>
 
           {profile.portfolioHeadline ? (
