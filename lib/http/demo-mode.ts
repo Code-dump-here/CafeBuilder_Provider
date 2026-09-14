@@ -273,6 +273,7 @@ const PROJECT = {
   longitude: null,
   createdAt: NOW,
   updatedAt: NOW,
+  owner: { id: "owner-1", fullName: "Trần Minh Anh", shopName: "Nhà Nâu Coffee", phone: null },
   /**
    * The second load-bearing field, alongside the engagement list.
    *
@@ -839,8 +840,78 @@ const DESIGN_BRIEFS = page([{
   createdAt: NOW, updatedAt: NOW, aiRecommendations: [],
 }]);
 
+
+// ─── My Projects ───────────────────────────────────────────────────────────
+// Three jobs in the three states the page shows — active, invited, finished —
+// each on its own project with its own owner and brief, so a card can be
+// judged on whether it tells one job from another.
+const INVITED_PROJECT_ID = "44444444-4444-4444-8444-444444444444";
+const DONE_PROJECT_ID = "55555555-5555-4555-8555-555555555555";
+
+const OTHER_PROJECTS: Record<string, typeof PROJECT> = {
+  [INVITED_PROJECT_ID]: {
+    ...PROJECT, id: INVITED_PROJECT_ID, name: "Trạm Trà — Hai Bà Trưng",
+    address: "8 Lò Đúc, Hai Bà Trưng, Hà Nội", areaM2: 42, budget: 180_000_000,
+    status: "open", providers: [],
+    owner: { id: "owner-2", fullName: "Nguyễn Thu Hà", shopName: "Trạm Trà", phone: null },
+  },
+  [DONE_PROJECT_ID]: {
+    ...PROJECT, id: DONE_PROJECT_ID, name: "Takeaway kiosk — Landmark 81",
+    address: "720A Điện Biên Phủ, Bình Thạnh, Hồ Chí Minh", areaM2: 12, budget: 95_000_000,
+    status: "completed", providers: [],
+    owner: { id: "owner-3", fullName: "Lê Quốc Bảo", shopName: "Kiosk 81", phone: null },
+  },
+};
+
+const projectDetail = (url: string) =>
+  OTHER_PROJECTS[/project-shop-owners\/([^/?]+)/.exec(url)?.[1] ?? ""] ?? PROJECT;
+
+const MY_PROJECT_ROWS = [
+  { ...ENGAGEMENTS.items[0], requestMessage: "We loved the timber bar you did in Quận 3 — can you take on design and the fit-out?",
+    contract: { id: "c1", title: "Design & build — Ground floor fit-out", agreedValue: 289_000_000,
+      documentViewUrl: null, status: "confirmed", confirmedAt: NOW, createdAt: NOW } },
+  { ...ENGAGEMENTS.items[0], id: "66666666-6666-4666-8666-666666666666",
+    projectShopOwnerId: INVITED_PROJECT_ID, projectName: "Trạm Trà — Hai Bà Trưng",
+    contractType: "design", status: "requested", startedAt: null, hasConfirmedContract: false,
+    contract: null, createdAt: "2026-09-10T08:30:00Z",
+    requestMessage: "A tea counter with a takeaway window. We need the concept before the lease starts in October." },
+  { ...ENGAGEMENTS.items[0], id: "77777777-7777-4777-8777-777777777777",
+    projectShopOwnerId: DONE_PROJECT_ID, projectName: "Takeaway kiosk — Landmark 81",
+    contractType: "construction", status: "completed", startedAt: "2025-09-01T08:00:00Z",
+    hasConfirmedContract: true, requestMessage: "",
+    contract: { id: "c9", title: "Kiosk build", agreedValue: 92_500_000, documentViewUrl: null,
+      status: "confirmed", confirmedAt: "2025-08-28T08:00:00Z", createdAt: "2025-08-20T08:00:00Z" } },
+];
+
+const myProjects = (url: string) => {
+  const statuses = /statuses=([^&]+)/.exec(url)?.[1];
+  const wanted = statuses ? decodeURIComponent(statuses).split(",") : null;
+  const kind = /contractType=([^&]+)/.exec(url)?.[1];
+  return page(MY_PROJECT_ROWS.filter((row) =>
+    (!wanted || wanted.includes(row.status)) && (!kind || row.contractType === kind)));
+};
+
+const ENGAGEMENT_BRIEFS: Record<string, object> = {
+  "66666666-6666-4666-8666-666666666666": {
+    style: "Pale wood and ceramic, very quiet", seatCount: 14,
+    timeline: "Concept by 1 Oct, opening before Tết",
+  },
+  "77777777-7777-4777-8777-777777777777": {
+    style: "Compact stainless kiosk with a lightbox menu", seatCount: 0,
+    timeline: "Build in the mall's night window",
+  },
+};
+
+const engagementBrief = (url: string) => {
+  const id = /project-workings\/([^/?]+)\/brief/.exec(url)?.[1] ?? "";
+  const base = DESIGN_BRIEFS.items[0];
+  return id in ENGAGEMENT_BRIEFS ? { ...base, ...ENGAGEMENT_BRIEFS[id] } : base;
+};
+
 const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/auth\/me$/, DEMO_ACCOUNT],
+  [/\/api\/project-workings\/filter/, myProjects],
+  [/\/api\/project-workings\/[^/?]+\/brief/, engagementBrief],
   [/\/api\/project-workings/, ENGAGEMENTS],
   [/\/api\/contracts/, CONTRACTS],
   [/\/api\/designs/, designs],
@@ -848,10 +919,15 @@ const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/construction-tasks(\/|\?|$)/, constructionTasks],
   [/\/api\/construction-items\/cost-summary/, ENGAGEMENT_COST_SUMMARY],
   [/\/api\/construction-items\/[^/?]+\/cost-summary/, itemCostSummary],
-  [/\/api\/construction-items/, CONSTRUCTION_ITEMS],
+  // Scoped to the engagement asked for: the My Projects cards read each job's
+  // schedule, and the other demo jobs have none.
+  [/\/api\/construction-items/, (url: string) => {
+    const working = /projectWorkingId=([^&]+)/.exec(url)?.[1];
+    return !working || working === WORKING_ID ? CONSTRUCTION_ITEMS : page([]);
+  }],
   [/\/api\/issue-types/, ISSUE_TYPES],
   [/\/api\/issues/, ISSUES],
-  [/\/api\/project-shop-owners\/[^/?]+/, PROJECT],
+  [/\/api\/project-shop-owners\/[^/?]+/, projectDetail],
   [/\/api\/design-briefs/, DESIGN_BRIEFS],
   // Per provider, from the directory rows: one shared summary made a firm
   // read 4.6 from 12 reviews on its card and 4.0 from 3 on its profile.
@@ -928,7 +1004,18 @@ export function installDemoMode(api: AxiosInstance): void {
       throw new Error("Demo mode: no underlying adapter to delegate to.");
     }
 
-    const url = `${config.baseURL ?? ""}${config.url ?? ""}`;
+    // `params` joined onto the URL: callers that pass filters as axios params
+    // (My Projects' `statuses`, for one) were otherwise invisible to the
+    // fixtures, so every tab got the unfiltered list.
+    const query = config.params
+      ? new URLSearchParams(
+          Object.entries(config.params as Record<string, unknown>)
+            .filter(([, value]) => value !== undefined && value !== null)
+            .map(([key, value]) => [key, String(value)]),
+        ).toString()
+      : "";
+    const base = `${config.baseURL ?? ""}${config.url ?? ""}`;
+    const url = query ? `${base}${base.includes("?") ? "&" : "?"}${query}` : base;
     const method = (config.method ?? "get").toLowerCase();
 
     let data: unknown;

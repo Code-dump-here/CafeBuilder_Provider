@@ -2118,7 +2118,19 @@
         "completed": "Hoàn tất"
       },
       "invitedLabel": "Mời",
-      "startedLabel": "Bắt đầu"
+      "startedLabel": "Bắt đầu",
+      "facts": {
+        "client": "Khách hàng",
+        "address": "Địa chỉ",
+        "brief": "Tóm tắt",
+        "seats": "{count, plural, other {# chỗ ngồi}}",
+        "area": "{area} m²",
+        "contract": "Hợp đồng",
+        "budget": "Ngân sách",
+        "target": "Mục tiêu",
+        "phases": "Hạng mục",
+        "timeline": "Tiến độ mong muốn"
+      }
     },
     "pagination": {
       "label": "Phân trang",

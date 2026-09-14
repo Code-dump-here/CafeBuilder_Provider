@@ -12,6 +12,8 @@ import { useCurrentUser } from "@/features/auth/user-context";
 import { useRespondToInvitationMutation } from "@/features/projects/use-respond-to-invitation";
 import type { MyProjectWorking } from "@/features/projects/my-projects-types";
 
+import { ProjectFacts, ProjectFactsBlock } from "./project-facts";
+
 interface MyProjectsInvitationCardProps {
   project: MyProjectWorking;
 }
@@ -66,68 +68,77 @@ export function MyProjectsInvitationCard({
   }
 
   return (
-    <div className="flex h-full flex-col gap-3 rounded-2xl border border-info/30 bg-info-muted p-5 text-left">
-      <div className="flex items-start justify-between gap-2">
-        <Badge
-          variant="outline"
-          className="border-primary/30 bg-primary/5 text-primary"
-        >
-          <Mail className="me-1 size-3" aria-hidden />
-          {t("badge")}
-        </Badge>
-        <Badge variant="outline">{statusLabel}</Badge>
-      </div>
+    // An invitation is where the brief matters most — accepting is the
+    // decision — so it carries the same facts as an active job.
+    <div className="flex h-full flex-col overflow-hidden rounded-lg border border-info/30 bg-card text-left">
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <div className="flex items-start justify-between gap-2">
+          <Badge
+            variant="outline"
+            className="border-primary/30 bg-primary/5 text-primary"
+          >
+            <Mail className="me-1 size-3" aria-hidden />
+            {t("badge")}
+          </Badge>
+          <Badge variant="outline">{statusLabel}</Badge>
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <Link
-          href={`/projects/${project.projectShopOwnerId}`}
-          className="line-clamp-1 text-sm font-semibold text-foreground hover:text-primary"
-        >
-          {project.projectName || tCard("unnamedProject")}
-        </Link>
+        <div className="flex flex-col gap-1">
+          <Link
+            href={`/projects/${project.projectShopOwnerId}`}
+            className="sheet-title line-clamp-2 text-xl text-foreground hover:text-primary"
+          >
+            {project.projectName || tCard("unnamedProject")}
+          </Link>
+        </div>
+
+        <ProjectFacts project={project} />
+
         {project.requestMessage ? (
-          <p className="line-clamp-2 text-xs text-muted-foreground">
+          <p className="line-clamp-3 border-s-2 border-foreground/15 ps-2.5 text-xs italic text-muted-foreground">
             {project.requestMessage}
           </p>
         ) : null}
+
+        <div
+          role="group"
+          aria-label={t("actionsAria", { name: project.projectName })}
+          className="mt-auto flex items-center gap-2 pt-2"
+        >
+          <Button
+            type="button"
+            variant="default"
+            size="sm"
+            className="flex-1 gap-1.5"
+            disabled={mutation.isPending}
+            onClick={() => handleResponse("accept")}
+          >
+            {pendingAction === "accept" ? (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            ) : (
+              <CheckCircle2 className="size-3.5" aria-hidden />
+            )}
+            {t("accept")}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="flex-1 gap-1.5 border-danger/30 text-danger-muted-foreground hover:bg-danger-muted"
+            disabled={mutation.isPending}
+            onClick={() => handleResponse("reject")}
+          >
+            {pendingAction === "reject" ? (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            ) : (
+              <X className="size-3.5" aria-hidden />
+            )}
+            {t("reject")}
+          </Button>
+        </div>
       </div>
 
-      <div
-        role="group"
-        aria-label={t("actionsAria", { name: project.projectName })}
-        className="mt-auto flex items-center gap-2 border-t border-border/60 pt-3"
-      >
-        <Button
-          type="button"
-          variant="default"
-          size="sm"
-          className="flex-1 gap-1.5"
-          disabled={mutation.isPending}
-          onClick={() => handleResponse("accept")}
-        >
-          {pendingAction === "accept" ? (
-            <Loader2 className="size-3.5 animate-spin" aria-hidden />
-          ) : (
-            <CheckCircle2 className="size-3.5" aria-hidden />
-          )}
-          {t("accept")}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="flex-1 gap-1.5 border-danger/30 text-danger-muted-foreground hover:bg-danger-muted"
-          disabled={mutation.isPending}
-          onClick={() => handleResponse("reject")}
-        >
-          {pendingAction === "reject" ? (
-            <Loader2 className="size-3.5 animate-spin" aria-hidden />
-          ) : (
-            <X className="size-3.5" aria-hidden />
-          )}
-          {t("reject")}
-        </Button>
-      </div>
+      <ProjectFactsBlock project={project} />
     </div>
   );
 }

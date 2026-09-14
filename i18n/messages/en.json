@@ -2118,7 +2118,19 @@
         "completed": "Completed"
       },
       "invitedLabel": "Invited",
-      "startedLabel": "Started"
+      "startedLabel": "Started",
+      "facts": {
+        "client": "Client",
+        "address": "Address",
+        "brief": "Brief",
+        "seats": "{count, plural, other {# seats}}",
+        "area": "{area} m²",
+        "contract": "Contract",
+        "budget": "Budget",
+        "target": "Target",
+        "phases": "Phases",
+        "timeline": "Timeline"
+      }
     },
     "pagination": {
       "label": "Pagination",
