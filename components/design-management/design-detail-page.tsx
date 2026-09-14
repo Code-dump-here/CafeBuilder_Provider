@@ -394,7 +394,7 @@ export function DesignDetailPage({
       {/* Breadcrumb */}
       <nav
         aria-label="Breadcrumb"
-        className="flex flex-wrap items-center gap-1 text-[12px] text-muted-foreground"
+        className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
       >
         <Link href={`/projects/${projectId}/design-management`} className="hover:text-foreground">
           {t("crumbs.versions")}
@@ -415,7 +415,7 @@ export function DesignDetailPage({
             <button
               type="button"
               onClick={() => setSelectedSnapshotId(null)}
-              className="ml-2 inline-flex items-center gap-1 rounded border border-border/60 px-1.5 py-0.5 text-[11px] text-muted-foreground hover:border-primary/40 hover:text-primary"
+              className="ml-2 inline-flex items-center gap-1 rounded border border-border/60 px-1.5 py-0.5 text-2xs text-muted-foreground hover:border-primary/40 hover:text-primary"
               aria-label={t("history.exitSnapshot")}
             >
               <X aria-hidden className="size-2.5" />
@@ -675,7 +675,7 @@ function ImageListPanel({
     <>
       <div className="flex h-full flex-col gap-3 overflow-y-auto p-4">
         <header className="flex flex-col gap-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
             {t("tree.heading")}
           </p>
         </header>
@@ -903,14 +903,14 @@ function DesignImageViewer({
   return (
     <article className="flex h-full flex-col gap-3 overflow-hidden rounded-xl border border-border/60 bg-card">
       {/* Header */}
-      <header className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2.5 text-[12px] text-muted-foreground">
+      <header className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2.5 text-xs text-muted-foreground">
         <span className="font-mono font-semibold text-foreground">{image.code}</span>
         <span aria-hidden>/</span>
         <span className="truncate font-medium text-foreground/80">{image.name}</span>
         <span aria-hidden>/</span>
         <span className="truncate">{version.name}</span>
         {isHistorical ? (
-          <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary">
             <History aria-hidden className="size-2.5" />
             {t("viewer.snapshotPill")}
           </span>
@@ -959,7 +959,7 @@ function DesignImageViewer({
             <ChevronLeft aria-hidden />
             {t("viewer.prev")}
           </Button>
-          <span className="rounded border border-border/60 px-2 py-0.5 font-mono text-[12px] text-muted-foreground">
+          <span className="rounded border border-border/60 px-2 py-0.5 font-mono text-2xs text-muted-foreground">
             {currentIndex + 1} / {images.length}
           </span>
           <Button size="sm" variant="outline" disabled={!nextImage} onClick={() => nextImage && onSelect(nextImage)}>
@@ -1022,11 +1022,11 @@ function VersionInfoRail({
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="font-mono text-sm font-bold text-foreground">{version.code}</span>
-          <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide", statusCfg.color)}>
+          <span className={cn("rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide", statusCfg.color)}>
             {statusCfg.label}
           </span>
         </div>
-        <h2 className="text-sm font-semibold text-foreground">{version.name}</h2>
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">{version.name}</h2>
         <p className="text-xs text-muted-foreground">
           {t("version.uploadedBy")} {format.dateTime(version.createdAt, { dateStyle: "medium" })}
         </p>

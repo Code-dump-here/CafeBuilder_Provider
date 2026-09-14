@@ -35,7 +35,7 @@ export function PricingPage() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
       <header className="flex flex-col gap-3">
-        <span className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+        <span className="flex items-center gap-2 text-2xs uppercase tracking-[0.22em] text-muted-foreground">
           <CreditCard aria-hidden className="size-3.5 text-primary" />
           {t("header.eyebrow")}
         </span>

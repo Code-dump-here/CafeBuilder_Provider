@@ -172,7 +172,7 @@ export function PhaseDetailDrawer({
           <div className="flex min-w-0 flex-col gap-1">
             <span
               className={cn(
-                "inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
+                "inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium",
                 STATUS_TONE[phase.status].className
                   .split(" ")
                   .filter((c) => c.startsWith("bg-") || c.startsWith("text-"))
@@ -328,7 +328,7 @@ export function PhaseDetailDrawer({
 
         {/* Footer */}
         <div className="flex items-center justify-between gap-2 border-t border-border/60 px-5 py-3">
-          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <TriangleAlert className="size-3" aria-hidden />
             {blockersCount > 0 ? tStatus("blocked") : tStatus(phase.status)}
           </span>
@@ -361,7 +361,7 @@ export function PhaseDetailDrawer({
 function Kpi({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="rounded-md border border-border/40 bg-card/60 px-3 py-2">
-      <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
+      <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
         {label}
       </dt>
       <dd className="mt-0.5 text-sm font-semibold text-foreground">{value}</dd>
@@ -381,11 +381,11 @@ function Section({
   return (
     <section>
       <header className="mb-2 flex items-baseline justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <h3 className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
           {title}
         </h3>
         {meta ? (
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium tabular-nums text-foreground">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-2xs font-medium tabular-nums text-foreground">
             {meta}
           </span>
         ) : null}
@@ -466,7 +466,7 @@ function TaskRow({
         {task.reason ? (
           <span
             title={task.reason}
-            className="ml-2 line-clamp-1 max-w-[40%] text-[11px] text-muted-foreground"
+            className="ml-2 line-clamp-1 max-w-[40%] text-xs text-muted-foreground"
           >
             {task.reason}
           </span>
@@ -501,7 +501,7 @@ function IssueRow({
         </p>
         <span
           className={cn(
-            "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide",
+            "shrink-0 rounded-full px-2 py-0.5 text-2xs font-medium uppercase tracking-wide",
             tone.badgeClass,
           )}
         >
@@ -511,7 +511,7 @@ function IssueRow({
       {issue.cause ? (
         <p className="mt-1 text-xs text-muted-foreground">{issue.cause}</p>
       ) : null}
-      <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+      <p className="mt-1 text-2xs uppercase tracking-wide text-muted-foreground">
         {targetLabel}
         {" · "}
         {format.dateTime(new Date(issue.createdAt), {

@@ -551,7 +551,7 @@ export function QuotationBreakdown({ quotation }: { quotation: Quotation }) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <div className="flex flex-col gap-1.5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
           {t("breakdown.items")}
         </p>
         <ul className="flex flex-col gap-1">
@@ -571,7 +571,7 @@ export function QuotationBreakdown({ quotation }: { quotation: Quotation }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
           {t("breakdown.terms")}
         </p>
         {quotation.paymentTerms.length === 0 ? (

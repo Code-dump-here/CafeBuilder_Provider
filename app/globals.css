@@ -129,6 +129,18 @@
 
    Palette untouched, per the brief. */
 @theme {
+  /* The label step. Reserved for UPPERCASE eyebrows, badges, pills and the
+     xs button — text whose job is to name something rather than say it.
+     Uppercase letterforms read about a size larger than sentence case, which
+     is why this can sit a pixel under text-xs and still hold its own.
+
+     It replaces four hand-picked sizes (10px, 11px, 12px, 0.6875rem) that had
+     accumulated below the scale. Named 2xs rather than something semantic like
+     `label` on purpose: tailwind-merge recognises t-shirt sizes as font sizes,
+     but reads an unknown `text-*` as a colour — so `cn("text-label
+     text-muted-foreground")` silently drops the size. */
+  --text-2xs: 0.75rem;           /* 12 */
+  --text-2xs--line-height: 1.4;
   --text-xs: 0.8125rem;          /* 12 -> 13 */
   --text-xs--line-height: 1.5;
   --text-sm: 0.9375rem;          /* 14 -> 15 */

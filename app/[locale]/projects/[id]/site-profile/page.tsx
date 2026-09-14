@@ -237,7 +237,7 @@ function MeasurementsCard({
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2">
             <Ruler className="size-4 text-primary" aria-hidden />
             {t("measurements.title")}
           </CardTitle>
@@ -393,7 +393,7 @@ function Fact({
         {label}
       </p>
       <p className="text-sm font-medium text-foreground">{value}</p>
-      {hint ? <p className="text-[12px] text-muted-foreground/80">{hint}</p> : null}
+      {hint ? <p className="text-xs text-muted-foreground/80">{hint}</p> : null}
     </div>
   );
 }
@@ -582,7 +582,7 @@ function NumberField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      {hint ? <p className="text-[12px] text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }
@@ -610,7 +610,7 @@ function FloorsCard({
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2">
             <Layers className="size-4 text-primary" aria-hidden />
             {t("floors.title")}
           </CardTitle>
@@ -851,7 +851,7 @@ function OpeningsCard({
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2">
             <DoorOpen className="size-4 text-primary" aria-hidden />
             {t("openings.title")}
           </CardTitle>

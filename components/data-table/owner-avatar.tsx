@@ -20,8 +20,8 @@ function initialsOf(name: string): string {
 }
 
 const SIZE: Record<NonNullable<OwnerAvatarProps["size"]>, string> = {
-  xs: "size-5 text-[11px]",
-  sm: "size-6 text-[11px]",
+  xs: "size-5 text-xs",
+  sm: "size-6 text-xs",
   default: "size-8 text-xs",
 };
 

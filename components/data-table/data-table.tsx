@@ -236,7 +236,7 @@ function DataTableHeaderCell<T>({
     return (
       <TableHead
         className={cn(
-          "h-8 bg-muted/40 text-[11px] font-medium uppercase tracking-wide text-muted-foreground",
+          "h-8 bg-muted/40 text-2xs font-medium uppercase tracking-wide text-muted-foreground",
           align === "right" && "text-right",
           align === "center" && "text-center",
           column.widthClass,
@@ -250,7 +250,7 @@ function DataTableHeaderCell<T>({
   return (
     <TableHead
       className={cn(
-        "h-8 bg-muted/40 text-[11px] font-medium uppercase tracking-wide text-muted-foreground",
+        "h-8 bg-muted/40 text-2xs font-medium uppercase tracking-wide text-muted-foreground",
         align === "right" && "text-right",
         align === "center" && "text-center",
         column.widthClass,

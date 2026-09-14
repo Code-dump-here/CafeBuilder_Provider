@@ -61,7 +61,7 @@ export function HomepageHero() {
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:px-8">
         {/* ── Left: copy column ─────────────────────────────────────────── */}
         <div className="flex flex-col gap-6 lg:col-span-7">
-          <Reveal as="p" className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+          <Reveal as="p" className="flex items-center gap-2 text-2xs uppercase tracking-[0.22em] text-muted-foreground">
             <Sparkles aria-hidden className="size-3.5 text-primary" />
             {t("eyebrow")}
           </Reveal>

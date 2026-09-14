@@ -216,7 +216,7 @@ export function MaterialsDialog({
 
           {/* ── Lines on this milestone ──────────────────────────────── */}
           <section className="flex flex-col gap-2">
-            <h3 className="text-sm font-semibold">{t("usage")}</h3>
+            <h3 className="text-base font-semibold">{t("usage")}</h3>
 
             {loadingLines ? (
               <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
@@ -287,7 +287,7 @@ export function MaterialsDialog({
           {/* ── Price list ───────────────────────────────────────────── */}
           <section className="flex flex-col gap-2 border-t pt-3">
             <div>
-              <h3 className="text-sm font-semibold">{t("priceList")}</h3>
+              <h3 className="text-base font-semibold">{t("priceList")}</h3>
               <p className="text-xs text-muted-foreground">{t("priceListHint")}</p>
             </div>
 

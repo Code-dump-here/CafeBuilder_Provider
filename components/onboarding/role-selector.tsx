@@ -99,7 +99,7 @@ export function RoleSelector({ selected, onChange, error }: RoleSelectorProps) {
                 )}>
                   {t(`roles.${role.value}.name`)}
                 </p>
-                <p className="text-[11px] leading-tight text-muted-foreground">
+                <p className="text-xs leading-tight text-muted-foreground">
                   {t(`roles.${role.value}.shortDesc`)}
                 </p>
               </div>

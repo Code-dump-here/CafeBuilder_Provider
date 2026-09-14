@@ -217,7 +217,7 @@ export function PortfolioTab({ serviceProviderProfileId, editable }: PortfolioTa
                         </button>
                       ) : null}
                       {image.caption ? (
-                        <figcaption className="mt-1 w-28 truncate text-[12px] text-muted-foreground">
+                        <figcaption className="mt-1 w-28 truncate text-xs text-muted-foreground">
                           {image.caption}
                         </figcaption>
                       ) : null}

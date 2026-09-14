@@ -57,7 +57,7 @@ function ErrorState({ onRetry }: ErrorStateProps) {
   const t = useTranslations("Payments.states");
   return (
     <div className="flex flex-col items-start gap-3 rounded-2xl border border-destructive/40 bg-destructive/5 p-6">
-      <h2 className="text-sm font-semibold text-foreground">
+      <h2 className="text-lg font-semibold tracking-tight text-foreground">
         {t("loadErrorTitle")}
       </h2>
       <p className="text-xs leading-relaxed text-muted-foreground">
@@ -74,7 +74,7 @@ function EmptyState() {
   const t = useTranslations("Payments.states");
   return (
     <div className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-8 text-center">
-      <h2 className="text-sm font-semibold text-foreground">
+      <h2 className="text-lg font-semibold tracking-tight text-foreground">
         {t("emptyTitle")}
       </h2>
       <p className="text-xs leading-relaxed text-muted-foreground">
@@ -94,7 +94,7 @@ function PerksList() {
   const t = useTranslations("Payments.perks");
   return (
     <section className="rounded-2xl border border-border/60 bg-muted/30 p-5 md:p-6">
-      <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+      <h2 className="text-2xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         {t("title")}
       </h2>
       <ul className="mt-3 grid grid-cols-1 gap-2 text-sm text-foreground sm:grid-cols-2">
@@ -235,7 +235,7 @@ export function PlanGridContainer({ targetRole }: PlanGridContainerProps) {
   if (visiblePlans.length === 0) {
     return (
       <div className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-8 text-center">
-        <h2 className="text-sm font-semibold text-foreground">{t("emptyTitle")}</h2>
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">{t("emptyTitle")}</h2>
         <p className="text-xs leading-relaxed text-muted-foreground">
           {t("emptySubtitle")}
         </p>

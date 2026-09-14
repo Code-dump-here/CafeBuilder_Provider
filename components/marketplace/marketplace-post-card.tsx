@@ -126,7 +126,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
         <Badge
           variant="outline"
           className={cn(
-            "gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold tracking-wide",
+            "gap-1.5 rounded-full border px-2.5 py-1 text-2xs font-semibold tracking-wide",
             status.pill,
           )}
         >
@@ -143,7 +143,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
 
         <Badge
           variant="secondary"
-          className="gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium"
+          className="gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
         >
           <ServiceIcon className="size-3" aria-hidden />
           {t(`serviceKind.${post.serviceKind}`)}
@@ -166,7 +166,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
       </p>
 
       {/* Address. */}
-      <div className="flex items-start gap-1.5 text-[12px] text-muted-foreground">
+      <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
         <MapPin className="mt-0.5 size-3 shrink-0" aria-hidden />
         <span className="line-clamp-1">{post.projectAddress}</span>
       </div>
@@ -204,7 +204,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
 
       {/* Footer: CTA. */}
       <footer className="mt-auto flex items-center justify-between border-t border-border/40 pt-3">
-        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+        <span className="text-2xs uppercase tracking-wider text-muted-foreground">
           {t("submitted")}{" "}
           <time
             dateTime={post.createdAt.toISOString()}
@@ -271,7 +271,7 @@ interface FactProps {
 function Fact({ icon: Icon, label, primary, secondary, secondaryTone = "muted" }: FactProps) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+      <dt className="flex items-center gap-1 text-2xs uppercase tracking-wide text-muted-foreground">
         <Icon className="size-2.5" aria-hidden />
         {label}
       </dt>
@@ -280,7 +280,7 @@ function Fact({ icon: Icon, label, primary, secondary, secondaryTone = "muted" }
           {primary}
         </span>
         {secondary ? (
-          <span className={cn("text-[11px]", DEADLINE_TONE[secondaryTone])}>
+          <span className={cn("text-xs", DEADLINE_TONE[secondaryTone])}>
             {secondary}
           </span>
         ) : null}

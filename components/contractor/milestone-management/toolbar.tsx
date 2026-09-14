@@ -48,14 +48,14 @@ export function MilestoneManagementToolbar({
     <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 bg-gradient-to-br from-primary/5 via-background to-background px-4 py-3">
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-baseline gap-2">
-          <h1 className="font-heading text-lg font-semibold text-foreground">
+          <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
             <MilestoneManagementTitle />
           </h1>
         </div>
         <p className="max-w-prose text-xs text-muted-foreground">
           <MilestoneManagementSubtitle />
         </p>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs">
           <Pill>{t("totalPhases", { count: phaseCount })}</Pill>
           <Pill>{t("totalTasks", { count: taskCount })}</Pill>
           <Pill highlight>{t("doneTasks", { done: doneTaskCount, total: taskCount })}</Pill>

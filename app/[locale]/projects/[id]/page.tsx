@@ -306,7 +306,7 @@ export default function ProjectDetailPage() {
         !isInitialLoading && !isLoadingAi ? (
           <p
             aria-live="polite"
-            className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
+            className="flex items-center justify-center gap-2 text-center text-2xs uppercase tracking-wider text-muted-foreground"
           >
             <Loader2 className="size-3 animate-spin" aria-hidden />
             Refreshing…

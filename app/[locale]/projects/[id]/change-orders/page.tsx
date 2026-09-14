@@ -170,7 +170,7 @@ export default function ChangeOrdersPage() {
       {summary ? (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2">
               <CircleDollarSign className="size-4 text-primary" aria-hidden />
               {t("summary.title")}
             </CardTitle>
@@ -499,7 +499,7 @@ function Stat({
       >
         {value}
       </p>
-      {hint ? <p className="text-[12px] text-muted-foreground/80">{hint}</p> : null}
+      {hint ? <p className="text-xs text-muted-foreground/80">{hint}</p> : null}
     </div>
   );
 }
@@ -603,7 +603,7 @@ function ChangeOrderDialog({
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-[12px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {topLevelItems.length === 0
                 ? t("dialog.milestoneEmpty")
                 : t("dialog.milestoneHint")}
@@ -629,7 +629,7 @@ function ChangeOrderDialog({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
-            <p className="text-[12px] text-muted-foreground">{t("dialog.amountHint")}</p>
+            <p className="text-xs text-muted-foreground">{t("dialog.amountHint")}</p>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -640,7 +640,7 @@ function ChangeOrderDialog({
               placeholder={t("dialog.reasonPlaceholder")}
               onChange={(e) => setReason(e.target.value)}
             />
-            <p className="text-[12px] text-muted-foreground">{t("dialog.reasonHint")}</p>
+            <p className="text-xs text-muted-foreground">{t("dialog.reasonHint")}</p>
           </div>
         </div>
 

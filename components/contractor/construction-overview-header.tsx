@@ -32,7 +32,7 @@ export function ConstructionOverviewHeader({
       <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-baseline gap-2">
-            <h1 className="font-heading text-xl font-semibold text-foreground">
+            <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
               {t("title")}
             </h1>
             <span className="text-sm text-muted-foreground">

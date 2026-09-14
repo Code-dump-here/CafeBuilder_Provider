@@ -76,7 +76,7 @@ export function MilestoneDetailCard({
           <div className="flex flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${tone.className}`}
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium ${tone.className}`}
               >
                 {phase.status === "inProgress" ? (
                   <FlagTriangleRight className="size-3" aria-hidden />
@@ -84,13 +84,13 @@ export function MilestoneDetailCard({
                 {tStatus(phase.status)}
               </span>
               {phase.blockerCount > 0 ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-danger/15 px-2 py-0.5 text-[11px] font-medium text-danger-muted-foreground">
+                <span className="inline-flex items-center gap-1 rounded-full bg-danger/15 px-2 py-0.5 text-2xs font-medium text-danger-muted-foreground">
                   <TriangleAlert className="size-3" aria-hidden />
                   {t("blockers", { count: phase.blockerCount })}
                 </span>
               ) : null}
             </div>
-            <CardTitle className="text-base">{phase.label}</CardTitle>
+            <CardTitle>{phase.label}</CardTitle>
             <CardDescription>{t("subtitle")}</CardDescription>
           </div>
 
@@ -123,7 +123,7 @@ export function MilestoneDetailCard({
       </CardHeader>
 
       <CardContent>
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <h3 className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
           {t("tasks")}
         </h3>
         <p className="mt-2 rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
@@ -152,7 +152,7 @@ function PhaseProgress({
   const clamped = Math.max(0, Math.min(100, percent));
   return (
     <div className="flex flex-col gap-1 pt-2">
-      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{label}</span>
         <span className="tabular-nums">{clamped}%</span>
       </div>

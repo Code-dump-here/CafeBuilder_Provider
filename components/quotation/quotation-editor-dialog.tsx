@@ -303,7 +303,7 @@ function QuotationEditorBase({
               />
               <p
                 id="quotation-duration-hint"
-                className="text-[12px] text-muted-foreground"
+                className="text-xs text-muted-foreground"
               >
                 {durationValid
                   ? t("editor.durationHint")
@@ -361,7 +361,7 @@ function QuotationEditorBase({
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold">{t("editor.itemsTitle")}</h3>
+                <h3 className="text-base font-semibold">{t("editor.itemsTitle")}</h3>
                 <p className="text-xs text-muted-foreground">
                   {t("editor.itemsHint")}
                 </p>
@@ -491,7 +491,7 @@ function QuotationEditorBase({
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold">{t("editor.termsTitle")}</h3>
+                <h3 className="text-base font-semibold">{t("editor.termsTitle")}</h3>
                 <p className="text-xs text-muted-foreground">{t("editor.termsHint")}</p>
               </div>
               <Button

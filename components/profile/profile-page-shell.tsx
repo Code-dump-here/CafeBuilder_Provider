@@ -779,7 +779,7 @@ function NoticeShell({ title, subtitle }: NoticeShellProps) {
         <TriangleAlert aria-hidden className="size-4" />
       </span>
       <div className="flex flex-col gap-1">
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
         {subtitle ? (
           <p className="text-xs leading-relaxed text-muted-foreground">
             {subtitle}

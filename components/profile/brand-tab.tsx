@@ -126,7 +126,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2">
               {brand.displayName}
               {brand.isVerified ? (
                 <BadgeCheck className="size-4 text-primary" aria-label={t("verified")} />
@@ -292,7 +292,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2">
               <Award className="size-4 text-primary" aria-hidden />
               {t("certificates.title")}
             </CardTitle>
@@ -496,7 +496,7 @@ function ListCard({
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2">
             <Icon className="size-4 text-primary" aria-hidden />
             {title}
           </CardTitle>
@@ -984,7 +984,7 @@ function CertificateDialog({
           </div>
         </div>
 
-        <p className="text-[12px] text-muted-foreground">{t("certificates.verifyNote")}</p>
+        <p className="text-xs text-muted-foreground">{t("certificates.verifyNote")}</p>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

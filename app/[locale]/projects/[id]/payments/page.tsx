@@ -358,7 +358,7 @@ export function ProofList({ batch }: { batch: PaymentBatch }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
         {t("proofs.title")}
       </p>
       <ul className="flex flex-col gap-2">
@@ -431,7 +431,7 @@ function Stat({
       >
         {value}
       </p>
-      {hint ? <p className="text-[12px] text-muted-foreground/80">{hint}</p> : null}
+      {hint ? <p className="text-xs text-muted-foreground/80">{hint}</p> : null}
     </div>
   );
 }

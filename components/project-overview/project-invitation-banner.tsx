@@ -225,7 +225,7 @@ export function ProjectInvitationBanner({
         <div className="flex items-start justify-between gap-3">
           <CardTitle
             id="project-invitation-title"
-            className="flex items-center gap-2 text-base"
+            className="flex items-center gap-2"
           >
             <Mail className="size-4 text-info" aria-hidden />
             {t("title")}

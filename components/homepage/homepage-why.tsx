@@ -101,7 +101,7 @@ export function HomepageWhy() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] opacity-70">
+                <span className="font-mono text-2xs uppercase tracking-[0.18em] opacity-70">
                   Live in platform
                 </span>
               </div>
@@ -187,7 +187,7 @@ export function HomepageWhy() {
               <h3 className={cn("font-heading text-base font-semibold md:text-lg", TONE_FOREGROUND[items[3]!.tone])}>
                 {items[3]!.title}
               </h3>
-              <p className="text-[12px] leading-relaxed text-foreground/80">
+              <p className="text-xs leading-relaxed text-foreground/80">
                 {items[3]!.body}
               </p>
             </div>

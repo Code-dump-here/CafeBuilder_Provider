@@ -54,7 +54,7 @@ export function HomepageRoles() {
                 <h3 className="font-heading text-xl font-semibold text-foreground md:text-2xl">
                   {role.role}
                 </h3>
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                <span className="font-mono text-2xs uppercase tracking-[0.18em] text-muted-foreground">
                   0{index + 1}
                 </span>
               </div>

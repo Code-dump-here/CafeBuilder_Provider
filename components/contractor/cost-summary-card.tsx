@@ -39,7 +39,7 @@ export function CostSummaryCard({ projectWorkingId }: CostSummaryCardProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t("title")}</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-2 p-4 pt-0">
           <Skeleton className="h-4 w-2/3" />
@@ -59,7 +59,7 @@ export function CostSummaryCard({ projectWorkingId }: CostSummaryCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
+        <CardTitle className="flex items-center gap-2">
           <Wallet className="size-4 text-primary" aria-hidden />
           {t("title")}
         </CardTitle>

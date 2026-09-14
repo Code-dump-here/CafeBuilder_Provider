@@ -189,7 +189,7 @@ export function SubscriptionCheckout() {
           </Button>
         </div>
 
-        <p className="flex items-start justify-center gap-1.5 text-center text-[11px] leading-relaxed text-muted-foreground">
+        <p className="flex items-start justify-center gap-1.5 text-center text-xs leading-relaxed text-muted-foreground">
           <ShieldCheck aria-hidden className="mt-px size-3.5 shrink-0 text-primary" />
           <span>{t("secureNote")}</span>
         </p>
@@ -206,7 +206,7 @@ export function CheckoutShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 py-10 sm:px-6 lg:py-12">
       <header className="flex flex-col gap-3">
-        <span className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+        <span className="flex items-center gap-2 text-2xs uppercase tracking-[0.22em] text-muted-foreground">
           <CreditCard aria-hidden className="size-3.5 text-primary" />
           {t("eyebrow")}
         </span>

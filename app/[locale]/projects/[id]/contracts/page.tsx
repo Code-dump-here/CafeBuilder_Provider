@@ -299,7 +299,7 @@ export default function ContractsPage() {
       {isFetching && !isLoadingContracts && (
         <p
           aria-live="polite"
-          className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
+          className="flex items-center justify-center gap-2 text-center text-2xs uppercase tracking-wider text-muted-foreground"
         >
           <Loader2 className="size-3 animate-spin" aria-hidden />
           {t("refreshing")}
@@ -415,7 +415,7 @@ function ContractCard({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <CardTitle className="text-base">{contract.title}</CardTitle>
+            <CardTitle>{contract.title}</CardTitle>
             <span
               className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${status.color} ${status.bgColor}`}
             >
@@ -733,7 +733,7 @@ function CreateContractDialog({
               rows={4}
               className="resize-none"
             />
-            <p className="text-[12px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {t("termsHint")}
             </p>
           </div>
@@ -937,7 +937,7 @@ function OtpConfirmDialog({
                   placeholder={t("otpCodePlaceholder")}
                   className="text-center text-2xl tracking-widest font-mono"
                 />
-                <p className="text-[12px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {t("otpCodeHint")}
                 </p>
               </div>
@@ -1040,7 +1040,7 @@ function CancelContractDialog({
         {contract ? (
           <div className="flex flex-col gap-3 rounded-md border border-border/60 bg-muted/30 p-3">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              <span className="text-2xs uppercase tracking-wide text-muted-foreground">
                 {contract.title}
               </span>
               <span className="font-mono text-xs text-muted-foreground">

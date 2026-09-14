@@ -50,7 +50,7 @@ export function TaskDetailView(props: TaskDetailViewProps) {
       <DialogContent className="max-h-[85dvh] sm:max-w-2xl" showCloseButton={true}>
         {/* Top bar */}
         <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
-          <div className="flex items-center gap-2 text-[12px] uppercase tracking-wide text-muted-foreground">
+          <div className="flex items-center gap-2 text-2xs uppercase tracking-wide text-muted-foreground">
             <span>{phaseLabel ?? t("title")}</span>
           </div>
         </div>
@@ -83,7 +83,7 @@ export function TaskDetailView(props: TaskDetailViewProps) {
                 )}
               </Button>
             </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="size-3.5" aria-hidden />
                 <span>{t("created", { date: format.dateTime(new Date(task.createdAt ?? new Date().toISOString()), { dateStyle: "medium" }) })}</span>
@@ -100,7 +100,7 @@ export function TaskDetailView(props: TaskDetailViewProps) {
           {/* Description */}
           {task.description ? (
             <section className="flex flex-col gap-1.5">
-              <h3 className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
+              <h3 className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t("fields.description")}
               </h3>
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
@@ -171,10 +171,10 @@ function ImagesGallery({
 
   return (
     <section className="flex flex-col gap-1.5">
-      <h3 className="flex items-center gap-1 text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
+      <h3 className="flex items-center gap-1 text-2xs font-medium uppercase tracking-wide text-muted-foreground">
         <ImageIcon className="size-3" aria-hidden />
         {t("fields.images")}
-        <span className="text-[11px] text-muted-foreground">({images.length})</span>
+        <span className="text-xs text-muted-foreground">({images.length})</span>
       </h3>
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
         {images.map((src, idx) => (

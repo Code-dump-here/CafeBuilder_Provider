@@ -38,7 +38,7 @@ export function QuickFactsCard({ project }: QuickFactsCardProps) {
       className="border-border/60"
     >
       <CardHeader>
-        <CardTitle id="project-quick-facts-title" className="text-base">
+        <CardTitle id="project-quick-facts-title">
           {t("title")}
         </CardTitle>
       </CardHeader>

@@ -164,7 +164,7 @@ export function ProjectTerminationBanner({
       <CardHeader>
         <CardTitle
           id="engagement-termination-title"
-          className="flex items-center gap-2 text-base"
+          className="flex items-center gap-2"
         >
           <PauseCircle
             className="size-4 text-warning"

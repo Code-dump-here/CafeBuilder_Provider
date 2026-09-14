@@ -155,7 +155,7 @@ function VerificationPill({ isVerified, label }: VerificationPillProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[12px] font-medium",
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-2xs font-medium",
         isVerified
           ? "border-success/30 bg-success/10 text-success-muted-foreground"
           : "border-border bg-muted/40 text-muted-foreground",
@@ -228,7 +228,7 @@ export function ProviderProfileForm({
       {/* ── Section: Basics ───────────────────────────────────────────── */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
             {t("sections.basics.title")}
           </h2>
           <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
@@ -239,7 +239,7 @@ export function ProviderProfileForm({
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2">
             <User className="size-4 text-muted-foreground" />
-            <h3 className="text-sm font-medium text-foreground">
+            <h3 className="text-base font-semibold text-foreground">
               {t("fields.displayName")}
             </h3>
           </div>
@@ -259,7 +259,7 @@ export function ProviderProfileForm({
 
         <div className="space-y-2">
           <div>
-            <h3 className="text-sm font-medium text-foreground">
+            <h3 className="text-base font-semibold text-foreground">
               {t("fields.providerType")}
             </h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
@@ -285,7 +285,7 @@ export function ProviderProfileForm({
 
         <div className="space-y-2">
           <div>
-            <h3 className="text-sm font-medium text-foreground">
+            <h3 className="text-base font-semibold text-foreground">
               {t("fields.capability")}
             </h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
@@ -319,7 +319,7 @@ export function ProviderProfileForm({
             }
           />
           {typeof avgRating === "number" && avgRating > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-0.5 text-[12px] font-medium text-foreground">
+            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-0.5 text-2xs font-medium text-foreground">
               ★ {avgRating.toFixed(2)}
             </span>
           ) : null}
@@ -329,7 +329,7 @@ export function ProviderProfileForm({
       {/* ── Section: About you ───────────────────────────────────────── */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
             {t("sections.about.title")}
           </h2>
           <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
@@ -338,7 +338,7 @@ export function ProviderProfileForm({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <h3 className="text-xs/relaxed font-medium text-foreground">
+          <h3 className="text-sm font-semibold text-foreground">
             {t("fields.bio")}
           </h3>
           <TextareaControl<ProviderProfileFormValues>
@@ -359,7 +359,7 @@ export function ProviderProfileForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <h3 className="text-xs/relaxed font-medium text-foreground">
+            <h3 className="text-sm font-semibold text-foreground">
               {t("fields.yearsExperience")}
             </h3>
             <InputControl<ProviderProfileFormValues>
@@ -383,7 +383,7 @@ export function ProviderProfileForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <h3 className="text-xs/relaxed font-medium text-foreground">
+            <h3 className="text-sm font-semibold text-foreground">
               {t("fields.portfolioHeadline")}
             </h3>
             <InputControl<ProviderProfileFormValues>
@@ -406,7 +406,7 @@ export function ProviderProfileForm({
       {isCompany ? (
         <section className="space-y-4 rounded-xl border border-border/60 bg-muted/20 p-4">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
               {t("sections.credentials.title")}
             </h2>
             <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
@@ -415,7 +415,7 @@ export function ProviderProfileForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <h3 className="text-xs/relaxed font-medium text-foreground">
+            <h3 className="text-sm font-semibold text-foreground">
               {t("fields.companyTaxCode")}
             </h3>
             <InputControl<ProviderProfileFormValues>

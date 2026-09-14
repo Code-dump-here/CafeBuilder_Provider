@@ -91,7 +91,7 @@ function MyProjectsPageHeader() {
         <Briefcase className="size-4" aria-hidden />
       </div>
       <div className="flex flex-col gap-1">
-        <h1 className="text-lg font-semibold text-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           {t("title")}
         </h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
@@ -194,7 +194,7 @@ function MyProjectsResults({ status, contractType }: MyProjectsResultsProps) {
       {isFetching && !isLoading ? (
         <p
           aria-live="polite"
-          className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
+          className="flex items-center justify-center gap-2 text-center text-2xs uppercase tracking-wider text-muted-foreground"
         >
           <Loader2 className="size-3 animate-spin" aria-hidden />
           {t("refreshing")}
