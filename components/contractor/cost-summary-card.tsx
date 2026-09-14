@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { formatVndParts } from "@/lib/format-currency";
-import { useEngagementCostSummary } from "@/features/projects/use-cost-summary";
+import { useEngagementCostSummary } from "@/features/projects/use-construction";
 import type { ConstructionCostSummary } from "@/features/projects/cost-summary-types";
 
 interface CostSummaryCardProps {
@@ -29,11 +29,12 @@ export function CostSummaryCard({ projectWorkingId }: CostSummaryCardProps) {
   const locale = useLocale();
 
   const { summary, isLoading, isError } = useEngagementCostSummary({
-    projectWorkingId,
+    projectWorkingId: projectWorkingId ?? "",
     enabled: Boolean(projectWorkingId),
   });
 
-  const money = (amount: number) => formatVndParts(amount, locale).full;
+  const money = (amount: number | null | undefined) =>
+    amount == null ? "—" : formatVndParts(amount, locale).full;
 
   if (isLoading) {
     return (
@@ -140,7 +141,7 @@ function CostRow({
 }: {
   item: ConstructionCostSummary;
   depth: number;
-  money: (amount: number) => string;
+  money: (amount: number | null | undefined) => string;
 }) {
   const t = useTranslations("CostSummary");
 

@@ -157,6 +157,20 @@ export function ApplyTemplateDialog({
                 ),
                 days: selected.totalEstimateDays,
               })}
+              {startDate ? (
+                (() => {
+                  const finish = formatPlannedFinish(
+                    startDate,
+                    selected.totalEstimateDays,
+                  );
+                  return finish ? (
+                    <>
+                      {" · "}
+                      {t("finishEstimate", { date: finish })}
+                    </>
+                  ) : null;
+                })()
+              ) : null}
             </p>
           ) : null}
 
@@ -187,6 +201,26 @@ export function ApplyTemplateDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+/**
+ * Best-effort preview of the plan finish date: `startDate + totalEstimateDays`,
+ * inclusive on both ends to match the BE rule (`plannedDurationDays` includes
+ * the start day).
+ *
+ * Returns `null` for inputs we can't render (invalid date, non-positive
+ * days) — the caller then omits the suffix.
+ */
+function formatPlannedFinish(
+  startDate: string,
+  days: number,
+): string | null {
+  if (!startDate || !Number.isFinite(days) || days <= 0) return null;
+  const start = new Date(startDate);
+  if (Number.isNaN(start.getTime())) return null;
+  const finish = new Date(start);
+  finish.setDate(finish.getDate() + (days - 1));
+  return finish.toISOString().slice(0, 10);
 }
 
 function TemplateOption({

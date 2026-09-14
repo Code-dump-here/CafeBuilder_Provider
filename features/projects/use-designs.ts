@@ -24,6 +24,7 @@ import type {
   DesignImageUploadResponse,
   DesignListResponse,
   DesignType,
+  ExtrapRequiredErrorBody,
   RequestRevisionPayload,
   UpdateDesignPayload,
 } from "./design-types";
@@ -166,6 +167,11 @@ export function mapDesignToVersion(design: Design): DesignVersion {
     // it while the revision is still outstanding; the approval-history panel
     // keeps every past reason.
     latestNote: design.status === "revision" ? design.reason : null,
+    // New from spec §6.3 — surfaced in the list table so the owner can see
+    // how many rounds they've asked for on each design, and the provider
+    // can spot rows that still owe a `changeSummary`.
+    revisionCount: design.revisionCount,
+    changeSummary: design.changeSummary,
     drawings: design.images.map((img) => ({
       id: img.id,
       versionId: design.id,
@@ -676,6 +682,33 @@ export function useDeleteDesignImageMutation(
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/**
+ * Narrowed result of a failed request-revision call when the server
+ * returned `409 Conflict` with the `extrap_required` body (spec §9.3,
+ * Luồng B). Returns `null` for any other error shape — caller falls
+ * back to the regular error UI.
+ *
+ * `extraFeeAmount` may be `null` when the provider never published a
+ * price for extra rounds — the owner cannot accept the fee in that
+ * case and the design stays `submitted`.
+ */
+export interface ExtrapRequiredError {
+  message: string;
+  extraFeeAmount: number | null;
+}
+
+export function extractExtrapRequired(
+  error: AppError,
+): ExtrapRequiredError | null {
+  if (error.status !== 409) return null;
+  const details = error.details as ExtrapRequiredErrorBody | null | undefined;
+  if (!details || details.error !== "extrap_required") return null;
+  return {
+    message: details.message ?? error.message,
+    extraFeeAmount: details.extraFeeAmount ?? null,
+  };
+}
 
 function resolveErrorMessage(error: AppError): string {
   if (error.isNetworkError) return TOAST.network;

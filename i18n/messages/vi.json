@@ -895,9 +895,17 @@
     "value": "Giá trị: {value} VND",
     "valueNotSet": "Giá trị: chưa có",
     "termsLabel": "Điều khoản",
+    "partyInfoLabel": "Các bên",
     "createdAt": "Tạo {date} lúc {time}",
     "otpExpiresAt": "OTP hết hạn: {time}",
     "confirmedAt": "Đã xác nhận: {time}",
+    "executionFrom": "Từ {date}",
+    "executionFromUnknown": "Từ —",
+    "executionTo": "đến {date}",
+    "executionToUnknown": "đến —",
+    "executionDuration": "{days} ngày",
+    "fromQuotation": "Dựng từ báo giá",
+    "fromQuotationHint": "Hợp đồng này dựng từ một báo giá đã được duyệt. Giá trị thỏa thuận bị khoá và hợp đồng sẽ sinh các đợt thanh toán khi xác nhận.",
     "status": {
       "drafted": "Bản nháp",
       "pendingOtp": "Chờ xác nhận",
@@ -915,10 +923,28 @@
     "dialog": {
       "titleCreate": "Tạo hợp đồng",
       "descriptionCreate": "Tạo hợp đồng mới cho dự án này.",
+      "titleEdit": "Sửa hợp đồng",
+      "descriptionEdit": "Cập nhật chi tiết hợp đồng khi nó còn ở trạng thái bản nháp. Khi OTP đã được gửi, hợp đồng sẽ bị khoá.",
+      "editNotEditableHint": "Hợp đồng này không còn chỉnh sửa được. Chỉ bản nháp mới có thể sửa.",
+      "editValueLockedHint": "Hợp đồng này dựng từ báo giá đã duyệt — giá trị thỏa thuận bị khoá.",
+      "save": "Lưu thay đổi",
+      "updating": "Đang lưu…",
       "titleLabel": "Tiêu đề hợp đồng",
       "titlePlaceholder": "VD: Hợp đồng Thiết kế & Thi công Quán Cà Phê",
       "valueLabel": "Giá trị thỏa thuận",
       "valuePlaceholder": "Nhập số tiền",
+      "valueLockedFromQuotation": "(lấy từ báo giá)",
+      "partyInfoLabel": "Thông tin các bên (chủ ↔ nhà cung cấp)",
+      "partyInfoPlaceholder": "Bên A: Chủ dự án ... | Bên B: Nhà cung cấp ...",
+      "executionStartLabel": "Ngày bắt đầu",
+      "executionEndLabel": "Ngày kết thúc",
+      "executionEndAutoDerive": "Để trống để hệ thống tự suy ra = ngày bắt đầu + {days} ngày (theo báo giá).",
+      "executionEndBeforeStart": "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.",
+      "quotationLabel": "Dựng từ báo giá (tùy chọn)",
+      "quotationNone": "— Soạn tay (không gắn báo giá)",
+      "quotationsEmpty": "Engagement này chưa có báo giá nào được duyệt.",
+      "quotationsLoading": "Đang tải danh sách báo giá đã duyệt…",
+      "quotationHint": "Thời gian dự kiến: {days} ngày. Bỏ trống ngày kết thúc sẽ tự suy ra từ con số này.",
       "termsLabel": "Điều khoản & Điều kiện",
       "termsPlaceholder": "Mô tả điều khoản hợp đồng, phạm vi công việc, lịch thanh toán...",
       "termsHint": "Khuyến nghị tối thiểu 20 ký tự.",
@@ -1095,6 +1121,7 @@
       "hideDetail": "Ẩn các hạng mục",
       "startDate": "Ngày bắt đầu",
       "summary": "Sẽ tạo {phases, plural, =1 {1 hạng mục} other {# hạng mục}} và {tasks, plural, =1 {1 công việc} other {# công việc}}, kéo dài khoảng {days} ngày.",
+      "finishEstimate": "kết thúc ~{date}",
       "appendWarning": "Dự án đã có hạng mục. Áp mẫu sẽ THÊM các hạng mục của mẫu vào bên cạnh, không thay thế cái đang có.",
       "cancel": "Huỷ",
       "apply": "Áp vào dự án",
@@ -1115,11 +1142,19 @@
       "deleteError": "Không thể xoá mốc. Vui lòng thử lại.",
       "editMeta": "Sửa chi tiết",
       "editMetaTitle": "Sửa chi tiết mốc",
+      "category": "Danh mục",
+      "categoryPlaceholder": "vd: nền móng, điện",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Cần làm gì ở đây?",
       "lead": "Phụ trách",
       "leadPlaceholder": "vd: Khoi",
       "targetDate": "Ngày mục tiêu",
       "startDate": "Ngày bắt đầu",
-      "endDate": "Ngày kết thúc",
+      "actualStart": "Bắt đầu thực tế",
+      "actualAt": "Kết thúc thực tế",
+      "estimatedLaborCost": "Dự toán nhân công",
+      "estimatedLaborCostHint": "Chỉ tính cho riêng mốc này — nhân công của task sẽ được cộng thêm.",
+      "actualLaborCost": "Thực chi nhân công",
       "progress": "Tiến độ",
       "setStatus": "Đặt trạng thái",
       "statusMoveHint": "Trạng thái chỉ chuyển tiến — bước tiếp theo được đánh dấu bên dưới.",
@@ -1153,6 +1188,19 @@
       "edit": "Sửa việc",
       "editTitle": "Sửa công việc",
       "taskLabel": "Công việc",
+      "fields": {
+        "title": "Tiêu đề"
+      },
+      "descriptionPlaceholder": "Cần làm gì ở đây?",
+      "startDate": "Ngày bắt đầu",
+      "targetDate": "Ngày mục tiêu",
+      "actualStart": "Bắt đầu thực tế",
+      "actualAt": "Kết thúc thực tế",
+      "estimatedLaborCost": "Dự toán nhân công",
+      "actualLaborCost": "Thực chi nhân công",
+      "reason": "Ghi chú trễ / gián đoạn",
+      "reasonHint": "Lý do trễ hoặc phải đổi phương án — lưu vào lịch sử dự án.",
+      "reasonPlaceholder": "vd: Bị đội khác chặn lối vào công trường",
       "delete": "Xoá việc",
       "deleteConfirm": "Xoá công việc này?",
       "deleteSuccess": "Đã xoá công việc",
@@ -1179,7 +1227,8 @@
           "dueDate": "Hạn chót",
           "status": "Trạng thái",
           "checklist": "Việc cần làm",
-          "images": "Hình ảnh tham chiếu"
+          "images": "Hình ảnh tham chiếu",
+          "reason": "Ghi chú trễ / gián đoạn"
         },
         "checklist": {
           "prepare": "Đọc bản vẽ & chuẩn bị vật tư",
@@ -1403,8 +1452,9 @@
       "description": "Mô tả",
       "descriptionPlaceholder": "Cần làm gì ở đây?",
       "targetDate": "Ngày mục tiêu",
+      "estimatedLaborCost": "Dự toán nhân công",
+      "estimatedLaborCostHint": "Tuỳ chọn. Chỉ tính cho riêng mốc này — nhân công của task sẽ được cộng thêm.",
       "startDate": "Ngày bắt đầu",
-      "endDate": "Ngày kết thúc",
       "create": "Tạo mốc",
       "cancel": "Huỷ",
       "error": "Không thể tạo mốc. Vui lòng thử lại."
@@ -1439,7 +1489,8 @@
       "siteProfile": "Hồ sơ mặt bằng",
       "changeOrders": "Khoản phát sinh",
       "quotations": "Báo giá",
-      "payments": "Thanh toán"
+      "payments": "Thanh toán",
+      "providers": "Nhà cung cấp"
     },
     "contractor": {
       "workspace": "Không gian làm việc",
@@ -1467,7 +1518,8 @@
       "createContract": "Tạo hợp đồng",
       "contractHistory": "Lịch sử hợp đồng",
       "payments": "Thanh toán",
-      "dailyLogs": "Nhật ký thi công"
+      "dailyLogs": "Nhật ký thi công",
+      "providers": "Nhà cung cấp"
     },
     "admin": {
       "overview": "Tổng quan",
@@ -1598,7 +1650,17 @@
       "confirmCta": "Xác nhận",
       "confirmCancel": "Huỷ",
       "deleteCta": "Xoá",
-      "revisionStarted": "Đã bắt đầu bản chỉnh sửa."
+      "revisionStarted": "Đã bắt đầu bản chỉnh sửa.",
+      "changeSummaryLabel": "Tóm tắt thay đổi",
+      "changeSummaryPlaceholder": "Mô tả ngắn về thay đổi trong vòng này (vd: \"Hạ chiều cao quầy từ 90cm xuống 85cm\").",
+      "changeSummaryHint": "Chủ dự án sẽ thấy nội dung này trong lịch sử duyệt. Nút nộp sẽ bị tắt cho tới khi điền.",
+      "changeSummaryMissing": "Vui lòng điền tóm tắt thay đổi trước khi nộp.",
+      "editChangeSummary": "Sửa tóm tắt",
+      "extrapTitle": "Vòng chỉnh sửa này sẽ phát sinh phí",
+      "extrapBodyWithAmount": "Vòng tiếp theo vượt quá {free} vòng miễn phí đã chốt trong báo giá. Phí dự kiến: {amount}. Một ChangeOrder sẽ được tạo tự động.",
+      "extrapBodyWithoutAmount": "Vòng tiếp theo vượt quá {free} vòng miễn phí đã chốt trong báo giá. Nhà cung cấp chưa công bố phí — vui lòng liên hệ họ để thống nhất trước khi yêu cầu vòng này.",
+      "extrapAccept": "Đồng ý phí và yêu cầu chỉnh sửa",
+      "extrapFeeUnpriced": "Chưa có giá"
     },
     "tabs": {
       "all": "Tất cả",
@@ -1639,7 +1701,11 @@
       "actions": "Thao tác",
       "empty": "Chưa có phiên bản nào cho bộ lọc này.",
       "drawingsCount": "{count, plural, =0 {Chưa có bản vẽ} one {# bản vẽ} other {# bản vẽ}}",
-      "open": "Mở"
+      "open": "Mở",
+      "revisions": "Vòng sửa",
+      "revisionsTooltip": "{count, plural, =0 {Chưa có vòng chỉnh sửa nào} one {Đã yêu cầu # vòng chỉnh sửa} other {Đã yêu cầu # vòng chỉnh sửa}}",
+      "changeSummary": "Tóm tắt thay đổi",
+      "changeSummaryEmpty": "—"
     },
     "comments": {
       "title": "Bình luận",
@@ -1670,6 +1736,16 @@
       "uploadedBy": "Đã tải lên",
       "revisionReason": "Lý do chỉnh sửa",
       "latestNoteLabel": "Ghi chú mới nhất",
+      "revisionCount": "{count, plural, =0 {vòng} one {vòng} other {vòng}} chỉnh sửa",
+      "changeSummaryCurrent": "Tóm tắt thay đổi của vòng hiện tại",
+      "revisionQuota": {
+        "label": "Ngân sách chỉnh sửa",
+        "used": "Đã dùng {used} / {free} vòng miễn phí",
+        "unlimited": "Engagement này không giới hạn vòng miễn phí.",
+        "nextCharged": "Vòng tiếp theo sẽ phát sinh phí.",
+        "nextFree": "Vòng tiếp theo vẫn miễn phí.",
+        "unpriced": "Nhà cung cấp chưa công bố phí cho vòng phát sinh."
+      },
       "hero": {
         "published": "Phát hành ngày {date}",
         "drawings": "{count, plural, one {# bản vẽ} other {# bản vẽ}}",
@@ -2068,7 +2144,8 @@
   "Profile": {
     "meta": {
       "title": "Hồ sơ của tôi",
-      "description": "Quản lý hồ sơ nhà cung cấp công khai, thông tin liên hệ và những thông tin chủ quán thấy khi bạn ứng tuyển một dự án."
+      "description": "Quản lý hồ sơ nhà cung cấp công khai, thông tin liên hệ và những thông tin chủ quán thấy khi bạn ứng tuyển một dự án.",
+      "joined": "Gia nhập {date}"
     },
     "nav": {
       "label": "Hồ sơ của tôi"
@@ -2076,14 +2153,32 @@
     "header": {
       "eyebrow": "Hồ sơ",
       "title": "Hồ sơ của tôi",
-      "subtitle": "Cập nhật thông tin để chủ quán thấy được điều bạn mang đến cho dự án."
+      "subtitle": "Cập nhật thông tin để chủ quán thấy được điều bạn mang đến cho dự án.",
+      "stats": {
+        "portfolio": "Dự án mẫu",
+        "rating": "Đánh giá",
+        "newRating": "Mới",
+        "yearsExperience": "Năm kinh nghiệm"
+      }
     },
     "tabs": {
-      "posts": "Bài đăng",
-      "projects": "Dự án",
       "reviews": "Đánh giá",
       "portfolio": "Dự án mẫu",
-      "brand": "Thương hiệu"
+      "brand": "Thương hiệu",
+      "reviewsEmpty": {
+        "title": "Chưa có đánh giá",
+        "description": "Chủ quán có thể để lại đánh giá sau khi dự án hoàn thành. Điểm của bạn sẽ xuất hiện ở đây khi có đánh giá đầu tiên."
+      },
+      "reviewsError": {
+        "title": "Không tải được đánh giá",
+        "description": "Đã có lỗi khi tải đánh giá của bạn.",
+        "retry": "Thử lại"
+      },
+      "reviewsSummary": {
+        "basedOn": "Dựa trên {count, plural, other {# đánh giá}}",
+        "byDimension": "Theo tiêu chí",
+        "listComingSoon": "Danh sách đánh giá đầy đủ (kèm nhận xét và ngày) chưa có — hiện chỉ có tổng hợp điểm."
+      }
     },
     "reviewsTab": {
       "loading": "Đang tải đánh giá…",
@@ -2150,6 +2245,7 @@
       "reset": "Huỷ thay đổi",
       "signOut": "Đăng xuất",
       "editProfile": "Chỉnh sửa",
+      "editProfileDescription": "Cập nhật hồ sơ công khai. Thay đổi sẽ phản ánh ngay trên toàn hệ thống.",
       "settings": "Cài đặt",
       "changeCover": "Đổi ảnh bìa",
       "cancel": "Huỷ"
@@ -2178,42 +2274,42 @@
     }
   },
   "Payments": {
-  "checkout": {
-   "eyebrow": "Thanh toán",
-   "title": "Xác nhận gói của bạn",
-   "loading": "Đang tải gói của bạn…",
-   "unknownPlanTitle": "Không tìm thấy gói này",
-   "unknownPlanSubtitle": "Liên kết có thể đã cũ, hoặc gói không còn được bán. Hãy chọn lại từ trang bảng giá.",
-   "backToPlans": "Về bảng giá",
-   "payCta": "Tiếp tục thanh toán",
-   "redirecting": "Đang chuyển sang payOS…",
-   "cancel": "Huỷ",
-   "secureNote": "payOS xử lý thanh toán. Chúng tôi không nhìn thấy thông tin thẻ hay tài khoản của bạn.",
-   "summary": {
-    "duration": "Thời hạn",
-    "days": "{count} ngày",
-    "total": "Tổng cộng"
-   }
-  },
-  "result": {
-   "pending": "Đang xác nhận thanh toán…",
-   "pendingNote": "payOS báo kết quả cho chúng tôi tách biệt với việc đưa bạn quay lại đây, nên có thể mất vài giây. Bạn không cần thanh toán lại.",
-   "paidTitle": "Bạn đã đăng ký thành công",
-   "paidBody": "Gói của bạn đang hoạt động. Bạn có thể bắt đầu nhận dự án ngay.",
-   "failedTitle": "Thanh toán chưa thành công",
-   "failedBody": "Chưa có khoản nào bị trừ. Bạn có thể thử lại bất cứ lúc nào.",
-   "cancelledTitle": "Đã huỷ thanh toán",
-   "cancelledBody": "Bạn đã dừng trước khi trả tiền, nên không có khoản nào bị trừ và liên kết thanh toán đã được đóng.",
-   "missingTitle": "Không có gì để hiển thị",
-   "missingBody": "Đây là trang payOS chuyển bạn về sau khi thanh toán, và nó đang được mở mà không có giao dịch nào.",
-   "unknownTitle": "Không kiểm tra được giao dịch",
-   "unknownBody": "Nếu tiền đã bị trừ, hệ thống sẽ tự đối soát — đừng trả lần thứ hai. Hãy liên hệ nếu tình trạng không được xử lý.",
-   "startBrowsing": "Xem marketplace",
-   "viewProfile": "Xem hồ sơ của tôi",
-   "tryAgain": "Thử lại",
-   "keepBrowsing": "Tiếp tục xem",
-   "backToPlans": "Về bảng giá"
-  },
+    "checkout": {
+      "eyebrow": "Thanh toán",
+      "title": "Xác nhận gói của bạn",
+      "loading": "Đang tải gói của bạn…",
+      "unknownPlanTitle": "Không tìm thấy gói này",
+      "unknownPlanSubtitle": "Liên kết có thể đã cũ, hoặc gói không còn được bán. Hãy chọn lại từ trang bảng giá.",
+      "backToPlans": "Về bảng giá",
+      "payCta": "Tiếp tục thanh toán",
+      "redirecting": "Đang chuyển sang payOS…",
+      "cancel": "Huỷ",
+      "secureNote": "payOS xử lý thanh toán. Chúng tôi không nhìn thấy thông tin thẻ hay tài khoản của bạn.",
+      "summary": {
+        "duration": "Thời hạn",
+        "days": "{count} ngày",
+        "total": "Tổng cộng"
+      }
+    },
+    "result": {
+      "pending": "Đang xác nhận thanh toán…",
+      "pendingNote": "payOS báo kết quả cho chúng tôi tách biệt với việc đưa bạn quay lại đây, nên có thể mất vài giây. Bạn không cần thanh toán lại.",
+      "paidTitle": "Bạn đã đăng ký thành công",
+      "paidBody": "Gói của bạn đang hoạt động. Bạn có thể bắt đầu nhận dự án ngay.",
+      "failedTitle": "Thanh toán chưa thành công",
+      "failedBody": "Chưa có khoản nào bị trừ. Bạn có thể thử lại bất cứ lúc nào.",
+      "cancelledTitle": "Đã huỷ thanh toán",
+      "cancelledBody": "Bạn đã dừng trước khi trả tiền, nên không có khoản nào bị trừ và liên kết thanh toán đã được đóng.",
+      "missingTitle": "Không có gì để hiển thị",
+      "missingBody": "Đây là trang payOS chuyển bạn về sau khi thanh toán, và nó đang được mở mà không có giao dịch nào.",
+      "unknownTitle": "Không kiểm tra được giao dịch",
+      "unknownBody": "Nếu tiền đã bị trừ, hệ thống sẽ tự đối soát — đừng trả lần thứ hai. Hãy liên hệ nếu tình trạng không được xử lý.",
+      "startBrowsing": "Xem marketplace",
+      "viewProfile": "Xem hồ sơ của tôi",
+      "tryAgain": "Thử lại",
+      "keepBrowsing": "Tiếp tục xem",
+      "backToPlans": "Về bảng giá"
+    },
     "meta": {
       "title": "Bảng giá — SmartCafeBuilder",
       "description": "Chọn gói đăng ký phù hợp với tần suất nhận dự án quán cafe của bạn."
@@ -2681,6 +2777,58 @@
     },
     "unpriced": "Chưa báo giá"
   },
+  "ConstructionShared": {
+    "status": {
+      "pending": "Chưa bắt đầu",
+      "in_progress": "Đang thi công",
+      "completed": "Hoàn thành"
+    },
+    "duration": {
+      "planned": "{count, plural, =1 {1 ngày kế hoạch} other {# ngày kế hoạch}}",
+      "actual": "{count, plural, =1 {1 ngày thực tế} other {# ngày thực tế}}",
+      "noDates": "Chưa có mốc thời gian",
+      "noActual": "Chưa hoàn thành"
+    },
+    "cost": {
+      "estimated": "Dự toán",
+      "actual": "Thực chi",
+      "pending": "Đang chờ số liệu",
+      "missingLines": "{count, plural, =0 {} =1 {1 dòng còn thiếu thực tế} other {# dòng còn thiếu thực tế}}",
+      "missingLabor": "{count, plural, =0 {} =1 {1 mục chi phí đang chờ} other {# mục chi phí đang chờ}}",
+      "unavailable": "—",
+      "labor": "Nhân công",
+      "materials": "Vật tư",
+      "children": "Hạng mục con",
+      "subtotal": "Tạm tính",
+      "total": "Tổng"
+    },
+    "actions": {
+      "save": "Lưu",
+      "cancel": "Huỷ",
+      "delete": "Xoá",
+      "edit": "Sửa",
+      "close": "Đóng"
+    },
+    "validation": {
+      "estimateAtPast": "Ngày kết thúc không được nằm trong quá khứ.",
+      "nameRequired": "Vui lòng nhập tên.",
+      "quantityPositive": "Số lượng phải lớn hơn 0."
+    },
+    "units": {
+      "md": "Mét dài",
+      "m2": "Mét vuông",
+      "kg": "Kilogram",
+      "cai": "Cái",
+      "lit": "Lít",
+      "hop": "Hộp"
+    },
+    "schedule": {
+      "planned": "Kế hoạch",
+      "actual": "Thực tế",
+      "noTasks": "Chưa có công việc",
+      "noPhases": "Chưa có hạng mục"
+    }
+  },
   "CostSummary": {
     "title": "Chi phí thi công",
     "subtitle": "Nhân công và vật tư, kế hoạch so với thực tế.",
@@ -2719,7 +2867,10 @@
       "subtitle": "Những gì chủ quán đọc trước khi quyết định thuê bạn.",
       "edit": "Sửa thương hiệu",
       "foundedYear": "Thành lập",
+      "foundedYearHint": "Trong khoảng 1900 đến {year}",
+      "foundedYearError": "Năm thành lập phải nằm trong khoảng {min} đến {max}.",
       "employeeCount": "Quy mô",
+      "employeeCountError": "Quy mô đội ngũ phải lớn hơn 0.",
       "people": "{count, plural, other {# người}}",
       "yearsExperience": "Kinh nghiệm",
       "years": "{count, plural, other {# năm}}",
@@ -2736,6 +2887,12 @@
       "coverImageUrl": "Link ảnh bìa",
       "introVideoUrl": "Link video giới thiệu",
       "companyAddress": "Địa chỉ công ty",
+      "companyLatitude": "Vĩ độ",
+      "companyLongitude": "Kinh độ",
+      "clearCompanyCoordinates": "Xoá toạ độ đã lưu",
+      "coordinatesHint": "Tích để xoá toạ độ hiện tại.",
+      "coordinatesPairError": "Vĩ độ và kinh độ phải đi cùng nhau.",
+      "coordinatesClearError": "Không thể vừa xoá toạ độ vừa gửi toạ độ mới.",
       "companyAddressPlaceholder": "Tìm địa chỉ văn phòng hoặc xưởng",
       "openAddressInMaps": "Mở địa chỉ công ty trong Google Maps",
       "addressPinned": "Đã ghim trên bản đồ",
@@ -2792,6 +2949,7 @@
       "subtitle": "Chỉ quản trị viên mới đánh dấu là đã xác minh.",
       "empty": "Chưa có chứng chỉ nào.",
       "add": "Thêm chứng chỉ",
+      "edit": "Sửa chứng chỉ",
       "verified": "Đã xác minh",
       "expired": "Đã hết hạn",
       "noDetail": "Chưa có thông tin",
@@ -2800,6 +2958,8 @@
       "removeDescription": "Nó biến mất khỏi trang thương hiệu công khai.",
       "dialogTitle": "Thêm chứng chỉ",
       "dialogDescription": "Giấy phép, chứng chỉ, giải thưởng hoặc tư cách hội viên.",
+      "editTitle": "Sửa chứng chỉ",
+      "editDescription": "Sửa sẽ đặt lại cờ xác minh cho tới khi quản trị viên kiểm tra lại.",
       "kind": "Loại",
       "name": "Tên",
       "issuer": "Nơi cấp",
@@ -2807,6 +2967,7 @@
       "issuedAt": "Ngày cấp",
       "expiresAt": "Hết hạn",
       "fileUrl": "Link bản scan",
+      "dateRangeError": "Ngày hết hạn phải bằng hoặc sau ngày cấp.",
       "verifyNote": "Chứng chỉ mới thêm chưa được xác minh. Quản trị viên sẽ kiểm tra — bạn không tự xác minh được."
     },
     "certificateKind": {
@@ -2816,6 +2977,141 @@
       "membership": "Hội viên",
       "other": "Khác"
     }
+  },
+  "ProviderDirectory": {
+    "meta": {
+      "title": "Nhà cung cấp — SmartCafeBuilder",
+      "description": "Duyệt qua các studio thiết kế và nhà thầu thi công: hồ sơ năng lực, đánh giá, dự án mẫu và khu vực phục vụ."
+    },
+    "title": "Nhà cung cấp",
+    "subtitle": "So sánh các studio thiết kế và nhà thầu thi công trước khi đăng bài hoặc mời vào dự án.",
+    "card": {
+      "verified": "Đã xác minh",
+      "individual": "Cá nhân",
+      "company": "Doanh nghiệp",
+      "joined": "Gia nhập {year}",
+      "yearsExperience": "{count, plural, other {# năm kinh nghiệm}}"
+    },
+    "filter": {
+      "searchPlaceholder": "Tìm theo tên…",
+      "searchLabel": "Tìm kiếm",
+      "clearSearch": "Xoá nội dung tìm",
+      "verifiedOnly": "Chỉ nhà cung cấp đã xác minh",
+      "reset": "Bỏ lọc",
+      "totalCount": "{count, plural, other {# nhà cung cấp}}"
+    },
+    "capability": {
+      "all": "Tất cả năng lực",
+      "designer": "Thiết kế",
+      "constructor": "Thi công",
+      "both": "Cả hai"
+    },
+    "pagination": {
+      "label": "Chuyển trang",
+      "first": "Trang đầu",
+      "previous": "Trang trước",
+      "next": "Trang sau",
+      "last": "Trang cuối"
+    },
+    "noRatings": "Chưa có đánh giá",
+    "ratingValue": "Đánh giá {rating} trên 5",
+    "reviewCount": "{count, plural, other {# đánh giá}}",
+    "dimensions": {
+      "progress": "Tiến độ",
+      "quality": "Chất lượng",
+      "communication": "Trao đổi",
+      "cost": "Chi phí",
+      "professionalism": "Chuyên nghiệp",
+      "unknown": "Khác",
+      "empty": "Chưa có điểm theo tiêu chí."
+    },
+    "errors": {
+      "title": "Không tải được danh sách nhà cung cấp.",
+      "subtitle": "Đã có lỗi khi kết nối tới máy chủ. Vui lòng thử lại.",
+      "retry": "Thử lại",
+      "generic": "Không thể tải nhà cung cấp."
+    },
+    "empty": {
+      "title": "Không tìm thấy nhà cung cấp phù hợp",
+      "description": "Thử bỏ bộ lọc hoặc đổi từ khoá tìm kiếm.",
+      "action": "Bỏ lọc"
+    },
+    "refreshing": "Đang làm mới…"
+  },
+  "ProviderPublicProfile": {
+    "verified": "Đã xác minh",
+    "type": {
+      "individual": "Cá nhân",
+      "company": "Doanh nghiệp"
+    },
+    "yearsExperience": "{count, plural, other {# năm kinh nghiệm}}",
+    "joined": "Gia nhập {year}",
+    "tabs": {
+      "about": "Giới thiệu",
+      "brand": "Thương hiệu",
+      "portfolio": "Dự án mẫu",
+      "reviews": "Đánh giá"
+    },
+    "actions": {
+      "inviteToProject": "Mời vào dự án",
+      "contact": "Nhắn tin",
+      "manageOwnProfile": "Quản lý hồ sơ của bạn"
+    },
+    "brand": {
+      "empty": "Nhà cung cấp này chưa công bố thông tin thương hiệu.",
+      "socialTitle": "Kênh liên hệ",
+      "noSocial": "Chưa có kênh liên hệ nào.",
+      "areasTitle": "Khu vực nhận việc",
+      "noAreas": "Chưa khai báo khu vực nhận việc.",
+      "certificatesTitle": "Giấy phép & chứng chỉ",
+      "noCertificates": "Chưa công bố giấy phép / chứng chỉ.",
+      "verified": "Đã xác minh",
+      "expired": "Đã hết hạn",
+      "viewFile": "Xem bản scan"
+    },
+    "platform": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "youtube": "YouTube",
+      "linkedin": "LinkedIn",
+      "zalo": "Zalo",
+      "website": "Website",
+      "other": "Khác"
+    },
+    "portfolio": {
+      "empty": {
+        "title": "Chưa có dự án mẫu",
+        "description": "Nhà cung cấp này chưa đăng dự án mẫu nào."
+      },
+      "watchVideo": "Xem video công trình"
+    },
+    "reviews": {
+      "basedOn": "Dựa trên {count, plural, other {# đánh giá}}",
+      "errorTitle": "Không tải được đánh giá",
+      "errorSubtitle": "Vui lòng thử lại sau ít phút.",
+      "retry": "Thử lại",
+      "empty": {
+        "title": "Chưa có đánh giá nào",
+        "description": "Khi có đánh giá từ chủ quán, chúng sẽ hiển thị ở đây."
+      }
+    },
+    "notFound": {
+      "title": "Không tìm thấy nhà cung cấp",
+      "description": "Hồ sơ này có thể đã bị xoá hoặc đang được chỉnh sửa."
+    },
+    "errors": {
+      "title": "Không tải được hồ sơ nhà cung cấp",
+      "subtitle": "Đã có lỗi khi kết nối tới máy chủ.",
+      "retry": "Thử lại",
+      "generic": "Không thể tải hồ sơ."
+    }
+  },
+  "BrandMedia": {
+    "changeAvatar": "Đổi ảnh đại diện",
+    "changeCover": "Đổi ảnh bìa",
+    "removeCover": "Gỡ bỏ",
+    "remove": "Gỡ ảnh"
   },
   "Portfolio": {
     "add": "Thêm dự án mẫu",
@@ -2829,6 +3125,7 @@
     "removeImageTitle": "Xoá ảnh này?",
     "removeImageDescription": "Ảnh sẽ bị xoá vĩnh viễn khỏi mục năng lực.",
     "watchVideo": "Xem video công trình",
+    "viewImage": "Xem ảnh",
     "noDetail": "Chưa có thông tin",
     "areaValue": "{value} m²",
     "durationValue": "{count, plural, other {# ngày}}",
@@ -2864,6 +3161,21 @@
       "descriptionPlaceholder": "Đề bài là gì, bạn làm gì, kết quả ra sao…",
       "imageUrl": "Link ảnh",
       "caption": "Chú thích"
+    },
+    "gallery": {
+      "imagesCount": "{count, plural, other {# ảnh}}",
+      "empty": "Chưa có ảnh nào.",
+      "setAsCover": "Đặt làm ảnh bìa"
+    },
+    "media": {
+      "title": "Ảnh và video thực tế công trình",
+      "empty": "Chưa có media — tải lên ảnh hoặc video để bắt đầu.",
+      "add": "Thêm media",
+      "remove": "Xoá",
+      "typeImage": "Ảnh",
+      "typeVideo": "Video",
+      "uploadCta": "Tải lên tệp",
+      "onlyOneVideoError": "Mỗi dự án chỉ gắn được một video — hãy đổi mục này sang Ảnh."
     }
   },
   "Quotations": {

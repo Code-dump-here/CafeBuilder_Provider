@@ -96,10 +96,8 @@ export interface ProviderBrand {
   website: string | null;
   brandStory: string | null;
   companyAddress: string | null;
-  /**
-   * Map pin for `companyAddress`, or null when it was only ever typed. Always
-   * paired — the backend rejects one coordinate without the other.
-   */
+  /** Pair of office / workshop coordinates. Backend returns `null` for
+   *  either when no location has been set; both fields travel together. */
   companyLatitude: number | null;
   companyLongitude: number | null;
   foundedYear: number | null;
@@ -120,13 +118,17 @@ export interface UpdateProviderBrandPayload {
   website?: string;
   brandStory?: string;
   companyAddress?: string;
-  /** New pin. Omit to leave the saved one alone; use `clearCompanyCoordinates` to remove it. */
+  /**
+   * Pair of office / workshop coordinates. Send together — the backend
+   * rejects either field without the other (`GeoCoordinates.EnsurePairValid`).
+   * To erase an existing pair, set `clearCompanyCoordinates: true` and OMIT
+   * the two fields below (the backend treats that as "set to null").
+   */
   companyLatitude?: number;
   companyLongitude?: number;
   /**
-   * Drops the saved pin, leaving the address as text. Needs its own flag
-   * because an omitted field already means "don't touch this one" — there is
-   * otherwise no way to say "erase it".
+   * `true` → ask the backend to null both lat/lng. Mutually exclusive with
+   * the fields above: if you also send a new pair the request will 400.
    */
   clearCompanyCoordinates?: boolean;
   foundedYear?: number;
