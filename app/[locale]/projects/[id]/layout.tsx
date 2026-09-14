@@ -2,11 +2,16 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
 
 import { ProjectHeroBar } from "@/components/project-overview/project-hero-bar";
+// next-intl's usePathname, as the breadcrumb uses: next/navigation's keeps the
+// locale prefix (`/vi/projects/…`), so the `startsWith` below failed for
+// Vietnamese and every sub-page was treated as the project root — hero shown,
+// back link hidden, on payments, contracts and the rest.
+import { usePathname } from "@/i18n/navigation";
 import { useProjectDetail } from "@/features/projects/use-project-detail";
 
 /**
