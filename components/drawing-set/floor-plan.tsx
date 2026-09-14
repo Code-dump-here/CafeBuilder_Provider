@@ -160,8 +160,10 @@ export function FloorPlan() {
           </Ink>
         </svg>
 
-        {/* The sign-off lands after the drawing is done. */}
-        <div className="pointer-events-none absolute top-[53%] left-[62%] -translate-x-1/2 -translate-y-1/2">
+        {/* The sign-off lands after the drawing is done, in the sheet margin
+            below the plan — where approval stamps actually go — rather than
+            over the linework, where it covered the bar and its stools. */}
+        <div className="pointer-events-none absolute top-[89%] left-[64%] -translate-x-1/2 -translate-y-1/2">
           <Stamp tone="success" size="lg" seed="approved-hero" animate delayMs={1550}>
             {t("approved")}
           </Stamp>

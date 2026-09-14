@@ -45,7 +45,14 @@ export function Stamp({
   className?: string;
   children: React.ReactNode;
 }) {
-  const rotate = tiltFor(seed ?? (typeof children === "string" ? children : "stamp"));
+  const label = typeof children === "string" ? children : "";
+  // The same angle swings a long label much further out of level at its ends:
+  // at -3° "AWAITING CONFIRMATION" drifted ~10px, crowding the line under it,
+  // while "PAID" barely moves. Scale the tilt down past ~9 characters, keeping
+  // at least a degree so it still reads as stamped.
+  const base = tiltFor(seed ?? (label || "stamp"));
+  const scaled = base * Math.min(1, 9 / Math.max(label.length, 1));
+  const rotate = Math.sign(base) * Math.max(1, Math.round(Math.abs(scaled) * 2) / 2);
 
   return (
     <span

@@ -400,14 +400,18 @@
    text across a line break — `box-decoration-break: clone` gives every line
    fragment its own ticks. */
 @utility dim-underline {
+  /* The rule sits just under the baseline and each end tick is centred on it,
+     crossing the line the way a drawn dimension does. It previously hung from
+     the bottom of the line box — below the descenders — which with the
+     headline's tight leading put it on the next line's capitals. */
   background-image:
     linear-gradient(var(--primary), var(--primary)),
     linear-gradient(var(--primary), var(--primary)),
     linear-gradient(var(--primary), var(--primary));
-  background-size: 100% 2px, 2px 0.45em, 2px 0.45em;
-  background-position: 0 calc(100% - 0.12em), 0 100%, 100% 100%;
+  background-size: 100% 2px, 2px 0.3em, 2px 0.3em;
+  background-position: 0 calc(100% - 0.16em), 0 calc(100% - 0.02em), 100% calc(100% - 0.02em);
   background-repeat: no-repeat;
-  padding-bottom: 0.18em;
+  padding-bottom: 0.06em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
