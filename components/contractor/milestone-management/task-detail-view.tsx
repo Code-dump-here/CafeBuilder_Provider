@@ -204,12 +204,12 @@ export function TaskDetailView(props: TaskDetailViewProps) {
           {(task.estimatedLaborCost != null ||
             task.actualLaborCost != null) && (
             <section className="flex flex-col gap-1.5">
-              <h3 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <h3 className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
                 {tShared("cost.labor")}
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <Field label={tShared("cost.estimated")}>
-                  <div className="rounded-md border border-border/60 bg-muted/40 px-3 py-2 text-sm">
+                  <div className="rounded-md bg-foreground/5 px-3 py-2 text-sm">
                     {task.estimatedLaborCost != null
                       ? format.number(task.estimatedLaborCost)
                       : tShared("cost.unavailable")}
@@ -218,7 +218,7 @@ export function TaskDetailView(props: TaskDetailViewProps) {
                 <Field label={tShared("cost.actual")}>
                   <div
                     className={cn(
-                      "rounded-md border bg-muted/40 px-3 py-2 text-sm",
+                      "rounded-md bg-foreground/5 px-3 py-2 text-sm",
                       task.actualLaborCost == null
                         ? "border-border/60 text-muted-foreground"
                         : "border-border/60",
@@ -236,7 +236,7 @@ export function TaskDetailView(props: TaskDetailViewProps) {
           {/* Delay note */}
           {task.reason ? (
             <section className="flex flex-col gap-1.5">
-              <h3 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <h3 className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t("fields.reason")}
               </h3>
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">

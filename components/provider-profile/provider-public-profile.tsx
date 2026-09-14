@@ -209,7 +209,7 @@ export function ProviderPublicProfile({ profileId }: ProviderPublicProfileProps)
 
           <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
-              <Star aria-hidden className="size-3.5 text-amber-500" />
+              <Star aria-hidden className="size-3.5 fill-rating text-rating" />
               {t("joined", { year: joinedYear })}
             </span>
           </div>
@@ -259,7 +259,7 @@ function AboutTab({ profileId: _profileId }: { profileId: string }) {
 
   if (!brand) {
     return (
-      <p className="rounded-lg border border-dashed border-border/70 px-4 py-10 text-center text-sm text-muted-foreground">
+      <p className="px-4 py-10 text-center text-sm text-muted-foreground">
         No public details yet.
       </p>
     );
@@ -343,11 +343,14 @@ function AboutTab({ profileId: _profileId }: { profileId: string }) {
 function BrandTab({ profileId }: { profileId: string }) {
   const { brand, isLoading } = useProviderBrand({ serviceProviderProfileId: profileId });
   const t = useTranslations("ProviderPublicProfile");
+  // The owner's brand tab already labels these; the public view printed the
+  // raw enum ("license", "award") beside translated text.
+  const tKind = useTranslations("ProviderBrand.certificateKind");
 
   if (isLoading) return <Skeleton className="h-32 w-full" />;
   if (!brand) {
     return (
-      <p className="rounded-lg border border-dashed border-border/70 px-4 py-10 text-center text-sm text-muted-foreground">
+      <p className="px-4 py-10 text-center text-sm text-muted-foreground">
         {t("brand.empty")}
       </p>
     );
@@ -365,7 +368,7 @@ function BrandTab({ profileId }: { profileId: string }) {
               {brand.socialLinks.map((link) => (
                 <li
                   key={link.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2 text-sm"
+                  className="flex items-center justify-between gap-3 rounded-lg bg-foreground/5 px-3 py-2 text-sm"
                 >
                   <div className="flex flex-col">
                     <span className="font-medium">
@@ -419,11 +422,11 @@ function BrandTab({ profileId }: { profileId: string }) {
               {brand.certificates.map((cert) => (
                 <li
                   key={cert.id}
-                  className="flex items-start justify-between gap-3 rounded-lg border border-border/60 px-3 py-2"
+                  className="flex items-start justify-between gap-3 rounded-lg bg-foreground/5 px-3 py-2"
                 >
                   <div className="flex flex-col gap-0.5">
                     <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
-                      <Badge variant="outline">{cert.kind}</Badge>
+                      <Badge variant="outline">{tKind(cert.kind)}</Badge>
                       {cert.name}
                       {cert.isVerified ? (
                         <Badge variant="secondary">

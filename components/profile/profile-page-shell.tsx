@@ -100,7 +100,7 @@ function ProfileHeader({
   if (!sp) {
     return (
       <div className="relative">
-        <div className="rounded-2xl border border-border/60 bg-card/60 p-6">
+        <div className="p-6">
           <p className="text-sm font-medium text-foreground">{account.email}</p>
         </div>
       </div>
@@ -303,7 +303,7 @@ function ProfileHeader({
           />
           <StatBlock
             icon={Star}
-            iconClassName="text-amber-500 fill-amber-500"
+            iconClassName="text-rating fill-rating"
             value={
               typeof sp.avgRating === "number" && sp.avgRating > 0
                 ? sp.avgRating.toFixed(1)
@@ -781,7 +781,7 @@ interface NoticeShellProps {
 
 function NoticeShell({ title, subtitle }: NoticeShellProps) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-5">
+    <div className="flex items-start gap-3 p-5">
       <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-destructive/10 text-destructive">
         <TriangleAlert aria-hidden className="size-4" />
       </span>

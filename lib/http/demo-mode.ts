@@ -359,6 +359,219 @@ const REVIEW_SUMMARY = {
   },
 };
 
+// ─── Provider directory ────────────────────────────────────────────────────
+// Three providers that differ on the axes the directory renders: capability,
+// individual vs company, verified or not, rated or not yet rated. A directory
+// of identical cards would only prove the grid lays out.
+const PROVIDER_ROWS = [
+  {
+    id: "00000000-0000-4000-8000-000000000002",
+    accountId: "00000000-0000-4000-8000-000000000001",
+    displayName: "Xưởng Mộc Bình Minh",
+    providerType: "company",
+    capability: "both",
+    bio: "Design-and-build studio working on cafés across Ho Chi Minh City.",
+    companyTaxCode: "0312345678",
+    yearsExperience: 8,
+    portfolioHeadline: "Timber-forward cafés, from brief to handover",
+    isVerified: true,
+    avgRating: 4,
+    reviewCount: 3,
+    serviceAreas: [
+      { province: "Hồ Chí Minh", district: "Quận 1" },
+      { province: "Hồ Chí Minh", district: "Quận 3" },
+    ],
+    website: "https://binhminh.example",
+    companyAddress: "123 Nguyễn Huệ, Quận 1, Hồ Chí Minh",
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000003",
+    accountId: "00000000-0000-4000-8000-000000000011",
+    displayName: "Studio Lá Xanh",
+    providerType: "individual",
+    capability: "designer",
+    bio: "Small-footprint interiors: kiosks, takeaway counters and 20-seat rooms.",
+    companyTaxCode: null,
+    yearsExperience: 3,
+    portfolioHeadline: null,
+    isVerified: false,
+    avgRating: 0,
+    reviewCount: 0,
+    serviceAreas: [{ province: "Đà Nẵng", district: null }],
+    website: null,
+    companyAddress: null,
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000004",
+    accountId: "00000000-0000-4000-8000-000000000012",
+    displayName: "Công ty Xây dựng Nam Phát",
+    providerType: "company",
+    capability: "constructor",
+    bio: "Fit-out contractor. Shopfronts, MEP and joinery with our own crews.",
+    companyTaxCode: "0398765432",
+    yearsExperience: 14,
+    portfolioHeadline: "Fixed-price fit-outs, 6-10 week programmes",
+    isVerified: true,
+    avgRating: 4.6,
+    reviewCount: 12,
+    serviceAreas: [
+      { province: "Hồ Chí Minh", district: null },
+      { province: "Bình Dương", district: null },
+    ],
+    website: "https://namphat.example",
+    companyAddress: "45 Lê Văn Việt, Thủ Đức, Hồ Chí Minh",
+  },
+];
+
+const PROVIDERS = page(
+  PROVIDER_ROWS.map((p) => ({
+    id: p.id,
+    displayName: p.displayName,
+    providerType: p.providerType,
+    capability: p.capability,
+    bio: p.bio,
+    yearsExperience: p.yearsExperience,
+    portfolioHeadline: p.portfolioHeadline,
+    isVerified: p.isVerified,
+    avgRating: p.avgRating,
+    reviewCount: p.reviewCount,
+    createdAt: NOW,
+    coverImageViewUrl: null,
+    serviceAreas: p.serviceAreas,
+  })),
+);
+
+const providerFor = (url: string) =>
+  PROVIDER_ROWS.find((p) => url.includes(p.id)) ?? PROVIDER_ROWS[0];
+
+const providerDetail = (url: string) => {
+  const p = providerFor(url);
+  return {
+    id: p.id,
+    accountId: p.accountId,
+    displayName: p.displayName,
+    providerType: p.providerType,
+    capability: p.capability,
+    bio: p.bio,
+    companyTaxCode: p.companyTaxCode,
+    yearsExperience: p.yearsExperience,
+    portfolioHeadline: p.portfolioHeadline,
+    isVerified: p.isVerified,
+    avgRating: p.reviewCount ? p.avgRating : null,
+    createdAt: NOW,
+    updatedAt: NOW,
+    logoUrl: null,
+    logoViewUrl: null,
+    coverImageUrl: null,
+    coverImageViewUrl: null,
+    introVideoUrl: null,
+    introVideoViewUrl: null,
+  };
+};
+
+const providerBrand = (url: string) => {
+  const p = providerFor(url);
+  const company = p.providerType === "company";
+  return {
+    serviceProviderProfileId: p.id,
+    displayName: p.displayName,
+    logoUrl: null,
+    logoViewUrl: null,
+    coverImageUrl: null,
+    coverImageViewUrl: null,
+    introVideoUrl: null,
+    introVideoViewUrl: null,
+    website: p.website,
+    brandStory: p.bio,
+    companyAddress: p.companyAddress,
+    companyLatitude: null,
+    companyLongitude: null,
+    foundedYear: company ? 2026 - p.yearsExperience : null,
+    employeeCount: company ? 24 : null,
+    yearsExperience: p.yearsExperience,
+    isVerified: p.isVerified,
+    avgRating: p.avgRating,
+    reviewCount: p.reviewCount,
+    socialLinks: p.website
+      ? [{ id: "sl1", serviceProviderProfileId: p.id, platform: "facebook",
+           url: "https://facebook.com/example", label: null, sortOrder: 0 }]
+      : [],
+    serviceAreas: p.serviceAreas.map((a, i) => ({
+      id: "sa" + i,
+      serviceProviderProfileId: p.id,
+      province: a.province,
+      district: a.district,
+      note: null,
+      sortOrder: i,
+    })),
+    // Verified, awaiting an admin, and expired: the three states a
+    // certificate row has to render.
+    certificates: company
+      ? [
+          { id: "ce1", serviceProviderProfileId: p.id, kind: "license",
+            name: "Construction business licence", issuer: "Sở Xây dựng",
+            certificateNo: "XD-2019-0412", issuedAt: "2019-04-12", expiresAt: "2029-04-12",
+            fileUrl: null, fileViewUrl: null, isVerified: true, isExpired: false, sortOrder: 0 },
+          { id: "ce2", serviceProviderProfileId: p.id, kind: "certificate",
+            name: "Fire safety installation", issuer: "Cảnh sát PCCC",
+            certificateNo: null, issuedAt: "2024-01-08", expiresAt: null,
+            fileUrl: null, fileViewUrl: null, isVerified: false, isExpired: null, sortOrder: 1 },
+          { id: "ce3", serviceProviderProfileId: p.id, kind: "award",
+            name: "Best small commercial interior", issuer: "Vietnam Design Week",
+            certificateNo: null, issuedAt: "2021-11-20", expiresAt: "2023-11-20",
+            fileUrl: null, fileViewUrl: null, isVerified: true, isExpired: true, sortOrder: 2 },
+        ]
+      : [],
+  };
+};
+
+const portfolios = (url: string) => {
+  const p = providerFor(url);
+  const item = (id: string, title: string, featured: boolean, extra: object) => ({
+    id,
+    serviceProviderProfileId: p.id,
+    title,
+    description: null,
+    role: "both",
+    style: null,
+    location: null,
+    areaM2: null,
+    contractValue: null,
+    completedAt: null,
+    durationDays: null,
+    videoUrl: null,
+    videoViewUrl: null,
+    coverImageUrl: null,
+    coverImageViewUrl: null,
+    isFeatured: featured,
+    sortOrder: 0,
+    createdAt: NOW,
+    updatedAt: NOW,
+    images: [],
+    ...extra,
+  });
+  // The unrated individual has no portfolio yet, so the empty state shows too.
+  if (p.id === PROVIDER_ROWS[1].id) return page([]);
+  return page([
+    item("pf1", "Nhà Nâu Coffee — Quận 1", true, {
+      description: "Timber bar, terrazzo floor and a mezzanine for 18 seats.",
+      style: "Warm industrial",
+      location: "Quận 1, Hồ Chí Minh",
+      areaM2: 86.5,
+      contractValue: 420_000_000,
+      completedAt: "2026-03-28",
+      durationDays: 54,
+    }),
+    item("pf2", "Takeaway kiosk, Landmark 81", false, {
+      role: "construction",
+      location: "Bình Thạnh, Hồ Chí Minh",
+      areaM2: 12,
+      completedAt: "2025-10-02",
+      durationDays: 19,
+    }),
+  ]);
+};
+
 const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/auth\/me$/, DEMO_ACCOUNT],
   [/\/api\/project-workings/, ENGAGEMENTS],
@@ -370,6 +583,13 @@ const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/project-shop-owners\/[^/?]+/, PROJECT],
   [/\/api\/reviews\/providers\/[^/?]+\/summary/, REVIEW_SUMMARY],
   [/\/api\/reviews/, REVIEWS],
+  // Specific paths before their collections: brand sub-resources before the
+  // brand itself, a profile id before the paged list.
+  [/\/api\/provider-brands\/[^/?]+\/(certificates|service-areas|social-links)/, []],
+  [/\/api\/provider-brands\/[^/?]+/, providerBrand],
+  [/\/api\/provider-portfolios\?/, portfolios],
+  [/\/api\/service-provider-profiles\/[^/?]+/, providerDetail],
+  [/\/api\/service-provider-profiles/, PROVIDERS],
   [/\/api\/notifications\/unread-count/, { count: 2 }],
 ];
 
@@ -418,7 +638,11 @@ export function installDemoMode(api: AxiosInstance): void {
 
     let data: unknown;
     if (method === "get") {
-      data = ROUTES.find(([pattern]) => pattern.test(url))?.[1] ?? emptyFor(url);
+      const hit = ROUTES.find(([pattern]) => pattern.test(url))?.[1];
+      data =
+        typeof hit === "function"
+          ? (hit as (u: string) => unknown)(url)
+          : (hit ?? emptyFor(url));
     } else {
       // Writes succeed and change nothing, so a dialog can be submitted and
       // its success path seen without a server behind it.

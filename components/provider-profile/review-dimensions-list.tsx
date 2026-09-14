@@ -88,7 +88,7 @@ export function ReviewDimensionsList({
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
               <div
                 aria-hidden
-                className="h-full rounded-full bg-amber-400 transition-[width] duration-300"
+                className="h-full rounded-full bg-rating transition-[width] duration-300"
                 style={{ width: `${pct}%` }}
               />
             </div>

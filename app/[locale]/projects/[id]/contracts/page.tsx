@@ -480,7 +480,7 @@ function ContractCard({
             {contract.quotationId != null ? (
               <span
                 title={t("fromQuotationHint")}
-                className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary"
+                className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary"
               >
                 <FileText className="size-3" aria-hidden />
                 {t("fromQuotation")}
@@ -569,7 +569,7 @@ function ContractCard({
                 : t("executionToUnknown")}
             </span>
             {contract.executionDurationDays != null ? (
-              <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] font-semibold tabular-nums text-foreground/80">
+              <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-2xs font-semibold tabular-nums text-foreground/80">
                 {t("executionDuration", {
                   days: contract.executionDurationDays,
                 })}
@@ -886,7 +886,7 @@ function CreateContractDialog({
               {t("quotationLabel")}
             </label>
             {acceptedQuotations.length === 0 ? (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {quotationsQuery.isLoading
                   ? t("quotationsLoading")
                   : t("quotationsEmpty")}
@@ -909,7 +909,7 @@ function CreateContractDialog({
               </select>
             )}
             {selectedQuotation ? (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {t("quotationHint", {
                   days:
                     selectedQuotation.estimatedDurationDays != null
@@ -931,7 +931,7 @@ function CreateContractDialog({
               {quotationId == null ? (
                 <span className="text-destructive">*</span>
               ) : (
-                <span className="text-[10px] font-normal text-muted-foreground">
+                <span className="text-xs font-normal text-muted-foreground">
                   {t("valueLockedFromQuotation")}
                 </span>
               )}
@@ -988,7 +988,7 @@ function CreateContractDialog({
                 onChange={(e) => setExecutionEndAt(e.target.value)}
               />
               {selectedQuotation?.estimatedDurationDays != null ? (
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {t("executionEndAutoDerive", {
                     days: selectedQuotation.estimatedDurationDays,
                   })}
@@ -1327,7 +1327,7 @@ function EditContractDialog({
         </DialogHeader>
 
         {!editable ? (
-          <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
+          <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning-muted p-3 text-xs text-warning-muted-foreground">
             <AlertCircle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
             <span>{t("editNotEditableHint")}</span>
           </div>
@@ -1370,7 +1370,7 @@ function EditContractDialog({
             >
               {t("valueLabel")}{" "}
               {valueLocked ? (
-                <span className="text-[10px] font-normal text-muted-foreground">
+                <span className="text-xs font-normal text-muted-foreground">
                   {t("valueLockedFromQuotation")}
                 </span>
               ) : null}
@@ -1472,7 +1472,7 @@ function EditContractDialog({
               className="resize-none"
               disabled={!editable}
             />
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {t("termsHint")}
             </p>
           </div>

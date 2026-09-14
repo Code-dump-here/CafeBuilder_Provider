@@ -1281,14 +1281,14 @@ function VersionInfoRail({
           they know what changed in the round; editable by the provider. */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
             {t("actions.changeSummaryLabel")}
           </span>
           {canSubmit && !isChangeSummaryEditing ? (
             <button
               type="button"
               onClick={onEditChangeSummary}
-              className="text-[10px] font-semibold uppercase tracking-wider text-primary hover:underline underline-offset-2"
+              className="text-2xs font-semibold uppercase tracking-wider text-primary hover:underline underline-offset-2"
             >
               {t("actions.editChangeSummary")}
             </button>
@@ -1304,7 +1304,7 @@ function VersionInfoRail({
               onChange={(e) => onChangeSummaryDraftChange(e.target.value)}
               aria-label={t("actions.changeSummaryLabel")}
             />
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {t("actions.changeSummaryHint")}
             </p>
             <div className="flex items-center justify-end gap-2">
@@ -1335,16 +1335,16 @@ function VersionInfoRail({
             </div>
           </div>
         ) : effectiveChangeSummary ? (
-          <p className="rounded-md border border-border/60 bg-muted/30 px-2 py-1.5 text-xs text-foreground/80">
+          <p className="rounded-md bg-foreground/5 px-2 py-1.5 text-xs text-foreground/80">
             {effectiveChangeSummary}
           </p>
         ) : (
           <p
             className={cn(
-              "rounded-md border border-dashed px-2 py-1.5 text-xs",
+              "rounded-md px-2 py-1.5 text-xs",
               changeSummaryMissing
-                ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300"
-                : "border-border/60 bg-muted/20 text-muted-foreground",
+                ? "border border-warning/40 bg-warning-muted text-warning-muted-foreground"
+                : "text-muted-foreground",
             )}
           >
             {changeSummaryMissing
@@ -1421,10 +1421,10 @@ function RevisionQuotaBlock({ quota, t }: RevisionQuotaBlockProps) {
   if (free == null) {
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
           {t("version.revisionQuota.label")}
         </span>
-        <p className="rounded-md border border-border/60 bg-muted/30 px-2 py-1.5 text-xs text-foreground/80">
+        <p className="rounded-md bg-foreground/5 px-2 py-1.5 text-xs text-foreground/80">
           {t("version.revisionQuota.unlimited")}
         </p>
       </div>
@@ -1435,18 +1435,18 @@ function RevisionQuotaBlock({ quota, t }: RevisionQuotaBlockProps) {
   const ratio = Math.min(1, Math.max(0, used / Math.max(1, free)));
   const overQuota = used > free;
   const tone = overQuota
-    ? "bg-amber-500"
+    ? "bg-warning"
     : ratio > 0.8
-      ? "bg-amber-400"
+      ? "bg-warning/60"
       : "bg-primary";
 
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
           {t("version.revisionQuota.label")}
         </span>
-        <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
+        <span className="font-mono text-xs tabular-nums text-muted-foreground">
           {used} / {free}
         </span>
       </div>
@@ -1462,7 +1462,7 @@ function RevisionQuotaBlock({ quota, t }: RevisionQuotaBlockProps) {
           style={{ width: `${Math.min(100, ratio * 100)}%` }}
         />
       </div>
-      <p className="text-[10px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         {t("version.revisionQuota.used", { used, free })}
         {" · "}
         {quota.nextRevisionCharged

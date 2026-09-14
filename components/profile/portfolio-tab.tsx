@@ -527,7 +527,7 @@ function PortfolioDialog({
               </Button>
             </div>
             {media.length === 0 ? (
-              <p className="rounded-lg border border-dashed border-border/70 px-3 py-4 text-center text-xs text-muted-foreground">
+              <p className="px-3 py-4 text-center text-xs text-muted-foreground">
                 {t("media.empty")}
               </p>
             ) : (
@@ -906,7 +906,7 @@ function ImageGalleryDialog({
         </DialogHeader>
 
         {images.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-border/70 px-4 py-8 text-center text-sm text-muted-foreground">
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground">
             {t("gallery.empty")}
           </p>
         ) : (

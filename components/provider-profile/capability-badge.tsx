@@ -67,7 +67,7 @@ export function VerifiedPill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300",
+        "inline-flex items-center gap-1 rounded-full border border-success/30 bg-success-muted px-2 py-0.5 text-2xs font-medium text-success-muted-foreground",
         className,
       )}
     >
@@ -124,7 +124,7 @@ export function RatingStars({
           <Star
             key={`f-${idx}`}
             aria-hidden
-            className={cn(sizeClass, "fill-amber-400 text-amber-400")}
+            className={cn(sizeClass, "fill-rating text-rating")}
           />
         ))}
         {hasHalf ? (
@@ -146,7 +146,7 @@ export function RatingStars({
               <Star
                 className={cn(
                   sizeClass,
-                  "fill-amber-400 text-amber-400",
+                  "fill-rating text-rating",
                 )}
               />
             </span>
@@ -164,7 +164,7 @@ export function RatingStars({
         {value.toFixed(1)}
       </span>
       {typeof count === "number" ? (
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           ({t("reviewCount", { count })})
         </span>
       ) : null}

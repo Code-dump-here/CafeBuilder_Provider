@@ -104,7 +104,7 @@ export function ProviderFilterBar({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-2xl border border-border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
     >

@@ -171,7 +171,7 @@ export function BrandMediaUploader({
           className={
             variant === "cover"
               ? "absolute bottom-2 left-2 rounded bg-destructive/90 px-2 py-0.5 text-xs text-white"
-              : "absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] text-destructive"
+              : "absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-destructive"
           }
         >
           {error}

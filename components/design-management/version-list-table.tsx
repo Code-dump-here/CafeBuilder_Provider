@@ -401,12 +401,12 @@ function VersionListTableInner({
                         title={t("table.revisionsTooltip", {
                           count: row.revisionCount,
                         })}
-                        className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-muted px-1.5 font-mono text-[10px] font-semibold tabular-nums text-foreground/80"
+                        className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-muted px-1.5 font-mono text-2xs font-semibold tabular-nums text-foreground/80"
                       >
                         {row.revisionCount}
                       </span>
                     ) : (
-                      <span className="text-[10px] text-muted-foreground/60">·</span>
+                      <span className="text-xs text-muted-foreground/60">·</span>
                     ),
                 },
                 // Spec §6.5 / §8.3: provider-supplied change summary for
@@ -423,7 +423,7 @@ function VersionListTableInner({
                         {row.changeSummary}
                       </span>
                     ) : (
-                      <span className="text-[10px] text-muted-foreground/60">
+                      <span className="text-xs text-muted-foreground/60">
                         {t("table.changeSummaryEmpty")}
                       </span>
                     ),

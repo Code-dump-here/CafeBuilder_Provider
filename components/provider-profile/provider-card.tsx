@@ -130,7 +130,7 @@ export function ProviderCard({ provider, className }: ProviderCardProps) {
           />
 
           {provider.serviceAreas.length > 0 ? (
-            <div className="flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
               <MapPin aria-hidden className="size-3" />
               {provider.serviceAreas
                 .slice(0, 2)
@@ -143,7 +143,7 @@ export function ProviderCard({ provider, className }: ProviderCardProps) {
             </div>
           ) : null}
 
-          <div className="mt-auto flex items-center justify-between border-t border-border pt-2 text-[11px] text-muted-foreground">
+          <div className="mt-auto flex items-center justify-between border-t border-border pt-2 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
               <Star aria-hidden className="size-3" />
               {t("card.yearsExperience", {
