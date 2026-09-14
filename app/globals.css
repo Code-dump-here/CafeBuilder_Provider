@@ -213,12 +213,20 @@
   --chart-3: oklch(0.48 0.1 38);
   --chart-4: oklch(0.38 0.08 28);
   --chart-5: oklch(0.3 0.06 18);
-  /* Square by default. Every other step of the scale is calc()'d from this
-     line, so the geometry of the whole app is one value. The soft-pill look
-     was the loudest tell of the old style. Avatars, spinners and scrollbar
-     thumbs keep their own rounded-full — those are round because of what they
-     are, not because of the theme. */
-  --radius: 0rem;
+  /* Surfaces are softly rounded; drawing marks are square. Every step of the
+     scale is calc()'d from this line — 6px gives cards 6px, inputs and badges
+     about 4px, large panels about 11px.
+
+     This was 0 for a while, and a whole screen of hard corners read as harsh.
+     The split is what the drawing-set direction wants anyway: stamps, title
+     blocks and the plan sheet declare no radius, so they stay square whatever
+     this is, and they stand out as marks on paper against softer surfaces
+     around them instead of blending into a screen that is square everywhere.
+
+     Keep it small. The generous pill-and-bubble radius was the loudest tell of
+     the old generic style. Avatars, spinners and scrollbar thumbs keep their
+     own rounded-full — round because of what they are, not the theme. */
+  --radius: 0.375rem;
   --sidebar: oklch(0.95 0.012 62);
   --sidebar-foreground: oklch(0.28 0.035 48);
   --sidebar-primary: oklch(0.52 0.18 55);
