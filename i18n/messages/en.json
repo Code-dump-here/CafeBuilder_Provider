@@ -2,16 +2,16 @@
   "HomePage": {
     "meta": {
       "title": "AI Smart Cafe Builder",
-      "description": "Plan, design and build your cafe with one workspace. Match with designers and contractors, track every milestone."
+      "description": "The workspace for cafe design studios and contractors: find briefs, send quotes, and run every job from first sketch to handover."
     },
     "hero": {
-      "eyebrow": "For cafe owners, designers and builders",
-      "headline": "Open your next cafe without losing a weekend to spreadsheets.",
+      "eyebrow": "For cafe design studios and contractors",
+      "headline": "Build the next cafe without losing a weekend to spreadsheets.",
       "headlineAccent": "without losing a weekend",
-      "sub": "Post your brief, match a designer, line up a contractor. One workspace from first sketch to grand opening.",
-      "primaryCta": "Start a project",
-      "secondaryCta": "Browse marketplace",
-      "hint": "Free to plan, pay only when you accept a bid.",
+      "sub": "Find cafe briefs, send your quote, and run the job — designs, drawings, milestones, daily logs and payments — in one workspace the owner follows from their phone.",
+      "primaryCta": "Find work",
+      "secondaryCta": "Join as a provider",
+      "hint": "Owners pay you directly — the platform never holds your money.",
       "plan": {
         "alt": "Ground floor plan of a café — entry, a bar along the right wall and eighteen seats — stamped approved",
         "sheet": "Sheet",
@@ -26,65 +26,55 @@
       }
     },
     "howItWorks": {
-      "title": "How a project moves through",
+      "title": "How a job moves through",
       "steps": [
         {
-          "label": "Post",
-          "title": "Post the brief",
-          "body": "Square meters, style, budget and target customers. AI turns it into a shareable spec in under a minute."
+          "label": "Find",
+          "title": "Pick up the brief",
+          "body": "Owners post floor area, style, budget and target customers from the app. Browse open briefs, or answer an owner who invited you directly."
         },
         {
-          "label": "Match",
-          "title": "Pick your team",
-          "body": "Designers and contractors apply with real portfolios. Compare bids side by side and accept the ones that fit."
+          "label": "Quote",
+          "title": "Quote and sign",
+          "body": "Send priced line items and an instalment schedule. When the owner accepts, the contract is sealed with a one-time code."
         },
         {
           "label": "Build",
-          "title": "Ship the cafe",
-          "body": "Designs, drawings, milestones, daily logs, issues and payments live in one timeline you can share with your crew."
+          "title": "Run the job",
+          "body": "Design versions, drawings, milestones, daily logs, issues and payment confirmations sit in one timeline the owner can follow."
         }
       ]
     },
     "why": {
-      "title": "Why cafe owners pick this over a WhatsApp group",
-      "subtitle": "A workspace built around the questions cafe teams actually ask, not a generic project tracker.",
+      "title": "Why studios and contractors run cafe jobs here instead of a chat group",
+      "subtitle": "A workspace built around how cafe jobs actually go, not a generic project tracker.",
       "tiles": [
         {
-          "title": "AI brief in 60 seconds",
-          "body": "Drop a few answers about your concept. The platform drafts the brief, suggests styles, and surfaces studios that match.",
+          "title": "Briefs that arrive complete",
+          "body": "Area, style, seats, budget and timeline, drafted with AI from the owner's answers — all there before you decide to quote.",
           "tone": "amber"
         },
         {
           "title": "Designs with versions",
-          "body": "Submit, review, request a revision, approve. Every round is timestamped and attributed, no more Final_v7_FINAL.jpg.",
+          "body": "Submit, take the revision request, resubmit. Every round is timestamped, and free revisions are counted against your quote.",
           "tone": "ink"
         },
         {
           "title": "Drawings you can trust",
-          "body": "Technical drawings live next to the designs they describe. Subcontractors pull measurements, not screenshots.",
+          "body": "Technical drawings live next to the designs they describe. Your crew pulls measurements, not screenshots.",
           "tone": "stone"
         },
         {
-          "title": "Milestones that report themselves",
-          "body": "Site photos, daily logs, materials delivered, payments cleared. Each milestone page assembles the proof automatically.",
+          "title": "Payments you can reconcile",
+          "body": "Owners pay you directly and upload proof. You check your bank and confirm each instalment.",
           "tone": "moss"
         }
       ]
     },
     "roles": {
-      "title": "One workspace, three roles",
-      "subtitle": "Each side gets the surface they need. Everyone agrees on the timeline.",
+      "title": "Three roles, one timeline",
+      "subtitle": "Designers and contractors work here on the web. Owners follow along from the mobile app. Everyone sees the same schedule.",
       "items": [
-        {
-          "role": "Owner",
-          "blurb": "You post the brief, accept bids, and see every milestone from kickoff to ribbon cutting.",
-          "bullets": [
-            "Post a brief",
-            "Compare bids",
-            "Sign off designs",
-            "Track milestones"
-          ]
-        },
         {
           "role": "Designer",
           "blurb": "Apply for briefs, version your designs, hand off a clean drawing set to the contractor.",
@@ -104,14 +94,24 @@
             "Post daily logs",
             "Resolve issues"
           ]
+        },
+        {
+          "role": "Owner · mobile app",
+          "blurb": "Your client. They post the brief, accept your quote, approve designs and pay against milestones from the SmartCafe app.",
+          "bullets": [
+            "Posts the brief",
+            "Accepts a quote",
+            "Approves designs",
+            "Pays by milestone"
+          ]
         }
       ]
     },
     "finalCta": {
-      "title": "Your next cafe starts as a one-page brief.",
-      "body": "Skip the back-and-forth. Spin up a project, see who applies, and pick the team that fits.",
-      "primaryCta": "Start free",
-      "secondaryCta": "Talk to a founder"
+      "title": "Your next cafe job starts with a brief.",
+      "body": "Set up your studio's profile, browse open briefs and send your first quote. Owners find you from the app.",
+      "primaryCta": "Join as a provider",
+      "secondaryCta": "Browse open briefs"
     },
     "footer": {
       "line": "Built for cafe teams in HCMC, Hanoi and beyond."
@@ -2010,9 +2010,7 @@
         "open": "Open briefs",
         "designers": "Verified designers",
         "contractors": "Verified contractors"
-      },
-      "primaryCta": "Post a brief",
-      "secondaryCta": "How it works"
+      }
     },
     "filters": {
       "label": "Filter posts",
@@ -3117,7 +3115,7 @@
     "remove": "Remove image"
   },
   "Portfolio": {
-    "add": "Add a project",
+    "add": "Add past work",
     "edit": "Edit",
     "delete": "Delete",
     "cancel": "Cancel",
@@ -3132,10 +3130,10 @@
     "noDetail": "No detail recorded",
     "areaValue": "{value} m²",
     "durationValue": "{count, plural, =1 {1 day} other {# days}}",
-    "editTitle": "Edit project",
-    "addTitle": "Add a project",
+    "editTitle": "Edit past work",
+    "addTitle": "Add past work",
     "dialogDescription": "Past work an owner reads while comparing bids.",
-    "deleteTitle": "Delete this project?",
+    "deleteTitle": "Delete this piece of past work?",
     "deleteDescription": "The entry and its photos are removed for good.",
     "empty": {
       "title": "No sample projects yet",

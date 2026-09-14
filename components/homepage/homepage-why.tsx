@@ -183,13 +183,18 @@ export function HomepageWhy() {
               decoding="async"
               className="absolute inset-0 h-full w-full object-cover opacity-60 mix-blend-multiply transition-transform duration-700 motion-safe:group-hover:scale-[1.04] dark:mix-blend-screen dark:opacity-30"
             />
-            <div className="relative z-10 flex h-full flex-col justify-end gap-2 p-5 md:p-6">
-              <h3 className={cn("font-heading text-base font-semibold md:text-lg", TONE_FOREGROUND[items[3]!.tone])}>
-                {items[3]!.title}
-              </h3>
-              <p className="text-xs leading-relaxed text-foreground/80">
-                {items[3]!.body}
-              </p>
+            {/* The text sits on a solid label rather than straight on the
+                photo: in a tile this narrow it ran across the picture's
+                detail and could not be read. */}
+            <div className="relative z-10 flex h-full flex-col justify-end p-3 md:p-4">
+              <div className="flex flex-col gap-1.5 rounded-md bg-background/90 p-3 shadow-e1">
+                <h3 className={cn("font-heading text-base font-semibold leading-tight", TONE_FOREGROUND[items[3]!.tone])}>
+                  {items[3]!.title}
+                </h3>
+                <p className="text-xs leading-relaxed text-foreground/80">
+                  {items[3]!.body}
+                </p>
+              </div>
             </div>
           </Reveal>
         </div>

@@ -2,16 +2,16 @@
   "HomePage": {
     "meta": {
       "title": "AI Smart Cafe Builder",
-      "description": "Lên kế hoạch, thiết kế và thi công quán cafe trong cùng một không gian làm việc. Kết nối với đội ngũ thiết kế và nhà thầu, theo dõi từng mốc."
+      "description": "Workspace cho studio thiết kế và nhà thầu quán cafe: tìm brief, gửi báo giá và điều hành mọi công trình từ bản phác đến ngày bàn giao."
     },
     "hero": {
-      "eyebrow": "Dành cho chủ quán, designer và đội thi công",
-      "headline": "Mở quán cafe mới mà không phải đánh vật với file Excel cả tuần.",
+      "eyebrow": "Dành cho studio thiết kế và nhà thầu quán cafe",
+      "headline": "Làm quán cafe tiếp theo mà không phải đánh vật với file Excel cả tuần.",
       "headlineAccent": "đánh vật với file Excel",
-      "sub": "Đăng brief, ghép designer, sắp nhà thầu. Một workspace từ bản phác đầu tiên đến ngày khai trương.",
-      "primaryCta": "Tạo dự án",
-      "secondaryCta": "Xem marketplace",
-      "hint": "Miễn phí lên kế hoạch, chỉ trả khi chốt bid.",
+      "sub": "Tìm brief quán cafe, gửi báo giá và điều hành công trình — thiết kế, bản vẽ, hạng mục, nhật ký và thanh toán — trong một workspace mà chủ quán theo dõi ngay trên điện thoại.",
+      "primaryCta": "Tìm việc",
+      "secondaryCta": "Đăng ký làm đối tác",
+      "hint": "Chủ quán thanh toán trực tiếp cho bạn — nền tảng không giữ tiền.",
       "plan": {
         "alt": "Mặt bằng tầng trệt của một quán cafe — lối vào, quầy bar dọc tường phải và 18 chỗ ngồi — đã đóng dấu duyệt",
         "sheet": "Bản vẽ",
@@ -26,92 +26,92 @@
       }
     },
     "howItWorks": {
-      "title": "Một dự án đi tới đâu",
+      "title": "Một công trình diễn ra thế nào",
       "steps": [
         {
-          "label": "Đăng",
-          "title": "Đăng brief",
-          "body": "Mét vuông, phong cách, ngân sách và khách hàng mục tiêu. AI chuyển thành bản mô tả chia sẻ được trong chưa đầy một phút."
+          "label": "Tìm",
+          "title": "Nhận brief",
+          "body": "Chủ quán đăng diện tích, phong cách, ngân sách và khách hàng mục tiêu từ ứng dụng. Xem các brief đang mở, hoặc phản hồi lời mời trực tiếp."
         },
         {
-          "label": "Ghép",
-          "title": "Chọn đội của bạn",
-          "body": "Designer và nhà thầu nộp hồ sơ kèm portfolio thật. So bid cạnh nhau, duyệt đúng người phù hợp."
+          "label": "Báo giá",
+          "title": "Báo giá và ký",
+          "body": "Gửi các hạng mục có đơn giá và lịch thanh toán theo đợt. Khi chủ quán đồng ý, hợp đồng được xác nhận bằng mã OTP."
         },
         {
           "label": "Thi công",
-          "title": "Bàn giao quán",
-          "body": "Design, bản vẽ, mốc, nhật ký công trường, vấn đề và thanh toán nằm chung một mốc thời gian, chia sẻ được cho cả đội."
+          "title": "Điều hành công trình",
+          "body": "Phiên bản thiết kế, bản vẽ, hạng mục, nhật ký, vấn đề và xác nhận thanh toán nằm trên một dòng thời gian chủ quán cùng theo dõi."
         }
       ]
     },
     "why": {
-      "title": "Sao chủ quán chọn cái này thay vì nhóm chat",
-      "subtitle": "Workspace xoay quanh các câu hỏi đội thi công cafe thực sự hỏi, không phải project tracker đại trà.",
+      "title": "Vì sao studio và nhà thầu làm quán cafe ở đây thay vì nhóm chat",
+      "subtitle": "Một workspace xây quanh cách làm quán cafe thực tế, không phải công cụ quản lý dự án chung chung.",
       "tiles": [
         {
-          "title": "Brief AI trong 60 giây",
-          "body": "Trả lời vài câu về concept. Hệ thống tự viết brief, gợi ý phong cách và ghép studio phù hợp.",
+          "title": "Brief đến là đủ thông tin",
+          "body": "Diện tích, phong cách, số chỗ, ngân sách và tiến độ, được AI soạn từ câu trả lời của chủ quán — có sẵn trước khi bạn quyết định báo giá.",
           "tone": "amber"
         },
         {
-          "title": "Design có phiên bản",
-          "body": "Nộp, duyệt, yêu cầu chỉnh, thông qua. Mỗi vòng đều có timestamp và người chịu trách nhiệm, không còn Final_v7_FINAL.jpg.",
+          "title": "Thiết kế có phiên bản",
+          "body": "Nộp, nhận yêu cầu chỉnh sửa, nộp lại. Mỗi vòng đều có thời gian, và số lần sửa miễn phí được tính theo báo giá của bạn.",
           "tone": "ink"
         },
         {
           "title": "Bản vẽ đáng tin",
-          "body": "Bản vẽ kỹ thuật nằm cạnh design mà nó mô tả. Thầu phụ lấy số đo trực tiếp, không lấy screenshot.",
+          "body": "Bản vẽ kỹ thuật nằm cạnh thiết kế mà nó mô tả. Đội thi công lấy số đo, không phải ảnh chụp màn hình.",
           "tone": "stone"
         },
         {
-          "title": "Mốc tự tổng hợp",
-          "body": "Ảnh công trường, nhật ký ngày, vật tư giao, thanh toán đối soát. Mỗi trang mốc tự dựng báo cáo.",
+          "title": "Thanh toán dễ đối chiếu",
+          "body": "Chủ quán chuyển khoản trực tiếp và tải minh chứng. Bạn đối chiếu ngân hàng rồi xác nhận từng đợt.",
           "tone": "moss"
         }
       ]
     },
     "roles": {
-      "title": "Một workspace, ba vai trò",
-      "subtitle": "Mỗi bên có mặt làm việc riêng. Mọi người cùng đọc một tiến độ.",
+      "title": "Ba vai trò, một tiến độ",
+      "subtitle": "Designer và nhà thầu làm việc trên web. Chủ quán theo dõi qua ứng dụng di động. Mọi người cùng nhìn một lịch trình.",
       "items": [
         {
-          "role": "Chủ quán",
-          "blurb": "Bạn đăng brief, duyệt bid và xem mọi mốc từ ngày kickoff đến cắt băng khai trương.",
-          "bullets": [
-            "Đăng brief",
-            "So sánh bid",
-            "Duyệt design",
-            "Theo dõi mốc"
-          ]
-        },
-        {
           "role": "Designer",
-          "blurb": "Ứng tuyển brief, version hoá design, bàn giao bộ bản vẽ sạch cho đội thi công.",
+          "blurb": "Ứng tuyển brief, quản lý phiên bản thiết kế, bàn giao bộ bản vẽ gọn gàng cho nhà thầu.",
           "bullets": [
-            "Duyệt brief đang mở",
-            "Nộp design",
-            "Phản hồi yêu cầu chỉnh",
+            "Xem brief đang mở",
+            "Nộp thiết kế",
+            "Phản hồi yêu cầu sửa",
             "Chia sẻ bản vẽ"
           ]
         },
         {
           "role": "Nhà thầu",
-          "blurb": "Báo giá, lên lịch mốc, ghi nhật ký ngày, báo vấn đề trước khi thành trễ tiến độ.",
+          "blurb": "Báo giá, lên lịch các giai đoạn, ghi nhật ký hằng ngày, báo vấn đề trước khi thành chậm trễ.",
           "bullets": [
             "Báo giá công việc",
-            "Lên lịch mốc",
-            "Đăng nhật ký ngày",
+            "Lên lịch hạng mục",
+            "Ghi nhật ký",
             "Xử lý vấn đề"
+          ]
+        },
+        {
+          "role": "Chủ quán · ứng dụng",
+          "blurb": "Khách hàng của bạn. Họ đăng brief, chấp nhận báo giá, duyệt thiết kế và thanh toán theo hạng mục trên ứng dụng SmartCafe.",
+          "bullets": [
+            "Đăng brief",
+            "Chấp nhận báo giá",
+            "Duyệt thiết kế",
+            "Thanh toán theo hạng mục"
           ]
         }
       ]
     },
     "finalCta": {
-      "title": "Quán cafe kế tiếp của bạn bắt đầu bằng một trang brief.",
-      "body": "Bỏ qua vòng qua lại. Tạo dự án, xem ai ứng tuyển, chọn đội phù hợp.",
-      "primaryCta": "Bắt đầu miễn phí",
-      "secondaryCta": "Nói chuyện với founder"
+      "title": "Công trình quán cafe tiếp theo bắt đầu từ một bản brief.",
+      "body": "Tạo hồ sơ studio, xem các brief đang mở và gửi báo giá đầu tiên. Chủ quán tìm thấy bạn từ ứng dụng.",
+      "primaryCta": "Đăng ký làm đối tác",
+      "secondaryCta": "Xem brief đang mở"
     },
     "footer": {
       "line": "Làm cho đội ngũ cafe tại HCM, Hà Nội và nhiều nơi khác."
@@ -2010,9 +2010,7 @@
         "open": "Brief đang mở",
         "designers": "Designer đã xác minh",
         "contractors": "Nhà thầu đã xác minh"
-      },
-      "primaryCta": "Đăng brief",
-      "secondaryCta": "Cách hoạt động"
+      }
     },
     "filters": {
       "label": "Lọc bài đăng",
@@ -3117,7 +3115,7 @@
     "remove": "Gỡ ảnh"
   },
   "Portfolio": {
-    "add": "Thêm dự án mẫu",
+    "add": "Thêm công trình đã làm",
     "edit": "Sửa",
     "delete": "Xoá",
     "cancel": "Huỷ",
@@ -3132,10 +3130,10 @@
     "noDetail": "Chưa có thông tin",
     "areaValue": "{value} m²",
     "durationValue": "{count, plural, other {# ngày}}",
-    "editTitle": "Sửa dự án mẫu",
-    "addTitle": "Thêm dự án mẫu",
+    "editTitle": "Sửa công trình đã làm",
+    "addTitle": "Thêm công trình đã làm",
     "dialogDescription": "Công trình đã làm để chủ quán đọc khi so sánh các hồ sơ.",
-    "deleteTitle": "Xoá dự án mẫu này?",
+    "deleteTitle": "Xoá công trình đã làm này?",
     "deleteDescription": "Dự án và toàn bộ ảnh kèm theo bị xoá hẳn.",
     "empty": {
       "title": "Chưa có dự án mẫu",
