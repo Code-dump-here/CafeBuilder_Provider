@@ -593,6 +593,45 @@ const portfolios = (url: string) => {
 // One record per status, so every stamp tone on these screens can be seen
 // without a backend: quotations run draft → superseded, payment batches due →
 // confirmed, change orders pending / accepted / rejected.
+// A believable breakdown for any total: the shares a café fit-out quote
+// usually splits into, with the last line absorbing rounding so the items
+// always add up to the quotation's total.
+const QUOTE_LINES: [string, string, number, number][] = [
+  ["Design development & drawings", "lot", 1, 0.12],
+  ["Demolition & site preparation", "m²", 86.5, 0.08],
+  ["Bar counter — carcass, oak veneer, stone top", "m", 6.4, 0.26],
+  ["Plumbing & drainage to bar and WC", "lot", 1, 0.11],
+  ["Electrical & lighting", "lot", 1, 0.15],
+  ["Wall, floor & ceiling finishes", "m²", 86.5, 0.18],
+  ["Loose furniture & signage allowance", "lot", 1, 0.10],
+];
+
+function quotationItems(total: number) {
+  let used = 0;
+  return QUOTE_LINES.map(([name, unit, quantity, share], i) => {
+    const amount = i === QUOTE_LINES.length - 1
+      ? total - used
+      : Math.round((total * share) / 100_000) * 100_000;
+    used += amount;
+    return {
+      id: `qi${i + 1}`, name, description: null, unit, quantity,
+      unitPrice: Math.round(amount / quantity), amount, note: null, sortOrder: i + 1,
+    };
+  });
+}
+
+function quotationTerms(total: number) {
+  return ([
+    ["Deposit on signing", 30, "On contract signature"],
+    ["Bar carcass & plumbing complete", 30, "After plumbing sign-off"],
+    ["Electrical first fix signed off", 25, "After inspection"],
+    ["Handover", 15, "On handover and snag list closed"],
+  ] as const).map(([name, pct, condition], i) => ({
+    id: `qt${i + 1}`, sortOrder: i + 1, name, percentage: pct,
+    amount: Math.round((total * pct) / 100), condition,
+  }));
+}
+
 const QUOTATION_ROWS = [
   ["q1", 4, "Design & build — revised after site survey", "accepted", 289_000_000],
   ["q2", 3, "Design & build — mezzanine option", "revision_requested", 312_500_000],
@@ -611,7 +650,8 @@ const QUOTATION_ROWS = [
   providerName: "Xưởng Mộc Bình Minh",
   serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
   providerAvgRating: 4, providerYearsExperience: 8, providerIsVerified: true,
-  items: [], paymentTerms: [], attachments: [], createdAt: NOW, updatedAt: NOW,
+  items: quotationItems(total as number), paymentTerms: quotationTerms(total as number),
+  attachments: [], createdAt: NOW, updatedAt: NOW,
 }));
 
 const quotations = (url: string) =>
@@ -630,7 +670,17 @@ const PAYMENT_BATCH_ROWS = [
   confirmedAt: status === "confirmed" ? NOW : null, confirmedBy: null,
   rejectReason: status === "rejected" ? "Transfer reference doesn't match the amount." : null,
   note: null, paidAmount: status === "confirmed" ? amount : 0,
-  proofs: [], createdAt: NOW, updatedAt: NOW,
+  // The confirmed and the submitted instalments carry the owner's transfer
+  // record, so the proof trail and its reconciliation are visible.
+  proofs: status === "confirmed" || status === "proof_submitted"
+    ? [{
+        id: `${id}-proof`, imageUrl: null, imageViewUrl: null, amount: null,
+        transferredAt: status === "confirmed" ? "2026-09-02T10:15:00Z" : "2026-09-11T15:40:00Z",
+        note: status === "confirmed" ? "Vietcombank · ref NNC-DEP-0902" : "Techcombank · ref NNC-BAR-0911",
+        uploadedBy: null, createdAt: NOW,
+      }]
+    : [],
+  createdAt: NOW, updatedAt: NOW,
 }));
 
 const paymentBatches = (url: string) =>
@@ -723,18 +773,67 @@ const POSTS = page([
   status, submissionDeadline: deadline + "T00:00:00Z", createdAt: NOW, updatedAt: NOW,
 })));
 
+// Tasks per phase — their own endpoint, not child construction items. Without
+// them every phase read "0/0 done · No tasks yet", which made the board look
+// empty rather than showing what a real schedule carries.
+const CONSTRUCTION_TASK_ROWS = ([
+  ["m1", "Strip out old counter and shelving", "completed", 2_400_000],
+  ["m1", "Cap redundant water and waste", "completed", 1_800_000],
+  ["m1", "Make good floor screed", "completed", 3_200_000],
+  ["m2", "Set out bar run to drawing A-101", "completed", 900_000],
+  ["m2", "Build bar carcass frame", "completed", 6_500_000],
+  ["m2", "Run water and waste to bar sink", "in_progress", 4_200_000],
+  ["m2", "Pressure test and sign off plumbing", "pending", 1_100_000],
+  ["m3", "Chase walls for new circuits", "pending", 2_000_000],
+  ["m3", "First fix lighting and sockets", "pending", 5_400_000],
+  ["m3", "Inspection before plastering", "pending", 600_000],
+  ["m4", "Oak veneer bar front", "pending", 7_800_000],
+  ["m4", "Paint and feature wall", "pending", 4_900_000],
+] as const).map(([constructionItemId, name, status, labor], i) => ({
+  id: `t${i + 1}`, constructionItemId, name, description: null,
+  imageUrl: null, imageViewUrl: null, startAt: null, estimateAt: null,
+  actualStartAt: status === "pending" ? null : NOW,
+  actualAt: status === "completed" ? NOW : null,
+  plannedDurationDays: null, actualDurationDays: null,
+  estimatedLaborCost: labor, actualLaborCost: status === "completed" ? labor : null,
+  reason: null, status, createdBy: "demo", createdAt: NOW, updatedAt: NOW,
+}));
+
+const constructionTasks = (url: string) => {
+  const item = /constructionItemId=([^&]+)/.exec(url)?.[1];
+  return page(item ? CONSTRUCTION_TASK_ROWS.filter((task) => task.constructionItemId === item) : CONSTRUCTION_TASK_ROWS);
+};
+
+// The owner's brief, so the project overview shows what was asked for
+// instead of "No brief yet".
+const DESIGN_BRIEFS = page([{
+  id: "b1", projectId: PROJECT_ID,
+  targetCustomer: "Office workers from the surrounding towers, 25–40, weekday mornings and lunch",
+  style: "Warm timber, exposed concrete, low pendant lighting",
+  mood: "Calm and focused in the morning, social at lunch",
+  seatCount: 18,
+  timeline: "Open before the Tết season — handover by mid-December",
+  brandNote: "Nhà Nâu: brown roast, hand-lettered signage, nothing glossy",
+  businessModel: "Specialty espresso bar with takeaway window",
+  businessGoals: "300 cups a day within six months; takeaway at least 40% of sales",
+  operationNote: "Two baristas at peak; the bar must be reachable from the takeaway window",
+  createdAt: NOW, updatedAt: NOW, aiRecommendations: [],
+}]);
+
 const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/auth\/me$/, DEMO_ACCOUNT],
   [/\/api\/project-workings/, ENGAGEMENTS],
   [/\/api\/contracts/, CONTRACTS],
   [/\/api\/designs/, designs],
   // Both cost-summary shapes before the items collection, which matches them too.
+  [/\/api\/construction-tasks(\/|\?|$)/, constructionTasks],
   [/\/api\/construction-items\/cost-summary/, ENGAGEMENT_COST_SUMMARY],
   [/\/api\/construction-items\/[^/?]+\/cost-summary/, itemCostSummary],
   [/\/api\/construction-items/, CONSTRUCTION_ITEMS],
   [/\/api\/issue-types/, ISSUE_TYPES],
   [/\/api\/issues/, ISSUES],
   [/\/api\/project-shop-owners\/[^/?]+/, PROJECT],
+  [/\/api\/design-briefs/, DESIGN_BRIEFS],
   // Per provider, from the directory rows: one shared summary made a firm
   // read 4.6 from 12 reviews on its card and 4.0 from 3 on its profile.
   [/\/api\/reviews\/providers\/[^/?]+\/summary/, (url: string) => {

@@ -5,7 +5,8 @@ import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { SHEET, SheetNumber } from "@/components/drawing-set/sheet-title";
+import { SHEET } from "@/components/drawing-set/sheet-title";
+import { TitleBlock, TitleCell } from "@/components/drawing-set/title-block";
 
 interface IssueToolbarProps {
   projectId: string;
@@ -18,7 +19,7 @@ interface IssueToolbarProps {
 /**
  * Sticky toolbar at the top of the issues page. Mirrors the
  * `MilestoneManagementToolbar` so the two pages feel like one
- * management surface: title, subtitle, summary pills, back link,
+ * management surface: title, subtitle, title block, back link,
  * and the primary report CTA.
  */
 export function IssueToolbar({
@@ -33,20 +34,24 @@ export function IssueToolbar({
   return (
     <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border/60 pb-5">
       <div className="flex flex-col gap-1">
-        <SheetNumber>{SHEET.issues}</SheetNumber>
-        <div className="flex flex-wrap items-baseline gap-2">
-          <h1 className="sheet-title text-3xl text-foreground sm:text-4xl">
-            {t("title")}
-          </h1>
-        </div>
+        <h1 className="sheet-title text-3xl text-foreground sm:text-4xl">
+          {t("title")}
+        </h1>
         <p className="max-w-prose text-xs text-muted-foreground">
           {t("subtitle")}
         </p>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs">
-          <Pill>{t("total", { count: totalCount })}</Pill>
-          <Pill highlight={openCount > 0}>{t("open", { count: openCount })}</Pill>
-          <Pill>{t("resolved", { count: resolvedCount })}</Pill>
-        </div>
+        {/* Same title block as milestones, so the two management sheets read
+            as one set. The counts were three rounded pills. */}
+        <TitleBlock className="mt-3">
+          <TitleCell label={t("sheet")} emphasis>{SHEET.issues}</TitleCell>
+          <TitleCell label={t("sheetTotal")}>{totalCount}</TitleCell>
+          <TitleCell label={t("sheetOpen")}>
+            <span className={openCount > 0 ? "font-semibold text-primary" : undefined}>
+              {openCount}
+            </span>
+          </TitleCell>
+          <TitleCell label={t("sheetResolved")}>{resolvedCount}</TitleCell>
+        </TitleBlock>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -67,25 +72,5 @@ export function IssueToolbar({
         </Button>
       </div>
     </header>
-  );
-}
-
-function Pill({
-  children,
-  highlight,
-}: {
-  children: React.ReactNode;
-  highlight?: boolean;
-}) {
-  return (
-    <span
-      className={
-        highlight
-          ? "rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-foreground"
-          : "rounded-full border border-border/60 bg-card px-2 py-0.5 text-foreground"
-      }
-    >
-      {children}
-    </span>
   );
 }

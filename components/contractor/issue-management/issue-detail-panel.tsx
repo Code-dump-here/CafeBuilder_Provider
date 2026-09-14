@@ -54,16 +54,15 @@ export function IssueDetailPanel({
     return (
       <aside
         aria-label="Issue detail"
+        // Hatched like the shared empty state: the panel waits for a pick.
         className={cn(
-          "flex h-full min-h-65 flex-col items-center justify-center gap-3",
+          "hatch flex h-full min-h-65 items-center justify-center rounded-lg border border-foreground/15",
           "p-8",
           "text-center text-sm text-muted-foreground"
         )}
       >
-        <div className="flex size-10 items-center justify-center rounded-full border border-border/60 bg-muted/30">
+        <div className="flex flex-col items-center gap-2 border border-foreground/20 bg-background px-5 py-4 shadow-e1">
           <ImageIcon aria-hidden className="size-4" />
-        </div>
-        <div className="space-y-1">
           <p className="font-medium text-foreground/80">{t("selectPromptTitle")}</p>
           <p className="text-xs text-muted-foreground">{t("selectPromptBody")}</p>
         </div>

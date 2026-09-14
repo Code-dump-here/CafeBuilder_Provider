@@ -394,6 +394,18 @@
   background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
 }
 
+/* The app's working ground: the same drafting paper, fainter, so it carries
+   the blank space between cards without competing with their content. Cards
+   are solid, so the grid only shows where the page would otherwise be empty. */
+@utility drafting-ground {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--foreground) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(to right, color-mix(in oklab, var(--foreground) 2.2%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 2.2%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px;
+}
+
 /* 45° section hatching, the drafting convention for "cut" or "nothing here". */
 @utility hatch {
   background-image: repeating-linear-gradient(

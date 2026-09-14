@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
  * - G — general: the project itself
  * - C — commercial: quotes, contracts, money
  * - M — site management: the build as it happens
- * - D — directory and marketplace, outside any one project
+ * - A — architectural: the design and its drawings
+ * - D — marketplace, outside any one project
  */
 export const SHEET = {
   myProjects: "G-000",
@@ -25,9 +26,27 @@ export const SHEET = {
   milestones: "M-100",
   dailyLogs: "M-200",
   issues: "M-300",
-  providers: "D-100",
+  designs: "A-100",
+  technicalDrawings: "A-200",
   marketplace: "D-200",
 } as const;
+
+/** Sheet for each project sub-route, keyed by its first path segment. */
+export const PROJECT_SEGMENT_SHEET: Record<string, string> = {
+  "": SHEET.projectOverview,
+  "/site-profile": SHEET.siteProfile,
+  "/survey": SHEET.survey,
+  "/quotations": SHEET.quotations,
+  "/contracts": SHEET.contracts,
+  "/change-orders": SHEET.changeOrders,
+  "/payments": SHEET.payments,
+  "/construction-overview": SHEET.constructionOverview,
+  "/milestones": SHEET.milestones,
+  "/daily-logs": SHEET.dailyLogs,
+  "/issues": SHEET.issues,
+  "/design-management": SHEET.designs,
+  "/technical-drawings": SHEET.technicalDrawings,
+};
 
 /**
  * A page title set as sheet lettering, with the sheet number above it.
@@ -67,18 +86,27 @@ export function SheetNumber({
   className?: string;
   children: React.ReactNode;
 }) {
+  // The rule runs to the edge of the sheet and ends in a tick, like the
+  // border line along the top of a drawing, instead of stopping after 2rem.
   return (
     <p
       className={cn(
-        "flex items-center gap-3 font-mono text-2xs uppercase tracking-[0.18em] text-muted-foreground",
+        "flex w-full items-center gap-3 font-mono text-2xs uppercase tracking-[0.18em] text-muted-foreground",
         className,
       )}
     >
-      <span className="border border-foreground/40 px-1.5 py-0.5 font-semibold text-foreground">
+      <span className="shrink-0 border border-foreground/40 px-1.5 py-0.5 font-semibold text-foreground">
         {children}
       </span>
-      <span aria-hidden className="h-px w-8 bg-foreground/30" />
-      {label}
+      {label ? (
+        <>
+          <span aria-hidden className="h-px w-8 shrink-0 bg-foreground/30" />
+          <span className="shrink-0">{label}</span>
+        </>
+      ) : null}
+      <span aria-hidden className="relative h-px min-w-8 flex-1 bg-foreground/20">
+        <span className="absolute -top-1 right-0 h-[9px] w-px bg-foreground/35" />
+      </span>
     </p>
   );
 }
