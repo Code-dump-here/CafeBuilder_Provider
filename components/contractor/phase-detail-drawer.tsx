@@ -360,7 +360,7 @@ export function PhaseDetailDrawer({
 
 function Kpi({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-md border border-border/40 bg-card/60 px-3 py-2">
+    <div className="rounded-md bg-foreground/5 px-3 py-2">
       <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
         {label}
       </dt>
@@ -397,7 +397,7 @@ function Section({
 
 function Empty({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+    <p className="px-3 py-2 text-xs text-muted-foreground">
       {children}
     </p>
   );
@@ -491,7 +491,7 @@ function IssueRow({
   return (
     <li
       className={cn(
-        "rounded-md px-3 py-2 bg-muted/40",
+        "rounded-md px-3 py-2 bg-foreground/5",
         tone.boxClass,
       )}
     >

@@ -113,7 +113,7 @@ export function MilestoneNotesDialog({
               {ordered.map((note) => (
                 <li
                   key={note.id}
-                  className="rounded-lg border border-border/60 bg-muted/30 px-3 py-2"
+                  className="rounded-lg bg-foreground/5 px-3 py-2"
                 >
                   <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
                     <span className="text-xs font-semibold text-foreground">

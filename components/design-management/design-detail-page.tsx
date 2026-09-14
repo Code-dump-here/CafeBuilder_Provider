@@ -521,7 +521,7 @@ export function DesignDetailPage({
 
       {/* Footer note */}
       {version.latestNote && selectedSnapshotId == null ? (
-        <p className="hidden rounded-md border border-dashed border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground lg:block">
+        <p className="hidden px-3 py-2 text-xs text-muted-foreground lg:block">
           <span className="font-semibold text-foreground/80">{t("version.latestNoteLabel")}:</span>{" "}
           {version.latestNote} · {format.dateTime(version.updatedAt, { dateStyle: "medium" })}
         </p>
@@ -664,7 +664,7 @@ function ImageListPanel({
   if (images.length === 0 && !canUpload) {
     return (
       <div className="flex h-full items-center justify-center p-4">
-        <p className="rounded-md border border-dashed border-border/60 bg-muted/30 px-3 py-6 text-center text-xs text-muted-foreground">
+        <p className="px-3 py-6 text-center text-xs text-muted-foreground">
           {t("version.noImages")}
         </p>
       </div>
@@ -894,7 +894,7 @@ function DesignImageViewer({
 
   if (!image) {
     return (
-      <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/20 p-8 text-center text-sm text-muted-foreground">
+      <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-muted-foreground">
         {t("viewer.empty")}
       </div>
     );

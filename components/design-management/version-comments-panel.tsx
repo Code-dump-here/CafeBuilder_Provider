@@ -210,7 +210,7 @@ function CommentBubble({ comment, onReply }: CommentBubbleProps) {
   return (
     <article
       className={cn(
-        "flex items-start gap-2 rounded-lg border border-border/60 bg-background p-2.5",
+        "flex items-start gap-2 rounded-lg bg-foreground/5 p-2.5",
         comment.pinned && "border-primary/40 bg-primary/5",
       )}
     >

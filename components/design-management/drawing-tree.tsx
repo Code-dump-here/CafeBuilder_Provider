@@ -107,7 +107,7 @@ export function DrawingTree({
 
   if (drawings.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-border/60 bg-muted/30 px-3 py-6 text-center text-xs text-muted-foreground">
+      <div className="px-3 py-6 text-center text-xs text-muted-foreground">
         {t("version.noDrawings")}
       </div>
     );

@@ -626,14 +626,14 @@ function FloorsCard({
 
       <CardContent className="flex flex-col gap-2 p-4 pt-0">
         {profile.floors.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground">
+          <p className="px-4 py-6 text-center text-sm text-muted-foreground">
             {t("floors.empty")}
           </p>
         ) : (
           profile.floors.map((floor) => (
             <div
               key={floor.id}
-              className="flex items-start justify-between gap-4 rounded-lg border border-border/60 px-3 py-2"
+              className="flex items-start justify-between gap-4 rounded-lg px-3 py-2 bg-foreground/5"
             >
               <div className="flex min-w-0 flex-col gap-0.5">
                 <p className="flex items-center gap-2 text-sm font-medium">
@@ -867,14 +867,14 @@ function OpeningsCard({
 
       <CardContent className="flex flex-col gap-2 p-4 pt-0">
         {profile.openings.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground">
+          <p className="px-4 py-6 text-center text-sm text-muted-foreground">
             {t("openings.empty")}
           </p>
         ) : (
           profile.openings.map((opening) => (
             <div
               key={opening.id}
-              className="flex items-start justify-between gap-4 rounded-lg border border-border/60 px-3 py-2"
+              className="flex items-start justify-between gap-4 rounded-lg px-3 py-2 bg-foreground/5"
             >
               <div className="flex min-w-0 flex-col gap-0.5">
                 <p className="flex flex-wrap items-center gap-2 text-sm font-medium">

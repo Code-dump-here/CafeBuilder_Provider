@@ -404,7 +404,7 @@ export function ProviderProfileForm({
 
       {/* ── Section: Credentials (company only) ──────────────────────── */}
       {isCompany ? (
-        <section className="space-y-4 rounded-xl border border-border/60 bg-muted/20 p-4">
+        <section className="space-y-4 rounded-xl bg-foreground/5 p-4">
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-foreground">
               {t("sections.credentials.title")}

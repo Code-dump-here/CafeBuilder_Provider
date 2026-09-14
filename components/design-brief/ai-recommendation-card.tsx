@@ -415,7 +415,7 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
       {hasLayout ? (
         <section
           aria-label={t("layout")}
-          className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-xs"
+          className="flex items-center justify-between gap-2 rounded-md bg-foreground/5 px-3 py-2 text-xs"
         >
           <span className="inline-flex items-center gap-1.5 text-muted-foreground">
             <Grid3x3 className="size-3.5" aria-hidden />
@@ -432,7 +432,7 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
       ) : null}
 
       {rec.seatCapacityRecommendation != null ? (
-        <section className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-primary/5 px-3 py-2 text-xs">
+        <section className="flex items-center justify-between gap-2 rounded-md bg-primary/5 px-3 py-2 text-xs">
           <span className="inline-flex items-center gap-1.5 text-muted-foreground">
             <ListOrdered className="size-3.5" aria-hidden />
             {t("seatCapacity")}
@@ -453,7 +453,7 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
             {rec.customerFlow!.map((step, i) => (
               <li
                 key={`${step.stage}-${i}`}
-                className="flex items-start gap-2 rounded-md border border-border/60 bg-background/40 p-2.5 text-xs"
+                className="flex items-start gap-2 rounded-md bg-foreground/5 p-2.5 text-xs"
               >
                 <span
                   aria-hidden
@@ -487,7 +487,7 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
             {rec.recommendations!.map((item, i) => (
               <li
                 key={`${item.title}-${i}`}
-                className="flex items-start gap-2 rounded-md border border-border/60 bg-background/40 p-2.5 text-xs"
+                className="flex items-start gap-2 rounded-md bg-foreground/5 p-2.5 text-xs"
               >
                 <span
                   aria-hidden
@@ -522,7 +522,7 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
               <li
                 key={`${risk.title}-${i}`}
                 className={cn(
-                  "flex items-start gap-2 rounded-md p-2.5 text-xs bg-muted/40",
+                  "flex items-start gap-2 rounded-md p-2.5 text-xs bg-foreground/5",
                   riskLevelTone(risk.level),
                 )}
               >

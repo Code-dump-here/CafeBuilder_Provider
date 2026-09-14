@@ -148,7 +148,7 @@ export function ApplyTemplateDialog({
           </Field>
 
           {selected ? (
-            <p className="rounded-md border border-border/60 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+            <p className="rounded-md bg-foreground/5 px-3 py-2 text-xs text-muted-foreground">
               {t("summary", {
                 phases: selected.items.length,
                 tasks: selected.items.reduce(

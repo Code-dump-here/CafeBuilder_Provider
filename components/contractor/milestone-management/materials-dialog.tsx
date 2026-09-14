@@ -190,7 +190,7 @@ export function MaterialsDialog({
 
           {/* ── Cost roll-up ─────────────────────────────────────────── */}
           {cost && (
-            <div className="grid grid-cols-2 gap-3 rounded-md p-3 sm:grid-cols-3 bg-muted/40">
+            <div className="grid grid-cols-2 gap-3 rounded-md p-3 sm:grid-cols-3 bg-foreground/5">
               <Figure label={t("ownLines")} value={formatVnd(cost.ownEstimatedCost, locale)} />
               <Figure label={t("taskLines")} value={formatVnd(cost.tasksEstimatedCost, locale)} />
               <Figure
@@ -303,7 +303,7 @@ export function MaterialsDialog({
                   {materials.map((m) => (
                     <li
                       key={m.id}
-                      className="flex items-center justify-between rounded px-2 py-1.5 text-sm bg-muted/40"
+                      className="flex items-center justify-between rounded px-2 py-1.5 text-sm bg-foreground/5"
                     >
                       <span className="min-w-0 truncate">{m.name}</span>
                       <span className="flex items-center gap-3">
@@ -467,7 +467,7 @@ function UsageRow({
     parsed !== line.actualQuantity;
 
   return (
-    <li className="flex flex-wrap items-center gap-2 rounded-md px-3 py-2 text-sm bg-muted/40">
+    <li className="flex flex-wrap items-center gap-2 rounded-md px-3 py-2 text-sm bg-foreground/5">
       <span className="min-w-0 flex-1 truncate font-medium">{line.materialName}</span>
 
       <span className="tabular-nums text-muted-foreground">

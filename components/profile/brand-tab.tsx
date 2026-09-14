@@ -114,7 +114,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
 
   if (!brand) {
     return (
-      <p className="rounded-lg border border-dashed border-border/70 px-4 py-10 text-center text-sm text-muted-foreground">
+      <p className="px-4 py-10 text-center text-sm text-muted-foreground">
         {t("unavailable")}
       </p>
     );
@@ -307,14 +307,14 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
         </CardHeader>
         <CardContent className="flex flex-col gap-2 p-4 pt-0">
           {brand.certificates.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground">
+            <p className="px-4 py-6 text-center text-sm text-muted-foreground">
               {t("certificates.empty")}
             </p>
           ) : (
             brand.certificates.map((cert) => (
               <div
                 key={cert.id}
-                className="flex items-start justify-between gap-4 rounded-lg border border-border/60 px-3 py-2"
+                className="flex items-start justify-between gap-4 rounded-lg px-3 py-2 bg-foreground/5"
               >
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
@@ -511,14 +511,14 @@ function ListCard({
       </CardHeader>
       <CardContent className="flex flex-col gap-2 p-4 pt-0">
         {rows.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground">
+          <p className="px-4 py-6 text-center text-sm text-muted-foreground">
             {empty}
           </p>
         ) : (
           rows.map((row) => (
             <div
               key={row.id}
-              className="flex items-center justify-between gap-4 rounded-lg border border-border/60 px-3 py-2"
+              className="flex items-center justify-between gap-4 rounded-lg px-3 py-2 bg-foreground/5"
             >
               <div className="flex min-w-0 flex-col gap-0.5">
                 <p className="text-sm font-medium">{row.primary}</p>

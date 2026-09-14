@@ -172,7 +172,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
       </div>
 
       {/* Key facts: budget / area / deadline. */}
-      <dl className="grid grid-cols-3 gap-3 rounded-lg border border-border/40 bg-muted/30 px-3 py-2.5">
+      <dl className="grid grid-cols-3 gap-3 rounded-lg bg-foreground/5 px-3 py-2.5">
         <Fact
           icon={Wallet}
           label={t("budget")}

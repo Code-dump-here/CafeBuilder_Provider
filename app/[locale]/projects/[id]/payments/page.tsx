@@ -365,7 +365,7 @@ export function ProofList({ batch }: { batch: PaymentBatch }) {
         {batch.proofs.map((proof) => (
           <li
             key={proof.id}
-            className="flex items-start gap-3 rounded-lg border border-border/70 p-2.5"
+            className="flex items-start gap-3 rounded-lg p-2.5 bg-foreground/5"
           >
             {proof.imageViewUrl ? (
               <a

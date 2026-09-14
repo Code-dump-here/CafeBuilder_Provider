@@ -70,7 +70,7 @@ export function PricingPage() {
 function WrongRoleNotice() {
   const t = useTranslations("Payments.states");
   return (
-    <div className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-6 text-center md:p-8">
+    <div className="flex flex-col gap-2 p-6 text-center md:p-8">
       <h2 className="font-heading text-lg font-semibold text-foreground md:text-xl">
         {t("wrongRoleTitle")}
       </h2>

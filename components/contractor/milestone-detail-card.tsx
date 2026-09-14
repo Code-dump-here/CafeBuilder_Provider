@@ -126,7 +126,7 @@ export function MilestoneDetailCard({
         <h3 className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
           {t("tasks")}
         </h3>
-        <p className="mt-2 rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+        <p className="mt-2 px-3 py-2 text-xs text-muted-foreground">
           {tasksQuery.isLoading
             ? t("tasksLoading")
             : tasks.length === 0

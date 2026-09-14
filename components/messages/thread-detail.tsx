@@ -99,7 +99,7 @@ export function ThreadDetail({ thread, onOpenInfo, onSend, onDeleteMessage, curr
 
   if (!thread) {
     return (
-      <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/20 p-8 text-center text-sm text-muted-foreground">
+      <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-muted-foreground">
         <MessageSquare aria-hidden className="mr-2 inline size-4" />
         {t("detail.empty")}
       </div>

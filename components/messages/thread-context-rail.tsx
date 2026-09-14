@@ -93,7 +93,7 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
         <div className="flex flex-col gap-4 p-3">
           <section className="flex flex-col gap-2">
             {filteredFiles.length === 0 ? (
-              <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-xs text-muted-foreground">
+              <p className="px-3 py-6 text-center text-xs text-muted-foreground">
                 {search.trim()
                   ? t("rail.files.emptySearch")
                   : t("rail.files.empty")}
@@ -115,7 +115,7 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
               {t("rail.members")}
             </h4>
             {thread.members.length === 0 ? (
-              <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-xs text-muted-foreground">
+              <p className="px-3 py-6 text-center text-xs text-muted-foreground">
                 {t("rail.membersEmpty")}
               </p>
             ) : (
@@ -123,7 +123,7 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
                 {thread.members.map((member) => (
                   <li
                     key={member.id}
-                    className="flex items-center gap-2.5 rounded-md border border-border/40 bg-card/60 px-2 py-1.5"
+                    className="flex items-center gap-2.5 rounded-md bg-foreground/5 px-2 py-1.5"
                   >
                     <OwnerAvatar
                       name={member.fullName}

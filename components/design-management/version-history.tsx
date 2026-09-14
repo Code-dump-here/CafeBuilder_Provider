@@ -145,7 +145,7 @@ export function VersionHistory({
         })}
       </ol>
 
-      <footer className="mt-auto rounded-md border border-dashed border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+      <footer className="mt-auto px-3 py-2 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <History aria-hidden className="size-3" />
           {t("history.footnote")}

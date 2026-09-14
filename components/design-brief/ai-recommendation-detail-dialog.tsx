@@ -348,7 +348,7 @@ function RecommendationBody({
           {hasZones || hasZoneList ? (
             <Section icon={MapIcon} title={tDetails("layout")}>
               {hasZones ? (
-                <p className="inline-flex items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-3 py-1.5 font-mono text-xs">
+                <p className="inline-flex items-center gap-2 rounded-md bg-foreground/5 px-3 py-1.5 font-mono text-xs">
                   <Ruler className="size-3.5 text-muted-foreground" aria-hidden />
                   {tDetails("layoutSize", {
                     width: rec.layoutWidth ?? 0,
@@ -490,7 +490,7 @@ function Section({
   return (
     <section
       aria-label={title}
-      className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card/30 p-4"
+      className="flex flex-col gap-3 rounded-xl bg-foreground/5 p-4"
     >
       <header className="flex items-center gap-2">
         <Icon className="size-3.5 text-primary" aria-hidden />
@@ -662,7 +662,7 @@ function ReferenceUrls({
         {urls.map((url, idx) => (
           <li
             key={`${url}-${idx}`}
-            className="flex items-start gap-2 rounded-md border border-border/60 bg-background/40 p-2 text-xs"
+            className="flex items-start gap-2 rounded-md bg-foreground/5 p-2 text-xs"
           >
             <ExternalLink
               className="mt-0.5 size-3 shrink-0 text-muted-foreground"
@@ -745,7 +745,7 @@ function ZoneGridVisual({ zones }: { zones: LayoutZone[] }) {
   const width = zones.reduce((acc, z) => Math.max(acc, z.x + z.w), 1);
   const height = zones.reduce((acc, z) => Math.max(acc, z.y + z.h), 1);
   return (
-    <div className="overflow-hidden rounded-md border border-border/60 bg-muted/30 p-2">
+    <div className="overflow-hidden rounded-md bg-foreground/5 p-2">
       <div
         className="relative w-full"
         style={{
@@ -798,7 +798,7 @@ function ZoneGridVisual({ zones }: { zones: LayoutZone[] }) {
 
 function ZoneListRow({ zone }: { zone: LayoutZone }) {
   return (
-    <li className="flex items-start justify-between gap-3 rounded-md border border-border/60 bg-background/40 p-2.5 text-xs">
+    <li className="flex items-start justify-between gap-3 rounded-md bg-foreground/5 p-2.5 text-xs">
       <div className="min-w-0 flex-1">
         <p className="font-semibold text-foreground">{zone.label}</p>
         <p className="mt-0.5 wrap-break-word text-muted-foreground">
@@ -827,7 +827,7 @@ function CustomerFlowSteps({ steps }: { steps: CustomerFlowStep[] }) {
       {steps.map((step, idx) => (
         <li
           key={`${step.stage}-${idx}`}
-          className="flex flex-1 items-start gap-2 rounded-md border border-border/60 bg-background/40 p-3 text-xs"
+          className="flex flex-1 items-start gap-2 rounded-md bg-foreground/5 p-3 text-xs"
         >
           <span
             aria-hidden
@@ -866,7 +866,7 @@ function PlanRecommendationsList({ items }: { items: PlanRecommendation[] }) {
       {items.map((item, idx) => (
         <li
           key={`${item.title}-${idx}`}
-          className="rounded-md border border-border/60 bg-background/40 p-3 text-xs"
+          className="rounded-md bg-foreground/5 p-3 text-xs"
         >
           <header className="flex items-start gap-2">
             <span
@@ -919,7 +919,7 @@ function RiskNotesList({ items }: { items: RiskNote[] }) {
         <li
           key={`${risk.title}-${idx}`}
           className={cn(
-            "rounded-md p-3 text-xs bg-muted/40",
+            "rounded-md p-3 text-xs bg-foreground/5",
             riskLevelTone(risk.level),
           )}
         >

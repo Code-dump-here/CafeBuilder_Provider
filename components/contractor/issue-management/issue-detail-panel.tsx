@@ -56,7 +56,7 @@ export function IssueDetailPanel({
         aria-label="Issue detail"
         className={cn(
           "flex h-full min-h-65 flex-col items-center justify-center gap-3",
-          "rounded-lg border border-dashed border-border/60 bg-card/20 p-8",
+          "p-8",
           "text-center text-sm text-muted-foreground"
         )}
       >
@@ -107,7 +107,7 @@ export function IssueDetailPanel({
 
           {/* RIGHT — narrative + meta */}
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2 rounded-lg border border-border/60 bg-card/40 px-3.5 py-3 text-xs">
+            <div className="flex flex-col gap-2 rounded-lg bg-foreground/5 px-3.5 py-3 text-xs">
               <DateRow
                 icon={<CalendarDays aria-hidden className="size-3.5" />}
                 label={t("estimateAt")}

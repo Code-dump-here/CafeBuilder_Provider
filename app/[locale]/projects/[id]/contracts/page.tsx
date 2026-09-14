@@ -1038,7 +1038,7 @@ function CancelContractDialog({
         </DialogHeader>
 
         {contract ? (
-          <div className="flex flex-col gap-3 rounded-md border border-border/60 bg-muted/30 p-3">
+          <div className="flex flex-col gap-3 rounded-md bg-foreground/5 p-3">
             <div className="flex items-center justify-between gap-2">
               <span className="text-2xs uppercase tracking-wide text-muted-foreground">
                 {contract.title}

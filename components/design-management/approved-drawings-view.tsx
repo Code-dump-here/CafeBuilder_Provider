@@ -82,7 +82,7 @@ export function ApprovedDrawingsView({
       ) : isLoading ? (
         <ApprovedDrawingsSkeleton />
       ) : approvedDesigns.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border/60 bg-card px-6 py-12 text-center text-sm text-muted-foreground">
+        <p className="px-6 py-12 text-center text-sm text-muted-foreground">
           {labels.empty}
         </p>
       ) : (
@@ -181,7 +181,7 @@ function ApprovedDrawingsErrorBanner({
   return (
     <div
       role="alert"
-      className="flex flex-col items-center justify-center gap-3 rounded-lg border border-border/60 bg-card p-8 text-center"
+      className="flex flex-col items-center justify-center gap-3 p-8 text-center"
     >
       <p className="text-sm font-medium text-foreground">
         {labels.errorTitle}

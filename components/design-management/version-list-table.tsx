@@ -483,7 +483,7 @@ function DesignsLoadingSkeleton() {
       {[0, 1, 2, 3].map((i) => (
         <div
           key={i}
-          className="flex items-center gap-3 rounded-md border border-border/40 bg-muted/20 px-3 py-3"
+          className="flex items-center gap-3 rounded-md bg-foreground/5 px-3 py-3"
         >
           <div className="size-9 animate-pulse rounded-md bg-muted" />
           <div className="flex flex-1 flex-col gap-1.5">

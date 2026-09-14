@@ -216,7 +216,7 @@ export function MarketplacePagination({
     <nav
       aria-label={t("label")}
       className={cn(
-        "flex flex-col items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/40 px-4 py-3 sm:flex-row",
+        "flex flex-col items-center justify-between gap-3 pt-2 sm:flex-row",
         className,
       )}
     >

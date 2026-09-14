@@ -274,7 +274,7 @@ export function PublishRevisionDialog({
           </DialogDescription>
         </DialogHeader>
         {publishable.length === 0 ? (
-          <p className="rounded-md border border-dashed border-border/60 bg-muted/30 px-3 py-4 text-center text-xs text-muted-foreground">
+          <p className="px-3 py-4 text-center text-xs text-muted-foreground">
             {t("dialogs.publish.noWorking")}
           </p>
         ) : (

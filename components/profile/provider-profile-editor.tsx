@@ -151,7 +151,7 @@ export function ProviderProfileEditor({ account }: ProviderProfileEditorProps) {
       className="flex flex-col gap-8"
     >
       {/* ── Account identity block ───────────────────────────────────── */}
-      <div className="flex flex-col gap-2 rounded-xl border border-border bg-card px-4 py-3">
+      <div className="flex flex-col gap-2 rounded-xl bg-foreground/5 px-4 py-3">
         <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
           <Mail aria-hidden className="size-3.5" />
           {t("fields.emailLabel")}

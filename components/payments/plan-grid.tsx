@@ -73,7 +73,7 @@ function ErrorState({ onRetry }: ErrorStateProps) {
 function EmptyState() {
   const t = useTranslations("Payments.states");
   return (
-    <div className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-8 text-center">
+    <div className="flex flex-col gap-2 p-8 text-center">
       <h2 className="text-lg font-semibold tracking-tight text-foreground">
         {t("emptyTitle")}
       </h2>
@@ -93,7 +93,7 @@ const PERK_KEYS = ["marketplace", "applications", "support", "badge"] as const;
 function PerksList() {
   const t = useTranslations("Payments.perks");
   return (
-    <section className="rounded-2xl border border-border/60 bg-muted/30 p-5 md:p-6">
+    <section className="rounded-2xl bg-foreground/5 p-5 md:p-6">
       <h2 className="text-2xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         {t("title")}
       </h2>
@@ -234,7 +234,7 @@ export function PlanGridContainer({ targetRole }: PlanGridContainerProps) {
 
   if (visiblePlans.length === 0) {
     return (
-      <div className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-8 text-center">
+      <div className="flex flex-col gap-2 p-8 text-center">
         <h2 className="text-lg font-semibold tracking-tight text-foreground">{t("emptyTitle")}</h2>
         <p className="text-xs leading-relaxed text-muted-foreground">
           {t("emptySubtitle")}

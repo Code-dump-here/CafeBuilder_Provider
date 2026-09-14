@@ -322,7 +322,7 @@ export function RoleFields({
 
       {/* ── Company tax code (conditional) ───────────────────────────── */}
       {isCompany && (
-        <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+        <div className="space-y-3 rounded-xl bg-foreground/5 p-4">
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-foreground">
               {t("provider.fields.companyTaxCode")}

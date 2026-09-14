@@ -66,7 +66,7 @@ export function MyProjectsInvitationCard({
   }
 
   return (
-    <div className="flex h-full flex-col gap-3 rounded-2xl border border-info/50 bg-info/40 p-5 text-left">
+    <div className="flex h-full flex-col gap-3 rounded-2xl border border-info/30 bg-info-muted p-5 text-left">
       <div className="flex items-start justify-between gap-2">
         <Badge
           variant="outline"

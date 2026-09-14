@@ -119,7 +119,7 @@ export function ChecklistDialog({
         {!isLoading && !isError && (
           <div
             className={cn(
-              "rounded-md px-3 py-2 text-sm bg-muted/40",
+              "rounded-md px-3 py-2 text-sm bg-foreground/5",
               progress.requiredTotal === 0 && "border-border text-muted-foreground",
               progress.requiredTotal > 0 &&
                 progress.isSatisfied &&
@@ -257,7 +257,7 @@ function ChecklistRow({
   const Icon = style.icon;
 
   return (
-    <li className="flex items-start gap-3 rounded-md px-3 py-2 bg-muted/40">
+    <li className="flex items-start gap-3 rounded-md px-3 py-2 bg-foreground/5">
       <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", style.className)} />
 
       <div className="min-w-0 flex-1">

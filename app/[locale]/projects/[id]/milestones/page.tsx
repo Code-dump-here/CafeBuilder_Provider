@@ -759,7 +759,7 @@ export default function MilestoneManagementPage() {
           onAddPhase={() => setAddPhaseOpen(true)}
           addPhaseDisabled
         />
-        <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-sm text-muted-foreground">
+        <p className="px-3 py-6 text-center text-sm text-muted-foreground">
           No construction engagement found for this project.
         </p>
         <AddPhaseDialog
@@ -787,11 +787,11 @@ export default function MilestoneManagementPage() {
           applyTemplateDisabled={!canAddPhase}
         />
         {blockedReason ? (
-          <p className="mt-3 rounded-md border border-warning/50 bg-warning/50 px-3 py-2 text-xs text-muted-foreground">
+          <p className="mt-3 rounded-md border border-warning/30 bg-warning-muted px-3 py-2 text-xs text-warning-muted-foreground">
             {blockedReason}
           </p>
         ) : null}
-        <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-sm text-muted-foreground">
+        <p className="px-3 py-6 text-center text-sm text-muted-foreground">
           {t("errorEmpty")}
         </p>
         <AddPhaseDialog
@@ -822,7 +822,7 @@ export default function MilestoneManagementPage() {
         applyTemplateDisabled={!canAddPhase}
       />
       {blockedReason ? (
-        <p className="mt-3 rounded-md border border-warning/50 bg-warning/50 px-3 py-2 text-xs text-muted-foreground">
+        <p className="mt-3 rounded-md border border-warning/30 bg-warning-muted px-3 py-2 text-xs text-warning-muted-foreground">
           {blockedReason}
         </p>
       ) : null}

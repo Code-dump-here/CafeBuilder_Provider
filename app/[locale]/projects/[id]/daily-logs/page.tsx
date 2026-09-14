@@ -170,7 +170,7 @@ export default function ProviderDailyLogsPage() {
       {/* Reading survives handover; writing does not. Saying so beats leaving
           the page looking broken to a provider whose work has been accepted. */}
       {!canWrite ? (
-        <p className="rounded-md border border-border/70 bg-muted/40 p-3 text-sm text-muted-foreground">
+        <p className="rounded-md bg-foreground/5 p-3 text-sm text-muted-foreground">
           {t("readOnlyNotice")}
         </p>
       ) : null}

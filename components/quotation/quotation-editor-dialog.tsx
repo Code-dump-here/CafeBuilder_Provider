@@ -352,7 +352,7 @@ function QuotationEditorBase({
           {/* Say where scope changes go instead, so the missing fields read as
               a deliberate rule rather than a form that forgot something. */}
           {isDesign ? null : (
-            <p className="rounded-lg border border-dashed border-border/70 px-3 py-2 text-xs text-muted-foreground">
+            <p className="px-3 py-2 text-xs text-muted-foreground">
               {t("editor.constructionChangeOrderHint")}
             </p>
           )}
@@ -506,7 +506,7 @@ function QuotationEditorBase({
             </div>
 
             {terms.length === 0 ? (
-              <p className="rounded-lg border border-dashed border-border/70 px-3 py-4 text-center text-xs text-muted-foreground">
+              <p className="px-3 py-4 text-center text-xs text-muted-foreground">
                 {t("editor.noTerms")}
               </p>
             ) : (

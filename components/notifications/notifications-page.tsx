@@ -217,7 +217,7 @@ function EmptyState({ filter }: { filter: ReadFilter }) {
         ? t("read")
         : t("all");
   return (
-    <div className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card px-4 py-10 text-center">
+    <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
       <Inbox aria-hidden className="size-6 text-muted-foreground/60" />
       <h2 className="text-lg font-semibold tracking-tight text-foreground">
         {t("title", { filter: label })}
