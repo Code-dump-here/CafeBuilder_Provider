@@ -3005,8 +3005,11 @@
       "verified": "Verified",
       "individual": "Individual",
       "company": "Company",
-      "joined": "Joined {year}",
-      "yearsExperience": "{count, plural, other {# years experience}}"
+      "cell": {
+        "experience": "Experience",
+        "years": "{count, plural, =0 {—} other {# yrs}}",
+        "joined": "Joined"
+      }
     },
     "filter": {
       "searchPlaceholder": "Search by name…",
@@ -3060,8 +3063,6 @@
       "individual": "Individual",
       "company": "Company"
     },
-    "yearsExperience": "{count, plural, other {# years experience}}",
-    "joined": "Joined {year}",
     "tabs": {
       "about": "About",
       "brand": "Brand",
@@ -3119,6 +3120,23 @@
       "subtitle": "Something went wrong while connecting to the server.",
       "retry": "Retry",
       "generic": "Failed to load profile."
+    },
+    "sheet": {
+      "experience": "Experience",
+      "years": "{count, plural, other {# years}}",
+      "rating": "Rating",
+      "ratingValue": "{rating} / 5 · {count, plural, other {# reviews}}",
+      "noRating": "No reviews yet",
+      "joined": "Joined"
+    },
+    "about": {
+      "empty": "No public details yet.",
+      "founded": "Founded",
+      "teamSize": "Team size",
+      "teamSizeValue": "{count, plural, other {# people}}",
+      "brandStory": "Brand story",
+      "website": "Website",
+      "introVideo": "Intro video"
     }
   },
   "BrandMedia": {
@@ -3356,8 +3374,7 @@
       "confirmedCount": "{count} instalment(s)",
       "awaiting": "Awaiting confirmation",
       "awaitingCount": "{count} instalment(s)",
-      "outstanding": "Outstanding",
-      "outstandingHint": "Not yet confirmed by the provider"
+      "notPaid": "Not yet paid"
     },
     "proofs": {
       "title": "Payment proof",
@@ -3407,6 +3424,15 @@
     },
     "dialog": {
       "cancel": "Cancel"
+    },
+    "schedule": {
+      "filterLabel": "Filter instalments by status",
+      "no": "No.",
+      "instalment": "Instalment",
+      "share": "Share",
+      "amount": "Amount (VND)",
+      "total": "Total",
+      "totalShown": "Total of listed instalments"
     }
   },
   "DailyLogs": {

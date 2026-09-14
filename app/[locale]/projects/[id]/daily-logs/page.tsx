@@ -63,6 +63,7 @@ import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { uploadFileApi } from "@/lib/http/file-upload-api";
 import { proxiedImageSrc } from "@/lib/image-proxy";
 import { notifyError } from "@/lib/notify";
+import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 /**
  * The provider's daily site report.
@@ -149,7 +150,7 @@ export default function ProviderDailyLogsPage() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+          <SheetTitle sheet={SHEET.dailyLogs}>{t("title")}</SheetTitle>
           <p className="max-w-2xl text-sm text-muted-foreground">
             {t("subtitleProvider")}
           </p>

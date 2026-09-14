@@ -49,6 +49,7 @@ import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatVnd } from "@/lib/format-currency";
 import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
+import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 // Contract lifecycle as stamps. Pending OTP waits on a signature, so it is a
 // warning; confirmed is signed.
@@ -269,9 +270,7 @@ export default function ContractsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t("title")}
-          </h1>
+          <SheetTitle sheet={SHEET.contracts}>{t("title")}</SheetTitle>
           <p className="text-sm text-muted-foreground">
             {t("subtitle")}
           </p>

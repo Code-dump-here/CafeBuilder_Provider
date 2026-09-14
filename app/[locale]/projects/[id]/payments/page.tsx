@@ -15,7 +15,6 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
@@ -51,9 +50,10 @@ import type {
   PaymentBatchStatus,
 } from "@/features/projects/payment-batch-types";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
-import { formatVndParts } from "@/lib/format-currency";
+import { formatVnd, formatVndParts } from "@/lib/format-currency";
 import { proxiedImageSrc } from "@/lib/image-proxy";
 import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
+import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 /**
  * The provider's side of instalment payments.
@@ -64,6 +64,10 @@ import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
  * the linked milestone — which is why the link control is on this page rather
  * than buried in milestone editing.
  */
+
+// No. | instalment | share | amount — shared by the header, rows and total so
+// the columns line up. Below `sm` a row is number + one stacked column.
+const SCHEDULE_COLS = "sm:grid-cols-[2.5rem_1fr_4.5rem_10rem]";
 
 // Due is a warning (someone has to act), proof submitted is informational
 // (waiting on the other side), confirmed is the money actually landing. The
@@ -109,16 +113,25 @@ export default function ProviderPaymentsPage() {
   const [rejecting, setRejecting] = React.useState<PaymentBatch | null>(null);
   const [linking, setLinking] = React.useState<PaymentBatch | null>(null);
 
-  const { batches, summary, isLoading, isError, error, refetch } = usePaymentBatches({
+  const { batches, isLoading, isError, error, refetch } = usePaymentBatches({
     projectWorkingId: engagement?.id,
     status: filter === "all" ? undefined : filter,
+    enabled: Boolean(engagement),
+  });
+  // The summary is computed from whatever list it is given, and the server
+  // filters by status — so reading it off the filtered list made "Contract
+  // total" shrink to the confirmed instalments when that filter was on. The
+  // contract doesn't change with a filter; read it from the unfiltered list,
+  // which is the same cached query whenever the filter is "all".
+  const { summary } = usePaymentBatches({
+    projectWorkingId: engagement?.id,
     enabled: Boolean(engagement),
   });
 
   const confirmMutation = useConfirmPaymentBatchMutation();
   const rejectMutation = useRejectPaymentBatchMutation();
 
-  const money = (amount: number) => formatVndParts(amount, locale).full;
+  const digits = (amount: number) => formatVnd(amount, locale, "");
 
   if (loadingEngagements) {
     return (
@@ -145,44 +158,31 @@ export default function ProviderPaymentsPage() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <SheetTitle sheet={SHEET.payments}>{t("title")}</SheetTitle>
         <p className="max-w-2xl text-sm text-muted-foreground">
           {t("subtitleProvider")}
         </p>
       </header>
 
-      <Card>
-        <CardContent className="grid grid-cols-2 gap-4 p-4 lg:grid-cols-4">
-          <Stat label={t("summary.total")} value={money(summary.total)} />
-          <Stat
-            label={t("summary.confirmed")}
-            value={money(summary.confirmed)}
-            hint={t("summary.confirmedCount", { count: summary.confirmedCount })}
-          />
-          <Stat
-            label={t("summary.awaiting")}
-            value={money(summary.awaitingConfirmation)}
-            hint={t("summary.awaitingCount", { count: summary.awaitingCount })}
-            emphasis={summary.awaitingCount > 0}
-          />
-          <Stat
-            label={t("summary.outstanding")}
-            value={money(summary.outstanding)}
-            hint={t("summary.outstandingHint")}
-          />
-        </CardContent>
-      </Card>
+      <ContractDimension summary={summary} />
 
-      <div className="flex flex-wrap gap-2">
+      {/* A segmented strip rather than a row of loose chips: one control with
+          one current value. */}
+      <div
+        role="group"
+        aria-label={t("schedule.filterLabel")}
+        className="flex w-fit max-w-full overflow-x-auto rounded-md border border-foreground/20"
+      >
         {FILTERS.map((value) => (
-          <Button
+          <button
             key={value}
-            size="sm"
-            variant={filter === value ? "default" : "outline"}
+            type="button"
+            aria-pressed={filter === value}
             onClick={() => setFilter(value)}
+            className="shrink-0 whitespace-nowrap border-foreground/20 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground aria-pressed:bg-foreground aria-pressed:text-background [&:not(:last-child)]:border-r"
           >
             {t(`filters.${value}`)}
-          </Button>
+          </button>
         ))}
       </div>
 
@@ -206,61 +206,118 @@ export default function ProviderPaymentsPage() {
           description={t("empty.providerDescription")}
         />
       ) : (
-        <div className="flex flex-col gap-3">
-          {batches.map((batch) => (
-            <Card key={batch.id}>
-              <CardContent className="flex flex-col gap-3 p-4">
-                <BatchHeader batch={batch} />
+        // The payment schedule, set the way it is in the contract: a ruled
+        // table of numbered instalments with the figures in one column, so
+        // amounts can be read down and checked against a bank statement.
+        // It was a stack of cards, each with its amount floating top-right.
+        <section className="overflow-hidden rounded-lg bg-card shadow-e1 ring-1 ring-foreground/10">
+          <div
+            aria-hidden
+            className={`hidden border-b border-foreground/20 px-4 py-2 font-mono text-2xs uppercase tracking-[0.12em] text-muted-foreground sm:grid ${SCHEDULE_COLS}`}
+          >
+            <span>{t("schedule.no")}</span>
+            <span>{t("schedule.instalment")}</span>
+            <span className="text-end">{t("schedule.share")}</span>
+            <span className="text-end">{t("schedule.amount")}</span>
+          </div>
 
-                {batch.rejectReason ? (
-                  <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
-                    {t("rejectedBecause", { reason: batch.rejectReason })}
+          <ol className="divide-y divide-border">
+            {batches.map((batch) => (
+              <li
+                key={batch.id}
+                className={`grid grid-cols-[2rem_1fr] gap-x-4 gap-y-3 px-4 py-4 ${SCHEDULE_COLS}`}
+              >
+                <span className="pt-0.5 font-mono text-sm text-muted-foreground tabular-nums">
+                  {String(batch.sortOrder).padStart(2, "0")}
+                </span>
+
+                <div className="flex min-w-0 flex-col gap-3">
+                  <BatchHeader batch={batch} />
+
+                  {/* On a phone the figure columns collapse into this line, so
+                      the amount stays next to the name instead of dropping
+                      below the proof and actions. */}
+                  <p className="font-mono text-base font-semibold tabular-nums text-foreground sm:hidden">
+                    {digits(batch.amount)}
+                    <span className="ms-1 text-2xs font-normal text-muted-foreground">VND</span>
+                    {batch.percentage != null ? (
+                      <span className="ms-2 text-sm font-normal text-muted-foreground">
+                        · {batch.percentage}%
+                      </span>
+                    ) : null}
                   </p>
-                ) : null}
 
-                <ProofList batch={batch} />
-
-                <div className="flex flex-wrap gap-2">
-                  {batch.status === "proof_submitted" ? (
-                    <>
-                      <Button
-                        size="sm"
-                        disabled={confirmMutation.isPending}
-                        onClick={() => setConfirming(batch)}
-                      >
-                        {confirmMutation.isPending ? (
-                          <Loader2 className="animate-spin" aria-hidden />
-                        ) : (
-                          <Check aria-hidden />
-                        )}
-                        {t("actions.confirm")}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setRejecting(batch)}
-                      >
-                        <X aria-hidden />
-                        {t("actions.reject")}
-                      </Button>
-                    </>
+                  {batch.rejectReason ? (
+                    <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
+                      {t("rejectedBecause", { reason: batch.rejectReason })}
+                    </p>
                   ) : null}
 
-                  {/* Linkable until the batch is confirmed: after that the flag
-                      it drives has already been written to a milestone. */}
-                  {batch.status !== "confirmed" ? (
-                    <Button size="sm" variant="ghost" onClick={() => setLinking(batch)}>
-                      <Link2 aria-hidden />
-                      {batch.constructionItemId
-                        ? t("actions.relink")
-                        : t("actions.link")}
-                    </Button>
-                  ) : null}
+                  <ProofList batch={batch} />
+
+                  <div className="flex flex-wrap gap-2 empty:hidden">
+                    {batch.status === "proof_submitted" ? (
+                      <>
+                        <Button
+                          size="sm"
+                          disabled={confirmMutation.isPending}
+                          onClick={() => setConfirming(batch)}
+                        >
+                          {confirmMutation.isPending ? (
+                            <Loader2 className="animate-spin" aria-hidden />
+                          ) : (
+                            <Check aria-hidden />
+                          )}
+                          {t("actions.confirm")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setRejecting(batch)}
+                        >
+                          <X aria-hidden />
+                          {t("actions.reject")}
+                        </Button>
+                      </>
+                    ) : null}
+
+                    {/* Linkable until the batch is confirmed: after that the flag
+                        it drives has already been written to a milestone. */}
+                    {batch.status !== "confirmed" ? (
+                      <Button size="sm" variant="ghost" onClick={() => setLinking(batch)}>
+                        <Link2 aria-hidden />
+                        {batch.constructionItemId
+                          ? t("actions.relink")
+                          : t("actions.link")}
+                      </Button>
+                    ) : null}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+
+                <span className="hidden pt-0.5 text-end font-mono text-sm text-muted-foreground tabular-nums sm:block">
+                  {batch.percentage != null ? `${batch.percentage}%` : "—"}
+                </span>
+                <span className="hidden text-end font-mono text-base font-semibold tabular-nums text-foreground sm:block">
+                  {digits(batch.amount)}
+                </span>
+              </li>
+            ))}
+          </ol>
+
+          <div
+            className={`grid grid-cols-[2rem_1fr] gap-x-4 border-t border-foreground/30 px-4 py-3 ${SCHEDULE_COLS}`}
+          >
+            <span className="col-span-2 font-mono text-2xs uppercase tracking-[0.12em] text-muted-foreground sm:col-span-3 sm:self-center">
+              {filter === "all" ? t("schedule.total") : t("schedule.totalShown")}
+            </span>
+            <span className="col-start-2 font-mono text-base font-semibold tabular-nums sm:col-start-auto sm:text-end">
+              {digits(batches.reduce((sum, b) => sum + b.amount, 0))}
+              <span className="ms-1 text-2xs font-normal text-muted-foreground sm:hidden">
+                VND
+              </span>
+            </span>
+          </div>
+        </section>
       )}
 
       <ConfirmDialog
@@ -304,49 +361,41 @@ export default function ProviderPaymentsPage() {
   );
 }
 
-/** Shared by both roles' payment pages — name, money, due date and status. */
-export function BatchHeader({ batch }: { batch: PaymentBatch }) {
+/** Status, name and the facts under it. The figures sit in the schedule's columns. */
+function BatchHeader({ batch }: { batch: PaymentBatch }) {
   const t = useTranslations("PaymentBatches");
-  const locale = useLocale();
-  const money = (amount: number) => formatVndParts(amount, locale).full;
 
   return (
-    <div className="flex flex-wrap items-start justify-between gap-3">
-      <div className="flex min-w-0 flex-col gap-1.5">
-        <div className="flex flex-wrap items-center gap-2">
-          <Stamp size="sm" tone={STATUS_STAMP[batch.status]} seed={batch.id}>
-            {t(`status.${batch.status}`)}
-          </Stamp>
-          {batch.percentage != null ? (
-            <Badge variant="outline">{batch.percentage}%</Badge>
-          ) : null}
-          {/* An instalment created by a change order is not part of the price
-              the owner originally agreed — saying so avoids it reading as a
-              batch that appeared from nowhere. */}
-          {batch.changeOrderId ? (
-            <Badge variant="outline">{t("fromChangeOrder")}</Badge>
-          ) : null}
-        </div>
-        <p className="text-base font-semibold">{batch.name}</p>
-        {batch.constructionItemName ? (
-          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Link2 className="size-3.5" aria-hidden />
-            {batch.constructionItemName}
-          </p>
-        ) : null}
-        {batch.dueAt ? (
-          <p className="text-xs text-muted-foreground">
-            {t("dueAt", { date: batch.dueAt })}
-          </p>
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <div className="flex flex-wrap items-center gap-2">
+        <Stamp size="sm" tone={STATUS_STAMP[batch.status]} seed={batch.id}>
+          {t(`status.${batch.status}`)}
+        </Stamp>
+        {/* An instalment created by a change order is not part of the price
+            the owner originally agreed — saying so avoids it reading as a
+            batch that appeared from nowhere. */}
+        {batch.changeOrderId ? (
+          <Badge variant="outline">{t("fromChangeOrder")}</Badge>
         ) : null}
       </div>
-      <p className="text-xl font-semibold tabular-nums">{money(batch.amount)}</p>
+      <p className="text-base font-semibold">{batch.name}</p>
+      {batch.constructionItemName || batch.dueAt ? (
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          {batch.dueAt ? <span>{t("dueAt", { date: batch.dueAt })}</span> : null}
+          {batch.constructionItemName ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Link2 className="size-3.5" aria-hidden />
+              {batch.constructionItemName}
+            </span>
+          ) : null}
+        </p>
+      ) : null}
     </div>
   );
 }
 
 /** The proof trail. Kept as a list because a batch can be paid in parts. */
-export function ProofList({ batch }: { batch: PaymentBatch }) {
+function ProofList({ batch }: { batch: PaymentBatch }) {
   const t = useTranslations("PaymentBatches");
   const locale = useLocale();
   const money = (amount: number) => formatVndParts(amount, locale).full;
@@ -411,28 +460,97 @@ export function ProofList({ batch }: { batch: PaymentBatch }) {
   );
 }
 
-function Stat({
+type Summary = ReturnType<typeof usePaymentBatches>["summary"];
+
+/**
+ * The contract as a dimension string: one bar the length of the contract
+ * total, divided where the money stands — confirmed, awaiting the provider's
+ * check, and not yet paid. It replaces four stat tiles whose figures overlapped
+ * (outstanding included what was awaiting) without the page showing it.
+ */
+function ContractDimension({ summary }: { summary: Summary }) {
+  const t = useTranslations("PaymentBatches");
+  const locale = useLocale();
+  const money = (amount: number) => formatVnd(amount, locale);
+
+  const total = Math.max(summary.total, 0);
+  const confirmed = Math.min(summary.confirmed, total);
+  const awaiting = Math.min(summary.awaitingConfirmation, total - confirmed);
+  const rest = Math.max(total - confirmed - awaiting, 0);
+  const pct = (n: number) => (total > 0 ? (n / total) * 100 : 0);
+
+  return (
+    <section aria-label={t("summary.total")} className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+        <p className="font-mono text-2xs uppercase tracking-[0.12em] text-muted-foreground">
+          {t("summary.total")}
+        </p>
+        <p className="font-mono text-2xl font-semibold tabular-nums text-foreground">
+          {money(total)}
+        </p>
+      </div>
+
+      {total > 0 ? (
+        <div aria-hidden className="relative px-px">
+          {/* Extension ticks at both ends, as on a drawn dimension. */}
+          <span className="absolute -top-1.5 left-0 h-6 w-px bg-foreground/60" />
+          <span className="absolute -top-1.5 right-0 h-6 w-px bg-foreground/60" />
+          <div className="flex h-3 w-full overflow-hidden border border-foreground/25">
+            <span className="h-full bg-success" style={{ width: `${pct(confirmed)}%` }} />
+            <span className="h-full bg-info/70" style={{ width: `${pct(awaiting)}%` }} />
+            <span className="hatch h-full" style={{ width: `${pct(rest)}%` }} />
+          </div>
+        </div>
+      ) : null}
+
+      <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-xs sm:grid-cols-3">
+        <Legend
+          swatch="bg-success"
+          label={t("summary.confirmed")}
+          value={money(confirmed)}
+          hint={t("summary.confirmedCount", { count: summary.confirmedCount })}
+        />
+        <Legend
+          swatch="bg-info/70"
+          label={t("summary.awaiting")}
+          value={money(awaiting)}
+          hint={t("summary.awaitingCount", { count: summary.awaitingCount })}
+        />
+        <Legend
+          swatch="hatch border border-foreground/40"
+          label={t("summary.notPaid")}
+          value={money(rest)}
+        />
+      </dl>
+    </section>
+  );
+}
+
+function Legend({
+  swatch,
   label,
   value,
   hint,
-  emphasis,
 }: {
+  swatch: string;
   label: string;
   value: string;
   hint?: string;
-  emphasis?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p
-        className={
-          emphasis ? "text-lg font-semibold text-primary" : "text-base font-semibold"
-        }
-      >
-        {value}
-      </p>
-      {hint ? <p className="text-xs text-muted-foreground/80">{hint}</p> : null}
+    <div className="flex items-start gap-2">
+      <span aria-hidden className={`mt-0.5 size-3 shrink-0 ${swatch}`} />
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <dt className="text-muted-foreground">
+          {label}
+          {hint ? <span className="text-muted-foreground/80"> · {hint}</span> : null}
+        </dt>
+        {/* No accent on the awaiting figure: its swatch already marks it, and
+            an orange number beside a blue swatch read as a third category. */}
+        <dd className="font-mono text-sm font-semibold tabular-nums text-foreground">
+          {value}
+        </dd>
+      </div>
     </div>
   );
 }

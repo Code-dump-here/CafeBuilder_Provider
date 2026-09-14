@@ -2,9 +2,8 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Sparkles } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
+import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 interface MarketplaceHeroProps {
   /**
@@ -30,17 +29,13 @@ export function MarketplaceHero({ openCount }: MarketplaceHeroProps) {
   return (
     <section className="relative border-b border-border/60 pb-6">
       <div className="flex flex-col gap-3">
-        <Badge
-          variant="outline"
-          className="w-fit gap-1.5 text-2xs font-medium uppercase tracking-wide text-muted-foreground"
+        <SheetTitle
+          sheet={SHEET.marketplace}
+          label={t("eyebrow")}
+          className="text-balance"
         >
-          <Sparkles className="size-3" aria-hidden />
-          {t("eyebrow")}
-        </Badge>
-
-        <h1 className="text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
           {t("title")}
-        </h1>
+        </SheetTitle>
 
         <p className="max-w-2xl text-sm/relaxed text-muted-foreground">
           {t("subtitle")}

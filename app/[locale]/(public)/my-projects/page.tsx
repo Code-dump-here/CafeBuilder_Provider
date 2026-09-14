@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Briefcase, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 import {
@@ -20,6 +20,7 @@ import type {
   MyProjectContractType,
   MyProjectStatus,
 } from "@/features/projects/my-projects-types";
+import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 // ---------------------------------------------------------------------------
 // Page component
@@ -86,16 +87,9 @@ export default function MyProjectsPage() {
 function MyProjectsPageHeader() {
   const t = useTranslations("MyProjects");
   return (
-    <header className="flex items-start gap-3">
-      <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-        <Briefcase className="size-4" aria-hidden />
-      </div>
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          {t("title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-      </div>
+    <header className="flex flex-col gap-1">
+      <SheetTitle sheet={SHEET.myProjects}>{t("title")}</SheetTitle>
+      <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
     </header>
   );
 }

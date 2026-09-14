@@ -68,6 +68,7 @@ import {
   type SiteOpening,
   type SiteOpeningType,
 } from "@/features/projects/site-profile-types";
+import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -147,7 +148,7 @@ export default function SiteProfilePage() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <SheetTitle sheet={SHEET.siteProfile}>{t("title")}</SheetTitle>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </header>
 

@@ -735,7 +735,17 @@ const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/issue-types/, ISSUE_TYPES],
   [/\/api\/issues/, ISSUES],
   [/\/api\/project-shop-owners\/[^/?]+/, PROJECT],
-  [/\/api\/reviews\/providers\/[^/?]+\/summary/, REVIEW_SUMMARY],
+  // Per provider, from the directory rows: one shared summary made a firm
+  // read 4.6 from 12 reviews on its card and 4.0 from 3 on its profile.
+  [/\/api\/reviews\/providers\/[^/?]+\/summary/, (url: string) => {
+    const row = PROVIDER_ROWS.find((p) => url.includes(p.id));
+    return {
+      ...REVIEW_SUMMARY,
+      serviceProviderProfileId: row?.id ?? REVIEW_SUMMARY.serviceProviderProfileId,
+      reviewCount: row?.reviewCount ?? 0,
+      averageRating: row?.avgRating ?? 0,
+    };
+  }],
   [/\/api\/reviews/, REVIEWS],
   [/\/api\/posts(\/|\?|$)/, POSTS],
   [/\/api\/quotations(\/|\?|$)/, quotations],

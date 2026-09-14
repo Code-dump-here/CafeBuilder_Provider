@@ -39,6 +39,7 @@ import type { Survey } from "@/features/projects/survey-types";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -190,9 +191,7 @@ export default function SurveyPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t("title")}
-          </h1>
+          <SheetTitle sheet={SHEET.survey}>{t("title")}</SheetTitle>
           <p className="text-sm text-muted-foreground">
             {t("subtitle")}
           </p>

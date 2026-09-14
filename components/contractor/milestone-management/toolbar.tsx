@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { TitleBlock, TitleCell } from "@/components/drawing-set/title-block";
+import { SHEET } from "@/components/drawing-set/sheet-title";
 
 interface MilestoneManagementToolbarProps {
   projectId: string;
@@ -49,7 +50,7 @@ export function MilestoneManagementToolbar({
     <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border/60 pb-5">
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-baseline gap-2">
-          <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="sheet-title text-3xl text-foreground sm:text-4xl">
             <MilestoneManagementTitle />
           </h1>
         </div>
@@ -59,7 +60,7 @@ export function MilestoneManagementToolbar({
         {/* The schedule's title block: the same facts the pills stated, framed
             as one sheet's particulars rather than three floating tokens. */}
         <TitleBlock className="mt-3">
-          <TitleCell label={t("sheet")} emphasis>M-100</TitleCell>
+          <TitleCell label={t("sheet")} emphasis>{SHEET.milestones}</TitleCell>
           <TitleCell label={t("sheetPhases")}>{phaseCount}</TitleCell>
           <TitleCell label={t("sheetTasks")}>{taskCount}</TitleCell>
           <TitleCell label={t("sheetDone")}>

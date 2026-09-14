@@ -3005,8 +3005,11 @@
       "verified": "Đã xác minh",
       "individual": "Cá nhân",
       "company": "Doanh nghiệp",
-      "joined": "Gia nhập {year}",
-      "yearsExperience": "{count, plural, other {# năm kinh nghiệm}}"
+      "cell": {
+        "experience": "Kinh nghiệm",
+        "years": "{count, plural, =0 {—} other {# năm}}",
+        "joined": "Tham gia"
+      }
     },
     "filter": {
       "searchPlaceholder": "Tìm theo tên…",
@@ -3060,8 +3063,6 @@
       "individual": "Cá nhân",
       "company": "Doanh nghiệp"
     },
-    "yearsExperience": "{count, plural, other {# năm kinh nghiệm}}",
-    "joined": "Gia nhập {year}",
     "tabs": {
       "about": "Giới thiệu",
       "brand": "Thương hiệu",
@@ -3119,6 +3120,23 @@
       "subtitle": "Đã có lỗi khi kết nối tới máy chủ.",
       "retry": "Thử lại",
       "generic": "Không thể tải hồ sơ."
+    },
+    "sheet": {
+      "experience": "Kinh nghiệm",
+      "years": "{count, plural, other {# năm}}",
+      "rating": "Đánh giá",
+      "ratingValue": "{rating} / 5 · {count, plural, other {# đánh giá}}",
+      "noRating": "Chưa có đánh giá",
+      "joined": "Tham gia"
+    },
+    "about": {
+      "empty": "Chưa có thông tin công khai.",
+      "founded": "Thành lập",
+      "teamSize": "Quy mô",
+      "teamSizeValue": "{count, plural, other {# người}}",
+      "brandStory": "Câu chuyện thương hiệu",
+      "website": "Website",
+      "introVideo": "Video giới thiệu"
     }
   },
   "BrandMedia": {
@@ -3356,8 +3374,7 @@
       "confirmedCount": "{count} đợt",
       "awaiting": "Chờ xác nhận",
       "awaitingCount": "{count} đợt",
-      "outstanding": "Còn lại",
-      "outstandingHint": "Nhà cung cấp chưa xác nhận"
+      "notPaid": "Chưa thanh toán"
     },
     "proofs": {
       "title": "Minh chứng thanh toán",
@@ -3407,6 +3424,15 @@
     },
     "dialog": {
       "cancel": "Huỷ"
+    },
+    "schedule": {
+      "filterLabel": "Lọc đợt thanh toán theo trạng thái",
+      "no": "STT",
+      "instalment": "Đợt thanh toán",
+      "share": "Tỷ lệ",
+      "amount": "Số tiền (VND)",
+      "total": "Tổng cộng",
+      "totalShown": "Tổng các đợt đang hiển thị"
     }
   },
   "DailyLogs": {

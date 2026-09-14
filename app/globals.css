@@ -424,6 +424,19 @@
   box-decoration-break: clone;
 }
 
+/* Sheet lettering for page titles: the homepage headline's condensed Archivo,
+   carried into the app so the direction doesn't stop at the login screen.
+   Less compressed than the hero (80% against 72%) because app titles are
+   read, not looked at, and leading stays loose enough for stacked Vietnamese
+   diacritics when a long title wraps. */
+@utility sheet-title {
+  font-family: var(--font-display);
+  font-stretch: 80%;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
 @keyframes draw-line {
   from { stroke-dashoffset: 1; }
   to   { stroke-dashoffset: 0; }

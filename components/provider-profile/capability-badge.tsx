@@ -128,14 +128,10 @@ export function RatingStars({
           />
         ))}
         {hasHalf ? (
-          <span
-            aria-hidden
-            className={cn("relative inline-block", {
-              "w-3.5": size === "sm",
-              "w-4": size === "md",
-              "w-5": size === "lg",
-            })}
-          >
+          // Sized in both directions: with only a width, the box was zero
+          // tall, so its absolutely placed stars hung below the row and the
+          // half star sat visibly lower than the whole ones.
+          <span aria-hidden className={cn("relative inline-block", sizeClass)}>
             <Star
               className={cn(
                 sizeClass,

@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,26 +34,29 @@ import {
   useServiceProviderProfile,
   useProviderRatingSummary,
 } from "@/features/service-provider-profiles/use-providers";
-import { CapabilityBadge, RatingStars, VerifiedPill } from "./capability-badge";
+import { RatingStars } from "./capability-badge";
 import { ReviewDimensionsList } from "./review-dimensions-list";
 import { Stamp } from "@/components/drawing-set/stamp";
+import { TitleBlock, TitleCell } from "@/components/drawing-set/title-block";
 
 interface ProviderPublicProfileProps {
   profileId: string;
 }
 
 /**
- * Public, owner-facing provider profile.
+ * A provider's public profile, as other providers see it on web.
  *
  * Renders the same identity / brand / portfolio data as the
- * self-editing `/profile` page, but in read-only mode and with a
- * "Contact" CTA for owners looking to hire. Reviews are fetched from
+ * self-editing `/profile` page, read-only. Reviews are fetched from
  * `/api/reviews/providers/{id}/summary`; we don't yet have a public
  * reviews list endpoint, so we only show the summary for now.
  */
 export function ProviderPublicProfile({ profileId }: ProviderPublicProfileProps) {
   const t = useTranslations("ProviderPublicProfile");
+  const tDirectory = useTranslations("ProviderDirectory");
   const locale = useLocale();
+  // Same query the Reviews tab reads, so the header's rating costs nothing extra.
+  const { summary: rating } = useProviderRatingSummary(profileId);
 
   // Provider details fetch — `useServiceProviderProfile(id)` returns
   // the public profile (logo/cover/intro-video URLs included).
@@ -112,100 +114,110 @@ export function ProviderPublicProfile({ profileId }: ProviderPublicProfileProps)
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       {/* ── Header ───────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card">
-        <div className="relative h-44 w-full bg-linear-to-br from-amber-600 via-amber-500 to-orange-500 sm:h-52">
-          {profile.coverImageViewUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={profile.coverImageViewUrl}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          ) : null}
-          <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
-        </div>
+      {/* A cover sheet, not a social banner: the gradient with a round avatar
+          hanging off it said nothing about the firm, and the name collided
+          with the banner's edge. The firm's particulars now sit in a title
+          block along the bottom, like the edge of a drawing. */}
+      <section className="overflow-hidden rounded-lg bg-card shadow-e1 ring-1 ring-foreground/10">
+        {profile.coverImageViewUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={profile.coverImageViewUrl}
+            alt=""
+            className="h-40 w-full border-b border-border object-cover sm:h-52"
+          />
+        ) : null}
 
-        <div className="relative px-4 pb-4 sm:px-6">
-          <div className="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex items-end gap-4">
+        <div className="flex flex-col gap-5 p-5 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex min-w-0 items-start gap-4">
               {profile.logoViewUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={profile.logoViewUrl}
                   alt={profile.displayName}
-                  className="size-24 rounded-2xl border-4 border-background object-cover shadow-md sm:size-28"
+                  className="size-16 shrink-0 border border-foreground/20 object-cover sm:size-20"
                 />
               ) : (
-                <Avatar className="size-24 border-4 border-background shadow-md sm:size-28">
-                  <AvatarFallback className="bg-linear-to-br from-amber-500 to-orange-600 text-2xl font-bold text-white">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
+                <span
+                  aria-hidden
+                  className="grid size-16 shrink-0 place-items-center border border-foreground/25 bg-foreground/5 font-mono text-lg font-semibold text-foreground sm:size-20"
+                >
+                  {initials}
+                </span>
               )}
 
-              <div className="flex flex-col gap-1 pb-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="font-heading text-2xl font-bold text-foreground sm:text-3xl">
-                    {profile.displayName}
-                  </h1>
-                  {profile.isVerified ? (
-                    <VerifiedPill isVerified label={t("verified")} />
-                  ) : null}
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <CapabilityBadge capability={profile.capability} />
-                  <Badge variant="outline">
-                    {profile.providerType === "company"
-                      ? t("type.company")
-                      : t("type.individual")}
-                  </Badge>
-                  {profile.yearsExperience !== null &&
-                  profile.yearsExperience > 0 ? (
-                    <span className="text-xs text-muted-foreground">
-                      {t("yearsExperience", {
-                        count: profile.yearsExperience,
-                      })}
-                    </span>
-                  ) : null}
-                </div>
+              <div className="flex min-w-0 flex-col gap-2 pt-0.5">
+                <p className="font-mono text-2xs uppercase tracking-[0.14em] text-muted-foreground">
+                  {tDirectory(`capability.${profile.capability}`)}
+                  {" · "}
+                  {profile.providerType === "company"
+                    ? t("type.company")
+                    : t("type.individual")}
+                </p>
+                <h1 className="sheet-title text-3xl text-foreground sm:text-4xl">
+                  {profile.displayName}
+                </h1>
               </div>
             </div>
 
-            {/* The web app is for providers; owners hire through the mobile
-                app. So another provider's profile carries no actions — the
-                "Invite to a project" and "Message" buttons that were here are
-                owner actions, and on web the first only linked to the
-                marketplace while the second had no handler at all. */}
-            {isSelf ? (
-              <Button variant="outline" asChild>
-                <Link href="/profile">
-                  <ShieldCheck aria-hidden className="size-4" />
-                  {t("actions.manageOwnProfile")}
-                </Link>
-              </Button>
-            ) : null}
+            <div className="flex shrink-0 flex-wrap items-center gap-3">
+              {profile.isVerified ? (
+                <Stamp tone="success" seed={profile.id}>
+                  {t("verified")}
+                </Stamp>
+              ) : null}
+              {/* The web app is for providers; owners hire through the mobile
+                  app. So another provider's profile carries no actions — the
+                  "Invite to a project" and "Message" buttons that were here
+                  are owner actions, and on web the first only linked to the
+                  marketplace while the second had no handler at all. */}
+              {isSelf ? (
+                <Button variant="outline" asChild>
+                  <Link href="/profile">
+                    <ShieldCheck aria-hidden className="size-4" />
+                    {t("actions.manageOwnProfile")}
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
           </div>
 
-          {profile.portfolioHeadline ? (
-            <p className="mt-4 text-sm font-medium text-foreground">
-              {profile.portfolioHeadline}
-            </p>
+          {profile.portfolioHeadline || profile.bio ? (
+            <div className="flex max-w-3xl flex-col gap-2">
+              {profile.portfolioHeadline ? (
+                <p className="text-base font-medium text-foreground">
+                  {profile.portfolioHeadline}
+                </p>
+              ) : null}
+              {profile.bio ? (
+                <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                  {profile.bio}
+                </p>
+              ) : null}
+            </div>
           ) : null}
-
-          {profile.bio ? (
-            <p className="mt-2 max-w-3xl whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-              {profile.bio}
-            </p>
-          ) : null}
-
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <Star aria-hidden className="size-3.5 fill-rating text-rating" />
-              {t("joined", { year: joinedYear })}
-            </span>
-          </div>
         </div>
-      </div>
+
+        <TitleBlock className="w-full border-x-0 border-b-0">
+          <TitleCell label={t("sheet.experience")} grow>
+            {profile.yearsExperience
+              ? t("sheet.years", { count: profile.yearsExperience })
+              : "—"}
+          </TitleCell>
+          <TitleCell label={t("sheet.rating")} grow>
+            {rating && rating.reviewCount > 0
+              ? t("sheet.ratingValue", {
+                  rating: rating.averageRating.toFixed(1),
+                  count: rating.reviewCount,
+                })
+              : t("sheet.noRating")}
+          </TitleCell>
+          <TitleCell label={t("sheet.joined")} grow>
+            {joinedYear}
+          </TitleCell>
+        </TitleBlock>
+      </section>
 
       {/* ── Tabs ─────────────────────────────────────────────────── */}
       <Tabs defaultValue="about">
@@ -238,11 +250,12 @@ export function ProviderPublicProfile({ profileId }: ProviderPublicProfileProps)
 
 // ─── Tab bodies ───────────────────────────────────────────────────────────────
 
-function AboutTab({ profileId: _profileId }: { profileId: string }) {
+function AboutTab({ profileId }: { profileId: string }) {
+  const t = useTranslations("ProviderPublicProfile.about");
   // Reuse the public brand endpoint for "About" too — the about tab
   // surfaces the brand's story / website / company address which are
   // part of the BrandResponse, not the bare ServiceProviderProfile.
-  const { brand, isLoading } = useProviderBrand({ serviceProviderProfileId: _profileId });
+  const { brand, isLoading } = useProviderBrand({ serviceProviderProfileId: profileId });
 
   if (isLoading) {
     return <Skeleton className="h-40 w-full" />;
@@ -251,46 +264,31 @@ function AboutTab({ profileId: _profileId }: { profileId: string }) {
   if (!brand) {
     return (
       <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-        No public details yet.
+        {t("empty")}
       </p>
     );
   }
 
+  // Experience and rating were repeated here from the header; they now live
+  // only in the header's title block.
   return (
     <Card>
-      <CardContent className="flex flex-col gap-4 p-4">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat label="Founded" value={brand.foundedYear?.toString() ?? "—"} />
-          <Stat
-            label="Team size"
-            value={
-              brand.employeeCount !== null
-                ? `${brand.employeeCount} people`
-                : "—"
-            }
-          />
-          <Stat
-            label="Years experience"
-            value={
-              brand.yearsExperience !== null
-                ? `${brand.yearsExperience} yrs`
-                : "—"
-            }
-          />
-          <Stat
-            label="Avg rating"
-            value={
-              brand.reviewCount > 0
-                ? `${brand.avgRating.toFixed(1)} ★`
-                : "New"
-            }
-          />
-        </div>
+      <CardContent className="flex flex-col gap-4">
+        <TitleBlock>
+          <TitleCell label={t("founded")}>
+            {brand.foundedYear?.toString() ?? "—"}
+          </TitleCell>
+          <TitleCell label={t("teamSize")}>
+            {brand.employeeCount !== null
+              ? t("teamSizeValue", { count: brand.employeeCount })
+              : "—"}
+          </TitleCell>
+        </TitleBlock>
 
         {brand.brandStory ? (
           <div className="flex flex-col gap-1">
             <p className="text-xs font-medium text-muted-foreground">
-              Brand story
+              {t("brandStory")}
             </p>
             <p className="text-sm leading-relaxed">{brand.brandStory}</p>
           </div>
@@ -305,7 +303,7 @@ function AboutTab({ profileId: _profileId }: { profileId: string }) {
               className="inline-flex items-center gap-1.5 text-primary hover:underline"
             >
               <Globe aria-hidden className="size-4" />
-              Website
+              {t("website")}
             </a>
           ) : null}
           {brand.introVideoViewUrl ? (
@@ -316,7 +314,7 @@ function AboutTab({ profileId: _profileId }: { profileId: string }) {
               className="inline-flex items-center gap-1.5 text-primary hover:underline"
             >
               <Video aria-hidden className="size-4" />
-              Intro video
+              {t("introVideo")}
             </a>
           ) : null}
           {brand.companyAddress ? (
@@ -616,15 +614,6 @@ function ReviewsTab({ profileId }: { profileId: string }) {
 
 // ─── Reusable bits ────────────────────────────────────────────────────────────
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="text-sm font-semibold">{value}</p>
-    </div>
-  );
-}
-
 function SectionTitle({
   icon: Icon,
   title,
@@ -643,13 +632,16 @@ function SectionTitle({
 function ProfileSkeleton() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-      <div className="overflow-hidden rounded-2xl border border-border/60 bg-card">
-        <Skeleton className="h-44 w-full sm:h-52" />
-        <div className="space-y-3 p-4">
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-16 w-full" />
+      <div className="overflow-hidden rounded-lg bg-card ring-1 ring-foreground/10">
+        <div className="flex items-start gap-4 p-5 sm:p-6">
+          <Skeleton className="size-16 shrink-0 sm:size-20" />
+          <div className="flex flex-1 flex-col gap-3">
+            <Skeleton className="h-3 w-40" />
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-12 w-full" />
+          </div>
         </div>
+        <Skeleton className="h-12 w-full rounded-none" />
       </div>
       <div className="flex items-center gap-2">
         {Array.from({ length: 4 }).map((_, idx) => (

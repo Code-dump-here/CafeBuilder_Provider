@@ -5,6 +5,7 @@ import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { SHEET, SheetNumber } from "@/components/drawing-set/sheet-title";
 
 interface IssueToolbarProps {
   projectId: string;
@@ -32,8 +33,9 @@ export function IssueToolbar({
   return (
     <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border/60 pb-5">
       <div className="flex flex-col gap-1">
+        <SheetNumber>{SHEET.issues}</SheetNumber>
         <div className="flex flex-wrap items-baseline gap-2">
-          <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="sheet-title text-3xl text-foreground sm:text-4xl">
             {t("title")}
           </h1>
         </div>

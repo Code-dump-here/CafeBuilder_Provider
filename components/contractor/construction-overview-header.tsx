@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
 
 import type { ConstructionOverviewData } from "@/lib/contractor/construction-overview-data";
+import { SHEET, SheetNumber } from "@/components/drawing-set/sheet-title";
 
 interface ConstructionOverviewHeaderProps {
   data: ConstructionOverviewData;
@@ -31,8 +32,9 @@ export function ConstructionOverviewHeader({
     <header className="border-b border-border/60 pb-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-3">
+          <SheetNumber>{SHEET.constructionOverview}</SheetNumber>
           <div className="flex flex-wrap items-baseline gap-2">
-            <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+            <h1 className="sheet-title text-3xl text-foreground sm:text-4xl">
               {t("title")}
             </h1>
             <span className="text-sm text-muted-foreground">

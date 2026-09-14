@@ -51,6 +51,7 @@ import { useMarketplacePosts } from "@/features/projects/use-marketplace";
 import { DEFAULT_FILTERS } from "@/features/projects/marketplace-types";
 import { resolveQuotationVariant } from "@/features/projects/quotation-variant";
 import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
+import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 /**
  * The provider's side of the quotation flow.
@@ -268,7 +269,7 @@ toast.error(
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+          <SheetTitle sheet={SHEET.quotations}>{t("title")}</SheetTitle>
           <p className="max-w-2xl text-sm text-muted-foreground">
             {/* Keyed on the engagement, not on which anchor the read used: a
                 provider who won from a bid still reads by `applyId`, but they

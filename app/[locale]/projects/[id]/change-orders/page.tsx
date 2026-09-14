@@ -68,6 +68,7 @@ import {
   type ChangeOrderStatus,
 } from "@/features/projects/change-order-types";
 import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
+import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 /** Select của shadcn không nhận value rỗng — dùng sentinel cho "không gắn hạng mục". */
 const NO_MILESTONE = "__none__";
@@ -161,7 +162,7 @@ export default function ChangeOrdersPage() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+          <SheetTitle sheet={SHEET.changeOrders}>{t("title")}</SheetTitle>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <Button onClick={() => setCreating(true)}>
