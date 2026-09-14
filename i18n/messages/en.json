@@ -542,8 +542,7 @@
       "phoneCopied": "Phone number copied.",
       "copyPhone": "Copy phone number",
       "phoneAria": "Call {phone}",
-      "message": "Send message",
-      "messageComingSoon": "Direct messages are coming soon."
+      "message": "Send message"
     },
     "apply": {
       "title": "Apply to this project",

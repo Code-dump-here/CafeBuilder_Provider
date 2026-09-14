@@ -24,7 +24,9 @@ import { Separator } from "@/components/ui/separator";
 import { OwnerAvatar } from "@/components/data-table/owner-avatar";
 
 import { projectActionToast } from "./project-action-toast";
+import { Link } from "@/i18n/navigation";
 import { useIsProjectOwner } from "@/features/projects/use-is-project-owner";
+import { useActiveProjectMembership } from "@/hooks/use-active-project-membership";
 import type { ProjectDetail, ProjectOwner } from "@/features/projects/project-detail-types";
 
 // ---------------------------------------------------------------------------
@@ -56,7 +58,7 @@ interface ProjectOwnerCardProps {
  * What it shows:
  *   - Owner's avatar, full name, and shop name.
  *   - Phone (with a copy-to-clipboard CTA placeholder).
- *   - "Send message" placeholder CTA (real chat flow not wired yet).
+ *   - "Send message", opening the project's messages page.
  *
  * Renders nothing if the API response didn't include `project.owner`
  * (older backends — the field is optional on the wire).
@@ -87,7 +89,13 @@ export function ProjectOwnerCard({ project }: ProjectOwnerCardProps) {
   // didn't would call a different number of hooks and React would throw
   // "Rendered more hooks than during the previous render".
   const isOwner = useIsProjectOwner(project);
-  const canMessageOwner = !isOwner;
+  // Same gate as the sidebar's Messages item (`projectScope: "member"`):
+  // an engagement that is live or completed. A provider who is only
+  // browsing or applying has no chat on this project, so the button would
+  // lead nowhere for them.
+  const { membership } = useActiveProjectMembership(project.id);
+  const canMessageOwner =
+    !isOwner && membership != null && (membership.isActive || membership.isCompleted);
 
   if (!owner) {
     return null;
@@ -169,20 +177,16 @@ export function ProjectOwnerCard({ project }: ProjectOwnerCardProps) {
           </>
         ) : null}
 
-        {/* Contact CTA — wired through the same placeholder toast used
-            elsewhere so swapping to a real chat flow is one place.
-            Hidden when the viewer IS the project owner (no point
-            messaging yourself). */}
+        {/* Opens the project's messages page — the one the sidebar's
+            Messages item links to. It used to show a "coming soon" toast
+            although the chat already worked there. Hidden for the owner
+            themselves and for anyone without an engagement on the project. */}
         {canMessageOwner ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-full"
-            onClick={() => projectActionToast(t("messageComingSoon"))}
-          >
-            <Mail aria-hidden />
-            {t("message")}
+          <Button asChild variant="outline" size="sm" className="w-full">
+            <Link href={`/projects/${project.id}/messages`}>
+              <Mail aria-hidden />
+              {t("message")}
+            </Link>
           </Button>
         ) : null}
       </CardContent>
