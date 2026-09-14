@@ -30,7 +30,7 @@ export function IssueToolbar({
   const t = useTranslations("MilestoneManagement.issue.toolbar");
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 bg-gradient-to-br from-primary/5 via-background to-background px-4 py-3">
+    <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border/60 pb-5">
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-baseline gap-2">
           <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">

@@ -491,7 +491,7 @@ function IssueRow({
   return (
     <li
       className={cn(
-        "rounded-md border px-3 py-2",
+        "rounded-md px-3 py-2 bg-muted/40",
         tone.boxClass,
       )}
     >

@@ -92,7 +92,7 @@ export function MyProjectsGrid({
     return (
       <div
         className={cn(
-          "flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card/40 px-6 py-16 text-center",
+          "flex flex-col items-center justify-center gap-3 px-6 py-16 text-center",
           className,
         )}
       >

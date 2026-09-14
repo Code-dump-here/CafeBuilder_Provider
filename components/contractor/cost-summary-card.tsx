@@ -87,7 +87,7 @@ export function CostSummaryCard({ projectWorkingId }: CostSummaryCardProps) {
             and the change-orders page quote different totals for one job. */}
         {summary.acceptedChangeOrderAmount > 0 ||
         summary.pendingChangeOrderAmount > 0 ? (
-          <div className="flex flex-col gap-2 rounded-md border bg-muted/40 p-3">
+          <div className="flex flex-col gap-2 rounded-md bg-muted/40 p-3">
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
               <Figure
                 label={t("acceptedChangeOrders")}

@@ -479,7 +479,7 @@ function AiRecommendationsSkeleton() {
 function NoBriefState() {
   const t = useTranslations("ProjectsOverview.designBrief.empty");
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card/40 px-6 py-16 text-center">
+    <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
       <div className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
         <FileText className="size-5" aria-hidden />
       </div>

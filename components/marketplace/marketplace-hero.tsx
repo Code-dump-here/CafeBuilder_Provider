@@ -28,7 +28,7 @@ export function MarketplaceHero({ openCount }: MarketplaceHeroProps) {
   const tStats = useTranslations("Marketplace.hero.stats");
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 p-5 sm:p-6">
+    <section className="relative border-b border-border/60 pb-6">
       <div className="flex flex-col gap-3">
         <Badge
           variant="outline"

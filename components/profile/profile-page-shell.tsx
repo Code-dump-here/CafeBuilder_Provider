@@ -433,7 +433,7 @@ function ReviewsList({
 
   if (summaryQuery.isError || reviewsQuery.isError) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card py-12 text-sm text-muted-foreground">
+      <div className="flex flex-col items-center gap-3 py-12 text-sm text-muted-foreground">
         <TriangleAlert className="size-5 text-warning" />
         {t("error")}
       </div>
@@ -492,71 +492,73 @@ function ReviewsList({
       )}
 
       {reviews.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card py-12 text-center text-sm text-muted-foreground">
+        <div className="py-12 text-center text-sm text-muted-foreground">
           {t("empty")}
         </div>
       ) : (
-        reviews.map((review) => (
-          <div
-            key={review.id}
-            className="rounded-xl border border-border bg-card p-5"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={cn(
-                      "size-4",
-                      i < Math.round(review.overallRating)
-                        ? "text-rating fill-rating"
-                        : "text-muted-foreground/30",
-                    )}
-                  />
-                ))}
-                <span className="ml-1 text-sm font-semibold text-foreground">
-                  {review.overallRating.toFixed(1)}
+        // One surface with rules between reviews, rather than a bordered card
+        // per review: the reviews are one list, and a stack of identical boxes
+        // spends its contrast on edges instead of on what people wrote.
+        <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+          {reviews.map((review) => (
+            <div key={review.id} className="p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={cn(
+                        "size-4",
+                        i < Math.round(review.overallRating)
+                          ? "text-rating fill-rating"
+                          : "text-muted-foreground/30",
+                      )}
+                    />
+                  ))}
+                  <span className="ml-1 text-sm font-semibold text-foreground">
+                    {review.overallRating.toFixed(1)}
+                  </span>
+                </div>
+                <span className="text-xs text-muted-foreground/60">
+                  {new Date(review.createdAt).toLocaleDateString()}
                 </span>
               </div>
-              <span className="text-xs text-muted-foreground/60">
-                {new Date(review.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-            {review.comment && (
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                &ldquo;{review.comment}&rdquo;
-              </p>
-            )}
+              {review.comment && (
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  &ldquo;{review.comment}&rdquo;
+                </p>
+              )}
 
-            {review.scores.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {review.scores.map((score) => (
-                  <span
-                    key={score.id}
-                    className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
-                  >
-                    {t(`dimensions.${reviewDimensionKey(score.dimension)}`)}
-                    {": "}
-                    <span className="font-semibold text-foreground">
-                      {score.score}
+              {review.scores.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {review.scores.map((score) => (
+                    <span
+                      key={score.id}
+                      className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
+                    >
+                      {t(`dimensions.${reviewDimensionKey(score.dimension)}`)}
+                      {": "}
+                      <span className="font-semibold text-foreground">
+                        {score.score}
+                      </span>
                     </span>
-                  </span>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
 
-            {review.providerReply && (
-              <div className="mt-4 rounded-lg border-l-2 border-primary bg-muted/40 p-3">
-                <p className="text-xs font-semibold text-foreground">
-                  {t("replyLabel")}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {review.providerReply}
-                </p>
-              </div>
-            )}
-          </div>
-        ))
+              {review.providerReply && (
+                <div className="mt-4 rounded-lg border-l-2 border-primary bg-muted/40 p-3">
+                  <p className="text-xs font-semibold text-foreground">
+                    {t("replyLabel")}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {review.providerReply}
+                  </p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

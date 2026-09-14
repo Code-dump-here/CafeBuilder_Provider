@@ -919,7 +919,7 @@ function RiskNotesList({ items }: { items: RiskNote[] }) {
         <li
           key={`${risk.title}-${idx}`}
           className={cn(
-            "rounded-md border p-3 text-xs",
+            "rounded-md p-3 text-xs bg-muted/40",
             riskLevelTone(risk.level),
           )}
         >

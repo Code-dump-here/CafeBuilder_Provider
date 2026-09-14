@@ -89,7 +89,7 @@ function SummaryRow({ rec }: { rec: EngagementAiSummary }) {
     <article
       aria-labelledby={`ai-rec-summary-${rec.id}-title`}
       className={cn(
-        "flex flex-col gap-2 rounded-lg border bg-background/40 p-3",
+        "flex flex-col gap-2 rounded-lg bg-background/40 p-3",
         "border-border/60",
         stateKey === "failed" && "border-destructive/40 bg-destructive/5",
         stateKey === "queued" && "border-dashed",

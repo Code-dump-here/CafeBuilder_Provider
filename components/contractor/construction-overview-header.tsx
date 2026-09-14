@@ -28,8 +28,8 @@ export function ConstructionOverviewHeader({
   const format = useFormatter();
 
   return (
-    <Card className="border-border/60 bg-gradient-to-br from-primary/5 via-background to-background">
-      <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <header className="border-b border-border/60 pb-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-baseline gap-2">
             <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
@@ -86,7 +86,7 @@ export function ConstructionOverviewHeader({
           </Button>
         </div>
       </div>
-    </Card>
+    </header>
   );
 }
 
@@ -103,15 +103,4 @@ function Pill({
       <span>{children}</span>
     </span>
   );
-}
-
-// Local Card to avoid extra import in a small file.
-function Card({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return <section className={className}>{children}</section>;
 }

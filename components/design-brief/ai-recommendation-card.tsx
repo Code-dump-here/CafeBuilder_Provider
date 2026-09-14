@@ -522,7 +522,7 @@ function CompletedBody({ rec }: { rec: AiRecommendation }) {
               <li
                 key={`${risk.title}-${i}`}
                 className={cn(
-                  "flex items-start gap-2 rounded-md border p-2.5 text-xs",
+                  "flex items-start gap-2 rounded-md p-2.5 text-xs bg-muted/40",
                   riskLevelTone(risk.level),
                 )}
               >
