@@ -2160,8 +2160,7 @@
   "Profile": {
     "meta": {
       "title": "My profile",
-      "description": "Manage your public provider profile, contact details, and the credentials clients see when you apply for a brief.",
-      "joined": "Joined {date}"
+      "description": "Manage your public provider profile, contact details, and the credentials clients see when you apply for a brief."
     },
     "nav": {
       "label": "My profile"
@@ -2174,8 +2173,11 @@
         "portfolio": "Portfolio entries",
         "rating": "Rating",
         "newRating": "New",
-        "yearsExperience": "Years experience"
-      }
+        "yearsExperience": "Years experience",
+        "joined": "Joined"
+      },
+      "noCover": "No cover photo",
+      "verified": "Verified"
     },
     "tabs": {
       "reviews": "Reviews",

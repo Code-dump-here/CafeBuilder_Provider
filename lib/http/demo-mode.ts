@@ -39,6 +39,13 @@ import type {
 } from "axios";
 
 import { tokenStore } from "@/features/auth/token-store";
+import {
+  BAR_ELEVATION,
+  BAR_SECTION,
+  GROUND_FLOOR_PLAN,
+  LIGHTING_LAYOUT,
+  SIGNAGE_SKETCH,
+} from "@/lib/http/demo-drawings";
 
 /** Obviously not a JWT, so it can never be mistaken for one in a log. */
 export const DEMO_TOKEN = "demo-mode-no-backend";
@@ -113,6 +120,14 @@ const CONTRACTS = page([
 // `changeSummary` and `revisionCount`. The older fixture still used `name` and
 // a numeric version, from before the API changed, so the detail page never
 // resolved a design and sat on "Loading design…".
+// Drawings per design, so the design detail viewer has something to show.
+const DESIGN_IMAGES: Record<string, [string, string][]> = {
+  d1: [["Ground floor plan", GROUND_FLOOR_PLAN]],
+  d2: [["Bar elevation — front", BAR_ELEVATION], ["Bar counter — section A–A", BAR_SECTION]],
+  d3: [["Lighting layout", LIGHTING_LAYOUT]],
+  d4: [["Signage — concept B", SIGNAGE_SKETCH]],
+};
+
 const DESIGN_ROWS = [
   { id: "d1", title: "Ground floor plan", version: "3.0", type: "layout_2d", status: "approved",
     reason: null, changeSummary: "Moved the bar run to the north wall.", revisionCount: 2 },
@@ -124,7 +139,11 @@ const DESIGN_ROWS = [
     reason: null, changeSummary: null, revisionCount: 0 },
 ].map((d) => ({
   ...d, projectWorkingId: WORKING_ID, createdBy: "00000000-0000-4000-8000-000000000001",
-  createdAt: NOW, updatedAt: NOW, images: [],
+  createdAt: NOW, updatedAt: NOW,
+  images: (DESIGN_IMAGES[d.id] ?? []).map(([caption, viewUrl], i) => ({
+    id: `${d.id}-img${i + 1}`, designId: d.id, imageUrl: `demo/${d.id}/${i + 1}.svg`,
+    viewUrl, caption, uploadedBy: "00000000-0000-4000-8000-000000000001", createdAt: NOW,
+  })),
 }));
 
 const DESIGNS = page(DESIGN_ROWS);

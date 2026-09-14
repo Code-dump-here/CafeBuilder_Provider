@@ -2160,8 +2160,7 @@
   "Profile": {
     "meta": {
       "title": "Hồ sơ của tôi",
-      "description": "Quản lý hồ sơ nhà cung cấp công khai, thông tin liên hệ và những thông tin chủ quán thấy khi bạn ứng tuyển một dự án.",
-      "joined": "Gia nhập {date}"
+      "description": "Quản lý hồ sơ nhà cung cấp công khai, thông tin liên hệ và những thông tin chủ quán thấy khi bạn ứng tuyển một dự án."
     },
     "nav": {
       "label": "Hồ sơ của tôi"
@@ -2174,8 +2173,11 @@
         "portfolio": "Dự án mẫu",
         "rating": "Đánh giá",
         "newRating": "Mới",
-        "yearsExperience": "Năm kinh nghiệm"
-      }
+        "yearsExperience": "Năm kinh nghiệm",
+        "joined": "Tham gia"
+      },
+      "noCover": "Chưa có ảnh bìa",
+      "verified": "Đã xác minh"
     },
     "tabs": {
       "reviews": "Đánh giá",

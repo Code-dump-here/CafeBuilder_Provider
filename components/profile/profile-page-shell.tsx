@@ -3,30 +3,26 @@
 import * as React from "react";
 import {
   MapPin,
-  Calendar,
   Edit3,
   Eye,
   Settings,
   Star,
-  Shield,
-  Briefcase,
-  Award,
   Images,
   Sparkles,
   TriangleAlert,
   Globe,
-  Check,
   Loader2,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BrandMediaUploader } from "@/components/profile/brand-media-uploader";
+import { Stamp } from "@/components/drawing-set/stamp";
+import { TitleBlock, TitleCell } from "@/components/drawing-set/title-block";
 import {
   Dialog,
   DialogContent,
@@ -132,91 +128,51 @@ function ProfileHeader({
     { month: "long", year: "numeric" },
   );
 
+  // Laid out as the public profile is — a cover sheet with the firm's
+  // particulars in a title block — so what the provider edits here is what
+  // owners see. It was an orange gradient banner with a round avatar hanging
+  // off it and a row of icon stats, the pattern the public profile dropped.
   return (
-    <div className="relative">
-      {/* Cover Image */}
-      <div className="relative h-48 w-full overflow-hidden rounded-2xl bg-linear-to-br from-amber-600 via-amber-500 to-orange-500 sm:h-56">
-        {brand?.coverImageViewUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={brand.coverImageViewUrl}
-            alt=""
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <>
-            {/* Decorative pattern — only when there's no cover image */}
-            <div className="absolute inset-0 opacity-20">
-              <svg className="h-full w-full" viewBox="0 0 400 200">
-                <defs>
-                  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1" />
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#grid)" />
-              </svg>
-            </div>
-            <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
-          </>
-        )}
-        {isOwner && sp ? (
-          <BrandMediaUploader
-            kind="cover"
-            serviceProviderProfileId={sp.id}
-            currentViewUrl={brand?.coverImageViewUrl ?? undefined}
-            currentRawUrl={brand?.coverImageUrl ?? undefined}
-            variant="cover"
-          />
-        ) : null}
-      </div>
-
-      {/* Profile Info Section */}
-      <div className="relative px-4 sm:px-6">
-        {/* Avatar */}
-        <div className="absolute -top-16 left-1/2 -translate-x-1/2 sm:left-6 sm:translate-x-0">
-          {/* Single `rounded-full overflow-hidden` wrapper around both the
-              avatar and its overlays so the hover affordance and the
-              verified badge can never visually spill outside the circle.
-              Without this clip, the `border-4` on `<Avatar>` would push
-              its bounding box larger than the inner circle and any
-              absolutely-positioned child rendered as a sibling would
-              bleed into the 4px ring area. */}
-          <div className="relative size-32 overflow-hidden rounded-full sm:size-36">
-            <Avatar className="!size-full border-4 border-background shadow-xl [&]:after:hidden">
-              {brand?.logoViewUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={brand.logoViewUrl}
-                  alt={sp.displayName}
-                  className="size-full object-cover"
-                />
-              ) : (
-                <AvatarFallback className="bg-linear-to-br from-amber-500 to-orange-600 text-3xl font-bold text-white">
-                  {initials}
-                </AvatarFallback>
-              )}
-            </Avatar>
-            {sp.isVerified ? (
-              <div className="absolute bottom-2 right-2 z-10 rounded-full bg-primary p-1.5 shadow-lg">
-                <Check className="size-4 text-primary-foreground" />
-              </div>
-            ) : null}
-            {isOwner && sp ? (
-              <BrandMediaUploader
-                kind="avatar"
-                serviceProviderProfileId={sp.id}
-                currentViewUrl={brand?.logoViewUrl ?? undefined}
-                currentRawUrl={brand?.logoUrl ?? undefined}
-                variant="avatar"
-              />
-            ) : null}
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-2 pt-4 sm:pt-6">
+    <section className="overflow-hidden rounded-lg bg-card shadow-e1 ring-1 ring-foreground/10">
+      {brand?.coverImageViewUrl || isOwner ? (
+        <div
+          className={cn(
+            "relative w-full border-b border-border",
+            brand?.coverImageViewUrl ? "h-40 sm:h-52" : "hatch h-20",
+          )}
+        >
+          {brand?.coverImageViewUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={brand.coverImageViewUrl}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <p className="absolute inset-0 flex items-center justify-center font-mono text-2xs uppercase tracking-[0.14em] text-muted-foreground">
+              <span className="border border-foreground/20 bg-background px-2 py-1">
+                {t("header.noCover")}
+              </span>
+            </p>
+          )}
           {isOwner ? (
-            <>
+            <BrandMediaUploader
+              kind="cover"
+              serviceProviderProfileId={sp.id}
+              currentViewUrl={brand?.coverImageViewUrl ?? undefined}
+              currentRawUrl={brand?.coverImageUrl ?? undefined}
+              variant="cover"
+            />
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="flex flex-col gap-5 p-5 sm:p-6">
+        {/* Actions on their own row above the name: beside it they squeezed a
+            normal-length firm name onto two lines at this page's width. */}
+        <div className="flex flex-col gap-4">
+          {isOwner ? (
+            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
               {/* The only way in to the public profile now that the provider
                   directory is gone from web: it is how owners see this firm,
                   so a provider should be able to check it. */}
@@ -235,125 +191,108 @@ function ProfileHeader({
                 <Settings className="size-4" />
                 {t("actions.settings")}
               </Button>
-              <Button
-                size="sm"
-                className="gap-2"
-                onClick={onEdit}
-              >
+              <Button size="sm" className="gap-2" onClick={onEdit}>
                 <Edit3 className="size-4" />
                 {t("actions.editProfile")}
               </Button>
-            </>
+            </div>
           ) : null}
+          <div className="flex min-w-0 items-start gap-4">
+            <div className="relative size-16 shrink-0 overflow-hidden border border-foreground/25 bg-foreground/5 sm:size-20">
+              {brand?.logoViewUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={brand.logoViewUrl}
+                  alt={sp.displayName}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <span
+                  aria-hidden
+                  className="grid size-full place-items-center font-mono text-lg font-semibold text-foreground"
+                >
+                  {initials}
+                </span>
+              )}
+              {isOwner ? (
+                <BrandMediaUploader
+                  kind="avatar"
+                  serviceProviderProfileId={sp.id}
+                  currentViewUrl={brand?.logoViewUrl ?? undefined}
+                  currentRawUrl={brand?.logoUrl ?? undefined}
+                  variant="avatar"
+                />
+              ) : null}
+            </div>
+
+            <div className="flex min-w-0 flex-col gap-2 pt-0.5">
+              <p className="font-mono text-2xs uppercase tracking-[0.14em] text-muted-foreground">
+                {capabilityLabel} · {providerTypeLabel}
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="sheet-title text-3xl text-foreground sm:text-4xl">
+                  {sp.displayName}
+                </h1>
+                {sp.isVerified ? (
+                  <Stamp tone="success" seed={sp.id}>
+                    {t("header.verified")}
+                  </Stamp>
+                ) : null}
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        {/* Name & Username */}
-        <div className="mt-6 text-center sm:mt-8 sm:text-left">
-          <div className="flex items-center justify-center gap-2 sm:justify-start">
-            <h1 className="font-heading text-2xl font-bold text-foreground sm:text-3xl">
-              {sp.displayName}
-            </h1>
-            {sp.isVerified && (
-              <span className="rounded-full bg-primary/10 p-1">
-                <Shield className="size-5 text-primary" />
-              </span>
-            )}
-          </div>
-          <div className="mt-1 flex items-center justify-center gap-2 text-sm text-muted-foreground sm:justify-start">
-            <span className="rounded bg-muted px-2 py-0.5 text-xs font-medium">
-              {capabilityLabel}
-            </span>
-            <span className="text-muted-foreground/60">•</span>
-            <span>{providerTypeLabel}</span>
-          </div>
-        </div>
-
-        {/* Bio */}
-        {sp.bio && (
-          <p className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-muted-foreground sm:text-left">
+        {sp.bio ? (
+          <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
             {sp.bio}
           </p>
-        )}
+        ) : null}
 
-        {/* Meta Info — only render rows whose data we actually have */}
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground sm:justify-start">
-          {brand?.companyAddress ? (
-            <div className="flex items-center gap-1.5">
-              <MapPin className="size-4" />
-              <span>{brand.companyAddress}</span>
-            </div>
-          ) : null}
-          {brand?.website ? (
-            <div className="flex items-center gap-1.5">
-              <Globe className="size-4" />
-              <a
-                href={brand.website}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="max-w-xs truncate hover:text-primary hover:underline"
-              >
-                {brand.website.replace(/^https?:\/\//, "")}
-              </a>
-            </div>
-          ) : null}
-          <div className="flex items-center gap-1.5">
-            <Calendar className="size-4" />
-            <span>
-              {t("meta.joined", { date: memberSince })}
-            </span>
+        {/* Only rows whose data we actually have */}
+        {brand?.companyAddress || brand?.website ? (
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            {brand?.companyAddress ? (
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin className="size-4" />
+                {brand.companyAddress}
+              </span>
+            ) : null}
+            {brand?.website ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Globe className="size-4" />
+                <a
+                  href={brand.website}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="max-w-xs truncate hover:text-primary hover:underline"
+                >
+                  {brand.website.replace(/^https?:\/\//, "")}
+                </a>
+              </span>
+            ) : null}
           </div>
-        </div>
-
-        {/* Stats — only render the rows we actually have data for */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-8 border-t border-border pt-6 sm:justify-start">
-          <StatBlock
-            icon={Briefcase}
-            value={String(portfolioCount ?? 0)}
-            label={t("header.stats.portfolio")}
-          />
-          <StatBlock
-            icon={Star}
-            iconClassName="text-rating fill-rating"
-            value={
-              typeof sp.avgRating === "number" && sp.avgRating > 0
-                ? sp.avgRating.toFixed(1)
-                : t("header.stats.newRating")
-            }
-            label={t("header.stats.rating")}
-          />
-          {sp.yearsExperience !== null && sp.yearsExperience > 0 ? (
-            <StatBlock
-              icon={Award}
-              value={String(sp.yearsExperience)}
-              label={t("header.stats.yearsExperience")}
-            />
-          ) : null}
-        </div>
+        ) : null}
       </div>
-    </div>
-  );
-}
 
-/** Small icon + value + label row, used for the header stats strip. */
-function StatBlock({
-  icon: Icon,
-  value,
-  label,
-  iconClassName,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  value: string;
-  label: string;
-  iconClassName?: string;
-}) {
-  return (
-    <div className="text-center sm:text-left">
-      <div className="flex items-center justify-center gap-1.5 sm:justify-start">
-        <Icon className={cn("size-5 text-primary", iconClassName)} />
-        <span className="text-xl font-bold text-foreground">{value}</span>
-      </div>
-      <span className="text-xs text-muted-foreground">{label}</span>
-    </div>
+      <TitleBlock className="w-full border-x-0 border-b-0">
+        <TitleCell label={t("header.stats.portfolio")} grow>
+          {portfolioCount ?? 0}
+        </TitleCell>
+        <TitleCell label={t("header.stats.rating")} grow>
+          {typeof sp.avgRating === "number" && sp.avgRating > 0
+            ? `${sp.avgRating.toFixed(1)} / 5`
+            : t("header.stats.newRating")}
+        </TitleCell>
+        <TitleCell label={t("header.stats.yearsExperience")} grow>
+          {sp.yearsExperience ?? "—"}
+        </TitleCell>
+        <TitleCell label={t("header.stats.joined")} grow>
+          {memberSince}
+        </TitleCell>
+      </TitleBlock>
+    </section>
   );
 }
 

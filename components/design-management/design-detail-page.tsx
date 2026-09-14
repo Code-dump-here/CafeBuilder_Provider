@@ -99,7 +99,7 @@ function designToVersion(d: Design): DesignVersion {
     // produced it.
     revisionCount: d.revisionCount,
     changeSummary: d.changeSummary ?? null,
-    drawings: d.images.map((img) => imageToDrawing(img, d)),
+    drawings: d.images.map((img, index) => imageToDrawing(img, d, index)),
   };
 }
 
@@ -126,12 +126,14 @@ function mapDesignStatus(
   }
 }
 
-function imageToDrawing(img: DesignImage, d: Design): DesignDrawing {
+function imageToDrawing(img: DesignImage, d: Design, index: number): DesignDrawing {
   return {
     id: img.id,
     versionId: d.id,
     name: img.caption ?? `Image #${img.id}`,
-    code: `IMG-${img.id}`,
+    // A sheet-style number by upload order. `IMG-{id}` printed the whole
+    // UUID in the viewer header.
+    code: `DWG-${String(index + 1).padStart(2, "0")}`,
     category: mapDesignTypeToCategory(d.type),
     thumbnailUrl: img.viewUrl,
     scale: null,
@@ -1112,9 +1114,21 @@ function DesignImageViewer({
   }, [image, isDownloading, t, version]);
 
   if (!image) {
+    // An unfilled sheet on the drafting ground, with its border and an empty
+    // title block, rather than one line of grey text in a blank column.
     return (
-      <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-muted-foreground">
-        {t("viewer.empty")}
+      <div className="drafting-ground flex flex-1 items-center justify-center rounded-xl border border-border/60 p-6">
+        <div className="relative flex aspect-[3/2] w-full max-w-2xl flex-col border-2 border-foreground/25 bg-background/85 shadow-e1">
+          <div className="hatch m-3 flex flex-1 items-center justify-center border border-foreground/15">
+            <p className="max-w-xs border border-foreground/20 bg-background px-4 py-3 text-center text-sm text-muted-foreground">
+              {t("viewer.empty")}
+            </p>
+          </div>
+          <div className="ms-auto me-3 mb-3 flex border border-foreground/25 font-mono text-2xs uppercase tracking-[0.12em] text-muted-foreground">
+            <span className="border-e border-foreground/25 px-3 py-1.5">{version.name}</span>
+            <span className="px-3 py-1.5 font-semibold text-foreground">{version.code}</span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -1137,7 +1151,7 @@ function DesignImageViewer({
       </header>
 
       {/* Image area */}
-      <div className="relative flex-1 bg-muted/40 px-4 py-4">
+      <div className="drafting-ground relative flex-1 px-4 py-4">
         <div className="mx-auto flex h-full max-w-5xl items-center justify-center">
           {image.thumbnailUrl && !imgError ? (
             /* The white plate stays light in both themes on purpose: a
