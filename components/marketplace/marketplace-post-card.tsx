@@ -18,6 +18,7 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import type { MarketplacePost } from "@/features/projects/marketplace-types";
 import { formatVnd, formatVndCompact } from "@/lib/format-currency";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
 
 // ---------------------------------------------------------------------------
 // Locale-aware formatters (kept inline — no separate util file for one-off).
@@ -49,24 +50,12 @@ function formatDate(date: Date, locale: string) {
 // ---------------------------------------------------------------------------
 // Status / service-tone — keeps the palette restrained (3 tones max).
 
-const STATUS_TONE: Record<
-  MarketplacePost["status"],
-  { dot: string; pill: string }
-> = {
-  open: {
-    dot: "bg-success",
-    pill:
-      "border-success/50 bg-success-muted text-success-muted-foreground",
-  },
-  closed: {
-    dot: "bg-muted-foreground/50",
-    pill: "border-border bg-muted text-muted-foreground",
-  },
-  cancelled: {
-    dot: "bg-destructive",
-    pill:
-      "border-destructive/30 bg-destructive/10 text-destructive",
-  },
+// OPEN / CLOSED / CANCELLED stamped on the brief itself. The pulsing dot went
+// with the pill: a stamp is a settled mark, and the word already says open.
+const STATUS_STAMP: Record<MarketplacePost["status"], StampTone> = {
+  open: "success",
+  closed: "neutral",
+  cancelled: "danger",
 };
 
 const SERVICE_ICON: Record<
@@ -89,8 +78,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
   const t = useTranslations("Marketplace.card");
   const locale = useLocale();
 
-  const status = STATUS_TONE[post.status];
-  const ServiceIcon = SERVICE_ICON[post.serviceKind];
+    const ServiceIcon = SERVICE_ICON[post.serviceKind];
   const budget = formatBudget(post, locale);
 
   // Derive the days-to-deadline once on mount via `useSyncExternalStore`.
@@ -123,23 +111,9 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
     >
       {/* Top: status + service kind. */}
       <header className="flex items-start justify-between gap-3">
-        <Badge
-          variant="outline"
-          className={cn(
-            "gap-1.5 rounded-full border px-2.5 py-1 text-2xs font-semibold tracking-wide",
-            status.pill,
-          )}
-        >
-          <span
-            aria-hidden
-            className={cn(
-              "size-1.5 shrink-0 rounded-full",
-              status.dot,
-              post.status === "open" && "animate-pulse",
-            )}
-          />
+        <Stamp size="sm" tone={STATUS_STAMP[post.status]} seed={post.id}>
           {t(`status.${post.status}`)}
-        </Badge>
+        </Stamp>
 
         <Badge
           variant="secondary"

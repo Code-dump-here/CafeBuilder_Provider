@@ -3,7 +3,6 @@
 import { useFormatter, useTranslations } from "next-intl";
 import {
   CalendarDays,
-  FlagTriangleRight,
   TriangleAlert,
 } from "lucide-react";
 
@@ -21,6 +20,14 @@ import type {
   MilestonePhase,
   MilestoneStatus,
 } from "@/lib/contractor/construction-overview-data";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
+
+const MILESTONE_STAMP: Record<MilestoneStatus, StampTone> = {
+  completed: "success",
+  inProgress: "warning",
+  blocked: "danger",
+  upcoming: "neutral",
+};
 
 interface MilestoneDetailCardProps {
   phase: MilestonePhase;
@@ -75,14 +82,9 @@ export function MilestoneDetailCard({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium ${tone.className}`}
-              >
-                {phase.status === "inProgress" ? (
-                  <FlagTriangleRight className="size-3" aria-hidden />
-                ) : null}
+              <Stamp size="sm" tone={MILESTONE_STAMP[phase.status]} seed={phase.id}>
                 {tStatus(phase.status)}
-              </span>
+              </Stamp>
               {phase.blockerCount > 0 ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-danger/15 px-2 py-0.5 text-2xs font-medium text-danger-muted-foreground">
                   <TriangleAlert className="size-3" aria-hidden />

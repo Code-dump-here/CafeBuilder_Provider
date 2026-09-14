@@ -67,6 +67,7 @@ import {
   type ChangeOrderKind,
   type ChangeOrderStatus,
 } from "@/features/projects/change-order-types";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
 
 /** Select của shadcn không nhận value rỗng — dùng sentinel cho "không gắn hạng mục". */
 const NO_MILESTONE = "__none__";
@@ -79,12 +80,14 @@ const FILTERS: readonly (ChangeOrderStatus | "all")[] = [
 ] as const;
 
 /** Status → badge tint. `pending` is the only one that still wants a decision. */
-const STATUS_VARIANT: Record<ChangeOrderStatus, "default" | "secondary" | "destructive"> =
-  {
-    pending: "default",
-    accepted: "secondary",
-    rejected: "destructive",
-  };
+// By meaning, not by Badge variant. The variants had it backwards: an accepted
+// change order was grey ("secondary") and a pending one wore the brand colour
+// ("default"), so the settled record looked less settled than the open one.
+const STATUS_STAMP: Record<ChangeOrderStatus, StampTone> = {
+  pending: "warning",
+  accepted: "success",
+  rejected: "danger",
+};
 
 export default function ChangeOrdersPage() {
   const t = useTranslations("ChangeOrders");
@@ -296,9 +299,9 @@ export default function ChangeOrdersPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex min-w-0 flex-col gap-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant={STATUS_VARIANT[order.status]}>
+                        <Stamp size="sm" tone={STATUS_STAMP[order.status]} seed={order.id}>
                           {t(`status.${order.status}`)}
-                        </Badge>
+                        </Stamp>
                         <Badge variant="outline">{t(`kind.${order.kind}`)}</Badge>
                         {order.constructionItemName ? (
                           <Badge variant="secondary" className="font-normal">

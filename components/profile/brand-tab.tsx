@@ -68,6 +68,7 @@ import {
   type ProviderSocialLink,
   type SocialPlatform,
 } from "@/features/service-provider-profiles/brand-types";
+import { Stamp } from "@/components/drawing-set/stamp";
 
 interface BrandTabProps {
   serviceProviderProfileId: string;
@@ -324,13 +325,14 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
                     <Badge variant="outline">{t(`certificateKind.${cert.kind}`)}</Badge>
                     {cert.name}
                     {cert.isVerified ? (
-                      <Badge variant="secondary">
-                        <BadgeCheck className="size-3" aria-hidden />
+                      <Stamp size="sm" tone="success" seed={cert.id}>
                         {t("certificates.verified")}
-                      </Badge>
+                      </Stamp>
                     ) : null}
                     {cert.isExpired ? (
-                      <Badge variant="destructive">{t("certificates.expired")}</Badge>
+                      <Stamp size="sm" tone="danger" seed={cert.id + "expired"}>
+                        {t("certificates.expired")}
+                      </Stamp>
                     ) : null}
                   </p>
                   <p className="text-xs text-muted-foreground">

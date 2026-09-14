@@ -109,17 +109,34 @@ const CONTRACTS = page([
   },
 ]);
 
-const DESIGNS = page([
-  { id: "d1", projectWorkingId: WORKING_ID, name: "Ground floor plan", version: 3.0,
-    status: "approved", reason: null, createdAt: NOW, updatedAt: NOW, images: [], attachments: [] },
-  { id: "d2", projectWorkingId: WORKING_ID, name: "Bar elevation", version: 2.0,
-    status: "revision", reason: "Move the till point away from the service door.",
-    createdAt: NOW, updatedAt: NOW, images: [], attachments: [] },
-  { id: "d3", projectWorkingId: WORKING_ID, name: "Lighting layout", version: 1.0,
-    status: "submitted", reason: null, createdAt: NOW, updatedAt: NOW, images: [], attachments: [] },
-  { id: "d4", projectWorkingId: WORKING_ID, name: "Signage concepts", version: 0.2,
-    status: "in_progress", reason: null, createdAt: NOW, updatedAt: NOW, images: [], attachments: [] },
-]);
+// Shaped like the current Design type: `title`, a string `version`, `type`,
+// `changeSummary` and `revisionCount`. The older fixture still used `name` and
+// a numeric version, from before the API changed, so the detail page never
+// resolved a design and sat on "Loading design…".
+const DESIGN_ROWS = [
+  { id: "d1", title: "Ground floor plan", version: "3.0", type: "layout_2d", status: "approved",
+    reason: null, changeSummary: "Moved the bar run to the north wall.", revisionCount: 2 },
+  { id: "d2", title: "Bar elevation", version: "2.0", type: "technical_drawing", status: "revision",
+    reason: "Move the till point away from the service door.", changeSummary: null, revisionCount: 1 },
+  { id: "d3", title: "Lighting layout", version: "1.0", type: "technical_drawing", status: "submitted",
+    reason: null, changeSummary: "First issue for review.", revisionCount: 0 },
+  { id: "d4", title: "Signage concepts", version: "0.2", type: "concept", status: "in_progress",
+    reason: null, changeSummary: null, revisionCount: 0 },
+].map((d) => ({
+  ...d, projectWorkingId: WORKING_ID, createdBy: "00000000-0000-4000-8000-000000000001",
+  createdAt: NOW, updatedAt: NOW, images: [],
+}));
+
+const DESIGNS = page(DESIGN_ROWS);
+
+// `/api/designs/{id}` answers with that design, `/api/designs/{id}/versions`
+// with an empty snapshot history, and the list URL with the page.
+const designs = (url: string) => {
+  const match = url.match(/\/api\/designs\/([^/?]+)(\/versions)?/);
+  if (!match) return DESIGNS;
+  if (match[2]) return page([]);
+  return DESIGN_ROWS.find((d) => d.id === match[1]) ?? null;
+};
 
 const CONSTRUCTION_ITEMS = page([
   // `parentId: null` marks a top-level phase. The milestones board filters on
@@ -572,17 +589,167 @@ const portfolios = (url: string) => {
   ]);
 };
 
+// ─── Status-bearing records ───────────────────────────────────────────────
+// One record per status, so every stamp tone on these screens can be seen
+// without a backend: quotations run draft → superseded, payment batches due →
+// confirmed, change orders pending / accepted / rejected.
+const QUOTATION_ROWS = [
+  ["q1", 4, "Design & build — revised after site survey", "accepted", 289_000_000],
+  ["q2", 3, "Design & build — mezzanine option", "revision_requested", 312_500_000],
+  ["q3", 2, "Design & build — first pricing", "superseded", 276_000_000],
+  ["q4", 1, "Joinery package only", "rejected", 94_000_000],
+  ["q5", 5, "Signage and exterior lighting", "sent", 38_400_000],
+  ["q6", 6, "Terrace extension (draft)", "draft", 61_000_000],
+].map(([id, version, title, status, total]) => ({
+  id, applyId: null, projectWorkingId: WORKING_ID, version, title,
+  note: null, totalAmount: total, estimatedDurationDays: 54,
+  freeRevisionCount: 2, extraRevisionFee: 1_500_000, status,
+  revisionReason: status === "revision_requested" ? "Split the mezzanine into its own instalment." : null,
+  rejectReason: status === "rejected" ? "Going with a single design-and-build contract instead." : null,
+  sentAt: status === "draft" ? null : NOW, respondedAt: null,
+  lockedAt: status === "accepted" ? NOW : null, isLocked: status === "accepted",
+  providerName: "Xưởng Mộc Bình Minh",
+  serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+  providerAvgRating: 4, providerYearsExperience: 8, providerIsVerified: true,
+  items: [], paymentTerms: [], attachments: [], createdAt: NOW, updatedAt: NOW,
+}));
+
+const quotations = (url: string) =>
+  QUOTATION_ROWS.find((q) => url.includes("/api/quotations/" + q.id)) ?? page(QUOTATION_ROWS);
+
+const PAYMENT_BATCH_ROWS = [
+  ["pb1", 1, "Deposit on signing", 30, 86_700_000, "confirmed"],
+  ["pb2", 2, "Bar carcass & plumbing complete", 30, 86_700_000, "proof_submitted"],
+  ["pb3", 3, "Electrical first fix signed off", 25, 72_250_000, "pending"],
+  ["pb4", 4, "Handover", 15, 43_350_000, "rejected"],
+].map(([id, order, name, pct, amount, status]) => ({
+  id, contractId: "c1", constructionItemId: null, constructionItemName: null,
+  changeOrderId: null, sortOrder: order, name, percentage: pct, amount,
+  dueAt: "2026-10-01", status,
+  proofSubmittedAt: status === "pending" ? null : NOW,
+  confirmedAt: status === "confirmed" ? NOW : null, confirmedBy: null,
+  rejectReason: status === "rejected" ? "Transfer reference doesn't match the amount." : null,
+  note: null, paidAmount: status === "confirmed" ? amount : 0,
+  proofs: [], createdAt: NOW, updatedAt: NOW,
+}));
+
+const paymentBatches = (url: string) =>
+  PAYMENT_BATCH_ROWS.find((b) => url.includes("/api/payment-batches/" + b.id)) ?? page(PAYMENT_BATCH_ROWS);
+
+const CHANGE_ORDER_ROWS = [
+  ["co1", "scope_change", "Add a service hatch to the kitchen wall", 12_800_000, "accepted"],
+  ["co2", "material_change", "Oak veneer instead of laminate on the bar front", 9_600_000, "pending"],
+  ["co3", "extra_revision", "Third revision of the signage concept", 1_500_000, "rejected"],
+].map(([id, kind, title, amount, status]) => ({
+  id, projectWorkingId: WORKING_ID, designId: null, constructionItemId: null,
+  constructionItemName: null, kind, title,
+  reason: "Requested on site after the first-fix walkthrough.", amount,
+  revisionNo: kind === "extra_revision" ? 3 : null, status,
+  requestedByParty: "provider", createdBy: null, respondedBy: null,
+  respondedAt: status === "pending" ? null : NOW,
+  rejectReason: status === "rejected" ? "Covered by the free revisions in the quotation." : null,
+  createdAt: NOW, updatedAt: NOW, paymentBatchId: null, paymentBatchStatus: null,
+  needsPricing: false,
+}));
+
+const CHANGE_ORDER_SUMMARY = {
+  projectWorkingId: WORKING_ID, contractValue: 289_000_000,
+  acceptedAmount: 12_800_000, pendingAmount: 9_600_000, totalCommitted: 301_800_000,
+  acceptedCount: 1, pendingCount: 1, rejectedCount: 1,
+};
+
+const changeOrders = (url: string) =>
+  CHANGE_ORDER_ROWS.find((c) => url.includes("/api/change-orders/" + c.id)) ?? page(CHANGE_ORDER_ROWS);
+
+// ─── Cost summaries ────────────────────────────────────────────────────────
+// The construction-items route used to answer these too, so the overview's
+// cost card got a page of milestones where it expected summaries, reached for
+// `item.children` and took the whole screen down. Built from the same four
+// milestones, with actuals only where work has happened.
+const COST_ROWS = CONSTRUCTION_ITEMS.items.map((m, i) => {
+  const estimated = [44_850_000, 89_700_000, 29_900_000, 134_550_000][i] ?? 0;
+  const actual = m.status === "completed" ? estimated * 1.04 : m.status === "in_progress" ? estimated * 0.55 : null;
+  return {
+    constructionItemId: m.id, name: m.name, category: m.category, status: m.status,
+    estimatedLaborCost: estimated * 0.4, actualLaborCost: actual === null ? null : actual * 0.4,
+    estimatedMaterialCost: estimated * 0.6, actualMaterialCost: actual === null ? null : actual * 0.6,
+    estimatedCost: estimated, actualCost: actual,
+    childrenEstimatedCost: 0, childrenActualCost: null,
+    totalEstimatedCost: estimated, totalActualCost: actual,
+    variance: actual === null ? null : actual - estimated,
+    missingActualMaterialLines: m.status === "in_progress" ? 2 : 0,
+    missingActualLaborLines: m.status === "in_progress" ? 1 : 0,
+    startAt: m.startAt, estimateAt: m.estimateAt,
+    plannedDurationDays: 10, actualDurationDays: m.status === "completed" ? 11 : null,
+    children: [],
+  };
+});
+
+const ENGAGEMENT_COST_SUMMARY = (() => {
+  const sum = (k: "totalEstimatedCost" | "estimatedLaborCost" | "estimatedMaterialCost") =>
+    COST_ROWS.reduce((a, r) => a + (r[k] ?? 0), 0);
+  const actual = COST_ROWS.reduce((a, r) => a + (r.totalActualCost ?? 0), 0);
+  return {
+    projectWorkingId: WORKING_ID,
+    estimatedLaborCost: sum("estimatedLaborCost"), actualLaborCost: actual * 0.4,
+    estimatedMaterialCost: sum("estimatedMaterialCost"), actualMaterialCost: actual * 0.6,
+    totalEstimatedCost: sum("totalEstimatedCost"), totalActualCost: actual,
+    variance: null, missingActualMaterialLines: 2, missingActualLaborLines: 1,
+    rootItemCount: COST_ROWS.length,
+    acceptedChangeOrderAmount: 12_800_000, pendingChangeOrderAmount: 9_600_000,
+    totalEstimatedCostWithChangeOrders: sum("totalEstimatedCost") + 12_800_000,
+    items: COST_ROWS,
+  };
+})();
+
+const itemCostSummary = (url: string) =>
+  COST_ROWS.find((r) => url.includes("/api/construction-items/" + r.constructionItemId + "/")) ?? COST_ROWS[0];
+
+// ─── Marketplace briefs ───────────────────────────────────────────────────
+// One per post status. Demo mode ignores the status filter, so the grid shows
+// all three and the OPEN / CLOSED / CANCELLED stamps can be compared side by
+// side.
+const POSTS = page([
+  ["p1", "Nhà Nâu Coffee — Quận 1", "123 Nguyễn Huệ, Quận 1, Hồ Chí Minh", 420_000_000, 86.5, "both",
+   "Design and fit-out for an 18-seat espresso bar", "open", "2026-10-15"],
+  ["p2", "Trạm Trà — Hai Bà Trưng", "8 Lò Đúc, Hai Bà Trưng, Hà Nội", 180_000_000, 42, "design",
+   "Concept and layout for a tea counter with takeaway window", "closed", "2026-08-30"],
+  ["p3", "Góc Sân Café — Đà Nẵng", "56 Bạch Đằng, Hải Châu, Đà Nẵng", 650_000_000, 140, "construction",
+   "Build-out of a two-floor café from approved drawings", "cancelled", "2026-09-05"],
+].map(([id, projectName, projectAddress, projectBudget, projectAreaM2, serviceKind, title, status, deadline]) => ({
+  id, projectShopOwnerId: "11111111-1111-4111-8111-111111111111", projectName, projectAddress,
+  projectBudget, projectAreaM2, serviceKind, title,
+  description: "Brief posted by the owner with floor area, budget and the service needed.",
+  status, submissionDeadline: deadline + "T00:00:00Z", createdAt: NOW, updatedAt: NOW,
+})));
+
 const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/auth\/me$/, DEMO_ACCOUNT],
   [/\/api\/project-workings/, ENGAGEMENTS],
   [/\/api\/contracts/, CONTRACTS],
-  [/\/api\/designs/, DESIGNS],
+  [/\/api\/designs/, designs],
+  // Both cost-summary shapes before the items collection, which matches them too.
+  [/\/api\/construction-items\/cost-summary/, ENGAGEMENT_COST_SUMMARY],
+  [/\/api\/construction-items\/[^/?]+\/cost-summary/, itemCostSummary],
   [/\/api\/construction-items/, CONSTRUCTION_ITEMS],
   [/\/api\/issue-types/, ISSUE_TYPES],
   [/\/api\/issues/, ISSUES],
   [/\/api\/project-shop-owners\/[^/?]+/, PROJECT],
   [/\/api\/reviews\/providers\/[^/?]+\/summary/, REVIEW_SUMMARY],
   [/\/api\/reviews/, REVIEWS],
+  [/\/api\/posts(\/|\?|$)/, POSTS],
+  [/\/api\/quotations(\/|\?|$)/, quotations],
+  [/\/api\/payment-batches(\/|\?|$)/, paymentBatches],
+  [/\/api\/change-orders\/summary/, CHANGE_ORDER_SUMMARY],
+  // Before the change-orders collection, which would otherwise answer this
+  // with a paged list in a shape the design page does not expect. Two of two
+  // free revisions used, so the quota meter shows its over-the-limit state.
+  [/\/api\/change-orders\/revision-quota\//, {
+    designId: "d2", projectWorkingId: WORKING_ID, quotationId: "q1",
+    freeRevisionCount: 2, usedRevisionCount: 2, engagementUsedRevisionCount: 3,
+    remainingFreeRevisions: 0, nextRevisionCharged: true, extraRevisionFee: 1_500_000,
+  }],
+  [/\/api\/change-orders(\/|\?|$)/, changeOrders],
   // Specific paths before their collections: brand sub-resources before the
   // brand itself, a profile id before the paged list.
   [/\/api\/provider-brands\/[^/?]+\/(certificates|service-areas|social-links)/, []],

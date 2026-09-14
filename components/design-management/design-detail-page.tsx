@@ -62,6 +62,15 @@ import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { useRevisionQuota } from "@/features/projects/use-change-orders";
 import { Textarea } from "@/components/ui/textarea";
 import type { RevisionQuota } from "@/features/projects/change-order-types";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
+
+// Same meanings the version pill already used.
+const DESIGN_STAMP: Record<string, StampTone> = {
+  in_progress: "info",
+  submitted: "warning",
+  approved: "success",
+  revision: "danger",
+};
 
 // ─── Adapter: Design → DesignVersion ──────────────────────────────────────
 //
@@ -1256,9 +1265,9 @@ function VersionInfoRail({
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="font-mono text-sm font-bold text-foreground">{version.code}</span>
-          <span className={cn("rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide", statusCfg.color)}>
+          <Stamp size="sm" tone={DESIGN_STAMP[version.status]} seed={version.code}>
             {statusCfg.label}
-          </span>
+          </Stamp>
         </div>
         <h2 className="text-lg font-semibold tracking-tight text-foreground">{version.name}</h2>
         <p className="text-xs text-muted-foreground">

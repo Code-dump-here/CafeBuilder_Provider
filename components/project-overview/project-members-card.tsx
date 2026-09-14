@@ -26,6 +26,7 @@ import {
   type ProjectProviderCapability,
   type ProjectProviderStatus,
 } from "@/features/projects/project-detail-types";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
 
 // ---------------------------------------------------------------------------
 // Colour palette — deterministic per provider so each row stays distinct
@@ -280,14 +281,9 @@ function StatusBadge({
 }) {
   const t = useTranslations("ProjectsOverview.members.providerStatus");
   return (
-    <span
-      className={
-        "shrink-0 rounded-full border px-1.5 py-0.5 text-2xs font-medium uppercase tracking-wide " +
-        STATUS_TONE[status]
-      }
-    >
+    <Stamp size="sm" tone={STATUS_TONE[status]} seed={status}>
       {t(status)}
-    </span>
+    </Stamp>
   );
 }
 
@@ -309,15 +305,12 @@ const CAPABILITY_TONE: Record<ProjectProviderCapability, string> = {
 };
 
 /** Tone class per status — survives dark mode via paired CSS vars. */
-const STATUS_TONE: Record<ProjectProviderStatus, string> = {
-  accepted:
-    "bg-success/10 text-success-muted-foreground border-success/30",
-  requested:
-    "bg-warning/10 text-warning-muted-foreground border-warning/30",
-  completed:
-    "bg-info/10 text-info-muted-foreground border-info/30",
-  rejected: "bg-destructive/10 text-destructive border-destructive/30",
-  terminated: "bg-muted text-muted-foreground border-border/60",
+const STATUS_TONE: Record<ProjectProviderStatus, StampTone> = {
+  accepted: "success",
+  requested: "warning",
+  completed: "info",
+  rejected: "danger",
+  terminated: "neutral",
 };
 
 function RatingChip({ rating }: { rating: number }) {

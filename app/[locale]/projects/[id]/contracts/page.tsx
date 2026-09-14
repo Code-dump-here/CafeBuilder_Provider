@@ -14,7 +14,6 @@ import {
   Plus,
   Send,
   X,
-  XCircle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -49,6 +48,16 @@ import type { Quotation } from "@/features/projects/quotation-types";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatVnd } from "@/lib/format-currency";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
+
+// Contract lifecycle as stamps. Pending OTP waits on a signature, so it is a
+// warning; confirmed is signed.
+const CONTRACT_STAMP: Record<string, StampTone> = {
+  drafted: "neutral",
+  pending_otp: "warning",
+  confirmed: "success",
+  cancelled: "danger",
+};
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -419,35 +428,15 @@ function ContractCard({
     minute: "2-digit",
   });
 
-  const statusConfig = {
-    drafted: {
-      label: t("status.drafted"),
-      color: "text-muted-foreground",
-      bgColor: "bg-muted",
-      icon: FileText,
-    },
-    pending_otp: {
-      label: t("status.pendingOtp"),
-      color: "text-warning-muted-foreground",
-      bgColor: "bg-warning-muted",
-      icon: Clock,
-    },
-    confirmed: {
-      label: t("status.confirmed"),
-      color: "text-success-muted-foreground",
-      bgColor: "bg-success-muted",
-      icon: CheckCircle2,
-    },
-    cancelled: {
-      label: t("status.cancelled"),
-      color: "text-danger-muted-foreground",
-      bgColor: "bg-danger-muted",
-      icon: XCircle,
-    },
+  // Colour and icon now come from the stamp (CONTRACT_STAMP); only the label
+  // is left per status.
+  const statusLabel: Record<string, string> = {
+    drafted: t("status.drafted"),
+    pending_otp: t("status.pendingOtp"),
+    confirmed: t("status.confirmed"),
+    cancelled: t("status.cancelled"),
   };
-
-  const status = statusConfig[contract.status];
-  const StatusIcon = status.icon;
+  const status = { label: statusLabel[contract.status] };
 
   // Backend now requires the owner to trigger OTP send (the code always
   // emails the owner's own account regardless of who calls the endpoint,
@@ -463,12 +452,9 @@ function ContractCard({
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <CardTitle>{contract.title}</CardTitle>
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${status.color} ${status.bgColor}`}
-            >
-              <StatusIcon className="size-3" aria-hidden />
+            <Stamp size="sm" tone={CONTRACT_STAMP[contract.status]} seed={contract.id}>
               {status.label}
-            </span>
+            </Stamp>
             {/*
               Spec §5.1 — contracts anchored to an accepted quotation
               (quotationId != null) have their `agreedValue` locked and

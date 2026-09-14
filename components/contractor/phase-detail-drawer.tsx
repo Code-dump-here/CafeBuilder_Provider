@@ -8,7 +8,6 @@ import {
   CalendarDays,
   CheckCircle2,
   Circle,
-  FlagTriangleRight,
   TriangleAlert,
   X,
 } from "lucide-react";
@@ -30,6 +29,22 @@ import type { Issue } from "@/features/projects/issue-types";
 
 import type { MilestonePhase } from "@/lib/contractor/construction-overview-data";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
+
+const MILESTONE_STAMP: Record<string, StampTone> = {
+  completed: "success",
+  inProgress: "warning",
+  blocked: "danger",
+  upcoming: "neutral",
+};
+
+// Resolved is awaiting sign-off, closed is signed off — matching IssueStatusPill.
+const ISSUE_STAMP: Record<Issue["status"], StampTone> = {
+  open: "danger",
+  in_progress: "warning",
+  resolved: "info",
+  closed: "success",
+};
 
 interface PhaseDetailDrawerProps {
   phase: MilestonePhase | null;
@@ -170,20 +185,9 @@ export function PhaseDetailDrawer({
         {/* Header */}
         <SheetHeader className="flex-row items-start justify-between gap-3 border-b border-border/60 px-5 py-4">
           <div className="flex min-w-0 flex-col gap-1">
-            <span
-              className={cn(
-                "inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium",
-                STATUS_TONE[phase.status].className
-                  .split(" ")
-                  .filter((c) => c.startsWith("bg-") || c.startsWith("text-"))
-                  .join(" "),
-              )}
-            >
-              {phase.status === "inProgress" ? (
-                <FlagTriangleRight className="size-3" aria-hidden />
-              ) : null}
+            <Stamp size="sm" tone={MILESTONE_STAMP[phase.status] ?? "neutral"} seed={phase.id} className="w-fit">
               {tStatus(phase.status)}
-            </span>
+            </Stamp>
             <SheetTitle className="text-base">{phase.label}</SheetTitle>
             <SheetDescription>
               {phase.shortLabel} · {t("title")}
@@ -499,14 +503,9 @@ function IssueRow({
         <p className="text-sm font-medium text-foreground">
           {issue.issueTypeName}
         </p>
-        <span
-          className={cn(
-            "shrink-0 rounded-full px-2 py-0.5 text-2xs font-medium uppercase tracking-wide",
-            tone.badgeClass,
-          )}
-        >
+        <Stamp size="sm" tone={ISSUE_STAMP[issue.status]} seed={issue.id}>
           {statusLabel}
-        </span>
+        </Stamp>
       </div>
       {issue.cause ? (
         <p className="mt-1 text-xs text-muted-foreground">{issue.cause}</p>
@@ -525,23 +524,6 @@ function IssueRow({
 
 // ─── Tones (kept locally so the drawer is self-contained) ─────────────────────
 
-const STATUS_TONE: Record<
-  string,
-  { className: string }
-> = {
-  completed: {
-    className: "bg-success/15 text-success-muted-foreground",
-  },
-  inProgress: {
-    className: "bg-warning/15 text-warning-muted-foreground",
-  },
-  blocked: {
-    className: "bg-danger/15 text-danger-muted-foreground",
-  },
-  upcoming: {
-    className: "bg-muted text-muted-foreground",
-  },
-};
 
 const ISSUE_TONE: Record<
   Issue["status"],

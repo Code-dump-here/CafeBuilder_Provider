@@ -50,6 +50,7 @@ import {
 import { useMarketplacePosts } from "@/features/projects/use-marketplace";
 import { DEFAULT_FILTERS } from "@/features/projects/marketplace-types";
 import { resolveQuotationVariant } from "@/features/projects/quotation-variant";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
 
 /**
  * The provider's side of the quotation flow.
@@ -61,16 +62,15 @@ import { resolveQuotationVariant } from "@/features/projects/quotation-variant";
  * meant to inform had already been made.
  */
 
-const STATUS_VARIANT: Record<
-  QuotationStatus,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  draft: "outline",
-  sent: "default",
-  revision_requested: "default",
-  accepted: "secondary",
-  rejected: "destructive",
-  superseded: "outline",
+// A revision request asks the provider to act, so it is a warning rather
+// than sharing "sent"'s colour; accepted reads as success rather than grey.
+const STATUS_STAMP: Record<QuotationStatus, StampTone> = {
+  draft: "neutral",
+  sent: "info",
+  revision_requested: "warning",
+  accepted: "success",
+  rejected: "danger",
+  superseded: "neutral",
 };
 
 export default function ProviderQuotationsPage() {
@@ -327,9 +327,9 @@ toast.error(
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 flex-col gap-1.5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant={STATUS_VARIANT[quotation.status]}>
+                      <Stamp size="sm" tone={STATUS_STAMP[quotation.status]} seed={quotation.id}>
                         {t(`status.${quotation.status}`)}
-                      </Badge>
+                      </Stamp>
                       <Badge variant="outline">v{quotation.version}</Badge>
                       {quotation.isLocked ? (
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">

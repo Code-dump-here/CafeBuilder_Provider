@@ -53,6 +53,7 @@ import type {
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { formatVndParts } from "@/lib/format-currency";
 import { proxiedImageSrc } from "@/lib/image-proxy";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
 
 /**
  * The provider's side of instalment payments.
@@ -64,14 +65,14 @@ import { proxiedImageSrc } from "@/lib/image-proxy";
  * than buried in milestone editing.
  */
 
-const STATUS_VARIANT: Record<
-  PaymentBatchStatus,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  pending: "outline",
-  proof_submitted: "default",
-  confirmed: "secondary",
-  rejected: "destructive",
+// Due is a warning (someone has to act), proof submitted is informational
+// (waiting on the other side), confirmed is the money actually landing. The
+// Badge variants showed confirmed in grey.
+const STATUS_STAMP: Record<PaymentBatchStatus, StampTone> = {
+  pending: "warning",
+  proof_submitted: "info",
+  confirmed: "success",
+  rejected: "danger",
 };
 
 const FILTERS: readonly (PaymentBatchStatus | "all")[] = [
@@ -313,9 +314,9 @@ export function BatchHeader({ batch }: { batch: PaymentBatch }) {
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div className="flex min-w-0 flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={STATUS_VARIANT[batch.status]}>
+          <Stamp size="sm" tone={STATUS_STAMP[batch.status]} seed={batch.id}>
             {t(`status.${batch.status}`)}
-          </Badge>
+          </Stamp>
           {batch.percentage != null ? (
             <Badge variant="outline">{batch.percentage}%</Badge>
           ) : null}

@@ -1,9 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
 
 import type { IssueStatus } from "@/features/projects/issue-types";
+import { Stamp } from "@/components/drawing-set/stamp";
 
 interface IssueStatusPillProps {
   status: IssueStatus;
@@ -26,27 +26,15 @@ const TONE: Record<IssueStatus, "danger" | "warning" | "info" | "success"> = {
   closed: "success",
 };
 
-const STYLES: Record<IssueStatus, string> = {
-  open: "bg-danger-muted text-danger-muted-foreground ring-danger/20",
-  in_progress: "bg-warning-muted text-warning-muted-foreground ring-warning/20",
-  resolved: "bg-info-muted text-info-muted-foreground ring-info/20",
-  closed: "bg-success-muted text-success-muted-foreground ring-success/20",
-};
+
 export function IssueStatusPill({ status, className }: IssueStatusPillProps) {
   const t = useTranslations("MilestoneManagement.issue.status");
   // `data-tone` so the pill's meaning is visible in the DOM and in tests,
   // not only encoded in a class string.
   const tone = TONE[status];
   return (
-    <span
-      data-tone={tone}
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium ring-1 ring-inset",
-        STYLES[status],
-        className,
-      )}
-    >
+    <Stamp size="sm" tone={tone} seed={status} className={className} data-tone={tone}>
       {t(status)}
-    </span>
+    </Stamp>
   );
 }

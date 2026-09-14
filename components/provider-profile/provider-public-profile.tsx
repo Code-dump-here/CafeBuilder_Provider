@@ -4,7 +4,6 @@ import * as React from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   Award,
-  BadgeCheck,
   Briefcase,
   Globe,
   Images,
@@ -39,6 +38,7 @@ import {
 } from "@/features/service-provider-profiles/use-providers";
 import { CapabilityBadge, RatingStars, VerifiedPill } from "./capability-badge";
 import { ReviewDimensionsList } from "./review-dimensions-list";
+import { Stamp } from "@/components/drawing-set/stamp";
 
 interface ProviderPublicProfileProps {
   profileId: string;
@@ -429,13 +429,14 @@ function BrandTab({ profileId }: { profileId: string }) {
                       <Badge variant="outline">{tKind(cert.kind)}</Badge>
                       {cert.name}
                       {cert.isVerified ? (
-                        <Badge variant="secondary">
-                          <BadgeCheck aria-hidden className="size-3" />
+                        <Stamp size="sm" tone="success" seed={cert.id}>
                           {t("brand.verified")}
-                        </Badge>
+                        </Stamp>
                       ) : null}
                       {cert.isExpired ? (
-                        <Badge variant="destructive">{t("brand.expired")}</Badge>
+                        <Stamp size="sm" tone="danger" seed={cert.id + "expired"}>
+                          {t("brand.expired")}
+                        </Stamp>
                       ) : null}
                     </p>
                     <p className="text-xs text-muted-foreground">

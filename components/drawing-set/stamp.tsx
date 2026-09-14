@@ -34,7 +34,8 @@ export function Stamp({
   delayMs = 0,
   className,
   children,
-}: {
+  ...rest
+}: Omit<React.HTMLAttributes<HTMLSpanElement>, "children"> & {
   tone?: StampTone;
   size?: "sm" | "md" | "lg";
   /** Drives the tilt. Defaults to the label, so equal labels tilt equally. */
@@ -48,6 +49,7 @@ export function Stamp({
 
   return (
     <span
+      {...rest}
       data-slot="stamp"
       className={cn(
         "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap font-mono leading-none font-semibold uppercase",

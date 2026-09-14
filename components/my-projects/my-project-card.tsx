@@ -22,6 +22,7 @@ import type {
   MyProjectStatus,
   MyProjectWorking,
 } from "@/features/projects/my-projects-types";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
 
 // ─── Locale-aware formatters (kept inline — single use site) ────────────────
 
@@ -43,13 +44,10 @@ function formatDate(date: Date, locale: string): string {
 
 // ─── Status / contract-type tone ────────────────────────────────────────────
 
-const STATUS_TONE: Record<MyProjectStatus, string> = {
-  requested:
-    "border-info/50 bg-info-muted text-info-muted-foreground",
-  accepted:
-    "border-success/50 bg-success-muted text-success-muted-foreground",
-  completed:
-    "border-border bg-muted text-muted-foreground",
+const PROJECT_STAMP: Record<MyProjectStatus, StampTone> = {
+  requested: "info",
+  accepted: "success",
+  completed: "neutral",
 };
 
 const CONTRACT_ICON: Record<
@@ -120,9 +118,9 @@ export function MyProjectCard({ project, className }: MyProjectCardProps) {
           <ContractIcon className="me-1 size-3" aria-hidden />
           {contractTypeLabel}
         </Badge>
-        <Badge variant="outline" className={STATUS_TONE[project.status]}>
+        <Stamp size="sm" tone={PROJECT_STAMP[project.status]} seed={project.projectShopOwnerId + project.status}>
           {statusLabel}
-        </Badge>
+        </Stamp>
       </div>
 
       <div className="flex flex-col gap-1">
