@@ -245,7 +245,7 @@ function VersionListTableInner({
             </h2>
             {/* Tiny badge — surfaces the count of `Design` rows so the
                 user knows how many version entries they're scanning. */}
-            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <span className="rounded-full bg-muted px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
               {t("history.totalBadge", { count: versions.length })}
             </span>
           </div>
@@ -355,7 +355,7 @@ function VersionListTableInner({
                           {row.name}
                         </span>
                         {row.latestNote ? (
-                          <span className="line-clamp-1 text-[12px] text-muted-foreground">
+                          <span className="line-clamp-1 text-xs text-muted-foreground">
                             {row.latestNote}
                           </span>
                         ) : null}
@@ -383,6 +383,50 @@ function VersionListTableInner({
                       {t("table.drawingsCount", { count: row.drawingCount })}
                     </span>
                   ),
+                },
+                // Spec §6.3: `revisionCount` is the number of rounds the
+                // owner has requested. Rendered as a small badge so the
+                // provider can see how close they are to exceeding the
+                // free quota without opening each design.
+                {
+                  id: "revisionCount",
+                  header: t("table.revisions"),
+                  accessor: "revisionCount",
+                  align: "right",
+                  widthClass: "w-[8%]",
+                  sortable: true,
+                  cell: (row) =>
+                    row.revisionCount > 0 ? (
+                      <span
+                        title={t("table.revisionsTooltip", {
+                          count: row.revisionCount,
+                        })}
+                        className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-muted px-1.5 font-mono text-2xs font-semibold tabular-nums text-foreground/80"
+                      >
+                        {row.revisionCount}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground/60">·</span>
+                    ),
+                },
+                // Spec §6.5 / §8.3: provider-supplied change summary for
+                // the current round. Trimmed to one line so the row
+                // stays compact; the full text is in the detail page.
+                {
+                  id: "changeSummary",
+                  header: t("table.changeSummary"),
+                  accessor: "changeSummary",
+                  widthClass: "w-[20%]",
+                  cell: (row) =>
+                    row.changeSummary ? (
+                      <span className="line-clamp-1 text-xs text-foreground/80">
+                        {row.changeSummary}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground/60">
+                        {t("table.changeSummaryEmpty")}
+                      </span>
+                    ),
                 },
                 {
                   id: "updatedAt",
@@ -464,7 +508,7 @@ function VersionListTableInner({
       {isFetching && !isLoading && !isError ? (
         <p
           aria-live="polite"
-          className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
+          className="flex items-center justify-center gap-2 text-center text-2xs uppercase tracking-wider text-muted-foreground"
         >
           <Loader2 className="size-3 animate-spin" aria-hidden />
           {t("refreshing")}
@@ -483,7 +527,7 @@ function DesignsLoadingSkeleton() {
       {[0, 1, 2, 3].map((i) => (
         <div
           key={i}
-          className="flex items-center gap-3 rounded-md border border-border/40 bg-muted/20 px-3 py-3"
+          className="flex items-center gap-3 rounded-md bg-foreground/5 px-3 py-3"
         >
           <div className="size-9 animate-pulse rounded-md bg-muted" />
           <div className="flex flex-1 flex-col gap-1.5">

@@ -1,15 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { LogOut, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { useRouter } from "@/i18n/navigation";
 
 import { Button } from "@/components/ui/button";
 import { AppError } from "@/lib/http/errors";
-import { useLogoutMutation } from "@/features/auth/hooks";
 import { useUpdateServiceProviderProfileMutation } from "@/features/service-provider-profiles/hooks";
 import type { UpdateServiceProviderProfilePayload } from "@/features/service-provider-profiles/api";
 import type { NormalizedAccount } from "@/features/auth/auth-me-types";
@@ -57,13 +55,18 @@ function deriveDefaults(
 
 interface ProviderProfileEditorProps {
   account: NormalizedAccount;
+  /**
+   * Fired after a successful save. The parent typically uses this to
+   * close the dialog wrapping the editor. Defaults to no-op so the
+   * editor still works fine rendered standalone (e.g. inside the
+   * dedicated edit page used as a deep-link).
+   */
+  onSaved?: () => void;
 }
 
-export function ProviderProfileEditor({ account }: ProviderProfileEditorProps) {
+export function ProviderProfileEditor({ account, onSaved }: ProviderProfileEditorProps) {
   const t = useTranslations("Profile");
   const tErrors = useTranslations("Auth.errors");
-  const tSidebarNav = useTranslations("Sidebar.navUser");
-  const router = useRouter();
 
   const sp = account.serviceProvider!;
   const defaults = React.useMemo(() => deriveDefaults(account), [account]);
@@ -82,7 +85,6 @@ export function ProviderProfileEditor({ account }: ProviderProfileEditorProps) {
   });
 
   const updateMutation = useUpdateServiceProviderProfileMutation();
-  const logoutMutation = useLogoutMutation();
 
   // If the profile record is replaced mid-edit (e.g. cached `auth.me` is
   // refreshed between the user opening and saving the form), reconcile
@@ -123,6 +125,7 @@ export function ProviderProfileEditor({ account }: ProviderProfileEditorProps) {
     try {
       await updateMutation.mutateAsync({ id: sp.id, payload });
       toast.success(t("actions.saved"));
+      onSaved?.();
       // Mutating without changing values would leave `isDirty` true — force
       // a baseline reset so the save button greys out.
       reset({
@@ -151,7 +154,7 @@ export function ProviderProfileEditor({ account }: ProviderProfileEditorProps) {
       className="flex flex-col gap-8"
     >
       {/* ── Account identity block ───────────────────────────────────── */}
-      <div className="flex flex-col gap-2 rounded-xl border border-border bg-card px-4 py-3">
+      <div className="flex flex-col gap-2 rounded-xl bg-foreground/5 px-4 py-3">
         <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
           <Mail aria-hidden className="size-3.5" />
           {t("fields.emailLabel")}
@@ -159,7 +162,7 @@ export function ProviderProfileEditor({ account }: ProviderProfileEditorProps) {
         <div className="text-sm font-medium text-foreground">
           {account.email}
         </div>
-        <p className="text-[12px] leading-relaxed text-muted-foreground">
+        <p className="text-xs leading-relaxed text-muted-foreground">
           {t("fields.emailHelp")}
         </p>
       </div>
@@ -188,27 +191,6 @@ export function ProviderProfileEditor({ account }: ProviderProfileEditorProps) {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            className="text-xs"
-            disabled={logoutMutation.isPending}
-            onClick={() =>
-              logoutMutation.mutate(undefined, {
-                onSuccess: () => {
-                  toast.success(tSidebarNav("signOutSuccess"));
-                  router.replace("/");
-                },
-                onError: () => {
-                  toast.error(tSidebarNav("signOutError"));
-                },
-              })
-            }
-          >
-            <LogOut aria-hidden className="size-3.5" />
-            {t("actions.signOut")}
-          </Button>
           <Button
             type="submit"
             size="lg"

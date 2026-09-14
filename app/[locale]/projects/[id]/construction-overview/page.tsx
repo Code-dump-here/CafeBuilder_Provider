@@ -199,7 +199,7 @@ export default function ConstructionOverviewPage() {
     return (
       <div
         role="alert"
-        className="flex min-h-[40vh] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/60 bg-card/60 px-6 py-10 text-center"
+        className="flex min-h-[40vh] flex-col items-center justify-center gap-3 px-6 py-10 text-center"
       >
         <AlertTriangle aria-hidden className="size-5 text-muted-foreground" />
         <p className="text-sm text-muted-foreground">{t("milestoneError")}</p>
@@ -228,7 +228,7 @@ export default function ConstructionOverviewPage() {
     return (
       <div
         role="status"
-        className="flex min-h-[40vh] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/60 bg-card/60 px-6 py-10 text-center"
+        className="flex min-h-[40vh] flex-col items-center justify-center gap-3 px-6 py-10 text-center"
       >
         <ClipboardList aria-hidden className="size-6 text-muted-foreground" />
         <div className="flex flex-col gap-1">

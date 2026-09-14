@@ -99,7 +99,7 @@ export function ThreadDetail({ thread, onOpenInfo, onSend, onDeleteMessage, curr
 
   if (!thread) {
     return (
-      <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/20 p-8 text-center text-sm text-muted-foreground">
+      <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-muted-foreground">
         <MessageSquare aria-hidden className="mr-2 inline size-4" />
         {t("detail.empty")}
       </div>
@@ -230,10 +230,10 @@ function ThreadHeader({
           ) : null}
         </AvatarGroup>
         <div className="min-w-0">
-          <h1 className="truncate text-sm font-semibold text-foreground">
+          <h1 className="truncate text-base font-semibold text-foreground">
             {thread.title}
           </h1>
-          <p className="text-[12px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             <span
               aria-hidden
               className="mr-1 inline-block size-1.5 rounded-full bg-success align-middle"
@@ -286,7 +286,7 @@ function DateSeparator({ label }: { label: string }) {
   return (
     <div
       role="separator"
-      className="my-2 flex items-center justify-center gap-2 px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+      className="my-2 flex items-center justify-center gap-2 px-2 text-2xs font-semibold uppercase tracking-wider text-muted-foreground"
     >
       <span aria-hidden className="h-px flex-1 bg-border/60" />
       <span>{label}</span>
@@ -349,7 +349,7 @@ function MessageBurst({
         )}
       >
         {!isMine ? (
-          <header className="flex flex-wrap items-baseline gap-2 text-[12px] text-muted-foreground">
+          <header className="flex flex-wrap items-baseline gap-2 text-xs text-muted-foreground">
             <span className="font-semibold text-foreground">
               {burst.author.fullName}
             </span>
@@ -358,7 +358,7 @@ function MessageBurst({
             <span>{firstAt}</span>
           </header>
         ) : (
-          <header className="flex flex-wrap items-baseline justify-end gap-2 text-[12px] text-muted-foreground">
+          <header className="flex flex-wrap items-baseline justify-end gap-2 text-xs text-muted-foreground">
             <span aria-hidden>·</span>
             <span>{firstAt}</span>
           </header>
@@ -458,7 +458,7 @@ function AttachmentChip({ attachment }: { attachment: MessageAttachment }) {
     <li>
       <button
         type="button"
-        className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-card px-2 py-1 text-[12px] font-medium text-foreground hover:bg-muted"
+        className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-card px-2 py-1 text-xs font-medium text-foreground hover:bg-muted"
       >
         <Paperclip aria-hidden className="size-3 text-muted-foreground" />
         <span className="max-w-[20ch] truncate">{attachment.title}</span>
@@ -476,7 +476,7 @@ function TypingIndicator({ name }: { name: string }) {
   return (
     <div
       aria-live="polite"
-      className="flex items-center gap-2 px-2 text-[12px] text-muted-foreground"
+      className="flex items-center gap-2 px-2 text-xs text-muted-foreground"
     >
       <span className="inline-flex items-center gap-0.5 rounded-full bg-card px-2 py-1 ring-1 ring-border/40">
         <Dot className="size-1.5 animate-pulse" />

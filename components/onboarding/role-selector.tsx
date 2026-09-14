@@ -99,7 +99,7 @@ export function RoleSelector({ selected, onChange, error }: RoleSelectorProps) {
                 )}>
                   {t(`roles.${role.value}.name`)}
                 </p>
-                <p className="text-[11px] leading-tight text-muted-foreground">
+                <p className="text-xs leading-tight text-muted-foreground">
                   {t(`roles.${role.value}.shortDesc`)}
                 </p>
               </div>
@@ -115,7 +115,7 @@ export function RoleSelector({ selected, onChange, error }: RoleSelectorProps) {
 
       {/* Role detail description */}
       {selected && (
-        <p className="rounded-lg border border-border bg-muted/30 px-4 py-2.5 text-xs text-muted-foreground">
+        <p className="rounded-lg bg-foreground/5 px-4 py-2.5 text-xs text-muted-foreground">
           {t(`roles.${selected}.detailDesc`)}
         </p>
       )}

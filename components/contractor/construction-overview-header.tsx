@@ -1,12 +1,14 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
-import { CalendarDays, ClipboardList, PenLine, TrendingUp } from "lucide-react";
+import { ClipboardList, PenLine } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { projectActionToast } from "@/components/project-overview/project-action-toast";
 
 import type { ConstructionOverviewData } from "@/lib/contractor/construction-overview-data";
+import { SHEET } from "@/components/drawing-set/sheet-title";
+import { TitleBlock, TitleCell } from "@/components/drawing-set/title-block";
 
 interface ConstructionOverviewHeaderProps {
   data: ConstructionOverviewData;
@@ -28,11 +30,11 @@ export function ConstructionOverviewHeader({
   const format = useFormatter();
 
   return (
-    <Card className="border-border/60 bg-gradient-to-br from-primary/5 via-background to-background">
-      <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <header className="border-b border-border/60 pb-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-baseline gap-2">
-            <h1 className="font-heading text-xl font-semibold text-foreground">
+            <h1 className="sheet-title text-3xl text-foreground sm:text-4xl">
               {t("title")}
             </h1>
             <span className="text-sm text-muted-foreground">
@@ -43,25 +45,27 @@ export function ConstructionOverviewHeader({
             {t("subtitle")}
           </p>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <Pill icon={<ClipboardList className="size-3.5" aria-hidden />}>
-              {t("header.currentPhaseLabel")}: <strong>{currentPhaseLabel}</strong>
-            </Pill>
-            <Pill icon={<TrendingUp className="size-3.5" aria-hidden />}>
-              {t("header.progressLabel")}:
-              <strong className="tabular-nums"> {data.overallProgress}%</strong>
-            </Pill>
-            <Pill icon={<CalendarDays className="size-3.5" aria-hidden />}>
-              {t("header.lastUpdated", {
-                time: format.dateTime(new Date(data.lastUpdated), {
-                  hour: "numeric",
-                  minute: "2-digit",
-                  day: "numeric",
-                  month: "short",
-                }),
+          {/* The three facts a contractor checks first, as the sheet's title
+              block rather than three rounded pills. */}
+          <TitleBlock>
+            <TitleCell label={t("header.sheet")} emphasis>
+              {SHEET.constructionOverview}
+            </TitleCell>
+            <TitleCell label={t("header.currentPhaseLabel")}>
+              {currentPhaseLabel}
+            </TitleCell>
+            <TitleCell label={t("header.progressLabel")}>
+              {data.overallProgress}%
+            </TitleCell>
+            <TitleCell label={t("header.sheetUpdated")}>
+              {format.dateTime(new Date(data.lastUpdated), {
+                hour: "numeric",
+                minute: "2-digit",
+                day: "numeric",
+                month: "short",
               })}
-            </Pill>
-          </div>
+            </TitleCell>
+          </TitleBlock>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-stretch">
@@ -86,32 +90,6 @@ export function ConstructionOverviewHeader({
           </Button>
         </div>
       </div>
-    </Card>
+    </header>
   );
-}
-
-function Pill({
-  icon,
-  children,
-}: {
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-2.5 py-1 text-foreground">
-      <span className="text-muted-foreground">{icon}</span>
-      <span>{children}</span>
-    </span>
-  );
-}
-
-// Local Card to avoid extra import in a small file.
-function Card({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return <section className={className}>{children}</section>;
 }

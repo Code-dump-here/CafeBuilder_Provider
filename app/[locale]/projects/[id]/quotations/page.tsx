@@ -50,6 +50,8 @@ import {
 import { useMarketplacePosts } from "@/features/projects/use-marketplace";
 import { DEFAULT_FILTERS } from "@/features/projects/marketplace-types";
 import { resolveQuotationVariant } from "@/features/projects/quotation-variant";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
+import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 /**
  * The provider's side of the quotation flow.
@@ -61,16 +63,15 @@ import { resolveQuotationVariant } from "@/features/projects/quotation-variant";
  * meant to inform had already been made.
  */
 
-const STATUS_VARIANT: Record<
-  QuotationStatus,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  draft: "outline",
-  sent: "default",
-  revision_requested: "default",
-  accepted: "secondary",
-  rejected: "destructive",
-  superseded: "outline",
+// A revision request asks the provider to act, so it is a warning rather
+// than sharing "sent"'s colour; accepted reads as success rather than grey.
+const STATUS_STAMP: Record<QuotationStatus, StampTone> = {
+  draft: "neutral",
+  sent: "info",
+  revision_requested: "warning",
+  accepted: "success",
+  rejected: "danger",
+  superseded: "neutral",
 };
 
 export default function ProviderQuotationsPage() {
@@ -268,7 +269,7 @@ toast.error(
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+          <SheetTitle sheet={SHEET.quotations}>{t("title")}</SheetTitle>
           <p className="max-w-2xl text-sm text-muted-foreground">
             {/* Keyed on the engagement, not on which anchor the read used: a
                 provider who won from a bid still reads by `applyId`, but they
@@ -327,9 +328,9 @@ toast.error(
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 flex-col gap-1.5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant={STATUS_VARIANT[quotation.status]}>
+                      <Stamp size="sm" tone={STATUS_STAMP[quotation.status]} seed={quotation.id}>
                         {t(`status.${quotation.status}`)}
-                      </Badge>
+                      </Stamp>
                       <Badge variant="outline">v{quotation.version}</Badge>
                       {quotation.isLocked ? (
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -551,7 +552,7 @@ export function QuotationBreakdown({ quotation }: { quotation: Quotation }) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <div className="flex flex-col gap-1.5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
           {t("breakdown.items")}
         </p>
         <ul className="flex flex-col gap-1">
@@ -571,7 +572,7 @@ export function QuotationBreakdown({ quotation }: { quotation: Quotation }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
           {t("breakdown.terms")}
         </p>
         {quotation.paymentTerms.length === 0 ? (

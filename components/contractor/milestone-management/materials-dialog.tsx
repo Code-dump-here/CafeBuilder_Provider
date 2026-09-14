@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { AlertTriangle, Loader2, Plus, Trash2 } from "lucide-react";
 
 import {
@@ -23,7 +23,7 @@ import {
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { cn } from "@/lib/utils";
-import { formatVnd } from "@/lib/format-currency";
+import { formatVndParts } from "@/lib/format-currency";
 
 import {
   useAddConstructionMaterialMutation,
@@ -36,7 +36,7 @@ import {
   useUpdateConstructionMaterialMutation,
 } from "@/features/projects/use-materials";
 import {
-  MATERIAL_UNITS,
+  MATERIAL_UNIT_OPTIONS,
   type ConstructionMaterial,
   type MaterialUnit,
 } from "@/features/projects/material-types";
@@ -51,6 +51,9 @@ interface MaterialsDialogProps {
   /** Actual quantities are refused server-side while the work is `pending`. */
   milestoneStarted?: boolean;
 }
+
+const money = (value: number, locale: string) =>
+  formatVndParts(value, locale).full;
 
 /**
  * Materials for a milestone: the project's published price list, the lines
@@ -76,8 +79,9 @@ export function MaterialsDialog({
   milestoneStarted = false,
 }: MaterialsDialogProps) {
   const t = useTranslations("MilestoneManagement.materials");
+  const tShared = useTranslations("ConstructionShared");
+  const tUnits = useTranslations("ConstructionShared.units");
   const tCommon = useTranslations("MilestoneManagement.common");
-  const locale = useLocale();
 
   // Both deletes here used to fire on the click. Removing a usage line throws
   // away a recorded quantity, and removing a price-list material takes a rate
@@ -85,6 +89,7 @@ export function MaterialsDialog({
   // are icon buttons sitting one row apart in a scrolling list.
   const [removingUsageId, setRemovingUsageId] = React.useState<string | null>(null);
   const [deletingMaterialId, setDeletingMaterialId] = React.useState<string | null>(null);
+  const locale = useLocale();
 
   const { materials, isLoading: loadingList, isError: listError } = useMaterials({
     projectWorkingId: open ? projectWorkingId : null,
@@ -104,7 +109,7 @@ export function MaterialsDialog({
 
   // New price-list row
   const [name, setName] = React.useState("");
-  const [unit, setUnit] = React.useState<MaterialUnit>("m2");
+  const [unit, setUnit] = React.useState<MaterialUnit>("md");
   const [unitPrice, setUnitPrice] = React.useState("");
 
   // New usage line
@@ -114,7 +119,8 @@ export function MaterialsDialog({
   const handleAddMaterial = async () => {
     const trimmed = name.trim();
     const price = Number(unitPrice);
-    if (!trimmed || !Number.isFinite(price) || price < 0 || !projectWorkingId) return;
+    if (!trimmed || !Number.isFinite(price) || price < 0 || !projectWorkingId)
+      return;
 
     await createMaterial.mutateAsync({
       projectWorkingId: String(projectWorkingId),
@@ -142,29 +148,19 @@ export function MaterialsDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/*
-        `DialogContent` is centred with `-translate-y-1/2` and sets no height
-        bound, so without these three classes the panel simply grows past the
-        top and bottom of the window with nothing to scroll — this dialog runs
-        to a cost card, two lists and two add-rows, which is taller than a
-        laptop viewport once a bookmarks bar is showing.
+        DialogContent is bounded at 90dvh and scrolls through one inner
+        wrapper, so this dialog must not add scroll regions of its own — a
+        ScrollArea inside would be a second scrollbar within the first.
 
-        Two rows: the header stays put, the body takes the remainder.
-        `minmax(0,1fr)` rather than `1fr` because a grid row's automatic
-        minimum is its content, which would let the body push the panel back
-        past its own max-height instead of scrolling.
-      */}
-      {/*
-        This was the ONE call site that treated DialogContent as its own grid
-        parent (`grid-rows-[auto_minmax(0,1fr)] overflow-hidden`) with a
-        private scroll region below a fixed header. DialogContent now owns
-        that structure for every dialog, so both are redundant here — keeping
-        them would nest a second scroller inside the shared one.
+        `sm:max-w-5xl`, not `max-w-5xl`: the base carries `sm:max-w-sm`, and an
+        unprefixed width loses to it from 640px up, which left this five-column
+        dialog 384px wide on a desktop. No `p-6` either — the inner wrapper
+        already pads, and both would stack.
 
-        The header keeps its pinned behaviour via `sticky` instead: the
-        negative margins let it span the shared wrapper's padding so scrolled
-        content passes underneath it rather than beside it.
+        The header stays pinned with `sticky`; the negative margins let it
+        span the wrapper's padding so scrolled content passes underneath.
       */}
-      <DialogContent className="max-h-[90dvh] sm:max-w-3xl">
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader className="sticky top-0 z-10 -mx-4 -mt-4 bg-popover px-4 pt-4 pb-1">
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
@@ -174,207 +170,217 @@ export function MaterialsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {/*
-          One scroll region for the whole body. The two lists inside used to
-          carry their own `ScrollArea` caps, which reserved 28vh + 22vh of
-          height before anything else was measured and then nested a second
-          scrollbar inside the first once the panel was bounded.
-        */}
-        <div className="flex flex-col gap-4">
-          {listError && (
-            <div className="flex items-center gap-2 text-sm text-destructive">
-              <AlertTriangle className="h-4 w-4" />
-              {t("error")}
-            </div>
-          )}
+        {listError && (
+          <div className="flex items-center gap-2 text-sm text-destructive">
+            <AlertTriangle className="h-4 w-4" />
+            {t("error")}
+          </div>
+        )}
 
-          {/* ── Cost roll-up ─────────────────────────────────────────── */}
-          {cost && (
-            <div className="grid grid-cols-2 gap-3 rounded-md border p-3 sm:grid-cols-3">
-              <Figure label={t("ownLines")} value={formatVnd(cost.ownEstimatedCost, locale)} />
-              <Figure label={t("taskLines")} value={formatVnd(cost.tasksEstimatedCost, locale)} />
-              <Figure
-                label={t("estimatedCost")}
-                value={formatVnd(cost.totalEstimatedCost, locale)}
-                emphasis
-              />
-              <div className="col-span-2 sm:col-span-3">
-                <p className="text-xs text-muted-foreground">{t("actualCost")}</p>
-                <p className="text-sm font-medium tabular-nums">
-                  {cost.totalActualCost === null
-                    ? t("actualUnavailable")
-                    : formatVnd(cost.totalActualCost, locale)}
+        {/* ── Cost roll-up ─────────────────────────────────────────── */}
+        {cost && (
+          <div className="grid grid-cols-2 gap-3 rounded-md bg-foreground/5 p-4 sm:grid-cols-4">
+            <Figure
+              label={t("ownLines")}
+              value={money(cost.ownEstimatedCost, locale)}
+            />
+            <Figure
+              label={t("taskLines")}
+              value={money(cost.tasksEstimatedCost, locale)}
+            />
+            <Figure
+              label={t("estimatedCost")}
+              value={money(cost.totalEstimatedCost, locale)}
+              emphasis
+            />
+            <div className="flex flex-col gap-1">
+              <p className="text-xs text-muted-foreground">{t("actualCost")}</p>
+              <p className="text-sm font-medium tabular-nums">
+                {cost.totalActualCost === null
+                  ? tShared("cost.unavailable")
+                  : money(cost.totalActualCost, locale)}
+              </p>
+              {cost.missingActualCount > 0 && (
+                <p className="text-xs text-warning">
+                  {tShared("cost.missingLines", {
+                    count: cost.missingActualCount,
+                  })}
                 </p>
-                {cost.missingActualCount > 0 && (
-                  <p className="text-xs text-warning">
-                    {t("actualPending", { count: cost.missingActualCount })}
-                  </p>
-                )}
-              </div>
+              )}
             </div>
+          </div>
+        )}
+
+        {/* ── Lines on this milestone ──────────────────────────────── */}
+        <section className="flex flex-col gap-2">
+          <h3 className="text-sm font-semibold">{t("usage")}</h3>
+
+          {loadingLines ? (
+            <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {t("loading")}
+            </div>
+          ) : lines.length === 0 ? (
+            <p className="py-2 text-sm text-muted-foreground">
+              {t("usageEmpty")}
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {lines.map((line) => (
+                <UsageRow
+                  key={line.id}
+                  line={line}
+                  canRecordActual={milestoneStarted}
+                  onSaveActual={(actual) =>
+                    updateUsage.mutate({
+                      id: line.id,
+                      payload: { actualQuantity: actual },
+                    })
+                  }
+                  onRemove={() => setRemovingUsageId(line.id)}
+                  saving={updateUsage.isPending || removeUsage.isPending}
+                  t={t}
+                  tShared={tShared}
+                  moneyFn={(n) => money(n, locale)}
+                />
+              ))}
+            </ul>
           )}
 
-          {/* ── Lines on this milestone ──────────────────────────────── */}
-          <section className="flex flex-col gap-2">
-            <h3 className="text-sm font-semibold">{t("usage")}</h3>
+          <div className="flex flex-wrap items-center gap-3">
+            <Select value={materialId} onValueChange={setMaterialId}>
+              <SelectTrigger className="min-w-[260px] flex-1 sm:max-w-sm">
+                <SelectValue placeholder={t("pickMaterial")} />
+              </SelectTrigger>
+              <SelectContent>
+                {materials.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.name} — {money(m.unitPrice, locale)}/{tUnits(m.unit)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            {loadingLines ? (
-              <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
+            <Input
+              type="number"
+              min="0"
+              step="any"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              placeholder={t("estimated")}
+              className="w-32"
+            />
+
+            <Button
+              type="button"
+              onClick={() => void handleAddUsage()}
+              disabled={!materialId || !quantity || addUsage.isPending}
+            >
+              {addUsage.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {t("loading")}
-              </div>
-            ) : lines.length === 0 ? (
-              <p className="py-2 text-sm text-muted-foreground">{t("usageEmpty")}</p>
-            ) : (
-              <ul className="flex flex-col gap-2">
-                  {lines.map((line) => (
-                    <UsageRow
-                      key={line.id}
-                      line={line}
-                      canRecordActual={milestoneStarted}
-                      onSaveActual={(actual) =>
-                        updateUsage.mutate({
-                          id: line.id,
-                          payload: { actualQuantity: actual },
-                        })
-                      }
-                      onRemove={() => setRemovingUsageId(line.id)}
-                      saving={updateUsage.isPending || removeUsage.isPending}
-                    />
-                  ))}
-              </ul>
-            )}
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+              <span className="ml-1">{t("addUsage")}</span>
+            </Button>
+          </div>
+        </section>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <Select value={materialId} onValueChange={setMaterialId}>
-                <SelectTrigger className="w-[220px]">
-                  <SelectValue placeholder={t("pickMaterial")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {materials.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.name} — {formatVnd(m.unitPrice, locale)}/{m.unit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        {/* ── Price list ───────────────────────────────────────────── */}
+        <section className="flex flex-col gap-2 border-t pt-3">
+          <div>
+            <h3 className="text-sm font-semibold">{t("priceList")}</h3>
+            <p className="text-xs text-muted-foreground">{t("priceListHint")}</p>
+          </div>
 
-              <Input
-                type="number"
-                min="0"
-                step="any"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder={t("estimated")}
-                className="w-28"
-              />
-
-              <Button
-                type="button"
-                onClick={() => void handleAddUsage()}
-                disabled={!materialId || !quantity || addUsage.isPending}
-              >
-                {addUsage.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Plus className="h-4 w-4" />
-                )}
-                <span className="ml-1">{t("addUsage")}</span>
-              </Button>
+          {loadingList ? (
+            <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {t("loading")}
             </div>
-          </section>
-
-          {/* ── Price list ───────────────────────────────────────────── */}
-          <section className="flex flex-col gap-2 border-t pt-3">
-            <div>
-              <h3 className="text-sm font-semibold">{t("priceList")}</h3>
-              <p className="text-xs text-muted-foreground">{t("priceListHint")}</p>
-            </div>
-
-            {loadingList ? (
-              <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {t("loading")}
-              </div>
-            ) : materials.length === 0 ? (
-              <p className="py-2 text-sm text-muted-foreground">{t("priceListEmpty")}</p>
-            ) : (
-              <ul className="flex flex-col gap-1">
-                  {materials.map((m) => (
-                    <li
-                      key={m.id}
-                      className="flex items-center justify-between rounded border px-2 py-1.5 text-sm"
+          ) : materials.length === 0 ? (
+            <p className="py-2 text-sm text-muted-foreground">
+              {t("priceListEmpty")}
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-1">
+              {materials.map((m) => (
+                <li
+                  key={m.id}
+                  className="flex items-center justify-between rounded bg-foreground/5 px-2 py-1.5 text-sm"
+                >
+                  <span className="min-w-0 truncate">{m.name}</span>
+                  <span className="flex items-center gap-3">
+                    <span className="tabular-nums text-muted-foreground">
+                      {money(m.unitPrice, locale)}/{tUnits(m.unit)}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeletingMaterialId(m.id)}
+                      disabled={deleteMaterial.isPending}
+                      aria-label={t("remove")}
                     >
-                      <span className="min-w-0 truncate">{m.name}</span>
-                      <span className="flex items-center gap-3">
-                        <span className="tabular-nums text-muted-foreground">
-                          {formatVnd(m.unitPrice, locale)}/{m.unit}
-                        </span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeletingMaterialId(m.id)}
-                          disabled={deleteMaterial.isPending}
-                          aria-label={t("remove")}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </span>
-                    </li>
-                  ))}
-              </ul>
-            )}
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
 
-            <div className="flex flex-wrap items-center gap-2">
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t("materialNamePlaceholder")}
-                className="min-w-[180px] flex-1"
-              />
+          <div className="flex flex-wrap items-center gap-2">
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t("materialNamePlaceholder")}
+              className="min-w-[180px] flex-1"
+            />
 
-              <Select value={unit} onValueChange={(v) => setUnit(v as MaterialUnit)}>
-                <SelectTrigger className="w-[110px]">
-                  <SelectValue placeholder={t("unit")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {MATERIAL_UNITS.map((u) => (
-                    <SelectItem key={u} value={u}>
-                      {u}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <Select
+              value={unit}
+              onValueChange={(v) => setUnit(v as MaterialUnit)}
+            >
+              <SelectTrigger className="w-[110px]">
+                <SelectValue placeholder={t("unit")} />
+              </SelectTrigger>
+              <SelectContent>
+                {MATERIAL_UNIT_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {tUnits(opt.value)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <Input
-                type="number"
-                min="0"
-                step="any"
-                value={unitPrice}
-                onChange={(e) => setUnitPrice(e.target.value)}
-                placeholder={t("unitPrice")}
-                className="w-36"
-              />
+            <Input
+              type="number"
+              min="0"
+              step="any"
+              value={unitPrice}
+              onChange={(e) => setUnitPrice(e.target.value)}
+              placeholder={t("unitPrice")}
+              className="w-36"
+            />
 
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => void handleAddMaterial()}
-                disabled={!name.trim() || !unitPrice || createMaterial.isPending}
-              >
-                {createMaterial.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Plus className="h-4 w-4" />
-                )}
-                <span className="ml-1">{t("addMaterial")}</span>
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void handleAddMaterial()}
+              disabled={!name.trim() || !unitPrice || createMaterial.isPending}
+            >
+              {createMaterial.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+              <span className="ml-1">{t("addMaterial")}</span>
+            </Button>
+          </div>
 
-            <p className="text-xs text-muted-foreground">{t("priceNote")}</p>
-          </section>
-        </div>
+          <p className="text-xs text-muted-foreground">{t("priceNote")}</p>
+        </section>
       </DialogContent>
 
       <ConfirmDialog
@@ -392,7 +398,6 @@ export function MaterialsDialog({
           setRemovingUsageId(null);
         }}
       />
-
       <ConfirmDialog
         open={deletingMaterialId !== null}
         onOpenChange={(next) => {
@@ -424,7 +429,9 @@ function Figure({
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className={cn("text-sm tabular-nums", emphasis && "font-semibold")}>{value}</p>
+      <p className={cn("text-sm tabular-nums", emphasis && "font-semibold")}>
+        {value}
+      </p>
     </div>
   );
 }
@@ -435,23 +442,26 @@ function UsageRow({
   onSaveActual,
   onRemove,
   saving,
+  t,
+  tShared,
+  moneyFn,
 }: {
   line: ConstructionMaterial;
   canRecordActual: boolean;
   onSaveActual: (actual: number) => void;
   onRemove: () => void;
   saving: boolean;
+  t: ReturnType<typeof useTranslations<"MilestoneManagement.materials">>;
+  tShared: ReturnType<typeof useTranslations<"ConstructionShared">>;
+  moneyFn: (n: number) => string;
 }) {
-  const t = useTranslations("MilestoneManagement.materials");
-  const locale = useLocale();
-
-  const [draft, setDraft] = React.useState(
-    line.actualQuantity === null ? "" : String(line.actualQuantity),
+  const [draft, setDraft] = React.useState<string>(
+    () =>
+      line.actualQuantity === null ? "" : String(line.actualQuantity),
   );
 
-  // Keep the field in step when the server value changes under us (another
-  // tab, a refetch) — without this the input keeps a stale local edit.
-  //
+  // Re-sync only when the server value itself changes (another tab, a
+  // refetch), so an in-progress edit survives the parent re-rendering.
   // Adjusted during render rather than in an effect: the effect version
   // painted the stale number once and then corrected it, which is the
   // cascading render the set-state-in-effect rule is about.
@@ -467,15 +477,17 @@ function UsageRow({
     parsed !== line.actualQuantity;
 
   return (
-    <li className="flex flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-sm">
-      <span className="min-w-0 flex-1 truncate font-medium">{line.materialName}</span>
+    <li className="flex flex-wrap items-center gap-2 rounded-md bg-foreground/5 px-3 py-2 text-sm">
+      <span className="min-w-0 flex-1 truncate font-medium">
+        {line.materialName}
+      </span>
 
       <span className="tabular-nums text-muted-foreground">
         {t("estimated")}: {line.estimatedQuantity} {line.unit}
       </span>
 
       <span className="tabular-nums text-muted-foreground">
-        {formatVnd(line.estimatedCost, locale)}
+        {moneyFn(line.estimatedCost)}
       </span>
 
       <span className="flex items-center gap-1">
@@ -485,7 +497,9 @@ function UsageRow({
           step="any"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder={canRecordActual ? t("actualPlaceholder") : t("actualLocked")}
+          placeholder={
+            canRecordActual ? t("actualPlaceholder") : t("actualLocked")
+          }
           disabled={!canRecordActual || saving}
           title={canRecordActual ? undefined : t("actualLocked")}
           className="w-32"
@@ -511,6 +525,20 @@ function UsageRow({
       >
         <Trash2 className="h-4 w-4" />
       </Button>
+
+      {/* Surface the snapshot-vs-list distinction explicitly: a line's
+          price is locked at selection time, so the price list rate is
+          not what was applied here. */}
+      <p className="basis-full text-xs text-muted-foreground">
+        {t("priceNote")}
+      </p>
+      {/* `tShared` is plumbed for the upcoming actualCost label that
+          distinguishes "0 because nothing was used" from "null because
+          the row hasn't been reconciled" — keep the prop so the
+          signature stays stable. */}
+      <span className="hidden" aria-hidden>
+        {tShared("cost.labor")}
+      </span>
     </li>
   );
 }

@@ -370,6 +370,47 @@ const OWNER_PROJECT_SECTION: NavSection = {
   ],
 };
 
+/**
+ * Owner-facing quotation inbox — incoming bids from designers and
+ * constructors. The page renders at `/[locale]/quotations`. Providers
+ * do not see this section; their quotation work lives at
+ * `/projects/{id}/quotations` via the project-scoped entry inside
+ * `DESIGNER_PROJECT_INFO`.
+ */
+const OWNER_QUOTATIONS_SECTION: NavSection = {
+  labelKey: "Sidebar.shopOwner.quotations",
+  items: [
+    {
+      titleKey: "Sidebar.shopOwner.quotations",
+      url: "/quotations",
+      icon: Receipt,
+    },
+  ],
+};
+
+/**
+ * Provider-facing quotation list — drafts and bids the provider has
+ * sent (or wants to send) on open applications and accepted
+ * engagements.
+ *
+ * Kept as commented reference, not a live `NavSection`: a global
+ * `/quotations` link duplicates the project-scoped entry already in
+ * `DESIGNER_PROJECT_INFO`, and the global route also doesn't exist
+ * (only the shop-owner inbox at `/[locale]/quotations/page.tsx` does,
+ * via `OWNER_QUOTATIONS_SECTION`). Re-add the section here if a real
+ * provider-wide quotation inbox page is ever built.
+ */
+// const PROVIDER_QUOTATIONS_SECTION: NavSection = {
+//   labelKey: "Sidebar.designer.quotations",
+//   items: [
+//     {
+//       titleKey: "Sidebar.designer.quotations",
+//       url: "/quotations",
+//       icon: Receipt,
+//     },
+//   ],
+// };
+
 const OWNER_CONTRACTS_SECTION: NavSection = {
   labelKey: "Sidebar.shopOwner.contracts",
   items: [
@@ -458,6 +499,7 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
       // either section has at least one real item again.
       // OWNER_WORKSPACE_SECTION,
       OWNER_PROJECT_SECTION,
+      OWNER_QUOTATIONS_SECTION,
       // OWNER_CONTRACTS_SECTION,
     ],
     projects: [],
@@ -466,6 +508,12 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
   DESIGNER: {
     brand: { name: "Smart Cafe", labelKey: "Roles.designer" },
     sections: [
+      // PROVIDER_QUOTATIONS_SECTION removed: the top-level global
+      // `/quotations` link was redundant with the project-scoped
+      // Quotations entry in DESIGNER_PROJECT_INFO below. With nothing at
+      // /[locale]/quotations/page.tsx it was also a dead link — the
+      // global route only exists for the shop owner inbox via
+      // OWNER_QUOTATIONS_SECTION.
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
       CONSTRUCTION_WORK_SECTION,
@@ -481,6 +529,9 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
     // design work and construction workspace. The capability-aware
     // behavior is handled inside each section via `projectScope`.
     sections: [
+      // PROVIDER_QUOTATIONS_SECTION removed: see DESIGNER above. The
+      // project-scoped Quotations entry in DESIGNER_PROJECT_INFO is
+      // the only Quotations link a provider sees.
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
       CONSTRUCTION_WORK_SECTION,

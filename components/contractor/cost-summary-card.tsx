@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { formatVndParts } from "@/lib/format-currency";
-import { useEngagementCostSummary } from "@/features/projects/use-cost-summary";
+import { useEngagementCostSummary } from "@/features/projects/use-construction";
 import type { ConstructionCostSummary } from "@/features/projects/cost-summary-types";
 
 interface CostSummaryCardProps {
@@ -29,17 +29,18 @@ export function CostSummaryCard({ projectWorkingId }: CostSummaryCardProps) {
   const locale = useLocale();
 
   const { summary, isLoading, isError } = useEngagementCostSummary({
-    projectWorkingId,
+    projectWorkingId: projectWorkingId ?? "",
     enabled: Boolean(projectWorkingId),
   });
 
-  const money = (amount: number) => formatVndParts(amount, locale).full;
+  const money = (amount: number | null | undefined) =>
+    amount == null ? "—" : formatVndParts(amount, locale).full;
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t("title")}</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-2 p-4 pt-0">
           <Skeleton className="h-4 w-2/3" />
@@ -59,7 +60,7 @@ export function CostSummaryCard({ projectWorkingId }: CostSummaryCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
+        <CardTitle className="flex items-center gap-2">
           <Wallet className="size-4 text-primary" aria-hidden />
           {t("title")}
         </CardTitle>
@@ -87,7 +88,7 @@ export function CostSummaryCard({ projectWorkingId }: CostSummaryCardProps) {
             and the change-orders page quote different totals for one job. */}
         {summary.acceptedChangeOrderAmount > 0 ||
         summary.pendingChangeOrderAmount > 0 ? (
-          <div className="flex flex-col gap-2 rounded-md border bg-muted/40 p-3">
+          <div className="flex flex-col gap-2 rounded-md bg-foreground/5 p-3">
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
               <Figure
                 label={t("acceptedChangeOrders")}
@@ -140,14 +141,14 @@ function CostRow({
 }: {
   item: ConstructionCostSummary;
   depth: number;
-  money: (amount: number) => string;
+  money: (amount: number | null | undefined) => string;
 }) {
   const t = useTranslations("CostSummary");
 
   return (
     <>
       <div
-        className="flex items-center justify-between gap-3 rounded-md border border-border/50 px-3 py-2"
+        className="flex items-center justify-between gap-3 rounded-md px-3 py-2 bg-foreground/5"
         style={{ marginLeft: depth * 16 }}
       >
         <div className="flex min-w-0 flex-col gap-0.5">

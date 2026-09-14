@@ -17,52 +17,73 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Field } from "@/components/ui/field";
 import { uploadImageApi } from "@/lib/http/file-upload-api";
 import { todayDateInputValue } from "@/lib/date-input";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
-import { Field } from "@/components/ui/field";
+
+import type {
+  CreateConstructionTaskPayload,
+} from "@/features/projects/construction-types";
 
 interface AddTaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /**
+   * The parent milestone id. Required to scope the new task to a phase;
+   * without it the create payload would be missing `constructionItemId`
+   * and the request would 400. The page wires this up when it opens the
+   * modal against a specific phase.
+   */
+  constructionItemId: string;
   phaseLabel?: string;
-  onSubmit: (input: {
-    name: string;
-    description: string;
-    estimateAt: string | null;
-    imageUrl: string | null;
-  }) => void;
+  onSubmit: (input: CreateConstructionTaskPayload) => void;
 }
 
 /**
  * Modal for creating a brand-new task aligned with the
- * `POST /construction-tasks` contract: `name`, `description`,
- * `imageUrl`, `estimateAt`. Item id is supplied by the page-level
- * mutation; the creator is derived server-side from the JWT.
+ * `POST /construction-tasks` contract: `name`, `description`, `startAt`,
+ * `estimateAt`, `imageUrl`, `estimatedLaborCost`.
  *
  * Image handling: user picks a file, we POST it to
- * `POST /api/files/images` and store the returned `url` on the task.
- * A local `data:` preview is shown while the upload is in flight so
- * the user gets immediate feedback.
+ * `POST /api/files/images` and store the returned **ObjectName** on the
+ * task — the absolute URL is resolved server-side as `imageViewUrl`.
+ * A local `data:` preview is shown while the upload is in flight so the
+ * user gets immediate feedback.
  */
 export function AddTaskModal({
   open,
   onOpenChange,
+  constructionItemId,
   phaseLabel,
   onSubmit,
 }: AddTaskModalProps) {
   const t = useTranslations("MilestoneManagement.task.addTask");
   const tUpload = useTranslations("Upload");
-  const tFields = useTranslations("MilestoneManagement.task.detail.fields");
+  const tFields = useTranslations("MilestoneManagement.task.fields");
+  const tDetailFields = useTranslations("MilestoneManagement.task.detail.fields");
+  // startDate, targetDate and estimatedLaborCost live directly under
+  // MilestoneManagement.task, not under task.fields (which holds only
+  // "title"). Looked up through tFields they rendered as raw key paths.
+  const tTask = useTranslations("MilestoneManagement.task");
   const tCommon = useTranslations("MilestoneManagement.common");
+  const tShared = useTranslations("ConstructionShared");
 
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
+  const [startAt, setStartAt] = React.useState<string>("");
   const [estimateAt, setEstimateAt] = React.useState<string>("");
-  const [imageUrl, setImageUrl] = React.useState<string | null>(null);
+  const [imageObjectName, setImageObjectName] = React.useState<string | null>(
+    null,
+  );
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+  const [estimatedLaborCostText, setEstimatedLaborCostText] =
+    React.useState("");
   const [isUploading, setIsUploading] = React.useState(false);
   const [uploadError, setUploadError] = React.useState<string | null>(null);
+  const [estimateAtError, setEstimateAtError] = React.useState<string | null>(
+    null,
+  );
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   useResetOnChange(open, () => {
@@ -74,13 +95,25 @@ export function AddTaskModal({
     } else {
       setName("");
       setDescription("");
+      setStartAt("");
       setEstimateAt("");
-      setImageUrl(null);
+      setImageObjectName(null);
       setPreviewUrl(null);
+      setEstimatedLaborCostText("");
       setUploadError(null);
       setIsUploading(false);
+      setEstimateAtError(null);
     }
   });
+
+  const handleEstimateAtChange = (value: string) => {
+    setEstimateAt(value);
+    if (value && value < todayDateInputValue()) {
+      setEstimateAtError(tShared("validation.estimateAtPast"));
+    } else {
+      setEstimateAtError(null);
+    }
+  };
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -100,7 +133,7 @@ export function AddTaskModal({
       return;
     }
 
-    // Local preview while the upload runs
+    // Local preview while the upload runs.
     const localPreview = URL.createObjectURL(file);
     setPreviewUrl(localPreview);
     setUploadError(null);
@@ -108,7 +141,9 @@ export function AddTaskModal({
 
     try {
       const response = await uploadImageApi(file);
-      setImageUrl(response.url);
+      // Store the ObjectName — the server resolves it to a view URL when
+      // the task is read back.
+      setImageObjectName(response.objectName);
     } catch {
       setUploadError(t("uploadFailed"));
       setPreviewUrl(null);
@@ -119,9 +154,16 @@ export function AddTaskModal({
   };
 
   const handleRemoveImage = () => {
-    setImageUrl(null);
+    setImageObjectName(null);
     setPreviewUrl(null);
     setUploadError(null);
+  };
+
+  const parseCost = (raw: string): number | undefined => {
+    const trimmed = raw.trim();
+    if (!trimmed) return undefined;
+    const parsed = Number(trimmed.replace(/[\s.,]/g, ""));
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -129,16 +171,26 @@ export function AddTaskModal({
     const trimmed = name.trim();
     if (!trimmed) return;
     if (isUploading) return;
-    onSubmit({
+    if (estimateAt && estimateAt < todayDateInputValue()) {
+      setEstimateAtError(tShared("validation.estimateAtPast"));
+      return;
+    }
+    // The page owns the parent id — we emit everything else the API
+    // expects.
+    const payload: CreateConstructionTaskPayload = {
+      constructionItemId,
       name: trimmed,
-      description: description.trim(),
-      estimateAt: estimateAt || null,
-      imageUrl,
-    });
+      description: description.trim() || undefined,
+      imageUrl: imageObjectName ?? undefined,
+      startAt: startAt || undefined,
+      estimateAt: estimateAt || undefined,
+      estimatedLaborCost: parseCost(estimatedLaborCostText),
+    };
+    onSubmit(payload);
     onOpenChange(false);
   };
 
-  const displayUrl = previewUrl ?? imageUrl;
+  const displayUrl = previewUrl;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -158,26 +210,50 @@ export function AddTaskModal({
             />
           </Field>
 
-          <Field label={tFields("description")}>
+          <Field label={tDetailFields("description")}>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What needs to happen here?"
+              placeholder={tDetailFields("description") as unknown as string}
               rows={3}
               className="border-input bg-transparent focus-visible:border-ring focus-visible:ring-ring/50 flex w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] resize-none"
             />
           </Field>
 
-          <Field label={tFields("dueDate")}>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={tTask("startDate")}>
+              <Input
+                type="date"
+                value={startAt}
+                onChange={(e) => setStartAt(e.target.value)}
+              />
+            </Field>
+            <Field
+              label={tTask("targetDate")}
+              error={estimateAtError ?? undefined}
+            >
+              <Input
+                type="date"
+                value={estimateAt}
+                onChange={(e) => handleEstimateAtChange(e.target.value)}
+                min={todayDateInputValue()}
+              />
+            </Field>
+          </div>
+
+          <Field label={tTask("estimatedLaborCost")}>
             <Input
-              type="date"
-              value={estimateAt}
-              onChange={(e) => setEstimateAt(e.target.value)}
-              min={todayDateInputValue()}
+              type="number"
+              inputMode="numeric"
+              min={0}
+              step={1000}
+              value={estimatedLaborCostText}
+              onChange={(e) => setEstimatedLaborCostText(e.target.value)}
+              placeholder="0"
             />
           </Field>
 
-          <Field label={tFields("images")}>
+          <Field label={tDetailFields("images")}>
             <input
               ref={fileRef}
               type="file"
@@ -201,15 +277,25 @@ export function AddTaskModal({
                 ) : (
                   <Upload aria-hidden />
                 )}
-                {imageUrl ? t("uploadCta") : t("uploadCta")}
+                {t("uploadCta")}
               </Button>
               {uploadError ? (
                 <p className="text-xs text-destructive">{uploadError}</p>
               ) : null}
-              {displayUrl ? (
+              {displayUrl || imageObjectName ? (
                 <div className="relative aspect-square w-32 overflow-hidden rounded-md border border-border/60 bg-muted">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={displayUrl} alt="" className="h-full w-full object-cover" />
+                  {displayUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={displayUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                      {t("uploadCta")}
+                    </div>
+                  )}
                   {isUploading ? (
                     <div className="absolute inset-0 flex items-center justify-center bg-background/70">
                       <Loader2 aria-hidden className="size-5 animate-spin" />
@@ -231,12 +317,16 @@ export function AddTaskModal({
 
           <DialogFooter className="gap-2">
             <DialogClose asChild>
-              <Button type="button" variant="ghost" size="sm">{tCommon("cancel")}</Button>
+              <Button type="button" variant="ghost" size="sm">
+                {tCommon("cancel")}
+              </Button>
             </DialogClose>
             <Button
               type="submit"
               size="sm"
-              disabled={!name.trim() || isUploading}
+              disabled={
+                !name.trim() || isUploading || estimateAtError !== null
+              }
             >
               <Plus aria-hidden />
               {t("create")}

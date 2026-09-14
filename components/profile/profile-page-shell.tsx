@@ -2,44 +2,54 @@
 
 import * as React from "react";
 import {
-  Mail,
-  Link2,
-  Calendar,
+  MapPin,
   Edit3,
+  Eye,
+  Settings,
   Star,
-  Shield,
-  Briefcase,
-  Award,
-  Grid3X3,
-  List,
-  Heart,
-  MessageCircle,
-  Share2,
-  MoreHorizontal,
-  Check,
-  Loader2,
-  TriangleAlert,
   Images,
   Sparkles,
+  TriangleAlert,
+  Globe,
+  Loader2,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { toast } from "react-toastify";
 
-import {
-  REVIEW_DIMENSIONS,
-  reviewDimensionKey,
-} from "@/features/projects/review-dimensions";
-import {
-  useProviderRatingSummary,
-  useProviderReviews,
-} from "@/features/reviews/use-provider-reviews";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BrandMediaUploader } from "@/components/profile/brand-media-uploader";
+import { Stamp } from "@/components/drawing-set/stamp";
+import { TitleBlock, TitleCell } from "@/components/drawing-set/title-block";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/features/auth/user-context";
 import type { NormalizedAccount } from "@/features/auth/auth-me-types";
 import { AppError } from "@/lib/http/errors";
+import {
+  useProviderBrand,
+  useProviderPortfolios,
+} from "@/features/service-provider-profiles/use-brand";
+// Two hooks share the name useProviderRatingSummary. The one in
+// service-provider-profiles returns { summary, isLoading }; this one returns
+// the query itself, which is what ReviewsList reads (`.data`). Importing the
+// other would type-check nowhere near here and leave the summary blank.
+import {
+  useProviderRatingSummary,
+  useProviderReviews,
+} from "@/features/reviews/use-provider-reviews";
+import {
+  REVIEW_DIMENSIONS,
+  reviewDimensionKey,
+} from "@/features/projects/review-dimensions";
 
 import { ProviderProfileEditor } from "./provider-profile-editor";
 import { BrandTab } from "./brand-tab";
@@ -53,16 +63,32 @@ interface ProfileHeaderProps {
    *  account record. */
   account: Pick<NormalizedAccount, "email" | "serviceProvider">;
   isOwner: boolean;
-  /** Opens the profile editor. Threaded down from `ProfilePageShell`, which
-   *  owns the `showEditor` state. Without this the "Edit profile" button was
-   *  inert and `ProviderProfileEditor` was unreachable — a provider had no
-   *  way to edit their own profile at all. */
-  onEditProfile?: () => void;
+  /**
+   * Owned callbacks for the header CTAs. Optional so the header still
+   * renders in preview contexts where wiring doesn't matter.
+   */
+  onEdit?: () => void;
+  onOpenSettings?: () => void;
+  /** Number of portfolio entries (already loaded). Shown as the stat. */
+  portfolioCount?: number;
 }
 
-function ProfileHeader({ account, isOwner, onEditProfile }: ProfileHeaderProps) {
+function ProfileHeader({
+  account,
+  isOwner,
+  onEdit,
+  onOpenSettings,
+  portfolioCount,
+}: ProfileHeaderProps) {
   const t = useTranslations("Profile");
+  const locale = useLocale();
   const sp = account.serviceProvider;
+
+  // Live data — the cover image, address and website come from the
+  // brand endpoint, not from the bare ServiceProviderProfile. Calling
+  // it for the header (in addition to the Brand tab) keeps the cover
+  // fresh after edits without forcing the tab to be mounted first.
+  const { brand } = useProviderBrand({ serviceProviderProfileId: sp?.id ?? null });
 
   // Defensive null-check — `NormalizedAccount.serviceProvider` is `null`
   // for non-provider accounts (and for providers mid-onboarding). The
@@ -71,7 +97,7 @@ function ProfileHeader({ account, isOwner, onEditProfile }: ProfileHeaderProps) 
   if (!sp) {
     return (
       <div className="relative">
-        <div className="rounded-2xl border border-border/60 bg-card/60 p-6">
+        <div className="p-6">
           <p className="text-sm font-medium text-foreground">{account.email}</p>
         </div>
       </div>
@@ -80,7 +106,7 @@ function ProfileHeader({ account, isOwner, onEditProfile }: ProfileHeaderProps) 
 
   const initials = sp.displayName
     .split(" ")
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
@@ -97,164 +123,182 @@ function ProfileHeader({ account, isOwner, onEditProfile }: ProfileHeaderProps) 
       ? t("fields.providerTypeIndividual")
       : t("fields.providerTypeCompany");
 
-  const memberSince = sp.createdAt.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
+  const memberSince = sp.createdAt.toLocaleDateString(
+    locale === "vi" ? "vi-VN" : "en-US",
+    { month: "long", year: "numeric" },
+  );
 
+  // Laid out as the public profile is — a cover sheet with the firm's
+  // particulars in a title block — so what the provider edits here is what
+  // owners see. It was an orange gradient banner with a round avatar hanging
+  // off it and a row of icon stats, the pattern the public profile dropped.
   return (
-    <div className="relative">
-      {/* Cover Image */}
-      <div className="relative h-48 w-full overflow-hidden rounded-2xl bg-linear-to-br from-amber-600 via-amber-500 to-orange-500 sm:h-56">
-        {/* Decorative Pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <svg className="h-full w-full" viewBox="0 0 400 200">
-            <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
-        
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
-        
-        {/*
-          "Change cover", the avatar edit pencil and "Settings" were all
-          removed: none had a handler, and there is no cover upload, no avatar
-          field on the account API and no settings screen to wire them to.
-          "Edit profile" below is the one that now works, and it covers what a
-          provider actually came here to do.
-        */}
-      </div>
-
-      {/* Profile Info Section */}
-      <div className="relative px-4 sm:px-6">
-        {/* Avatar */}
-        <div className="absolute -top-16 left-1/2 -translate-x-1/2 sm:left-6 sm:translate-x-0">
-          <div className="relative">
-            <Avatar className="size-32 border-4 border-background shadow-e3 sm:size-36">
-              <AvatarImage src="" alt={sp.displayName} />
-              <AvatarFallback className="bg-linear-to-br from-amber-500 to-orange-600 text-3xl font-bold text-white">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            {sp.isVerified && (
-              <div className="absolute bottom-2 right-2 rounded-full bg-primary p-1.5 shadow-e3">
-                <Check className="size-4 text-primary-foreground" />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-2 pt-4 sm:pt-6">
+    <section className="overflow-hidden rounded-lg bg-card shadow-e1 ring-1 ring-foreground/10">
+      {brand?.coverImageViewUrl || isOwner ? (
+        <div
+          className={cn(
+            "relative w-full border-b border-border",
+            brand?.coverImageViewUrl ? "h-40 sm:h-52" : "hatch h-20",
+          )}
+        >
+          {brand?.coverImageViewUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={brand.coverImageViewUrl}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <p className="absolute inset-0 flex items-center justify-center font-mono text-2xs uppercase tracking-[0.14em] text-muted-foreground">
+              <span className="border border-foreground/20 bg-background px-2 py-1">
+                {t("header.noCover")}
+              </span>
+            </p>
+          )}
           {isOwner ? (
-            <>
-              <Button size="sm" className="gap-2" onClick={onEditProfile}>
+            <BrandMediaUploader
+              kind="cover"
+              serviceProviderProfileId={sp.id}
+              currentViewUrl={brand?.coverImageViewUrl ?? undefined}
+              currentRawUrl={brand?.coverImageUrl ?? undefined}
+              variant="cover"
+            />
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="flex flex-col gap-5 p-5 sm:p-6">
+        {/* Actions on their own row above the name: beside it they squeezed a
+            normal-length firm name onto two lines at this page's width. */}
+        <div className="flex flex-col gap-4">
+          {isOwner ? (
+            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+              {/* The only way in to the public profile now that the provider
+                  directory is gone from web: it is how owners see this firm,
+                  so a provider should be able to check it. */}
+              <Button variant="ghost" size="sm" className="gap-2" asChild>
+                <Link href={`/providers/${sp.id}`}>
+                  <Eye className="size-4" />
+                  {t("actions.viewPublicProfile")}
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={onOpenSettings}
+              >
+                <Settings className="size-4" />
+                {t("actions.settings")}
+              </Button>
+              <Button size="sm" className="gap-2" onClick={onEdit}>
                 <Edit3 className="size-4" />
                 {t("actions.editProfile")}
               </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="outline" size="sm" className="gap-2">
-                <MessageCircle className="size-4" />
-                Message
-              </Button>
-              <Button size="sm" className="gap-2">
-                <UserPlus className="size-4" />
-                Follow
-              </Button>
-            </>
-          )}
+            </div>
+          ) : null}
+          <div className="flex min-w-0 items-start gap-4">
+            <div className="relative size-16 shrink-0 overflow-hidden border border-foreground/25 bg-foreground/5 sm:size-20">
+              {brand?.logoViewUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={brand.logoViewUrl}
+                  alt={sp.displayName}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <span
+                  aria-hidden
+                  className="grid size-full place-items-center font-mono text-lg font-semibold text-foreground"
+                >
+                  {initials}
+                </span>
+              )}
+              {isOwner ? (
+                <BrandMediaUploader
+                  kind="avatar"
+                  serviceProviderProfileId={sp.id}
+                  currentViewUrl={brand?.logoViewUrl ?? undefined}
+                  currentRawUrl={brand?.logoUrl ?? undefined}
+                  variant="avatar"
+                />
+              ) : null}
+            </div>
+
+            <div className="flex min-w-0 flex-col gap-2 pt-0.5">
+              <p className="font-mono text-2xs uppercase tracking-[0.14em] text-muted-foreground">
+                {capabilityLabel} · {providerTypeLabel}
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="sheet-title text-3xl text-foreground sm:text-4xl">
+                  {sp.displayName}
+                </h1>
+                {sp.isVerified ? (
+                  <Stamp tone="success" seed={sp.id}>
+                    {t("header.verified")}
+                  </Stamp>
+                ) : null}
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        {/* Name & Username */}
-        <div className="mt-6 text-center sm:mt-8 sm:text-left">
-          <div className="flex items-center justify-center gap-2 sm:justify-start">
-            <h1 className="font-heading text-2xl font-bold text-foreground sm:text-3xl">
-              {sp.displayName}
-            </h1>
-            {sp.isVerified && (
-              <span className="rounded-full bg-primary/10 p-1">
-                <Shield className="size-5 text-primary" />
-              </span>
-            )}
-          </div>
-          <div className="mt-1 flex items-center justify-center gap-2 text-sm text-muted-foreground sm:justify-start">
-            <span className="rounded bg-muted px-2 py-0.5 text-xs font-medium">
-              {capabilityLabel}
-            </span>
-            <span className="text-muted-foreground/60">•</span>
-            <span>{providerTypeLabel}</span>
-          </div>
-        </div>
-
-        {/* Bio */}
-        {sp.bio && (
-          <p className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-muted-foreground sm:text-left">
+        {sp.bio ? (
+          <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
             {sp.bio}
           </p>
-        )}
+        ) : null}
 
-        {/* Meta Info */}
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground sm:justify-start">
-          <div className="flex items-center gap-1.5">
-            <Link2 className="size-4" />
-            <a href="#" className="hover:text-primary hover:underline">
-              portfolio.com
-            </a>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Calendar className="size-4" />
-            <span>{t("stats.joined", { date: memberSince })}</span>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="mt-6 flex items-center justify-center gap-8 border-t border-border pt-6 sm:justify-start">
-          {/*
-            A "24 Projects" and "1.2k Followers" pair used to sit here with
-            those figures written in as literals — every provider saw the
-            same two numbers presented as their own. Neither has a data
-            source: the account profile carries no project count, and the
-            schema has no notion of followers at all. Removed rather than
-            translated; inventing a user's stats is worse than omitting them.
-          */}
-          <div className="text-center sm:text-left">
-            <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-              <Star className="size-5 text-rating fill-rating" />
-              <span className="text-xl font-bold text-foreground">
-                {sp.avgRating?.toFixed(1) ?? t("stats.newRating")}
+        {/* Only rows whose data we actually have */}
+        {brand?.companyAddress || brand?.website ? (
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            {brand?.companyAddress ? (
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin className="size-4" />
+                {brand.companyAddress}
               </span>
-            </div>
-            <span className="text-xs text-muted-foreground">{t("stats.rating")}</span>
-          </div>
-          {sp.yearsExperience !== null && sp.yearsExperience > 0 && (
-            <div className="text-center sm:text-left">
-              <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-                <Award className="size-5 text-primary" />
-                <span className="text-xl font-bold text-foreground">
-                  {sp.yearsExperience}
-                </span>
-              </div>
-              <span className="text-xs text-muted-foreground">
-                {t("stats.yearsExperience")}
+            ) : null}
+            {brand?.website ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Globe className="size-4" />
+                <a
+                  href={brand.website}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="max-w-xs truncate hover:text-primary hover:underline"
+                >
+                  {brand.website.replace(/^https?:\/\//, "")}
+                </a>
               </span>
-            </div>
-          )}
-        </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
-    </div>
+
+      <TitleBlock className="w-full border-x-0 border-b-0">
+        <TitleCell label={t("header.stats.portfolio")} grow>
+          {portfolioCount ?? 0}
+        </TitleCell>
+        <TitleCell label={t("header.stats.rating")} grow>
+          {typeof sp.avgRating === "number" && sp.avgRating > 0
+            ? `${sp.avgRating.toFixed(1)} / 5`
+            : t("header.stats.newRating")}
+        </TitleCell>
+        <TitleCell label={t("header.stats.yearsExperience")} grow>
+          {sp.yearsExperience ?? "—"}
+        </TitleCell>
+        <TitleCell label={t("header.stats.joined")} grow>
+          {memberSince}
+        </TitleCell>
+      </TitleBlock>
+    </section>
   );
 }
 
 // ─── Tab Navigation ─────────────────────────────────────────────────────────────
 
-type TabType = "posts" | "portfolio" | "brand" | "projects" | "reviews";
+type TabType = "portfolio" | "brand" | "reviews";
 
 function TabNavigation({
   activeTab,
@@ -264,12 +308,10 @@ function TabNavigation({
   onTabChange: (tab: TabType) => void;
 }) {
   const t = useTranslations("Profile");
-  
+
   const tabs: { id: TabType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: "posts", label: t("tabs.posts"), icon: Grid3X3 },
     { id: "portfolio", label: t("tabs.portfolio"), icon: Images },
     { id: "brand", label: t("tabs.brand"), icon: Sparkles },
-    { id: "projects", label: t("tabs.projects"), icon: Briefcase },
     { id: "reviews", label: t("tabs.reviews"), icon: Star },
   ];
 
@@ -303,107 +345,6 @@ function TabNavigation({
 
 // ─── Content Grid ─────────────────────────────────────────────────────────────
 
-function PostsGrid() {
-  // Mock posts data
-  const posts = [
-    { id: "1", title: "Modern Cafe Design Concept", likes: 24, comments: 5 },
-    { id: "2", title: "Industrial Kitchen Layout", likes: 18, comments: 3 },
-    { id: "3", title: "Minimalist Space Planning", likes: 32, comments: 8 },
-    { id: "4", title: "Color Theory in Cafe Design", likes: 15, comments: 2 },
-    { id: "5", title: "Lighting Design Tips", likes: 28, comments: 6 },
-    { id: "6", title: "Budget-Friendly Renovations", likes: 41, comments: 12 },
-  ];
-
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-      {posts.map((post) => (
-        <div
-          key={post.id}
-          className="group relative aspect-square cursor-pointer overflow-hidden rounded-xl bg-muted"
-        >
-          {/* Placeholder Image */}
-          <div className="absolute inset-0 bg-muted flex items-center justify-center">
-            <div className="text-center">
-              <Briefcase className="size-8 text-muted-foreground/50" />
-            </div>
-          </div>
-          
-          {/* Hover Overlay */}
-          <div className="absolute inset-0 flex items-center justify-center gap-4 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-            <div className="flex items-center gap-1 text-white">
-              <Heart className="size-5" />
-              <span className="font-medium">{post.likes}</span>
-            </div>
-            <div className="flex items-center gap-1 text-white">
-              <MessageCircle className="size-5" />
-              <span className="font-medium">{post.comments}</span>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ProjectsList() {
-  const t = useTranslations("Profile");
-  
-  const projects = [
-    { id: "1", name: "District Coffee House", status: "completed", rating: 5 },
-    { id: "2", name: "Urban Beans Cafe", status: "ongoing", rating: null },
-    { id: "3", name: "Morning Glory Bistro", status: "completed", rating: 4 },
-  ];
-
-  const statusColors: Record<string, string> = {
-    completed: "bg-success-muted text-success-muted-foreground",
-    ongoing: "bg-warning-muted text-warning-muted-foreground",
-    pending: "bg-muted text-muted-foreground",
-  };
-
-  return (
-    <div className="space-y-4">
-      {projects.map((project) => (
-        <div
-          key={project.id}
-          className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-e2"
-        >
-          <div className="flex size-14 items-center justify-center rounded-xl bg-muted">
-            <Briefcase className="size-6 text-muted-foreground" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-foreground truncate">
-              {project.name}
-            </h3>
-            <div className="mt-1 flex items-center gap-2">
-              <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium capitalize", statusColors[project.status])}>
-                {project.status}
-              </span>
-              {project.rating && (
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={cn(
-                        "size-3",
-                        i < project.rating!
-                          ? "text-rating fill-rating"
-                          : "text-muted-foreground/30",
-                      )}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-            View
-          </Button>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /**
  * Reviews a shop owner left on this provider, plus the per-criterion averages.
  *
@@ -412,15 +353,11 @@ function ProjectsList() {
  * API already returns was not rendered anywhere — `review-dimensions.ts` had
  * no importer at all. Both now come from the server.
  */
-function ReviewsList({
-  serviceProviderProfileId,
-}: {
-  serviceProviderProfileId: string;
-}) {
+function ReviewsList({ profileId }: { profileId: string }) {
   const t = useTranslations("Profile.reviewsTab");
 
-  const summaryQuery = useProviderRatingSummary(serviceProviderProfileId);
-  const reviewsQuery = useProviderReviews(serviceProviderProfileId);
+  const summaryQuery = useProviderRatingSummary(profileId);
+  const reviewsQuery = useProviderReviews(profileId);
 
   if (summaryQuery.isLoading || reviewsQuery.isLoading) {
     return (
@@ -433,7 +370,7 @@ function ReviewsList({
 
   if (summaryQuery.isError || reviewsQuery.isError) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card py-12 text-sm text-muted-foreground">
+      <div className="flex flex-col items-center gap-3 py-12 text-sm text-muted-foreground">
         <TriangleAlert className="size-5 text-warning" />
         {t("error")}
       </div>
@@ -492,71 +429,73 @@ function ReviewsList({
       )}
 
       {reviews.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card py-12 text-center text-sm text-muted-foreground">
+        <div className="py-12 text-center text-sm text-muted-foreground">
           {t("empty")}
         </div>
       ) : (
-        reviews.map((review) => (
-          <div
-            key={review.id}
-            className="rounded-xl border border-border bg-card p-5"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={cn(
-                      "size-4",
-                      i < Math.round(review.overallRating)
-                        ? "text-rating fill-rating"
-                        : "text-muted-foreground/30",
-                    )}
-                  />
-                ))}
-                <span className="ml-1 text-sm font-semibold text-foreground">
-                  {review.overallRating.toFixed(1)}
+        // One surface with rules between reviews, rather than a bordered card
+        // per review: the reviews are one list, and a stack of identical boxes
+        // spends its contrast on edges instead of on what people wrote.
+        <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+          {reviews.map((review) => (
+            <div key={review.id} className="p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={cn(
+                        "size-4",
+                        i < Math.round(review.overallRating)
+                          ? "text-rating fill-rating"
+                          : "text-muted-foreground/30",
+                      )}
+                    />
+                  ))}
+                  <span className="ml-1 text-sm font-semibold text-foreground">
+                    {review.overallRating.toFixed(1)}
+                  </span>
+                </div>
+                <span className="text-xs text-muted-foreground/60">
+                  {new Date(review.createdAt).toLocaleDateString()}
                 </span>
               </div>
-              <span className="text-xs text-muted-foreground/60">
-                {new Date(review.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-            {review.comment && (
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                &ldquo;{review.comment}&rdquo;
-              </p>
-            )}
+              {review.comment && (
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  &ldquo;{review.comment}&rdquo;
+                </p>
+              )}
 
-            {review.scores.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {review.scores.map((score) => (
-                  <span
-                    key={score.id}
-                    className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
-                  >
-                    {t(`dimensions.${reviewDimensionKey(score.dimension)}`)}
-                    {": "}
-                    <span className="font-semibold text-foreground">
-                      {score.score}
+              {review.scores.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {review.scores.map((score) => (
+                    <span
+                      key={score.id}
+                      className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
+                    >
+                      {t(`dimensions.${reviewDimensionKey(score.dimension)}`)}
+                      {": "}
+                      <span className="font-semibold text-foreground">
+                        {score.score}
+                      </span>
                     </span>
-                  </span>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
 
-            {review.providerReply && (
-              <div className="mt-4 rounded-lg border-l-2 border-primary bg-muted/40 p-3">
-                <p className="text-xs font-semibold text-foreground">
-                  {t("replyLabel")}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {review.providerReply}
-                </p>
-              </div>
-            )}
-          </div>
-        ))
+              {review.providerReply && (
+                <div className="mt-4 rounded-lg border-l-2 border-primary bg-foreground/5 p-3">
+                  <p className="text-xs font-semibold text-foreground">
+                    {t("replyLabel")}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {review.providerReply}
+                  </p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
@@ -570,8 +509,17 @@ export function ProfilePageShell() {
   const { account, isLoading, isAuthenticated, isError, error, refetch } =
     useCurrentUser();
 
-  const [activeTab, setActiveTab] = React.useState<TabType>("posts");
-  const [showEditor, setShowEditor] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<TabType>("portfolio");
+  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
+
+  // Owner's portfolio count drives the header's "Projects" stat.
+  // We keep the call enabled as soon as we know the id, regardless of
+  // which tab is open, so the number is always fresh by the time the
+  // user clicks through.
+  const profileId = account?.serviceProvider?.id ?? null;
+  const { portfolios } = useProviderPortfolios({
+    serviceProviderProfileId: profileId,
+  });
 
   // ── Loading skeleton ────────────────────────────────────────────────────
   if (isLoading && !account) {
@@ -605,35 +553,19 @@ export function ProfilePageShell() {
     return <WrongRoleState role={account.role} />;
   }
 
-  // ── Edit Mode ──────────────────────────────────────────────────────────
-  if (showEditor) {
-    return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="font-heading text-xl font-semibold text-foreground">
-            {t("actions.editProfile")}
-          </h2>
-          <Button variant="ghost" size="sm" onClick={() => setShowEditor(false)}>
-            {t("actions.cancel")}
-          </Button>
-        </div>
-        <ProviderProfileEditor account={account} />
-      </div>
-    );
-  }
-
   // ── Render the profile ─────────────────────────────────────────────────
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       <ProfileHeader
         account={account}
-        isOwner={true}
-        onEditProfile={() => setShowEditor(true)}
+        isOwner
+        onEdit={() => setIsEditDialogOpen(true)}
+        onOpenSettings={() => setActiveTab("brand")}
+        portfolioCount={portfolios.length}
       />
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-      
+
       <div className="mt-6">
-        {activeTab === "posts" && <PostsGrid />}
         {activeTab === "portfolio" && (
           <PortfolioTab
             serviceProviderProfileId={account.serviceProvider.id}
@@ -641,13 +573,38 @@ export function ProfilePageShell() {
           />
         )}
         {activeTab === "brand" && (
-          <BrandTab serviceProviderProfileId={account.serviceProvider.id} editable />
+          <BrandTab
+            serviceProviderProfileId={account.serviceProvider.id}
+            editable
+          />
         )}
-        {activeTab === "projects" && <ProjectsList />}
         {activeTab === "reviews" && (
-          <ReviewsList serviceProviderProfileId={account.serviceProvider.id} />
+          <ReviewsList profileId={account.serviceProvider.id} />
         )}
       </div>
+
+      <Dialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      >
+        <DialogContent
+          className="sm:max-w-lg"
+          // The form has its own sticky footer; suppress the built-in
+          // close button so it doesn't visually collide with the X.
+          showCloseButton={false}
+        >
+          <DialogHeader>
+            <DialogTitle>{t("actions.editProfile")}</DialogTitle>
+            <DialogDescription>
+              {t("actions.editProfileDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <ProviderProfileEditor
+            account={account}
+            onSaved={() => setIsEditDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -655,7 +612,6 @@ export function ProfilePageShell() {
 // ─── Sub-states ────────────────────────────────────────────────────────────
 
 function LoadingShell() {
-  const t = useTranslations("Profile");
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       <div className="h-56 w-full animate-pulse rounded-2xl bg-muted" />
@@ -774,7 +730,7 @@ interface NoticeShellProps {
 
 function NoticeShell({ title, subtitle }: NoticeShellProps) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-5">
+    <div className="flex items-start gap-3 p-5">
       <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-destructive/10 text-destructive">
         <TriangleAlert aria-hidden className="size-4" />
       </span>
@@ -787,26 +743,5 @@ function NoticeShell({ title, subtitle }: NoticeShellProps) {
         ) : null}
       </div>
     </div>
-  );
-}
-
-// Missing icon
-function UserPlus({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <line x1="19" x2="19" y1="8" y2="14" />
-      <line x1="22" x2="16" y1="11" y2="11" />
-    </svg>
   );
 }

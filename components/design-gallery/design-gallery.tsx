@@ -25,7 +25,7 @@ export function DesignGallery() {
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-6 py-10">
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="font-mono text-2xs uppercase tracking-[0.18em] text-muted-foreground">
             Development only · no auth · no network
           </p>
           <h1 className="mt-2 font-heading text-3xl tracking-tight text-foreground">
@@ -131,7 +131,7 @@ export function DesignGallery() {
         <div className="grid gap-5 sm:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Gói Nhà Cung Cấp — 1 Tháng</CardTitle>
+              <CardTitle>Gói Nhà Cung Cấp — 1 Tháng</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <div className="flex items-baseline justify-between">
@@ -153,7 +153,7 @@ export function DesignGallery() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Loading</CardTitle>
+              <CardTitle>Loading</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <Skeleton className="h-4 w-3/4" />
@@ -193,7 +193,7 @@ export function DesignGallery() {
                 {["Milestone", "Status", "Due", "Amount"].map((h) => (
                   <th
                     key={h}
-                    className="px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground"
+                    className="px-4 py-2.5 text-left font-mono text-2xs uppercase tracking-[0.12em] text-muted-foreground"
                   >
                     {h}
                   </th>
@@ -234,7 +234,7 @@ export function DesignGallery() {
       </Section>
 
       <footer className="border-t border-border pt-6 pb-4">
-        <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="flex items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-muted-foreground">
           <Check aria-hidden className="size-3" />
           Fixtures only — nothing on this page reaches the API
         </p>
@@ -268,7 +268,7 @@ function Section({
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="w-20 shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+      <span className="w-20 shrink-0 font-mono text-2xs uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </span>
       {children}
@@ -279,7 +279,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+      <span className="font-mono text-2xs uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </span>
       {children}

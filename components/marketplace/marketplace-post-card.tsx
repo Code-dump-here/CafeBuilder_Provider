@@ -18,6 +18,7 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import type { MarketplacePost } from "@/features/projects/marketplace-types";
 import { formatVnd, formatVndCompact } from "@/lib/format-currency";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
 
 // ---------------------------------------------------------------------------
 // Locale-aware formatters (kept inline — no separate util file for one-off).
@@ -49,24 +50,12 @@ function formatDate(date: Date, locale: string) {
 // ---------------------------------------------------------------------------
 // Status / service-tone — keeps the palette restrained (3 tones max).
 
-const STATUS_TONE: Record<
-  MarketplacePost["status"],
-  { dot: string; pill: string }
-> = {
-  open: {
-    dot: "bg-success",
-    pill:
-      "border-success/50 bg-success-muted text-success-muted-foreground",
-  },
-  closed: {
-    dot: "bg-muted-foreground/50",
-    pill: "border-border bg-muted text-muted-foreground",
-  },
-  cancelled: {
-    dot: "bg-destructive",
-    pill:
-      "border-destructive/30 bg-destructive/10 text-destructive",
-  },
+// OPEN / CLOSED / CANCELLED stamped on the brief itself. The pulsing dot went
+// with the pill: a stamp is a settled mark, and the word already says open.
+const STATUS_STAMP: Record<MarketplacePost["status"], StampTone> = {
+  open: "success",
+  closed: "neutral",
+  cancelled: "danger",
 };
 
 const SERVICE_ICON: Record<
@@ -89,8 +78,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
   const t = useTranslations("Marketplace.card");
   const locale = useLocale();
 
-  const status = STATUS_TONE[post.status];
-  const ServiceIcon = SERVICE_ICON[post.serviceKind];
+    const ServiceIcon = SERVICE_ICON[post.serviceKind];
   const budget = formatBudget(post, locale);
 
   // Derive the days-to-deadline once on mount via `useSyncExternalStore`.
@@ -123,27 +111,13 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
     >
       {/* Top: status + service kind. */}
       <header className="flex items-start justify-between gap-3">
-        <Badge
-          variant="outline"
-          className={cn(
-            "gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold tracking-wide",
-            status.pill,
-          )}
-        >
-          <span
-            aria-hidden
-            className={cn(
-              "size-1.5 shrink-0 rounded-full",
-              status.dot,
-              post.status === "open" && "animate-pulse",
-            )}
-          />
+        <Stamp size="sm" tone={STATUS_STAMP[post.status]} seed={post.id}>
           {t(`status.${post.status}`)}
-        </Badge>
+        </Stamp>
 
         <Badge
           variant="secondary"
-          className="gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium"
+          className="gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
         >
           <ServiceIcon className="size-3" aria-hidden />
           {t(`serviceKind.${post.serviceKind}`)}
@@ -166,13 +140,13 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
       </p>
 
       {/* Address. */}
-      <div className="flex items-start gap-1.5 text-[12px] text-muted-foreground">
+      <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
         <MapPin className="mt-0.5 size-3 shrink-0" aria-hidden />
         <span className="line-clamp-1">{post.projectAddress}</span>
       </div>
 
       {/* Key facts: budget / area / deadline. */}
-      <dl className="grid grid-cols-3 gap-3 rounded-lg border border-border/40 bg-muted/30 px-3 py-2.5">
+      <dl className="grid grid-cols-3 gap-3 rounded-lg bg-foreground/5 px-3 py-2.5">
         <Fact
           icon={Wallet}
           label={t("budget")}
@@ -204,7 +178,7 @@ export function MarketplacePostCard({ post }: MarketplacePostCardProps) {
 
       {/* Footer: CTA. */}
       <footer className="mt-auto flex items-center justify-between border-t border-border/40 pt-3">
-        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+        <span className="text-2xs uppercase tracking-wider text-muted-foreground">
           {t("submitted")}{" "}
           <time
             dateTime={post.createdAt.toISOString()}
@@ -271,7 +245,7 @@ interface FactProps {
 function Fact({ icon: Icon, label, primary, secondary, secondaryTone = "muted" }: FactProps) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+      <dt className="flex items-center gap-1 text-2xs uppercase tracking-wide text-muted-foreground">
         <Icon className="size-2.5" aria-hidden />
         {label}
       </dt>
@@ -280,7 +254,7 @@ function Fact({ icon: Icon, label, primary, secondary, secondaryTone = "muted" }
           {primary}
         </span>
         {secondary ? (
-          <span className={cn("text-[11px]", DEADLINE_TONE[secondaryTone])}>
+          <span className={cn("text-xs", DEADLINE_TONE[secondaryTone])}>
             {secondary}
           </span>
         ) : null}

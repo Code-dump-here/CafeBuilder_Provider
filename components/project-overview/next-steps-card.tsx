@@ -137,7 +137,7 @@ export function NextStepsCard({ engagement, projectId }: NextStepsCardProps) {
     return (
       <Card size="sm" className="border-border/60">
         <CardHeader>
-          <CardTitle className="text-base">{t("title")}</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-2 p-4 pt-0">
           <Skeleton className="h-4 w-3/4" />
@@ -152,7 +152,7 @@ export function NextStepsCard({ engagement, projectId }: NextStepsCardProps) {
   return (
     <Card size="sm" aria-labelledby="next-steps-title" className="border-border/60">
       <CardHeader>
-        <CardTitle id="next-steps-title" className="flex items-center gap-2 text-base">
+        <CardTitle id="next-steps-title" className="flex items-center gap-2">
           <ClipboardCheck className="size-4 text-primary" aria-hidden />
           {t("title")}
         </CardTitle>
@@ -179,7 +179,7 @@ export function NextStepsCard({ engagement, projectId }: NextStepsCardProps) {
                   <span
                     aria-hidden
                     className={cn(
-                      "mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-[11px] font-semibold",
+                      "mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-semibold",
                       step.actionable
                         ? "bg-primary/10 text-primary"
                         : "bg-muted text-muted-foreground",

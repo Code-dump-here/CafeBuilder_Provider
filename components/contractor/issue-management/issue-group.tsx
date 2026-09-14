@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 
 import { IssueCard } from "./issue-card";
-import { IssueStatusPill } from "./issue-status-pill";
 import { cn } from "@/lib/utils";
 import type { Issue, IssueStatus } from "@/features/projects/issue-types";
 
@@ -23,6 +22,14 @@ interface IssueGroupProps {
  * border / background / transition tokens as `PhaseRow` so the
  * issues page reads as a sibling surface to the milestones page.
  */
+
+const GROUP_MARK: Record<IssueStatus, string> = {
+  open: "bg-danger",
+  in_progress: "bg-warning",
+  resolved: "bg-info",
+  closed: "bg-success",
+};
+
 export function IssueGroup({
   status,
   issues,
@@ -47,7 +54,10 @@ export function IssueGroup({
       )}
     >
       <header className="flex items-center gap-2">
-        <IssueStatusPill status={status} className="font-medium" />
+        {/* A group heading is not a record, so it gets no stamp — that read as
+            OPEN beside "Open", above cards each stamped OPEN again. A small
+            square in the status colour keeps the grouping's colour coding. */}
+        <span aria-hidden className={`size-2 shrink-0 ${GROUP_MARK[status]}`} />
         <h3
           id={`issue-group-${status}`}
           className="font-heading text-sm font-semibold text-foreground"

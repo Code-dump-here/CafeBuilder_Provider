@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Archivo, IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { hasLocale } from "next-intl";
@@ -14,6 +14,25 @@ import { buildThemeInitScript } from "@/lib/theme-init";
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin", "vietnamese"],
   variable: "--font-sans",
+  display: "swap",
+});
+
+// The drawing-set pairing. Archivo carries a real width axis, so one family
+// gives both the condensed display cut of a sheet title and an ordinary
+// heading width; Plex Mono sets sheet numbers, dimensions and stamps. Both
+// ship Vietnamese — Martian Mono and Instrument Sans were passed over because
+// they don't, and a diacritic falling back mid-word breaks the page.
+const archivo = Archivo({
+  subsets: ["latin", "vietnamese"],
+  axes: ["wdth"],
+  variable: "--font-archivo",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -45,6 +64,8 @@ export default async function RootLayout({
         "h-full",
         "antialiased",
         plusJakartaSans.variable,
+        archivo.variable,
+        plexMono.variable,
         "font-sans",
       )}
     >

@@ -199,7 +199,7 @@ export function RoleFields({
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <User className="size-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
             {t("provider.fields.displayName")}
           </h2>
         </div>
@@ -221,7 +221,7 @@ export function RoleFields({
       {/* ── Provider type ────────────────────────────────────────────── */}
       <div className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
             {t("provider.fields.providerType")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -242,7 +242,7 @@ export function RoleFields({
       {/* ── Capability ───────────────────────────────────────────────── */}
       <div className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
             {t("provider.fields.capability")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -263,7 +263,7 @@ export function RoleFields({
       {/* ── Bio ──────────────────────────────────────────────────────── */}
       <div className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
             {t("provider.fields.bio")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -322,9 +322,9 @@ export function RoleFields({
 
       {/* ── Company tax code (conditional) ───────────────────────────── */}
       {isCompany && (
-        <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+        <div className="space-y-3 rounded-xl bg-foreground/5 p-4">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
               {t("provider.fields.companyTaxCode")}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">

@@ -82,7 +82,7 @@ export function ApprovedDrawingsView({
       ) : isLoading ? (
         <ApprovedDrawingsSkeleton />
       ) : approvedDesigns.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border/60 bg-card px-6 py-12 text-center text-sm text-muted-foreground">
+        <p className="px-6 py-12 text-center text-sm text-muted-foreground">
           {labels.empty}
         </p>
       ) : (
@@ -105,7 +105,7 @@ export function ApprovedDrawingsView({
                   <span className="truncate text-sm font-semibold text-foreground">
                     {design.title}
                   </span>
-                  <span className="text-[12px] text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     {versionLabel}
                   </span>
                 </div>
@@ -129,7 +129,7 @@ export function ApprovedDrawingsView({
       {isFetching && !isLoading && !isError ? (
         <p
           aria-live="polite"
-          className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
+          className="flex items-center justify-center gap-2 text-center text-2xs uppercase tracking-wider text-muted-foreground"
         >
           <Loader2 className="size-3 animate-spin" aria-hidden />
           {labels.loading}
@@ -137,7 +137,7 @@ export function ApprovedDrawingsView({
       ) : null}
 
       {!isLoading && approvedDesigns.length > 0 && !isError ? (
-        <p className="text-center text-[12px] text-muted-foreground">
+        <p className="text-center text-xs text-muted-foreground">
           {labels.footer}
         </p>
       ) : null}
@@ -181,7 +181,7 @@ function ApprovedDrawingsErrorBanner({
   return (
     <div
       role="alert"
-      className="flex flex-col items-center justify-center gap-3 rounded-lg border border-border/60 bg-card p-8 text-center"
+      className="flex flex-col items-center justify-center gap-3 p-8 text-center"
     >
       <p className="text-sm font-medium text-foreground">
         {labels.errorTitle}

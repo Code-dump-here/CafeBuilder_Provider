@@ -148,7 +148,7 @@ export function ApplyTemplateDialog({
           </Field>
 
           {selected ? (
-            <p className="rounded-md border border-border/60 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+            <p className="rounded-md bg-foreground/5 px-3 py-2 text-xs text-muted-foreground">
               {t("summary", {
                 phases: selected.items.length,
                 tasks: selected.items.reduce(
@@ -157,6 +157,20 @@ export function ApplyTemplateDialog({
                 ),
                 days: selected.totalEstimateDays,
               })}
+              {startDate ? (
+                (() => {
+                  const finish = formatPlannedFinish(
+                    startDate,
+                    selected.totalEstimateDays,
+                  );
+                  return finish ? (
+                    <>
+                      {" · "}
+                      {t("finishEstimate", { date: finish })}
+                    </>
+                  ) : null;
+                })()
+              ) : null}
             </p>
           ) : null}
 
@@ -187,6 +201,26 @@ export function ApplyTemplateDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+/**
+ * Best-effort preview of the plan finish date: `startDate + totalEstimateDays`,
+ * inclusive on both ends to match the BE rule (`plannedDurationDays` includes
+ * the start day).
+ *
+ * Returns `null` for inputs we can't render (invalid date, non-positive
+ * days) — the caller then omits the suffix.
+ */
+function formatPlannedFinish(
+  startDate: string,
+  days: number,
+): string | null {
+  if (!startDate || !Number.isFinite(days) || days <= 0) return null;
+  const start = new Date(startDate);
+  if (Number.isNaN(start.getTime())) return null;
+  const finish = new Date(start);
+  finish.setDate(finish.getDate() + (days - 1));
+  return finish.toISOString().slice(0, 10);
 }
 
 function TemplateOption({
@@ -269,7 +303,7 @@ function TemplateOption({
               {template.name}
             </span>
             {template.isPublic ? (
-              <span className="rounded-full border border-border/60 bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
+              <span className="rounded-full border border-border/60 bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground">
                 {t("systemBadge")}
               </span>
             ) : null}
@@ -279,7 +313,7 @@ function TemplateOption({
               {template.description}
             </span>
           ) : null}
-          <span className="text-[12px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {t("counts", {
               phases: template.items.length,
               days: template.totalEstimateDays,
@@ -291,7 +325,7 @@ function TemplateOption({
       <button
         type="button"
         onClick={onToggleExpand}
-        className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground"
+        className="mt-1 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ChevronDown
           className={cn("size-3 transition-transform", expanded && "rotate-180")}
@@ -362,7 +396,7 @@ function TemplateOption({
                     ) : null}
                   </span>
                   {item.tasks.length > 0 ? (
-                    <span className="text-[12px] leading-relaxed text-muted-foreground">
+                    <span className="text-xs leading-relaxed text-muted-foreground">
                       {item.tasks.map((task) => task.name).join(" • ")}
                     </span>
                   ) : null}

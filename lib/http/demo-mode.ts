@@ -39,6 +39,13 @@ import type {
 } from "axios";
 
 import { tokenStore } from "@/features/auth/token-store";
+import {
+  BAR_ELEVATION,
+  BAR_SECTION,
+  GROUND_FLOOR_PLAN,
+  LIGHTING_LAYOUT,
+  SIGNAGE_SKETCH,
+} from "@/lib/http/demo-drawings";
 
 /** Obviously not a JWT, so it can never be mistaken for one in a log. */
 export const DEMO_TOKEN = "demo-mode-no-backend";
@@ -109,17 +116,46 @@ const CONTRACTS = page([
   },
 ]);
 
-const DESIGNS = page([
-  { id: "d1", projectWorkingId: WORKING_ID, name: "Ground floor plan", version: 3.0,
-    status: "approved", reason: null, createdAt: NOW, updatedAt: NOW, images: [], attachments: [] },
-  { id: "d2", projectWorkingId: WORKING_ID, name: "Bar elevation", version: 2.0,
-    status: "revision", reason: "Move the till point away from the service door.",
-    createdAt: NOW, updatedAt: NOW, images: [], attachments: [] },
-  { id: "d3", projectWorkingId: WORKING_ID, name: "Lighting layout", version: 1.0,
-    status: "submitted", reason: null, createdAt: NOW, updatedAt: NOW, images: [], attachments: [] },
-  { id: "d4", projectWorkingId: WORKING_ID, name: "Signage concepts", version: 0.2,
-    status: "in_progress", reason: null, createdAt: NOW, updatedAt: NOW, images: [], attachments: [] },
-]);
+// Shaped like the current Design type: `title`, a string `version`, `type`,
+// `changeSummary` and `revisionCount`. The older fixture still used `name` and
+// a numeric version, from before the API changed, so the detail page never
+// resolved a design and sat on "Loading design…".
+// Drawings per design, so the design detail viewer has something to show.
+const DESIGN_IMAGES: Record<string, [string, string][]> = {
+  d1: [["Ground floor plan", GROUND_FLOOR_PLAN]],
+  d2: [["Bar elevation — front", BAR_ELEVATION], ["Bar counter — section A–A", BAR_SECTION]],
+  d3: [["Lighting layout", LIGHTING_LAYOUT]],
+  d4: [["Signage — concept B", SIGNAGE_SKETCH]],
+};
+
+const DESIGN_ROWS = [
+  { id: "d1", title: "Ground floor plan", version: "3.0", type: "layout_2d", status: "approved",
+    reason: null, changeSummary: "Moved the bar run to the north wall.", revisionCount: 2 },
+  { id: "d2", title: "Bar elevation", version: "2.0", type: "technical_drawing", status: "revision",
+    reason: "Move the till point away from the service door.", changeSummary: null, revisionCount: 1 },
+  { id: "d3", title: "Lighting layout", version: "1.0", type: "technical_drawing", status: "submitted",
+    reason: null, changeSummary: "First issue for review.", revisionCount: 0 },
+  { id: "d4", title: "Signage concepts", version: "0.2", type: "concept", status: "in_progress",
+    reason: null, changeSummary: null, revisionCount: 0 },
+].map((d) => ({
+  ...d, projectWorkingId: WORKING_ID, createdBy: "00000000-0000-4000-8000-000000000001",
+  createdAt: NOW, updatedAt: NOW,
+  images: (DESIGN_IMAGES[d.id] ?? []).map(([caption, viewUrl], i) => ({
+    id: `${d.id}-img${i + 1}`, designId: d.id, imageUrl: `demo/${d.id}/${i + 1}.svg`,
+    viewUrl, caption, uploadedBy: "00000000-0000-4000-8000-000000000001", createdAt: NOW,
+  })),
+}));
+
+const DESIGNS = page(DESIGN_ROWS);
+
+// `/api/designs/{id}` answers with that design, `/api/designs/{id}/versions`
+// with an empty snapshot history, and the list URL with the page.
+const designs = (url: string) => {
+  const match = url.match(/\/api\/designs\/([^/?]+)(\/versions)?/);
+  if (!match) return DESIGNS;
+  if (match[2]) return page([]);
+  return DESIGN_ROWS.find((d) => d.id === match[1]) ?? null;
+};
 
 const CONSTRUCTION_ITEMS = page([
   // `parentId: null` marks a top-level phase. The milestones board filters on
@@ -237,6 +273,7 @@ const PROJECT = {
   longitude: null,
   createdAt: NOW,
   updatedAt: NOW,
+  owner: { id: "owner-1", fullName: "Trần Minh Anh", shopName: "Nhà Nâu Coffee", phone: null },
   /**
    * The second load-bearing field, alongside the engagement list.
    *
@@ -275,15 +312,655 @@ const PROJECT = {
 };
 
 /** Endpoint → fixture. Matched in order; the first hit wins. */
+/**
+ * Ratings on the demo provider.
+ *
+ * Deliberately uneven: one review carries a reply and a full set of scores,
+ * one has a comment but no reply, one is a bare rating with no comment at all.
+ * A card is mostly conditional blocks, so fixtures where every field is
+ * populated prove only that the happy path renders.
+ */
+const REVIEWS = {
+  items: [
+    {
+      id: "00000000-0000-4000-8000-00000000ra01",
+      projectWorkingId: "00000000-0000-4000-8000-000000000010",
+      projectShopOwnerId: "11111111-1111-4111-8111-111111111111",
+      serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+      overallRating: 5,
+      comment:
+        "Bar run came out exactly as drawn and the site was clean every evening. Handover pack arrived the same week.",
+      scores: [
+        { id: "s1", dimension: "progress", score: 5 },
+        { id: "s2", dimension: "quality", score: 5 },
+        { id: "s3", dimension: "communication", score: 4 },
+        { id: "s4", dimension: "cost", score: 5 },
+      ],
+      providerReply:
+        "Thank you — it was a straightforward brief and the deposit cleared on time, which kept the joinery slot.",
+      repliedAt: "2026-08-02T09:15:00Z",
+      images: [],
+      createdAt: "2026-07-28T11:00:00Z",
+      updatedAt: "2026-08-02T09:15:00Z",
+    },
+    {
+      id: "00000000-0000-4000-8000-00000000ra02",
+      projectWorkingId: "00000000-0000-4000-8000-000000000010",
+      projectShopOwnerId: "11111111-1111-4111-8111-111111111111",
+      serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+      overallRating: 4,
+      comment: "Good work overall. Electrical first fix slipped about a week.",
+      scores: [
+        { id: "s5", dimension: "progress", score: 3 },
+        { id: "s6", dimension: "quality", score: 5 },
+      ],
+      providerReply: null,
+      repliedAt: null,
+      images: [],
+      createdAt: "2026-06-14T08:30:00Z",
+      updatedAt: "2026-06-14T08:30:00Z",
+    },
+    {
+      id: "00000000-0000-4000-8000-00000000ra03",
+      projectWorkingId: "00000000-0000-4000-8000-000000000010",
+      projectShopOwnerId: "11111111-1111-4111-8111-111111111111",
+      serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+      overallRating: 3,
+      comment: null,
+      scores: [],
+      providerReply: null,
+      repliedAt: null,
+      images: [],
+      createdAt: "2026-05-03T16:45:00Z",
+      updatedAt: "2026-05-03T16:45:00Z",
+    },
+  ],
+  pageNumber: 1,
+  pageSize: 10,
+  totalItems: 3,
+  totalPages: 1,
+  hasPrevious: false,
+  hasNext: false,
+};
+
+/** Matches REVIEWS above — 5 + 4 + 3 over three reviews. */
+const REVIEW_SUMMARY = {
+  serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+  reviewCount: 3,
+  averageRating: 4,
+  dimensionAverages: {
+    progress: 4,
+    quality: 5,
+    communication: 4,
+    cost: 5,
+  },
+};
+
+// ─── Provider directory ────────────────────────────────────────────────────
+// Three providers that differ on the axes the directory renders: capability,
+// individual vs company, verified or not, rated or not yet rated. A directory
+// of identical cards would only prove the grid lays out.
+const PROVIDER_ROWS = [
+  {
+    id: "00000000-0000-4000-8000-000000000002",
+    accountId: "00000000-0000-4000-8000-000000000001",
+    displayName: "Xưởng Mộc Bình Minh",
+    providerType: "company",
+    capability: "both",
+    bio: "Design-and-build studio working on cafés across Ho Chi Minh City.",
+    companyTaxCode: "0312345678",
+    yearsExperience: 8,
+    portfolioHeadline: "Timber-forward cafés, from brief to handover",
+    isVerified: true,
+    avgRating: 4,
+    reviewCount: 3,
+    serviceAreas: [
+      { province: "Hồ Chí Minh", district: "Quận 1" },
+      { province: "Hồ Chí Minh", district: "Quận 3" },
+    ],
+    website: "https://binhminh.example",
+    companyAddress: "123 Nguyễn Huệ, Quận 1, Hồ Chí Minh",
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000003",
+    accountId: "00000000-0000-4000-8000-000000000011",
+    displayName: "Studio Lá Xanh",
+    providerType: "individual",
+    capability: "designer",
+    bio: "Small-footprint interiors: kiosks, takeaway counters and 20-seat rooms.",
+    companyTaxCode: null,
+    yearsExperience: 3,
+    portfolioHeadline: null,
+    isVerified: false,
+    avgRating: 0,
+    reviewCount: 0,
+    serviceAreas: [{ province: "Đà Nẵng", district: null }],
+    website: null,
+    companyAddress: null,
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000004",
+    accountId: "00000000-0000-4000-8000-000000000012",
+    displayName: "Công ty Xây dựng Nam Phát",
+    providerType: "company",
+    capability: "constructor",
+    bio: "Fit-out contractor. Shopfronts, MEP and joinery with our own crews.",
+    companyTaxCode: "0398765432",
+    yearsExperience: 14,
+    portfolioHeadline: "Fixed-price fit-outs, 6-10 week programmes",
+    isVerified: true,
+    avgRating: 4.6,
+    reviewCount: 12,
+    serviceAreas: [
+      { province: "Hồ Chí Minh", district: null },
+      { province: "Bình Dương", district: null },
+    ],
+    website: "https://namphat.example",
+    companyAddress: "45 Lê Văn Việt, Thủ Đức, Hồ Chí Minh",
+  },
+];
+
+const PROVIDERS = page(
+  PROVIDER_ROWS.map((p) => ({
+    id: p.id,
+    displayName: p.displayName,
+    providerType: p.providerType,
+    capability: p.capability,
+    bio: p.bio,
+    yearsExperience: p.yearsExperience,
+    portfolioHeadline: p.portfolioHeadline,
+    isVerified: p.isVerified,
+    avgRating: p.avgRating,
+    reviewCount: p.reviewCount,
+    createdAt: NOW,
+    coverImageViewUrl: null,
+    serviceAreas: p.serviceAreas,
+  })),
+);
+
+const providerFor = (url: string) =>
+  PROVIDER_ROWS.find((p) => url.includes(p.id)) ?? PROVIDER_ROWS[0];
+
+const providerDetail = (url: string) => {
+  const p = providerFor(url);
+  return {
+    id: p.id,
+    accountId: p.accountId,
+    displayName: p.displayName,
+    providerType: p.providerType,
+    capability: p.capability,
+    bio: p.bio,
+    companyTaxCode: p.companyTaxCode,
+    yearsExperience: p.yearsExperience,
+    portfolioHeadline: p.portfolioHeadline,
+    isVerified: p.isVerified,
+    avgRating: p.reviewCount ? p.avgRating : null,
+    createdAt: NOW,
+    updatedAt: NOW,
+    logoUrl: null,
+    logoViewUrl: null,
+    coverImageUrl: null,
+    coverImageViewUrl: null,
+    introVideoUrl: null,
+    introVideoViewUrl: null,
+  };
+};
+
+const providerBrand = (url: string) => {
+  const p = providerFor(url);
+  const company = p.providerType === "company";
+  return {
+    serviceProviderProfileId: p.id,
+    displayName: p.displayName,
+    logoUrl: null,
+    logoViewUrl: null,
+    coverImageUrl: null,
+    coverImageViewUrl: null,
+    introVideoUrl: null,
+    introVideoViewUrl: null,
+    website: p.website,
+    brandStory: p.bio,
+    companyAddress: p.companyAddress,
+    companyLatitude: null,
+    companyLongitude: null,
+    foundedYear: company ? 2026 - p.yearsExperience : null,
+    employeeCount: company ? 24 : null,
+    yearsExperience: p.yearsExperience,
+    isVerified: p.isVerified,
+    avgRating: p.avgRating,
+    reviewCount: p.reviewCount,
+    socialLinks: p.website
+      ? [{ id: "sl1", serviceProviderProfileId: p.id, platform: "facebook",
+           url: "https://facebook.com/example", label: null, sortOrder: 0 }]
+      : [],
+    serviceAreas: p.serviceAreas.map((a, i) => ({
+      id: "sa" + i,
+      serviceProviderProfileId: p.id,
+      province: a.province,
+      district: a.district,
+      note: null,
+      sortOrder: i,
+    })),
+    // Verified, awaiting an admin, and expired: the three states a
+    // certificate row has to render.
+    certificates: company
+      ? [
+          { id: "ce1", serviceProviderProfileId: p.id, kind: "license",
+            name: "Construction business licence", issuer: "Sở Xây dựng",
+            certificateNo: "XD-2019-0412", issuedAt: "2019-04-12", expiresAt: "2029-04-12",
+            fileUrl: null, fileViewUrl: null, isVerified: true, isExpired: false, sortOrder: 0 },
+          { id: "ce2", serviceProviderProfileId: p.id, kind: "certificate",
+            name: "Fire safety installation", issuer: "Cảnh sát PCCC",
+            certificateNo: null, issuedAt: "2024-01-08", expiresAt: null,
+            fileUrl: null, fileViewUrl: null, isVerified: false, isExpired: null, sortOrder: 1 },
+          { id: "ce3", serviceProviderProfileId: p.id, kind: "award",
+            name: "Best small commercial interior", issuer: "Vietnam Design Week",
+            certificateNo: null, issuedAt: "2021-11-20", expiresAt: "2023-11-20",
+            fileUrl: null, fileViewUrl: null, isVerified: true, isExpired: true, sortOrder: 2 },
+        ]
+      : [],
+  };
+};
+
+const portfolios = (url: string) => {
+  const p = providerFor(url);
+  const item = (id: string, title: string, featured: boolean, extra: object) => ({
+    id,
+    serviceProviderProfileId: p.id,
+    title,
+    description: null,
+    role: "both",
+    style: null,
+    location: null,
+    areaM2: null,
+    contractValue: null,
+    completedAt: null,
+    durationDays: null,
+    videoUrl: null,
+    videoViewUrl: null,
+    coverImageUrl: null,
+    coverImageViewUrl: null,
+    isFeatured: featured,
+    sortOrder: 0,
+    createdAt: NOW,
+    updatedAt: NOW,
+    images: [],
+    ...extra,
+  });
+  // The unrated individual has no portfolio yet, so the empty state shows too.
+  if (p.id === PROVIDER_ROWS[1].id) return page([]);
+  return page([
+    item("pf1", "Nhà Nâu Coffee — Quận 1", true, {
+      description: "Timber bar, terrazzo floor and a mezzanine for 18 seats.",
+      style: "Warm industrial",
+      location: "Quận 1, Hồ Chí Minh",
+      areaM2: 86.5,
+      contractValue: 420_000_000,
+      completedAt: "2026-03-28",
+      durationDays: 54,
+    }),
+    item("pf2", "Takeaway kiosk, Landmark 81", false, {
+      role: "construction",
+      location: "Bình Thạnh, Hồ Chí Minh",
+      areaM2: 12,
+      completedAt: "2025-10-02",
+      durationDays: 19,
+    }),
+  ]);
+};
+
+// ─── Status-bearing records ───────────────────────────────────────────────
+// One record per status, so every stamp tone on these screens can be seen
+// without a backend: quotations run draft → superseded, payment batches due →
+// confirmed, change orders pending / accepted / rejected.
+// A believable breakdown for any total: the shares a café fit-out quote
+// usually splits into, with the last line absorbing rounding so the items
+// always add up to the quotation's total.
+const QUOTE_LINES: [string, string, number, number][] = [
+  ["Design development & drawings", "lot", 1, 0.12],
+  ["Demolition & site preparation", "m²", 86.5, 0.08],
+  ["Bar counter — carcass, oak veneer, stone top", "m", 6.4, 0.26],
+  ["Plumbing & drainage to bar and WC", "lot", 1, 0.11],
+  ["Electrical & lighting", "lot", 1, 0.15],
+  ["Wall, floor & ceiling finishes", "m²", 86.5, 0.18],
+  ["Loose furniture & signage allowance", "lot", 1, 0.10],
+];
+
+function quotationItems(total: number) {
+  let used = 0;
+  return QUOTE_LINES.map(([name, unit, quantity, share], i) => {
+    const amount = i === QUOTE_LINES.length - 1
+      ? total - used
+      : Math.round((total * share) / 100_000) * 100_000;
+    used += amount;
+    return {
+      id: `qi${i + 1}`, name, description: null, unit, quantity,
+      unitPrice: Math.round(amount / quantity), amount, note: null, sortOrder: i + 1,
+    };
+  });
+}
+
+function quotationTerms(total: number) {
+  return ([
+    ["Deposit on signing", 30, "On contract signature"],
+    ["Bar carcass & plumbing complete", 30, "After plumbing sign-off"],
+    ["Electrical first fix signed off", 25, "After inspection"],
+    ["Handover", 15, "On handover and snag list closed"],
+  ] as const).map(([name, pct, condition], i) => ({
+    id: `qt${i + 1}`, sortOrder: i + 1, name, percentage: pct,
+    amount: Math.round((total * pct) / 100), condition,
+  }));
+}
+
+const QUOTATION_ROWS = [
+  ["q1", 4, "Design & build — revised after site survey", "accepted", 289_000_000],
+  ["q2", 3, "Design & build — mezzanine option", "revision_requested", 312_500_000],
+  ["q3", 2, "Design & build — first pricing", "superseded", 276_000_000],
+  ["q4", 1, "Joinery package only", "rejected", 94_000_000],
+  ["q5", 5, "Signage and exterior lighting", "sent", 38_400_000],
+  ["q6", 6, "Terrace extension (draft)", "draft", 61_000_000],
+].map(([id, version, title, status, total]) => ({
+  id, applyId: null, projectWorkingId: WORKING_ID, version, title,
+  note: null, totalAmount: total, estimatedDurationDays: 54,
+  freeRevisionCount: 2, extraRevisionFee: 1_500_000, status,
+  revisionReason: status === "revision_requested" ? "Split the mezzanine into its own instalment." : null,
+  rejectReason: status === "rejected" ? "Going with a single design-and-build contract instead." : null,
+  sentAt: status === "draft" ? null : NOW, respondedAt: null,
+  lockedAt: status === "accepted" ? NOW : null, isLocked: status === "accepted",
+  providerName: "Xưởng Mộc Bình Minh",
+  serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+  providerAvgRating: 4, providerYearsExperience: 8, providerIsVerified: true,
+  items: quotationItems(total as number), paymentTerms: quotationTerms(total as number),
+  attachments: [], createdAt: NOW, updatedAt: NOW,
+}));
+
+const quotations = (url: string) =>
+  QUOTATION_ROWS.find((q) => url.includes("/api/quotations/" + q.id)) ?? page(QUOTATION_ROWS);
+
+const PAYMENT_BATCH_ROWS = [
+  ["pb1", 1, "Deposit on signing", 30, 86_700_000, "confirmed"],
+  ["pb2", 2, "Bar carcass & plumbing complete", 30, 86_700_000, "proof_submitted"],
+  ["pb3", 3, "Electrical first fix signed off", 25, 72_250_000, "pending"],
+  ["pb4", 4, "Handover", 15, 43_350_000, "rejected"],
+].map(([id, order, name, pct, amount, status]) => ({
+  id, contractId: "c1", constructionItemId: null, constructionItemName: null,
+  changeOrderId: null, sortOrder: order, name, percentage: pct, amount,
+  dueAt: "2026-10-01", status,
+  proofSubmittedAt: status === "pending" ? null : NOW,
+  confirmedAt: status === "confirmed" ? NOW : null, confirmedBy: null,
+  rejectReason: status === "rejected" ? "Transfer reference doesn't match the amount." : null,
+  note: null, paidAmount: status === "confirmed" ? amount : 0,
+  // The confirmed and the submitted instalments carry the owner's transfer
+  // record, so the proof trail and its reconciliation are visible.
+  proofs: status === "confirmed" || status === "proof_submitted"
+    ? [{
+        id: `${id}-proof`, imageUrl: null, imageViewUrl: null, amount: null,
+        transferredAt: status === "confirmed" ? "2026-09-02T10:15:00Z" : "2026-09-11T15:40:00Z",
+        note: status === "confirmed" ? "Vietcombank · ref NNC-DEP-0902" : "Techcombank · ref NNC-BAR-0911",
+        uploadedBy: null, createdAt: NOW,
+      }]
+    : [],
+  createdAt: NOW, updatedAt: NOW,
+}));
+
+const paymentBatches = (url: string) =>
+  PAYMENT_BATCH_ROWS.find((b) => url.includes("/api/payment-batches/" + b.id)) ?? page(PAYMENT_BATCH_ROWS);
+
+const CHANGE_ORDER_ROWS = [
+  ["co1", "scope_change", "Add a service hatch to the kitchen wall", 12_800_000, "accepted"],
+  ["co2", "material_change", "Oak veneer instead of laminate on the bar front", 9_600_000, "pending"],
+  ["co3", "extra_revision", "Third revision of the signage concept", 1_500_000, "rejected"],
+].map(([id, kind, title, amount, status]) => ({
+  id, projectWorkingId: WORKING_ID, designId: null, constructionItemId: null,
+  constructionItemName: null, kind, title,
+  reason: "Requested on site after the first-fix walkthrough.", amount,
+  revisionNo: kind === "extra_revision" ? 3 : null, status,
+  requestedByParty: "provider", createdBy: null, respondedBy: null,
+  respondedAt: status === "pending" ? null : NOW,
+  rejectReason: status === "rejected" ? "Covered by the free revisions in the quotation." : null,
+  createdAt: NOW, updatedAt: NOW, paymentBatchId: null, paymentBatchStatus: null,
+  needsPricing: false,
+}));
+
+const CHANGE_ORDER_SUMMARY = {
+  projectWorkingId: WORKING_ID, contractValue: 289_000_000,
+  acceptedAmount: 12_800_000, pendingAmount: 9_600_000, totalCommitted: 301_800_000,
+  acceptedCount: 1, pendingCount: 1, rejectedCount: 1,
+};
+
+const changeOrders = (url: string) =>
+  CHANGE_ORDER_ROWS.find((c) => url.includes("/api/change-orders/" + c.id)) ?? page(CHANGE_ORDER_ROWS);
+
+// ─── Cost summaries ────────────────────────────────────────────────────────
+// The construction-items route used to answer these too, so the overview's
+// cost card got a page of milestones where it expected summaries, reached for
+// `item.children` and took the whole screen down. Built from the same four
+// milestones, with actuals only where work has happened.
+const COST_ROWS = CONSTRUCTION_ITEMS.items.map((m, i) => {
+  const estimated = [44_850_000, 89_700_000, 29_900_000, 134_550_000][i] ?? 0;
+  const actual = m.status === "completed" ? estimated * 1.04 : m.status === "in_progress" ? estimated * 0.55 : null;
+  return {
+    constructionItemId: m.id, name: m.name, category: m.category, status: m.status,
+    estimatedLaborCost: estimated * 0.4, actualLaborCost: actual === null ? null : actual * 0.4,
+    estimatedMaterialCost: estimated * 0.6, actualMaterialCost: actual === null ? null : actual * 0.6,
+    estimatedCost: estimated, actualCost: actual,
+    childrenEstimatedCost: 0, childrenActualCost: null,
+    totalEstimatedCost: estimated, totalActualCost: actual,
+    variance: actual === null ? null : actual - estimated,
+    missingActualMaterialLines: m.status === "in_progress" ? 2 : 0,
+    missingActualLaborLines: m.status === "in_progress" ? 1 : 0,
+    startAt: m.startAt, estimateAt: m.estimateAt,
+    plannedDurationDays: 10, actualDurationDays: m.status === "completed" ? 11 : null,
+    children: [],
+  };
+});
+
+const ENGAGEMENT_COST_SUMMARY = (() => {
+  const sum = (k: "totalEstimatedCost" | "estimatedLaborCost" | "estimatedMaterialCost") =>
+    COST_ROWS.reduce((a, r) => a + (r[k] ?? 0), 0);
+  const actual = COST_ROWS.reduce((a, r) => a + (r.totalActualCost ?? 0), 0);
+  return {
+    projectWorkingId: WORKING_ID,
+    estimatedLaborCost: sum("estimatedLaborCost"), actualLaborCost: actual * 0.4,
+    estimatedMaterialCost: sum("estimatedMaterialCost"), actualMaterialCost: actual * 0.6,
+    totalEstimatedCost: sum("totalEstimatedCost"), totalActualCost: actual,
+    variance: null, missingActualMaterialLines: 2, missingActualLaborLines: 1,
+    rootItemCount: COST_ROWS.length,
+    acceptedChangeOrderAmount: 12_800_000, pendingChangeOrderAmount: 9_600_000,
+    totalEstimatedCostWithChangeOrders: sum("totalEstimatedCost") + 12_800_000,
+    items: COST_ROWS,
+  };
+})();
+
+const itemCostSummary = (url: string) =>
+  COST_ROWS.find((r) => url.includes("/api/construction-items/" + r.constructionItemId + "/")) ?? COST_ROWS[0];
+
+// ─── Marketplace briefs ───────────────────────────────────────────────────
+// One per post status. Demo mode ignores the status filter, so the grid shows
+// all three and the OPEN / CLOSED / CANCELLED stamps can be compared side by
+// side.
+const POSTS = page([
+  ["p1", "Nhà Nâu Coffee — Quận 1", "123 Nguyễn Huệ, Quận 1, Hồ Chí Minh", 420_000_000, 86.5, "both",
+   "Design and fit-out for an 18-seat espresso bar", "open", "2026-10-15"],
+  ["p2", "Trạm Trà — Hai Bà Trưng", "8 Lò Đúc, Hai Bà Trưng, Hà Nội", 180_000_000, 42, "design",
+   "Concept and layout for a tea counter with takeaway window", "closed", "2026-08-30"],
+  ["p3", "Góc Sân Café — Đà Nẵng", "56 Bạch Đằng, Hải Châu, Đà Nẵng", 650_000_000, 140, "construction",
+   "Build-out of a two-floor café from approved drawings", "cancelled", "2026-09-05"],
+].map(([id, projectName, projectAddress, projectBudget, projectAreaM2, serviceKind, title, status, deadline]) => ({
+  id, projectShopOwnerId: "11111111-1111-4111-8111-111111111111", projectName, projectAddress,
+  projectBudget, projectAreaM2, serviceKind, title,
+  description: "Brief posted by the owner with floor area, budget and the service needed.",
+  status, submissionDeadline: deadline + "T00:00:00Z", createdAt: NOW, updatedAt: NOW,
+})));
+
+// Tasks per phase — their own endpoint, not child construction items. Without
+// them every phase read "0/0 done · No tasks yet", which made the board look
+// empty rather than showing what a real schedule carries.
+const CONSTRUCTION_TASK_ROWS = ([
+  ["m1", "Strip out old counter and shelving", "completed", 2_400_000],
+  ["m1", "Cap redundant water and waste", "completed", 1_800_000],
+  ["m1", "Make good floor screed", "completed", 3_200_000],
+  ["m2", "Set out bar run to drawing A-101", "completed", 900_000],
+  ["m2", "Build bar carcass frame", "completed", 6_500_000],
+  ["m2", "Run water and waste to bar sink", "in_progress", 4_200_000],
+  ["m2", "Pressure test and sign off plumbing", "pending", 1_100_000],
+  ["m3", "Chase walls for new circuits", "pending", 2_000_000],
+  ["m3", "First fix lighting and sockets", "pending", 5_400_000],
+  ["m3", "Inspection before plastering", "pending", 600_000],
+  ["m4", "Oak veneer bar front", "pending", 7_800_000],
+  ["m4", "Paint and feature wall", "pending", 4_900_000],
+] as const).map(([constructionItemId, name, status, labor], i) => ({
+  id: `t${i + 1}`, constructionItemId, name, description: null,
+  imageUrl: null, imageViewUrl: null, startAt: null, estimateAt: null,
+  actualStartAt: status === "pending" ? null : NOW,
+  actualAt: status === "completed" ? NOW : null,
+  plannedDurationDays: null, actualDurationDays: null,
+  estimatedLaborCost: labor, actualLaborCost: status === "completed" ? labor : null,
+  reason: null, status, createdBy: "demo", createdAt: NOW, updatedAt: NOW,
+}));
+
+const constructionTasks = (url: string) => {
+  const item = /constructionItemId=([^&]+)/.exec(url)?.[1];
+  return page(item ? CONSTRUCTION_TASK_ROWS.filter((task) => task.constructionItemId === item) : CONSTRUCTION_TASK_ROWS);
+};
+
+// The owner's brief, so the project overview shows what was asked for
+// instead of "No brief yet".
+const DESIGN_BRIEFS = page([{
+  id: "b1", projectId: PROJECT_ID,
+  targetCustomer: "Office workers from the surrounding towers, 25–40, weekday mornings and lunch",
+  style: "Warm timber, exposed concrete, low pendant lighting",
+  mood: "Calm and focused in the morning, social at lunch",
+  seatCount: 18,
+  timeline: "Open before the Tết season — handover by mid-December",
+  brandNote: "Nhà Nâu: brown roast, hand-lettered signage, nothing glossy",
+  businessModel: "Specialty espresso bar with takeaway window",
+  businessGoals: "300 cups a day within six months; takeaway at least 40% of sales",
+  operationNote: "Two baristas at peak; the bar must be reachable from the takeaway window",
+  createdAt: NOW, updatedAt: NOW, aiRecommendations: [],
+}]);
+
+
+// ─── My Projects ───────────────────────────────────────────────────────────
+// Three jobs in the three states the page shows — active, invited, finished —
+// each on its own project with its own owner and brief, so a card can be
+// judged on whether it tells one job from another.
+const INVITED_PROJECT_ID = "44444444-4444-4444-8444-444444444444";
+const DONE_PROJECT_ID = "55555555-5555-4555-8555-555555555555";
+
+const OTHER_PROJECTS: Record<string, typeof PROJECT> = {
+  [INVITED_PROJECT_ID]: {
+    ...PROJECT, id: INVITED_PROJECT_ID, name: "Trạm Trà — Hai Bà Trưng",
+    address: "8 Lò Đúc, Hai Bà Trưng, Hà Nội", areaM2: 42, budget: 180_000_000,
+    status: "open", providers: [],
+    owner: { id: "owner-2", fullName: "Nguyễn Thu Hà", shopName: "Trạm Trà", phone: null },
+  },
+  [DONE_PROJECT_ID]: {
+    ...PROJECT, id: DONE_PROJECT_ID, name: "Takeaway kiosk — Landmark 81",
+    address: "720A Điện Biên Phủ, Bình Thạnh, Hồ Chí Minh", areaM2: 12, budget: 95_000_000,
+    status: "completed", providers: [],
+    owner: { id: "owner-3", fullName: "Lê Quốc Bảo", shopName: "Kiosk 81", phone: null },
+  },
+};
+
+const projectDetail = (url: string) =>
+  OTHER_PROJECTS[/project-shop-owners\/([^/?]+)/.exec(url)?.[1] ?? ""] ?? PROJECT;
+
+const MY_PROJECT_ROWS = [
+  { ...ENGAGEMENTS.items[0], requestMessage: "We loved the timber bar you did in Quận 3 — can you take on design and the fit-out?",
+    contract: { id: "c1", title: "Design & build — Ground floor fit-out", agreedValue: 289_000_000,
+      documentViewUrl: null, status: "confirmed", confirmedAt: NOW, createdAt: NOW } },
+  { ...ENGAGEMENTS.items[0], id: "66666666-6666-4666-8666-666666666666",
+    projectShopOwnerId: INVITED_PROJECT_ID, projectName: "Trạm Trà — Hai Bà Trưng",
+    contractType: "design", status: "requested", startedAt: null, hasConfirmedContract: false,
+    contract: null, createdAt: "2026-09-10T08:30:00Z",
+    requestMessage: "A tea counter with a takeaway window. We need the concept before the lease starts in October." },
+  { ...ENGAGEMENTS.items[0], id: "77777777-7777-4777-8777-777777777777",
+    projectShopOwnerId: DONE_PROJECT_ID, projectName: "Takeaway kiosk — Landmark 81",
+    contractType: "construction", status: "completed", startedAt: "2025-09-01T08:00:00Z",
+    hasConfirmedContract: true, requestMessage: "",
+    contract: { id: "c9", title: "Kiosk build", agreedValue: 92_500_000, documentViewUrl: null,
+      status: "confirmed", confirmedAt: "2025-08-28T08:00:00Z", createdAt: "2025-08-20T08:00:00Z" } },
+];
+
+const myProjects = (url: string) => {
+  const statuses = /statuses=([^&]+)/.exec(url)?.[1];
+  const wanted = statuses ? decodeURIComponent(statuses).split(",") : null;
+  const kind = /contractType=([^&]+)/.exec(url)?.[1];
+  return page(MY_PROJECT_ROWS.filter((row) =>
+    (!wanted || wanted.includes(row.status)) && (!kind || row.contractType === kind)));
+};
+
+const ENGAGEMENT_BRIEFS: Record<string, object> = {
+  "66666666-6666-4666-8666-666666666666": {
+    style: "Pale wood and ceramic, very quiet", seatCount: 14,
+    timeline: "Concept by 1 Oct, opening before Tết",
+  },
+  "77777777-7777-4777-8777-777777777777": {
+    style: "Compact stainless kiosk with a lightbox menu", seatCount: 0,
+    timeline: "Build in the mall's night window",
+  },
+};
+
+const engagementBrief = (url: string) => {
+  const id = /project-workings\/([^/?]+)\/brief/.exec(url)?.[1] ?? "";
+  const base = DESIGN_BRIEFS.items[0];
+  return id in ENGAGEMENT_BRIEFS ? { ...base, ...ENGAGEMENT_BRIEFS[id] } : base;
+};
+
 const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/auth\/me$/, DEMO_ACCOUNT],
+  [/\/api\/project-workings\/filter/, myProjects],
+  [/\/api\/project-workings\/[^/?]+\/brief/, engagementBrief],
   [/\/api\/project-workings/, ENGAGEMENTS],
   [/\/api\/contracts/, CONTRACTS],
-  [/\/api\/designs/, DESIGNS],
-  [/\/api\/construction-items/, CONSTRUCTION_ITEMS],
+  [/\/api\/designs/, designs],
+  // Both cost-summary shapes before the items collection, which matches them too.
+  [/\/api\/construction-tasks(\/|\?|$)/, constructionTasks],
+  [/\/api\/construction-items\/cost-summary/, ENGAGEMENT_COST_SUMMARY],
+  [/\/api\/construction-items\/[^/?]+\/cost-summary/, itemCostSummary],
+  // Scoped to the engagement asked for: the My Projects cards read each job's
+  // schedule, and the other demo jobs have none.
+  [/\/api\/construction-items/, (url: string) => {
+    const working = /projectWorkingId=([^&]+)/.exec(url)?.[1];
+    return !working || working === WORKING_ID ? CONSTRUCTION_ITEMS : page([]);
+  }],
   [/\/api\/issue-types/, ISSUE_TYPES],
   [/\/api\/issues/, ISSUES],
-  [/\/api\/project-shop-owners\/[^/?]+/, PROJECT],
+  [/\/api\/project-shop-owners\/[^/?]+/, projectDetail],
+  [/\/api\/design-briefs/, DESIGN_BRIEFS],
+  // Per provider, from the directory rows: one shared summary made a firm
+  // read 4.6 from 12 reviews on its card and 4.0 from 3 on its profile.
+  [/\/api\/reviews\/providers\/[^/?]+\/summary/, (url: string) => {
+    const row = PROVIDER_ROWS.find((p) => url.includes(p.id));
+    return {
+      ...REVIEW_SUMMARY,
+      serviceProviderProfileId: row?.id ?? REVIEW_SUMMARY.serviceProviderProfileId,
+      reviewCount: row?.reviewCount ?? 0,
+      averageRating: row?.avgRating ?? 0,
+    };
+  }],
+  [/\/api\/reviews/, REVIEWS],
+  [/\/api\/posts(\/|\?|$)/, POSTS],
+  [/\/api\/quotations(\/|\?|$)/, quotations],
+  [/\/api\/payment-batches(\/|\?|$)/, paymentBatches],
+  [/\/api\/change-orders\/summary/, CHANGE_ORDER_SUMMARY],
+  // Before the change-orders collection, which would otherwise answer this
+  // with a paged list in a shape the design page does not expect. Two of two
+  // free revisions used, so the quota meter shows its over-the-limit state.
+  [/\/api\/change-orders\/revision-quota\//, {
+    designId: "d2", projectWorkingId: WORKING_ID, quotationId: "q1",
+    freeRevisionCount: 2, usedRevisionCount: 2, engagementUsedRevisionCount: 3,
+    remainingFreeRevisions: 0, nextRevisionCharged: true, extraRevisionFee: 1_500_000,
+  }],
+  [/\/api\/change-orders(\/|\?|$)/, changeOrders],
+  // Specific paths before their collections: brand sub-resources before the
+  // brand itself, a profile id before the paged list.
+  [/\/api\/provider-brands\/[^/?]+\/(certificates|service-areas|social-links)/, []],
+  [/\/api\/provider-brands\/[^/?]+/, providerBrand],
+  [/\/api\/provider-portfolios\?/, portfolios],
+  [/\/api\/service-provider-profiles\/[^/?]+/, providerDetail],
+  [/\/api\/service-provider-profiles/, PROVIDERS],
   [/\/api\/notifications\/unread-count/, { count: 2 }],
 ];
 
@@ -327,12 +1004,27 @@ export function installDemoMode(api: AxiosInstance): void {
       throw new Error("Demo mode: no underlying adapter to delegate to.");
     }
 
-    const url = `${config.baseURL ?? ""}${config.url ?? ""}`;
+    // `params` joined onto the URL: callers that pass filters as axios params
+    // (My Projects' `statuses`, for one) were otherwise invisible to the
+    // fixtures, so every tab got the unfiltered list.
+    const query = config.params
+      ? new URLSearchParams(
+          Object.entries(config.params as Record<string, unknown>)
+            .filter(([, value]) => value !== undefined && value !== null)
+            .map(([key, value]) => [key, String(value)]),
+        ).toString()
+      : "";
+    const base = `${config.baseURL ?? ""}${config.url ?? ""}`;
+    const url = query ? `${base}${base.includes("?") ? "&" : "?"}${query}` : base;
     const method = (config.method ?? "get").toLowerCase();
 
     let data: unknown;
     if (method === "get") {
-      data = ROUTES.find(([pattern]) => pattern.test(url))?.[1] ?? emptyFor(url);
+      const hit = ROUTES.find(([pattern]) => pattern.test(url))?.[1];
+      data =
+        typeof hit === "function"
+          ? (hit as (u: string) => unknown)(url)
+          : (hit ?? emptyFor(url));
     } else {
       // Writes succeed and change nothing, so a dialog can be submitted and
       // its success path seen without a server behind it.

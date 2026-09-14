@@ -65,12 +65,12 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
       className="hidden h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card lg:flex"
     >
       <header className="flex flex-col gap-2 border-b border-border/60 px-3 py-2.5">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
           {t("rail.heading")}
         </p>
-        <h2 className="text-sm font-semibold text-foreground">
+        <h2 className="text-base font-semibold text-foreground">
           {t("rail.files.title")}
-          <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+          <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground">
             {thread.attachments.length}
           </span>
         </h2>
@@ -93,7 +93,7 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
         <div className="flex flex-col gap-4 p-3">
           <section className="flex flex-col gap-2">
             {filteredFiles.length === 0 ? (
-              <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-xs text-muted-foreground">
+              <p className="px-3 py-6 text-center text-xs text-muted-foreground">
                 {search.trim()
                   ? t("rail.files.emptySearch")
                   : t("rail.files.empty")}
@@ -110,12 +110,12 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
           </section>
 
           <section className="flex flex-col gap-2">
-            <h4 className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <h4 className="inline-flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
               <Users aria-hidden className="size-3" />
               {t("rail.members")}
             </h4>
             {thread.members.length === 0 ? (
-              <p className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-xs text-muted-foreground">
+              <p className="px-3 py-6 text-center text-xs text-muted-foreground">
                 {t("rail.membersEmpty")}
               </p>
             ) : (
@@ -123,13 +123,13 @@ export function ThreadContextRail({ thread }: ThreadContextRailProps) {
                 {thread.members.map((member) => (
                   <li
                     key={member.id}
-                    className="flex items-center gap-2.5 rounded-md border border-border/40 bg-card/60 px-2 py-1.5"
+                    className="flex items-center gap-2.5 rounded-md bg-foreground/5 px-2 py-1.5"
                   >
                     <OwnerAvatar
                       name={member.fullName}
                       color={member.avatarColor}
                       size="default"
-                      className="size-7 text-[12px]"
+                      className="size-7 text-xs"
                     />
                     <p className="line-clamp-1 flex-1 text-xs font-medium text-foreground">
                       {member.fullName}
@@ -162,7 +162,7 @@ function FileCard({ attachment }: { attachment: MessageAttachment }) {
       <span
         aria-hidden
         className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-md text-[11px] font-bold tracking-wider",
+          "flex size-10 shrink-0 items-center justify-center rounded-md text-2xs font-bold tracking-wider",
           swatch,
         )}
       >
@@ -177,7 +177,7 @@ function FileCard({ attachment }: { attachment: MessageAttachment }) {
           {attachment.title}
         </p>
         {attachment.subtitle ? (
-          <p className="line-clamp-1 text-[11px] text-muted-foreground">
+          <p className="line-clamp-1 text-xs text-muted-foreground">
             {attachment.subtitle}
           </p>
         ) : null}

@@ -122,7 +122,7 @@ function NotificationsList({
 
       {isError ? (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-destructive/40 bg-destructive/5 p-6">
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
             {tStates("loadErrorTitle")}
           </h2>
           <p className="text-xs leading-relaxed text-muted-foreground">
@@ -217,9 +217,9 @@ function EmptyState({ filter }: { filter: ReadFilter }) {
         ? t("read")
         : t("all");
   return (
-    <div className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card px-4 py-10 text-center">
+    <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
       <Inbox aria-hidden className="size-6 text-muted-foreground/60" />
-      <h2 className="text-sm font-semibold text-foreground">
+      <h2 className="text-lg font-semibold tracking-tight text-foreground">
         {t("title", { filter: label })}
       </h2>
       <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
@@ -301,7 +301,7 @@ export function NotificationsPage() {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
       <header className="flex flex-col gap-2">
-        <span className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+        <span className="flex items-center gap-2 text-2xs uppercase tracking-[0.22em] text-muted-foreground">
           <Bell aria-hidden className="size-3.5 text-primary" />
           {t("eyebrow")}
         </span>

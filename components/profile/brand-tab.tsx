@@ -56,6 +56,7 @@ import {
   useRemoveCertificateMutation,
   useRemoveServiceAreaMutation,
   useRemoveSocialLinkMutation,
+  useUpdateCertificateMutation,
   useUpdateProviderBrandMutation,
 } from "@/features/service-provider-profiles/use-brand";
 import {
@@ -67,6 +68,7 @@ import {
   type ProviderSocialLink,
   type SocialPlatform,
 } from "@/features/service-provider-profiles/brand-types";
+import { Stamp } from "@/components/drawing-set/stamp";
 
 interface BrandTabProps {
   serviceProviderProfileId: string;
@@ -91,6 +93,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
   const [addingLink, setAddingLink] = React.useState(false);
   const [addingArea, setAddingArea] = React.useState(false);
   const [addingCert, setAddingCert] = React.useState(false);
+  const [editingCert, setEditingCert] = React.useState<ProviderCertificate | null>(null);
   const [removingLink, setRemovingLink] = React.useState<ProviderSocialLink | null>(null);
   const [removingArea, setRemovingArea] = React.useState<ProviderServiceArea | null>(null);
   const [removingCert, setRemovingCert] = React.useState<ProviderCertificate | null>(null);
@@ -101,6 +104,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
   const addArea = useAddServiceAreaMutation();
   const removeArea = useRemoveServiceAreaMutation();
   const addCert = useAddCertificateMutation();
+  const updateCert = useUpdateCertificateMutation();
   const removeCert = useRemoveCertificateMutation();
 
   if (isLoading) {
@@ -114,7 +118,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
 
   if (!brand) {
     return (
-      <p className="rounded-lg border border-dashed border-border/70 px-4 py-10 text-center text-sm text-muted-foreground">
+      <p className="px-4 py-10 text-center text-sm text-muted-foreground">
         {t("unavailable")}
       </p>
     );
@@ -126,7 +130,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2">
               {brand.displayName}
               {brand.isVerified ? (
                 <BadgeCheck className="size-4 text-primary" aria-label={t("verified")} />
@@ -292,7 +296,7 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2">
               <Award className="size-4 text-primary" aria-hidden />
               {t("certificates.title")}
             </CardTitle>
@@ -307,27 +311,28 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
         </CardHeader>
         <CardContent className="flex flex-col gap-2 p-4 pt-0">
           {brand.certificates.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground">
+            <p className="px-4 py-6 text-center text-sm text-muted-foreground">
               {t("certificates.empty")}
             </p>
           ) : (
             brand.certificates.map((cert) => (
               <div
                 key={cert.id}
-                className="flex items-start justify-between gap-4 rounded-lg border border-border/60 px-3 py-2"
+                className="flex items-start justify-between gap-4 rounded-lg px-3 py-2 bg-foreground/5"
               >
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
                     <Badge variant="outline">{t(`certificateKind.${cert.kind}`)}</Badge>
                     {cert.name}
                     {cert.isVerified ? (
-                      <Badge variant="secondary">
-                        <BadgeCheck className="size-3" aria-hidden />
+                      <Stamp size="sm" tone="success" seed={cert.id}>
                         {t("certificates.verified")}
-                      </Badge>
+                      </Stamp>
                     ) : null}
                     {cert.isExpired ? (
-                      <Badge variant="destructive">{t("certificates.expired")}</Badge>
+                      <Stamp size="sm" tone="danger" seed={cert.id + "expired"}>
+                        {t("certificates.expired")}
+                      </Stamp>
                     ) : null}
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -337,14 +342,25 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
                   </p>
                 </div>
                 {editable ? (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setRemovingCert(cert)}
-                  >
-                    <Trash2 className="size-4 text-destructive" aria-hidden />
-                    <span className="sr-only">{t("certificates.remove")}</span>
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditingCert(cert)}
+                      aria-label={t("certificates.edit")}
+                    >
+                      <Pencil className="size-4 text-muted-foreground" aria-hidden />
+                      <span className="sr-only">{t("certificates.edit")}</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setRemovingCert(cert)}
+                    >
+                      <Trash2 className="size-4 text-destructive" aria-hidden />
+                      <span className="sr-only">{t("certificates.remove")}</span>
+                    </Button>
+                  </div>
                 ) : null}
               </div>
             ))
@@ -400,6 +416,24 @@ export function BrandTab({ serviceProviderProfileId, editable }: BrandTabProps) 
             { onSuccess: () => setAddingCert(false) },
           )
         }
+      />
+
+      <CertificateDialog
+        open={editingCert !== null}
+        onOpenChange={(next) => {
+          if (!next) setEditingCert(null);
+        }}
+        pending={updateCert.isPending}
+        initial={editingCert}
+        onSubmit={(payload) => {
+          if (!editingCert) return;
+          updateCert.mutate(
+            { certificateId: editingCert.id, payload },
+            {
+              onSuccess: () => setEditingCert(null),
+            },
+          );
+        }}
       />
 
       <ConfirmDialog
@@ -496,7 +530,7 @@ function ListCard({
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2">
             <Icon className="size-4 text-primary" aria-hidden />
             {title}
           </CardTitle>
@@ -511,14 +545,14 @@ function ListCard({
       </CardHeader>
       <CardContent className="flex flex-col gap-2 p-4 pt-0">
         {rows.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground">
+          <p className="px-4 py-6 text-center text-sm text-muted-foreground">
             {empty}
           </p>
         ) : (
           rows.map((row) => (
             <div
               key={row.id}
-              className="flex items-center justify-between gap-4 rounded-lg border border-border/60 px-3 py-2"
+              className="flex items-center justify-between gap-4 rounded-lg px-3 py-2 bg-foreground/5"
             >
               <div className="flex min-w-0 flex-col gap-0.5">
                 <p className="text-sm font-medium">{row.primary}</p>
@@ -559,12 +593,14 @@ function Field({
   onChange,
   placeholder,
   type = "text",
+  disabled = false,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   type?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -573,6 +609,7 @@ function Field({
         type={type}
         value={value}
         placeholder={placeholder}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
       />
     </div>
@@ -651,9 +688,26 @@ function BrandDialog({
   });
 
   const num = (value: string) => {
-    const parsed = Number(value.trim());
-    return value.trim() === "" || !Number.isFinite(parsed) ? undefined : parsed;
+    const trimmed = value.trim();
+    if (trimmed.length === 0) return undefined;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : undefined;
   };
+
+  const currentYear = new Date().getFullYear();
+  const foundedYearNum = num(foundedYear);
+  const employeeCountNum = num(employeeCount);
+
+  // Spec §4.2.1 validation rules.
+  const foundedYearValid =
+    foundedYearNum === undefined ||
+    (foundedYearNum >= 1900 && foundedYearNum <= currentYear);
+  const employeeCountValid =
+    employeeCountNum === undefined || employeeCountNum > 0;
+
+  // Coordinates need no rule here: AddressPicker only ever yields both or
+  // neither, and the payload below keeps a clear exclusive with a new pair.
+  const formValid = foundedYearValid && employeeCountValid;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -682,6 +736,7 @@ function BrandDialog({
             value={foundedYear}
             onChange={setFoundedYear}
             type="number"
+            placeholder={t("identity.foundedYearHint", { year: currentYear })}
           />
           <Field
             label={t("identity.employeeCount")}
@@ -711,6 +766,7 @@ function BrandDialog({
               }}
             />
           </div>
+
           <div className="flex flex-col gap-1.5 sm:col-span-2">
             <label className="text-sm font-medium">{t("identity.story")}</label>
             <Textarea
@@ -722,36 +778,52 @@ function BrandDialog({
           </div>
         </div>
 
+        {/* Inline validation hints — match the spec rules so the user fixes
+            the form instead of discovering a 400 from the backend. */}
+        <div className="flex flex-col gap-1 text-xs">
+          {!foundedYearValid ? (
+            <p className="text-destructive">
+              {t("identity.foundedYearError", { min: 1900, max: currentYear })}
+            </p>
+          ) : null}
+          {!employeeCountValid ? (
+            <p className="text-destructive">{t("identity.employeeCountError")}</p>
+          ) : null}
+        </div>
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("common.cancel")}
           </Button>
           <Button
-            disabled={pending}
-            onClick={() =>
-              onSubmit({
+            disabled={pending || !formValid}
+            onClick={() => {
+              const payload: Parameters<typeof onSubmit>[0] = {
                 logoUrl: logoUrl.trim() || undefined,
                 coverImageUrl: coverImageUrl.trim() || undefined,
                 introVideoUrl: introVideoUrl.trim() || undefined,
                 website: website.trim() || undefined,
                 brandStory: brandStory.trim() || undefined,
+                // Address and pin come from AddressPicker as one value. Only a
+                // pin that still belongs to the address on screen is sent:
+                // editing the text after picking a suggestion clears the
+                // coordinates in the picker, so they are null by then.
                 companyAddress: companyLocation.address.trim() || undefined,
-                // Only send a pin that still belongs to the address on screen.
-                // Editing the text after picking a suggestion clears the
-                // coordinates in `AddressPicker`, so this is already null then.
                 companyLatitude: companyLocation.latitude ?? undefined,
                 companyLongitude: companyLocation.longitude ?? undefined,
-                // The saved pin has to be told to go, since an omitted field
-                // means "leave it". Only sent when there *was* one to remove,
-                // so an ordinary edit doesn't carry a no-op flag.
+                // An omitted field means "leave it", so a removed pin has to be
+                // said out loud. Sent only when a saved pin is being dropped —
+                // which is also when no new pair is sent, keeping the two
+                // mutually exclusive as the backend requires.
                 clearCompanyCoordinates:
                   companyLocation.latitude == null && initial.companyLatitude != null
                     ? true
                     : undefined,
-                foundedYear: num(foundedYear),
-                employeeCount: num(employeeCount),
-              })
-            }
+                foundedYear: foundedYearNum,
+                employeeCount: employeeCountNum,
+              };
+              onSubmit(payload);
+            }}
           >
             {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
             {t("common.save")}
@@ -898,11 +970,13 @@ function CertificateDialog({
   open,
   onOpenChange,
   pending,
+  initial,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pending: boolean;
+  initial?: ProviderCertificate | null;
   onSubmit: (payload: {
     kind: CertificateKind;
     name: string;
@@ -914,30 +988,43 @@ function CertificateDialog({
   }) => void;
 }) {
   const t = useTranslations("ProviderBrand");
-  const [kind, setKind] = React.useState<string>("certificate");
-  const [name, setName] = React.useState("");
-  const [issuer, setIssuer] = React.useState("");
-  const [certificateNo, setCertificateNo] = React.useState("");
-  const [issuedAt, setIssuedAt] = React.useState("");
-  const [expiresAt, setExpiresAt] = React.useState("");
-  const [fileUrl, setFileUrl] = React.useState("");
+  const isEdit = initial !== null && initial !== undefined;
+  const [kind, setKind] = React.useState<string>(initial?.kind ?? "certificate");
+  const [name, setName] = React.useState(initial?.name ?? "");
+  const [issuer, setIssuer] = React.useState(initial?.issuer ?? "");
+  const [certificateNo, setCertificateNo] = React.useState(initial?.certificateNo ?? "");
+  const [issuedAt, setIssuedAt] = React.useState(initial?.issuedAt ?? "");
+  const [expiresAt, setExpiresAt] = React.useState(initial?.expiresAt ?? "");
+  const [fileUrl, setFileUrl] = React.useState(initial?.fileUrl ?? "");
 
   useResetOnChange(open, () => {
-    setKind("certificate");
-    setName("");
-    setIssuer("");
-    setCertificateNo("");
-    setIssuedAt("");
-    setExpiresAt("");
-    setFileUrl("");
+    setKind(initial?.kind ?? "certificate");
+    setName(initial?.name ?? "");
+    setIssuer(initial?.issuer ?? "");
+    setCertificateNo(initial?.certificateNo ?? "");
+    setIssuedAt(initial?.issuedAt ?? "");
+    setExpiresAt(initial?.expiresAt ?? "");
+    setFileUrl(initial?.fileUrl ?? "");
   });
+
+  // Spec §4.2.4: `expiresAt >= issuedAt`. Returns true if OK (or both empty).
+  const dateRangeOk = (() => {
+    if (!issuedAt || !expiresAt) return true;
+    return new Date(expiresAt) >= new Date(issuedAt);
+  })();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t("certificates.dialogTitle")}</DialogTitle>
-          <DialogDescription>{t("certificates.dialogDescription")}</DialogDescription>
+          <DialogTitle>
+            {isEdit ? t("certificates.editTitle") : t("certificates.dialogTitle")}
+          </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? t("certificates.editDescription")
+              : t("certificates.dialogDescription")}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -984,14 +1071,18 @@ function CertificateDialog({
           </div>
         </div>
 
-        <p className="text-[12px] text-muted-foreground">{t("certificates.verifyNote")}</p>
+        {!dateRangeOk ? (
+          <p className="text-xs text-destructive">{t("certificates.dateRangeError")}</p>
+        ) : null}
+
+        <p className="text-xs text-muted-foreground">{t("certificates.verifyNote")}</p>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("common.cancel")}
           </Button>
           <Button
-            disabled={pending || name.trim().length === 0}
+            disabled={pending || name.trim().length === 0 || !dateRangeOk}
             onClick={() =>
               onSubmit({
                 kind: kind as CertificateKind,
@@ -1005,7 +1096,7 @@ function CertificateDialog({
             }
           >
             {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-            {t("common.add")}
+            {isEdit ? t("common.save") : t("common.add")}
           </Button>
         </DialogFooter>
       </DialogContent>

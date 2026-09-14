@@ -11,7 +11,19 @@
       "sub": "Post your brief, match a designer, line up a contractor. One workspace from first sketch to grand opening.",
       "primaryCta": "Start a project",
       "secondaryCta": "Browse marketplace",
-      "hint": "Free to plan, pay only when you accept a bid."
+      "hint": "Free to plan, pay only when you accept a bid.",
+      "plan": {
+        "alt": "Ground floor plan of a café — entry, a bar along the right wall and eighteen seats — stamped approved",
+        "sheet": "Sheet",
+        "titleLabel": "Title",
+        "title": "Ground floor plan — Nhà Nâu Coffee",
+        "scale": "Scale",
+        "revision": "Rev",
+        "bar": "Bar",
+        "seating": "Seating · 18",
+        "entry": "Entry",
+        "approved": "Approved"
+      }
     },
     "howItWorks": {
       "title": "How a project moves through",
@@ -895,9 +907,17 @@
     "value": "Value: {value} VND",
     "valueNotSet": "Value: not set",
     "termsLabel": "Terms",
+    "partyInfoLabel": "Parties",
     "createdAt": "Created {date} at {time}",
     "otpExpiresAt": "OTP expires: {time}",
     "confirmedAt": "Confirmed: {time}",
+    "executionFrom": "From {date}",
+    "executionFromUnknown": "From —",
+    "executionTo": "to {date}",
+    "executionToUnknown": "to —",
+    "executionDuration": "{days} day(s)",
+    "fromQuotation": "From quotation",
+    "fromQuotationHint": "This contract is anchored to an accepted quotation. Agreed value is fixed and the contract will generate payment batches on confirmation.",
     "status": {
       "drafted": "Draft",
       "pendingOtp": "Awaiting confirmation",
@@ -915,10 +935,28 @@
     "dialog": {
       "titleCreate": "Create Contract",
       "descriptionCreate": "Create a new contract for this project engagement.",
+      "titleEdit": "Edit Contract",
+      "descriptionEdit": "Update the contract details while it's still a draft. Once the OTP is sent the contract is locked.",
+      "editNotEditableHint": "This contract is no longer editable. Only drafts can be modified.",
+      "editValueLockedHint": "This contract was built from an accepted quotation — agreed value is locked.",
+      "save": "Save changes",
+      "updating": "Saving…",
       "titleLabel": "Contract Title",
       "titlePlaceholder": "e.g., Coffee Shop Design & Build Contract",
       "valueLabel": "Agreed Value",
       "valuePlaceholder": "Enter amount",
+      "valueLockedFromQuotation": "(from quotation)",
+      "partyInfoLabel": "Parties (owner ↔ provider)",
+      "partyInfoPlaceholder": "Bên A: Owner ... | Bên B: Provider ...",
+      "executionStartLabel": "Execution start",
+      "executionEndLabel": "Execution end",
+      "executionEndAutoDerive": "Leave blank to auto-derive from start + {days} day(s) estimated duration.",
+      "executionEndBeforeStart": "End date must be on or after the start date.",
+      "quotationLabel": "Build from quotation (optional)",
+      "quotationNone": "— Hand-draft (no quotation)",
+      "quotationsEmpty": "No accepted quotations on this engagement yet.",
+      "quotationsLoading": "Loading accepted quotations…",
+      "quotationHint": "Estimated duration: {days} day(s). Leaving the end date empty will derive it from this.",
       "termsLabel": "Terms & Conditions",
       "termsPlaceholder": "Describe the contract terms, scope of work, payment schedule...",
       "termsHint": "Minimum 20 characters recommended.",
@@ -969,10 +1007,11 @@
     "header": {
       "currentPhaseLabel": "Current phase",
       "progressLabel": "Overall progress",
-      "lastUpdated": "Updated {time}",
       "openLog": "Log today",
       "openLogComingSoon": "Logging is coming soon — the daily log tab will open shortly.",
-      "viewTasks": "Open today's tasks"
+      "viewTasks": "Open today's tasks",
+      "sheet": "Sheet",
+      "sheetUpdated": "Updated"
     },
     "track": {
       "title": "Milestone track",
@@ -1080,7 +1119,11 @@
       "totalPhases": "{count, plural, =0 {No phases} =1 {1 phase} other {# phases}}",
       "totalTasks": "{count, plural, =0 {No tasks} =1 {1 task} other {# tasks}}",
       "doneTasks": "{done}/{total} done",
-      "backToOverview": "Back to overview"
+      "backToOverview": "Back to overview",
+      "sheet": "Sheet",
+      "sheetPhases": "Phases",
+      "sheetTasks": "Tasks",
+      "sheetDone": "Done"
     },
     "applyTemplate": {
       "title": "Apply a process template",
@@ -1095,6 +1138,7 @@
       "hideDetail": "Hide the phases",
       "startDate": "Start date",
       "summary": "Creates {phases, plural, =1 {1 phase} other {# phases}} and {tasks, plural, =1 {1 task} other {# tasks}}, running about {days} days.",
+      "finishEstimate": "finishes ~{date}",
       "appendWarning": "This project already has phases. Applying adds the template's phases alongside them — it doesn't replace anything.",
       "cancel": "Cancel",
       "apply": "Apply to project",
@@ -1115,11 +1159,19 @@
       "deleteError": "Couldn't delete the phase. Please try again.",
       "editMeta": "Edit details",
       "editMetaTitle": "Edit phase details",
+      "category": "Category",
+      "categoryPlaceholder": "e.g. foundation, electrical",
+      "description": "Description",
+      "descriptionPlaceholder": "What needs to happen here?",
       "lead": "Lead",
       "leadPlaceholder": "e.g. Khoi",
       "targetDate": "Target date",
       "startDate": "Start date",
-      "endDate": "End date",
+      "actualStart": "Actual start",
+      "actualAt": "Actual finish",
+      "estimatedLaborCost": "Estimated labour cost",
+      "estimatedLaborCostHint": "The provider's labour estimate for this milestone alone — task labour is added on top.",
+      "actualLaborCost": "Actual labour cost",
       "progress": "Progress",
       "setStatus": "Set status",
       "statusMoveHint": "Status only moves forward — the next step is highlighted below.",
@@ -1153,6 +1205,19 @@
       "edit": "Edit task",
       "editTitle": "Edit task",
       "taskLabel": "Task",
+      "fields": {
+        "title": "Title"
+      },
+      "descriptionPlaceholder": "What needs to happen here?",
+      "startDate": "Start date",
+      "targetDate": "Target date",
+      "actualStart": "Actual start",
+      "actualAt": "Actual finish",
+      "estimatedLaborCost": "Estimated labour cost",
+      "actualLaborCost": "Actual labour cost",
+      "reason": "Delay / disruption note",
+      "reasonHint": "Why was this task delayed or rerouted? Captured for the project's audit log.",
+      "reasonPlaceholder": "e.g. Site access blocked by another contractor",
       "delete": "Delete task",
       "deleteConfirm": "Delete this task?",
       "deleteSuccess": "Task deleted successfully",
@@ -1179,7 +1244,8 @@
           "dueDate": "Due date",
           "status": "Status",
           "checklist": "Work to do",
-          "images": "Reference images"
+          "images": "Reference images",
+          "reason": "Delay / disruption note"
         },
         "checklist": {
           "prepare": "Review drawings & gather materials",
@@ -1325,11 +1391,12 @@
       "toolbar": {
         "title": "Issues",
         "subtitle": "Track problems found during construction. Each row is one issue; click to view details or change its status.",
-        "total": "{count, plural, =0 {No issues} one {# total issue} other {# total issues}}",
-        "open": "{count, plural, =0 {No open issues} one {# open issue} other {# open issues}}",
-        "resolved": "{count, plural, =0 {No resolved issues} one {# resolved issue} other {# resolved issues}}",
         "backToMilestones": "Back to milestones",
-        "reportCta": "Report issue"
+        "reportCta": "Report issue",
+        "sheet": "Sheet",
+        "sheetTotal": "Total",
+        "sheetOpen": "Open",
+        "sheetResolved": "Resolved"
       },
       "status": {
         "open": "Open",
@@ -1403,8 +1470,9 @@
       "description": "Description",
       "descriptionPlaceholder": "What needs to happen here?",
       "targetDate": "Target date",
+      "estimatedLaborCost": "Estimated labour cost",
+      "estimatedLaborCostHint": "Optional. The provider's labour estimate for this milestone alone — task labour is added on top.",
       "startDate": "Start date",
-      "endDate": "End date",
       "create": "Create phase",
       "cancel": "Cancel",
       "error": "Couldn't create the phase. Please try again."
@@ -1598,7 +1666,17 @@
       "confirmCta": "Confirm",
       "confirmCancel": "Cancel",
       "deleteCta": "Delete",
-      "revisionStarted": "Revision started."
+      "revisionStarted": "Revision started.",
+      "changeSummaryLabel": "Change summary",
+      "changeSummaryPlaceholder": "Briefly describe what changed in this round (e.g. \"Counter height lowered from 90cm to 85cm\").",
+      "changeSummaryHint": "The owner sees this in the approval history. Submit will be disabled until it is filled.",
+      "changeSummaryMissing": "Add a change summary before submitting.",
+      "editChangeSummary": "Edit summary",
+      "extrapTitle": "This revision round will cost extra",
+      "extrapBodyWithAmount": "The next round exceeds the {free} free revisions included in the quotation. Estimated fee: {amount}. A change order will be created automatically.",
+      "extrapBodyWithoutAmount": "The next round exceeds the {free} free revisions included in the quotation. The provider has not published a fee yet — please contact them to confirm pricing before requesting this revision.",
+      "extrapAccept": "Accept extra fee and request revision",
+      "extrapFeeUnpriced": "Not priced yet"
     },
     "tabs": {
       "all": "All",
@@ -1639,7 +1717,11 @@
       "actions": "Actions",
       "empty": "No versions yet for this filter.",
       "drawingsCount": "{count, plural, =0 {No drawings} one {# drawing} other {# drawings}}",
-      "open": "Open"
+      "open": "Open",
+      "revisions": "Revisions",
+      "revisionsTooltip": "{count, plural, =0 {No revision rounds requested yet} one {# revision round requested so far} other {# revision rounds requested so far}}",
+      "changeSummary": "Change summary",
+      "changeSummaryEmpty": "—"
     },
     "comments": {
       "title": "Comments",
@@ -1670,6 +1752,16 @@
       "uploadedBy": "Uploaded",
       "revisionReason": "Revision reason",
       "latestNoteLabel": "Note",
+      "revisionCount": "Revision {count, plural, =0 {round} one {round} other {rounds}}",
+      "changeSummaryCurrent": "Current round change",
+      "revisionQuota": {
+        "label": "Revision budget",
+        "used": "{used} of {free} free revisions used",
+        "unlimited": "No revision cap on this engagement — unlimited free rounds.",
+        "nextCharged": "Next round will be charged.",
+        "nextFree": "Next round is still free.",
+        "unpriced": "Provider has not set an extra-round fee yet."
+      },
       "hero": {
         "published": "Published {date}",
         "drawings": "{count, plural, one {# drawing} other {# drawings}}",
@@ -2026,7 +2118,19 @@
         "completed": "Completed"
       },
       "invitedLabel": "Invited",
-      "startedLabel": "Started"
+      "startedLabel": "Started",
+      "facts": {
+        "client": "Client",
+        "address": "Address",
+        "brief": "Brief",
+        "seats": "{count, plural, other {# seats}}",
+        "area": "{area} m²",
+        "contract": "Contract",
+        "budget": "Budget",
+        "target": "Target",
+        "phases": "Phases",
+        "timeline": "Timeline"
+      }
     },
     "pagination": {
       "label": "Pagination",
@@ -2076,14 +2180,35 @@
     "header": {
       "eyebrow": "Profile",
       "title": "My profile",
-      "subtitle": "Keep your details up to date so cafe owners can see what you bring to a project."
+      "subtitle": "Keep your details up to date so cafe owners can see what you bring to a project.",
+      "stats": {
+        "portfolio": "Portfolio entries",
+        "rating": "Rating",
+        "newRating": "New",
+        "yearsExperience": "Years experience",
+        "joined": "Joined"
+      },
+      "noCover": "No cover photo",
+      "verified": "Verified"
     },
     "tabs": {
-      "posts": "Posts",
-      "projects": "Projects",
       "reviews": "Reviews",
       "portfolio": "Portfolio",
-      "brand": "Brand"
+      "brand": "Brand",
+      "reviewsEmpty": {
+        "title": "No reviews yet",
+        "description": "Owners can leave reviews after a project completes. Your rating will appear here once the first one comes in."
+      },
+      "reviewsError": {
+        "title": "Couldn't load reviews",
+        "description": "Something went wrong while fetching your reviews.",
+        "retry": "Try again"
+      },
+      "reviewsSummary": {
+        "basedOn": "Based on {count, plural, other {# reviews}}",
+        "byDimension": "By criterion",
+        "listComingSoon": "The full review list (with comments and dates) isn't available yet — only the aggregate summary is exposed for now."
+      }
     },
     "reviewsTab": {
       "loading": "Loading reviews…",
@@ -2150,9 +2275,11 @@
       "reset": "Discard changes",
       "signOut": "Log out",
       "editProfile": "Edit profile",
+      "editProfileDescription": "Update your public profile. Changes are reflected immediately across the platform.",
       "settings": "Settings",
       "changeCover": "Change cover",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "viewPublicProfile": "View public profile"
     },
     "states": {
       "loading": "Loading your profile…",
@@ -2178,42 +2305,42 @@
     }
   },
   "Payments": {
-  "checkout": {
-   "eyebrow": "Checkout",
-   "title": "Confirm your plan",
-   "loading": "Loading your plan…",
-   "unknownPlanTitle": "We couldn't find that plan",
-   "unknownPlanSubtitle": "The link may be out of date, or the plan is no longer offered. Pick one from the pricing page and try again.",
-   "backToPlans": "Back to plans",
-   "payCta": "Continue to payment",
-   "redirecting": "Taking you to payOS…",
-   "cancel": "Cancel",
-   "secureNote": "Payment is handled by payOS. We never see your card or bank details.",
-   "summary": {
-    "duration": "Duration",
-    "days": "{count} days",
-    "total": "Total"
-   }
-  },
-  "result": {
-   "pending": "Confirming your payment…",
-   "pendingNote": "payOS tells us the result separately from sending you back here, so this can take a few seconds. You don't need to pay again.",
-   "paidTitle": "You're subscribed",
-   "paidBody": "Your plan is active. You can start taking on projects right away.",
-   "failedTitle": "That payment didn't go through",
-   "failedBody": "Nothing has been charged. You can try again whenever you're ready.",
-   "cancelledTitle": "Payment cancelled",
-   "cancelledBody": "You stopped before paying, so nothing was charged and the payment link has been closed.",
-   "missingTitle": "Nothing to show here",
-   "missingBody": "This page is where payOS sends you after a payment, and it was opened without one.",
-   "unknownTitle": "We couldn't check that payment",
-   "unknownBody": "If money left your account, it will be reconciled automatically — don't pay twice. Contact us if it doesn't resolve.",
-   "startBrowsing": "Browse the marketplace",
-   "viewProfile": "View my profile",
-   "tryAgain": "Try again",
-   "keepBrowsing": "Keep browsing",
-   "backToPlans": "Back to plans"
-  },
+    "checkout": {
+      "eyebrow": "Checkout",
+      "title": "Confirm your plan",
+      "loading": "Loading your plan…",
+      "unknownPlanTitle": "We couldn't find that plan",
+      "unknownPlanSubtitle": "The link may be out of date, or the plan is no longer offered. Pick one from the pricing page and try again.",
+      "backToPlans": "Back to plans",
+      "payCta": "Continue to payment",
+      "redirecting": "Taking you to payOS…",
+      "cancel": "Cancel",
+      "secureNote": "Payment is handled by payOS. We never see your card or bank details.",
+      "summary": {
+        "duration": "Duration",
+        "days": "{count} days",
+        "total": "Total"
+      }
+    },
+    "result": {
+      "pending": "Confirming your payment…",
+      "pendingNote": "payOS tells us the result separately from sending you back here, so this can take a few seconds. You don't need to pay again.",
+      "paidTitle": "You're subscribed",
+      "paidBody": "Your plan is active. You can start taking on projects right away.",
+      "failedTitle": "That payment didn't go through",
+      "failedBody": "Nothing has been charged. You can try again whenever you're ready.",
+      "cancelledTitle": "Payment cancelled",
+      "cancelledBody": "You stopped before paying, so nothing was charged and the payment link has been closed.",
+      "missingTitle": "Nothing to show here",
+      "missingBody": "This page is where payOS sends you after a payment, and it was opened without one.",
+      "unknownTitle": "We couldn't check that payment",
+      "unknownBody": "If money left your account, it will be reconciled automatically — don't pay twice. Contact us if it doesn't resolve.",
+      "startBrowsing": "Browse the marketplace",
+      "viewProfile": "View my profile",
+      "tryAgain": "Try again",
+      "keepBrowsing": "Keep browsing",
+      "backToPlans": "Back to plans"
+    },
     "meta": {
       "title": "Pricing — SmartCafeBuilder",
       "description": "Pick a subscription plan that fits how often you take on new cafe projects."
@@ -2681,6 +2808,58 @@
     },
     "unpriced": "Not priced yet"
   },
+  "ConstructionShared": {
+    "status": {
+      "pending": "Not started",
+      "in_progress": "In progress",
+      "completed": "Completed"
+    },
+    "duration": {
+      "planned": "{count, plural, =1 {1 day planned} other {# days planned}}",
+      "actual": "{count, plural, =1 {1 day taken} other {# days taken}}",
+      "noDates": "No dates set",
+      "noActual": "Not finished yet"
+    },
+    "cost": {
+      "estimated": "Estimated",
+      "actual": "Actual",
+      "pending": "Pending actuals",
+      "missingLines": "{count, plural, =0 {} =1 {1 line still needs the actual} other {# lines still need the actual}}",
+      "missingLabor": "{count, plural, =0 {} =1 {1 cost row pending} other {# cost rows pending}}",
+      "unavailable": "—",
+      "labor": "Labour",
+      "materials": "Materials",
+      "children": "Children",
+      "subtotal": "Subtotal",
+      "total": "Total"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "close": "Close"
+    },
+    "validation": {
+      "estimateAtPast": "Target date can't be in the past.",
+      "nameRequired": "Name is required.",
+      "quantityPositive": "Quantity must be greater than 0."
+    },
+    "units": {
+      "md": "Linear metre",
+      "m2": "Square metre",
+      "kg": "Kilogram",
+      "cai": "Piece",
+      "lit": "Litre",
+      "hop": "Box"
+    },
+    "schedule": {
+      "planned": "Planned",
+      "actual": "Actual",
+      "noTasks": "No tasks yet",
+      "noPhases": "No phases yet"
+    }
+  },
   "CostSummary": {
     "title": "Cost of the build",
     "subtitle": "Labour and materials, planned against actual.",
@@ -2719,7 +2898,10 @@
       "subtitle": "What an owner reads before deciding to hire you.",
       "edit": "Edit brand",
       "foundedYear": "Founded",
+      "foundedYearHint": "Between 1900 and {year}",
+      "foundedYearError": "Founded year must be between {min} and {max}.",
       "employeeCount": "Team size",
+      "employeeCountError": "Team size must be greater than 0.",
       "people": "{count, plural, =1 {1 person} other {# people}}",
       "yearsExperience": "Experience",
       "years": "{count, plural, =1 {1 year} other {# years}}",
@@ -2736,6 +2918,12 @@
       "coverImageUrl": "Cover image URL",
       "introVideoUrl": "Intro video URL",
       "companyAddress": "Company address",
+      "companyLatitude": "Latitude",
+      "companyLongitude": "Longitude",
+      "clearCompanyCoordinates": "Clear saved coordinates",
+      "coordinatesHint": "Tick to remove the existing location.",
+      "coordinatesPairError": "Latitude and longitude must be set together.",
+      "coordinatesClearError": "Clear-coordinates cannot be sent with new latitude/longitude.",
       "companyAddressPlaceholder": "Search for your office or workshop address",
       "openAddressInMaps": "Open the company address in Google Maps",
       "addressPinned": "Pinned on the map",
@@ -2792,6 +2980,7 @@
       "subtitle": "Only an administrator can mark one as verified.",
       "empty": "No certificates yet.",
       "add": "Add certificate",
+      "edit": "Edit certificate",
       "verified": "Verified",
       "expired": "Expired",
       "noDetail": "No detail recorded",
@@ -2800,6 +2989,8 @@
       "removeDescription": "It disappears from your public brand page.",
       "dialogTitle": "Add a certificate",
       "dialogDescription": "Licence, certificate, award or membership.",
+      "editTitle": "Edit certificate",
+      "editDescription": "Editing resets the verified flag until an administrator rechecks it.",
       "kind": "Kind",
       "name": "Name",
       "issuer": "Issued by",
@@ -2807,6 +2998,7 @@
       "issuedAt": "Issued on",
       "expiresAt": "Expires on",
       "fileUrl": "Scan URL",
+      "dateRangeError": "Expiry date must be the same as or after the issue date.",
       "verifyNote": "New certificates start unverified. An administrator checks them — you cannot verify your own."
     },
     "certificateKind": {
@@ -2816,6 +3008,113 @@
       "membership": "Membership",
       "other": "Other"
     }
+  },
+  "ProviderDirectory": {
+    "capability": {
+      "designer": "Designer",
+      "constructor": "Constructor",
+      "both": "Both"
+    },
+    "noRatings": "No ratings yet",
+    "ratingValue": "{rating} out of 5",
+    "reviewCount": "{count, plural, other {# reviews}}",
+    "dimensions": {
+      "progress": "Progress",
+      "quality": "Quality",
+      "communication": "Communication",
+      "cost": "Cost",
+      "professionalism": "Professionalism",
+      "unknown": "Other",
+      "empty": "No per-criterion ratings yet."
+    }
+  },
+  "ProviderPublicProfile": {
+    "verified": "Verified",
+    "type": {
+      "individual": "Individual",
+      "company": "Company"
+    },
+    "tabs": {
+      "about": "About",
+      "brand": "Brand",
+      "portfolio": "Portfolio",
+      "reviews": "Reviews"
+    },
+    "actions": {
+      "manageOwnProfile": "Manage your own profile"
+    },
+    "brand": {
+      "empty": "This provider has not published a brand tab yet.",
+      "socialTitle": "Social channels",
+      "noSocial": "No social channels yet.",
+      "areasTitle": "Service areas",
+      "noAreas": "No service areas listed.",
+      "certificatesTitle": "Licenses & certificates",
+      "noCertificates": "No licenses or certificates published.",
+      "verified": "Verified",
+      "expired": "Expired",
+      "viewFile": "View scan"
+    },
+    "platform": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "youtube": "YouTube",
+      "linkedin": "LinkedIn",
+      "zalo": "Zalo",
+      "website": "Website",
+      "other": "Other"
+    },
+    "portfolio": {
+      "empty": {
+        "title": "No sample projects",
+        "description": "This provider has not published any sample projects yet."
+      },
+      "watchVideo": "Watch project video"
+    },
+    "reviews": {
+      "basedOn": "Based on {count, plural, other {# reviews}}",
+      "errorTitle": "Cannot load reviews",
+      "errorSubtitle": "Please try again in a moment.",
+      "retry": "Retry",
+      "empty": {
+        "title": "No reviews yet",
+        "description": "Reviews from shop owners will appear here once they come in."
+      }
+    },
+    "notFound": {
+      "title": "Provider not found",
+      "description": "This profile may have been deleted or is being edited."
+    },
+    "errors": {
+      "title": "Cannot load this provider",
+      "subtitle": "Something went wrong while connecting to the server.",
+      "retry": "Retry",
+      "generic": "Failed to load profile."
+    },
+    "sheet": {
+      "experience": "Experience",
+      "years": "{count, plural, other {# years}}",
+      "rating": "Rating",
+      "ratingValue": "{rating} / 5 · {count, plural, other {# reviews}}",
+      "noRating": "No reviews yet",
+      "joined": "Joined"
+    },
+    "about": {
+      "empty": "No public details yet.",
+      "founded": "Founded",
+      "teamSize": "Team size",
+      "teamSizeValue": "{count, plural, other {# people}}",
+      "brandStory": "Brand story",
+      "website": "Website",
+      "introVideo": "Intro video"
+    }
+  },
+  "BrandMedia": {
+    "changeAvatar": "Change avatar",
+    "changeCover": "Change cover",
+    "removeCover": "Remove",
+    "remove": "Remove image"
   },
   "Portfolio": {
     "add": "Add a project",
@@ -2829,6 +3128,7 @@
     "removeImageTitle": "Remove this photo?",
     "removeImageDescription": "It is deleted from the portfolio entry for good.",
     "watchVideo": "Watch the walk-through",
+    "viewImage": "View photo",
     "noDetail": "No detail recorded",
     "areaValue": "{value} m²",
     "durationValue": "{count, plural, =1 {1 day} other {# days}}",
@@ -2864,6 +3164,21 @@
       "descriptionPlaceholder": "What the brief was, what you did, how it turned out…",
       "imageUrl": "Image URL",
       "caption": "Caption"
+    },
+    "gallery": {
+      "imagesCount": "{count, plural, =1 {1 photo} other {# photos}}",
+      "empty": "No photos yet.",
+      "setAsCover": "Set as cover photo"
+    },
+    "media": {
+      "title": "Photos and walk-through videos",
+      "empty": "No media yet — upload a photo or video to start.",
+      "add": "Add media",
+      "remove": "Remove",
+      "typeImage": "Image",
+      "typeVideo": "Video",
+      "uploadCta": "Upload file",
+      "onlyOneVideoError": "Only one video per project — switch one of these to Image."
     }
   },
   "Quotations": {
@@ -3030,8 +3345,7 @@
       "confirmedCount": "{count} instalment(s)",
       "awaiting": "Awaiting confirmation",
       "awaitingCount": "{count} instalment(s)",
-      "outstanding": "Outstanding",
-      "outstandingHint": "Not yet confirmed by the provider"
+      "notPaid": "Not yet paid"
     },
     "proofs": {
       "title": "Payment proof",
@@ -3081,6 +3395,15 @@
     },
     "dialog": {
       "cancel": "Cancel"
+    },
+    "schedule": {
+      "filterLabel": "Filter instalments by status",
+      "no": "No.",
+      "instalment": "Instalment",
+      "share": "Share",
+      "amount": "Amount (VND)",
+      "total": "Total",
+      "totalShown": "Total of listed instalments"
     }
   },
   "DailyLogs": {
@@ -3162,5 +3485,14 @@
     "tooLarge": "That file is {sizeMb}MB. The limit is {limitMb}MB.",
     "badType": "{extension} files aren't supported. Allowed: {allowed}.",
     "empty": "That file is empty."
+  },
+  "DrawingSet": {
+    "footer": {
+      "project": "Project",
+      "address": "Address",
+      "drawnBy": "Drawn by",
+      "sheet": "Sheet",
+      "updated": "Updated"
+    }
   }
 }

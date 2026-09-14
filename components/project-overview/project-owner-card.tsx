@@ -103,7 +103,7 @@ export function ProjectOwnerCard({ project }: ProjectOwnerCardProps) {
       <CardHeader>
         <CardTitle
           id="project-owner-title"
-          className="flex items-center gap-2 text-base"
+          className="flex items-center gap-2"
         >
           <UserCircle2 className="size-4 text-primary" aria-hidden />
           {t("title")}

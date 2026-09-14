@@ -33,7 +33,7 @@ export function LocaleSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" aria-label={t("label")}>
-          <span className="text-[12px] font-semibold uppercase leading-none">
+          <span className="text-2xs font-semibold uppercase leading-none">
             {label}
           </span>
         </Button>
@@ -46,7 +46,7 @@ export function LocaleSwitcher() {
             className="flex cursor-pointer items-center justify-between gap-6"
           >
             <span>{t(l.code)}</span>
-            <span className="ml-4 text-xs font-semibold uppercase text-muted-foreground">
+            <span className="ml-4 text-2xs font-semibold uppercase text-muted-foreground">
               {l.label}
             </span>
           </DropdownMenuItem>

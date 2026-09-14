@@ -88,7 +88,7 @@ function normalizePagedResponse(
   };
 }
 
-function normalizeBrief(raw: RawDesignBrief): DesignBrief {
+export function normalizeBrief(raw: RawDesignBrief): DesignBrief {
   return {
     id: raw.id,
     projectId: raw.projectId,
