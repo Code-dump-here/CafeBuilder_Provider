@@ -2984,7 +2984,7 @@
       "description": "Duyệt qua các studio thiết kế và nhà thầu thi công: hồ sơ năng lực, đánh giá, dự án mẫu và khu vực phục vụ."
     },
     "title": "Nhà cung cấp",
-    "subtitle": "So sánh các studio thiết kế và nhà thầu thi công trước khi đăng bài hoặc mời vào dự án.",
+    "subtitle": "Xem cách các studio thiết kế và nhà thầu khác giới thiệu năng lực, đánh giá, dự án mẫu và khu vực hoạt động của họ.",
     "card": {
       "verified": "Đã xác minh",
       "individual": "Cá nhân",
@@ -3053,8 +3053,6 @@
       "reviews": "Đánh giá"
     },
     "actions": {
-      "inviteToProject": "Mời vào dự án",
-      "contact": "Nhắn tin",
       "manageOwnProfile": "Quản lý hồ sơ của bạn"
     },
     "brand": {

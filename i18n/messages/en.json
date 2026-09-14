@@ -2984,7 +2984,7 @@
       "description": "Browse design studios and construction firms — capability, ratings, sample projects and service areas at a glance."
     },
     "title": "Providers",
-    "subtitle": "Compare design studios and contractors before you post a brief or invite one into your project.",
+    "subtitle": "See how other design studios and contractors present themselves — their capabilities, ratings, sample projects and service areas.",
     "card": {
       "verified": "Verified",
       "individual": "Individual",
@@ -3053,8 +3053,6 @@
       "reviews": "Reviews"
     },
     "actions": {
-      "inviteToProject": "Invite to a project",
-      "contact": "Message",
       "manageOwnProfile": "Manage your own profile"
     },
     "brand": {
