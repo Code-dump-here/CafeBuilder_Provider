@@ -11,7 +11,19 @@
       "sub": "Đăng brief, ghép designer, sắp nhà thầu. Một workspace từ bản phác đầu tiên đến ngày khai trương.",
       "primaryCta": "Tạo dự án",
       "secondaryCta": "Xem marketplace",
-      "hint": "Miễn phí lên kế hoạch, chỉ trả khi chốt bid."
+      "hint": "Miễn phí lên kế hoạch, chỉ trả khi chốt bid.",
+      "plan": {
+        "alt": "Mặt bằng tầng trệt của một quán cafe — lối vào, quầy bar dọc tường phải và 18 chỗ ngồi — đã đóng dấu duyệt",
+        "sheet": "Bản vẽ",
+        "titleLabel": "Tên",
+        "title": "Mặt bằng tầng trệt — Nhà Nâu Coffee",
+        "scale": "Tỉ lệ",
+        "revision": "Lần",
+        "bar": "Quầy bar",
+        "seating": "Chỗ ngồi · 18",
+        "entry": "Lối vào",
+        "approved": "Đã duyệt"
+      }
     },
     "howItWorks": {
       "title": "Một dự án đi tới đâu",
@@ -1106,7 +1118,11 @@
       "totalPhases": "{count, plural, =0 {Chưa có mốc} =1 {1 mốc} other {# mốc}}",
       "totalTasks": "{count, plural, =0 {Chưa có việc} =1 {1 việc} other {# việc}}",
       "doneTasks": "{done}/{total} đã xong",
-      "backToOverview": "Về tổng quan"
+      "backToOverview": "Về tổng quan",
+      "sheet": "Bản vẽ",
+      "sheetPhases": "Giai đoạn",
+      "sheetTasks": "Công việc",
+      "sheetDone": "Xong"
     },
     "applyTemplate": {
       "title": "Áp mẫu quy trình thi công",

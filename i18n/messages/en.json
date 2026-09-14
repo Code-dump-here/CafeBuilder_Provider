@@ -11,7 +11,19 @@
       "sub": "Post your brief, match a designer, line up a contractor. One workspace from first sketch to grand opening.",
       "primaryCta": "Start a project",
       "secondaryCta": "Browse marketplace",
-      "hint": "Free to plan, pay only when you accept a bid."
+      "hint": "Free to plan, pay only when you accept a bid.",
+      "plan": {
+        "alt": "Ground floor plan of a café — entry, a bar along the right wall and eighteen seats — stamped approved",
+        "sheet": "Sheet",
+        "titleLabel": "Title",
+        "title": "Ground floor plan — Nhà Nâu Coffee",
+        "scale": "Scale",
+        "revision": "Rev",
+        "bar": "Bar",
+        "seating": "Seating · 18",
+        "entry": "Entry",
+        "approved": "Approved"
+      }
     },
     "howItWorks": {
       "title": "How a project moves through",
@@ -1106,7 +1118,11 @@
       "totalPhases": "{count, plural, =0 {No phases} =1 {1 phase} other {# phases}}",
       "totalTasks": "{count, plural, =0 {No tasks} =1 {1 task} other {# tasks}}",
       "doneTasks": "{done}/{total} done",
-      "backToOverview": "Back to overview"
+      "backToOverview": "Back to overview",
+      "sheet": "Sheet",
+      "sheetPhases": "Phases",
+      "sheetTasks": "Tasks",
+      "sheetDone": "Done"
     },
     "applyTemplate": {
       "title": "Apply a process template",

@@ -16,7 +16,6 @@ import {
   Pencil,
   Trash2,
   User,
-  Wallet,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -41,6 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { pressable } from "@/lib/interactive";
 import { cn } from "@/lib/utils";
+import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
 
 import type {
   ConstructionItem,
@@ -88,14 +88,6 @@ interface PhaseRowHeaderProps {
   };
 }
 
-const STATUS_TONE: Record<
-  ConstructionStatus,
-  { badgeClass: string }
-> = {
-  pending: { badgeClass: "bg-muted text-muted-foreground" },
-  in_progress: { badgeClass: "bg-warning/15 text-warning-muted-foreground" },
-  completed: { badgeClass: "bg-success/15 text-success-muted-foreground" },
-};
 
 const VALID_NEXT_STATUS: Record<
   ConstructionStatus,
@@ -104,6 +96,14 @@ const VALID_NEXT_STATUS: Record<
   pending: "in_progress",
   in_progress: "completed",
   completed: null,
+};
+
+// Status as an ink stamp. Not started is a neutral stamp rather than none at
+// all: an unstamped sheet reads as forgotten, a NOT STARTED stamp as decided.
+const STATUS_STAMP: Record<ConstructionStatus, StampTone> = {
+  pending: "neutral",
+  in_progress: "warning",
+  completed: "success",
 };
 
 // Relative to ConstructionShared: these go through `tShared`, which is already
@@ -218,8 +218,9 @@ export function PhaseRowHeader({
           >
             {phase.name}
           </button>
-          <span className="text-xs text-muted-foreground">
-            #{index + 1}
+          {/* Sheet reference, the way a drawing set numbers its pages. */}
+          <span className="font-mono text-2xs font-semibold tracking-[0.08em] text-foreground/70">
+            M-{String(index + 1).padStart(2, "0")}
           </span>
           <span className="text-xs text-muted-foreground">·</span>
           <span className="text-xs text-muted-foreground">
@@ -286,23 +287,17 @@ export function PhaseRowHeader({
             {t("closeMilestone")}
           </Button>
         ) : null}
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium uppercase tracking-wide",
-            STATUS_TONE[phase.status].badgeClass,
-          )}
-        >
+        <Stamp size="sm" tone={STATUS_STAMP[phase.status]} seed={phase.id + phase.status}>
           {tShared(STATUS_LABEL_KEY[phase.status])}
-        </span>
+        </Stamp>
         {/* Payment state comes from confirmed payment batches, so it moves
             independently of the work status — a phase can be finished and
             unpaid, or paid while still running. Only shown when true: an
             "unpaid" badge on every phase would be noise. */}
         {phase.isPaid ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-2xs font-medium uppercase tracking-wide text-success-muted-foreground">
-            <Wallet className="size-3" aria-hidden />
+          <Stamp size="sm" tone="success" seed={phase.id + "paid"}>
             {t("paid")}
-          </span>
+          </Stamp>
         ) : null}
         <Button
           type="button"
