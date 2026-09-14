@@ -371,22 +371,6 @@ const OWNER_PROJECT_SECTION: NavSection = {
 };
 
 /**
- * Owner-facing provider directory — browse studios / contractors
- * before opening a brief, or to invite one into a project. Lives at
- * `/providers` and `/providers/{id}`.
- */
-const OWNER_PROVIDERS_SECTION: NavSection = {
-  labelKey: "Sidebar.shopOwner.providers",
-  items: [
-    {
-      titleKey: "Sidebar.shopOwner.providers",
-      url: "/providers",
-      icon: Users,
-    },
-  ],
-};
-
-/**
  * Owner-facing quotation inbox — incoming bids from designers and
  * constructors. The page renders at `/[locale]/quotations`. Providers
  * do not see this section; their quotation work lives at
@@ -481,24 +465,6 @@ const ADMIN_MANAGEMENT_SECTION: NavSection = {
   ],
 };
 
-/**
- * Provider-facing directory — designers / contractors browsing other
- * providers' public profiles (e.g. to scope a partnership, look at a
- * competitor's portfolio, or read a reference project). Owners also
- * see this same page via `OWNER_PROVIDERS_SECTION` — the link text
- * is the same to keep the URL stable across roles.
- */
-const PROVIDER_DIRECTORY_SECTION: NavSection = {
-  labelKey: "Sidebar.designer.providers",
-  items: [
-    {
-      titleKey: "Sidebar.designer.providers",
-      url: "/providers",
-      icon: Users,
-    },
-  ],
-};
-
 const ADMIN_PLATFORM_SECTION: NavSection = {
   labelKey: "Sidebar.admin.platform",
   items: [
@@ -533,7 +499,6 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
       // either section has at least one real item again.
       // OWNER_WORKSPACE_SECTION,
       OWNER_PROJECT_SECTION,
-      OWNER_PROVIDERS_SECTION,
       OWNER_QUOTATIONS_SECTION,
       // OWNER_CONTRACTS_SECTION,
     ],
@@ -549,7 +514,6 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
       // /[locale]/quotations/page.tsx it was also a dead link — the
       // global route only exists for the shop owner inbox via
       // OWNER_QUOTATIONS_SECTION.
-      PROVIDER_DIRECTORY_SECTION,
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
       CONSTRUCTION_WORK_SECTION,
@@ -568,7 +532,6 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
       // PROVIDER_QUOTATIONS_SECTION removed: see DESIGNER above. The
       // project-scoped Quotations entry in DESIGNER_PROJECT_INFO is
       // the only Quotations link a provider sees.
-      PROVIDER_DIRECTORY_SECTION,
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
       CONSTRUCTION_WORK_SECTION,

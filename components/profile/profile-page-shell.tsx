@@ -5,6 +5,7 @@ import {
   MapPin,
   Calendar,
   Edit3,
+  Eye,
   Settings,
   Star,
   Shield,
@@ -216,6 +217,15 @@ function ProfileHeader({
         <div className="flex justify-end gap-2 pt-4 sm:pt-6">
           {isOwner ? (
             <>
+              {/* The only way in to the public profile now that the provider
+                  directory is gone from web: it is how owners see this firm,
+                  so a provider should be able to check it. */}
+              <Button variant="ghost" size="sm" className="gap-2" asChild>
+                <Link href={`/providers/${sp.id}`}>
+                  <Eye className="size-4" />
+                  {t("actions.viewPublicProfile")}
+                </Link>
+              </Button>
               <Button
                 variant="outline"
                 size="sm"

@@ -1,18 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { queryKeys } from "@/lib/react-query/keys";
 import { tokenStore } from "@/features/auth/token-store";
 
 import {
-  DEFAULT_PROVIDER_FILTERS,
   getServiceProviderProfileApi,
-  getServiceProviderProfilesApi,
-  type PagedServiceProviderProfiles,
   type ServiceProviderProfileDetail,
-  type ServiceProviderProfileFilters,
 } from "./api";
 import {
   getProviderRatingSummaryApi,
@@ -20,16 +16,6 @@ import {
 } from "./rating-summary";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const EMPTY_RESPONSE: PagedServiceProviderProfiles = {
-  items: [],
-  pageNumber: 1,
-  pageSize: DEFAULT_PROVIDER_FILTERS.pageSize,
-  totalItems: 0,
-  totalPages: 1,
-  hasPrevious: false,
-  hasNext: false,
-};
 
 /**
  * Subscribe to the token store's hydration state. Returns `true` as
@@ -42,72 +28,6 @@ function useAuthHydrated(): boolean {
     () => tokenStore.isHydrated(),
     () => true,
   );
-}
-
-/**
- * Strip "all"-valued / empty sentinels so the cache key doesn't churn
- * on cosmetic changes (e.g. toggling a filter back and forth).
- */
-function stableListKey(filters: ServiceProviderProfileFilters) {
-  const capability =
-    filters.capability && filters.capability !== "all"
-      ? filters.capability
-      : undefined;
-  const search =
-    filters.search && filters.search.trim().length > 0
-      ? filters.search.trim()
-      : undefined;
-  return {
-    pageNumber: filters.pageNumber,
-    pageSize: filters.pageSize,
-    capability,
-    isVerified: filters.isVerified ?? undefined,
-    search,
-  };
-}
-
-// ─── List ─────────────────────────────────────────────────────────────────────
-
-export interface UseServiceProviderProfilesResult {
-  data: PagedServiceProviderProfiles;
-  isLoading: boolean;
-  isFetching: boolean;
-  isError: boolean;
-  error: Error | null;
-  refetch: () => Promise<unknown>;
-}
-
-/**
- * GET /api/service-provider-profiles — owner-facing browse list.
- *
- * Sort is fixed server-side (`AvgRating DESC, CreatedAt DESC`), so
- * this hook only exposes the filter knobs the backend accepts.
- * `keepPreviousData` keeps the previous page visible while the next
- * request is in flight.
- */
-export function useServiceProviderProfiles(
-  filters: ServiceProviderProfileFilters = DEFAULT_PROVIDER_FILTERS,
-): UseServiceProviderProfilesResult {
-  const stable = stableListKey(filters);
-  const queryKey = queryKeys.serviceProviderProfiles.list(stable);
-  const hydrated = useAuthHydrated();
-
-  const query = useQuery<PagedServiceProviderProfiles, Error>({
-    queryKey,
-    queryFn: ({ signal }) =>
-      getServiceProviderProfilesApi(filters, { signal }),
-    placeholderData: keepPreviousData,
-    enabled: hydrated,
-  });
-
-  return {
-    data: query.data ?? EMPTY_RESPONSE,
-    isLoading: query.isLoading,
-    isFetching: query.isFetching,
-    isError: query.isError,
-    error: query.error,
-    refetch: query.refetch,
-  };
 }
 
 // ─── Detail ───────────────────────────────────────────────────────────────────

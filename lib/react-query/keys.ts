@@ -26,19 +26,6 @@ export const queryKeys = {
   },
   serviceProviderProfiles: {
     /**
-     * Paged list of providers: `GET /api/service-provider-profiles`.
-     * Filter shape is stable so the cache key changes only when a
-     * meaningful filter changes (drops "all"-valued sentinels and an
-     * empty `search`).
-     */
-    list: (filters: {
-      pageNumber: number;
-      pageSize: number;
-      capability?: string;
-      isVerified?: boolean | null;
-      search?: string;
-    }) => ["serviceProviderProfiles", "list", filters] as const,
-    /**
      * Single service-provider profile by id:
      * `GET /api/service-provider-profiles/{id}`.
      * Used by the public provider detail page and any screen that

@@ -1007,10 +1007,11 @@
     "header": {
       "currentPhaseLabel": "Current phase",
       "progressLabel": "Overall progress",
-      "lastUpdated": "Updated {time}",
       "openLog": "Log today",
       "openLogComingSoon": "Logging is coming soon — the daily log tab will open shortly.",
-      "viewTasks": "Open today's tasks"
+      "viewTasks": "Open today's tasks",
+      "sheet": "Sheet",
+      "sheetUpdated": "Updated"
     },
     "track": {
       "title": "Milestone track",
@@ -1390,11 +1391,12 @@
       "toolbar": {
         "title": "Issues",
         "subtitle": "Track problems found during construction. Each row is one issue; click to view details or change its status.",
-        "total": "{count, plural, =0 {No issues} one {# total issue} other {# total issues}}",
-        "open": "{count, plural, =0 {No open issues} one {# open issue} other {# open issues}}",
-        "resolved": "{count, plural, =0 {No resolved issues} one {# resolved issue} other {# resolved issues}}",
         "backToMilestones": "Back to milestones",
-        "reportCta": "Report issue"
+        "reportCta": "Report issue",
+        "sheet": "Sheet",
+        "sheetTotal": "Total",
+        "sheetOpen": "Open",
+        "sheetResolved": "Resolved"
       },
       "status": {
         "open": "Open",
@@ -1505,8 +1507,7 @@
       "siteProfile": "Site Profile",
       "changeOrders": "Change Orders",
       "quotations": "Quotations",
-      "payments": "Payments",
-      "providers": "Providers"
+      "payments": "Payments"
     },
     "contractor": {
       "workspace": "Workspace",
@@ -1534,8 +1535,7 @@
       "createContract": "Create Contract",
       "contractHistory": "Contract History",
       "payments": "Payments",
-      "dailyLogs": "Daily Log",
-      "providers": "Providers"
+      "dailyLogs": "Daily Log"
     },
     "admin": {
       "overview": "Overview",
@@ -2264,7 +2264,8 @@
       "editProfileDescription": "Update your public profile. Changes are reflected immediately across the platform.",
       "settings": "Settings",
       "changeCover": "Change cover",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "viewPublicProfile": "View public profile"
     },
     "states": {
       "loading": "Loading your profile…",
@@ -2995,42 +2996,10 @@
     }
   },
   "ProviderDirectory": {
-    "meta": {
-      "title": "Providers — SmartCafeBuilder",
-      "description": "Browse design studios and construction firms — capability, ratings, sample projects and service areas at a glance."
-    },
-    "title": "Providers",
-    "subtitle": "See how other design studios and contractors present themselves — their capabilities, ratings, sample projects and service areas.",
-    "card": {
-      "verified": "Verified",
-      "individual": "Individual",
-      "company": "Company",
-      "cell": {
-        "experience": "Experience",
-        "years": "{count, plural, =0 {—} other {# yrs}}",
-        "joined": "Joined"
-      }
-    },
-    "filter": {
-      "searchPlaceholder": "Search by name…",
-      "searchLabel": "Search",
-      "clearSearch": "Clear search",
-      "verifiedOnly": "Verified only",
-      "reset": "Clear filters",
-      "totalCount": "{count, plural, other {# providers}}"
-    },
     "capability": {
-      "all": "All capabilities",
       "designer": "Designer",
       "constructor": "Constructor",
       "both": "Both"
-    },
-    "pagination": {
-      "label": "Pagination",
-      "first": "First page",
-      "previous": "Previous page",
-      "next": "Next page",
-      "last": "Last page"
     },
     "noRatings": "No ratings yet",
     "ratingValue": "{rating} out of 5",
@@ -3043,19 +3012,7 @@
       "professionalism": "Professionalism",
       "unknown": "Other",
       "empty": "No per-criterion ratings yet."
-    },
-    "errors": {
-      "title": "Cannot load providers.",
-      "subtitle": "Something went wrong while connecting to the server. Please try again.",
-      "retry": "Retry",
-      "generic": "Failed to load providers."
-    },
-    "empty": {
-      "title": "No providers match your filters",
-      "description": "Try clearing a filter or changing your search term.",
-      "action": "Clear filters"
-    },
-    "refreshing": "Refreshing…"
+    }
   },
   "ProviderPublicProfile": {
     "verified": "Verified",
@@ -3514,5 +3471,14 @@
     "tooLarge": "That file is {sizeMb}MB. The limit is {limitMb}MB.",
     "badType": "{extension} files aren't supported. Allowed: {allowed}.",
     "empty": "That file is empty."
+  },
+  "DrawingSet": {
+    "footer": {
+      "project": "Project",
+      "address": "Address",
+      "drawnBy": "Drawn by",
+      "sheet": "Sheet",
+      "updated": "Updated"
+    }
   }
 }

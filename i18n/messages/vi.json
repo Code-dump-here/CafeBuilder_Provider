@@ -1007,10 +1007,11 @@
     "header": {
       "currentPhaseLabel": "Giai đoạn hiện tại",
       "progressLabel": "Tiến độ tổng",
-      "lastUpdated": "Cập nhật {time}",
       "openLog": "Ghi hôm nay",
       "openLogComingSoon": "Tính năng ghi nhật ký sắp ra mắt — trang nhật ký sẽ mở ngay.",
-      "viewTasks": "Mở việc hôm nay"
+      "viewTasks": "Mở việc hôm nay",
+      "sheet": "Bản vẽ",
+      "sheetUpdated": "Cập nhật"
     },
     "track": {
       "title": "Mốc thi công",
@@ -1389,11 +1390,12 @@
       "toolbar": {
         "title": "Vấn đề",
         "subtitle": "Theo dõi các vấn đề phát sinh trong quá trình thi công. Mỗi dòng là một vấn đề; bấm vào để xem chi tiết hoặc đổi trạng thái.",
-        "total": "{count, plural, =0 {Chưa có vấn đề} one {# vấn đề} other {# vấn đề}}",
-        "open": "{count, plural, =0 {Chưa có vấn đề mở} one {# vấn đề mở} other {# vấn đề mở}}",
-        "resolved": "{count, plural, =0 {Chưa có vấn đề xử lý} one {# vấn đề đã xử lý} other {# vấn đề đã xử lý}}",
         "backToMilestones": "Về milestones",
-        "reportCta": "Báo cáo vấn đề"
+        "reportCta": "Báo cáo vấn đề",
+        "sheet": "Bản vẽ",
+        "sheetTotal": "Tổng",
+        "sheetOpen": "Đang mở",
+        "sheetResolved": "Đã xử lý"
       },
       "status": {
         "open": "Mới",
@@ -1505,8 +1507,7 @@
       "siteProfile": "Hồ sơ mặt bằng",
       "changeOrders": "Khoản phát sinh",
       "quotations": "Báo giá",
-      "payments": "Thanh toán",
-      "providers": "Nhà cung cấp"
+      "payments": "Thanh toán"
     },
     "contractor": {
       "workspace": "Không gian làm việc",
@@ -1534,8 +1535,7 @@
       "createContract": "Tạo hợp đồng",
       "contractHistory": "Lịch sử hợp đồng",
       "payments": "Thanh toán",
-      "dailyLogs": "Nhật ký thi công",
-      "providers": "Nhà cung cấp"
+      "dailyLogs": "Nhật ký thi công"
     },
     "admin": {
       "overview": "Tổng quan",
@@ -2264,7 +2264,8 @@
       "editProfileDescription": "Cập nhật hồ sơ công khai. Thay đổi sẽ phản ánh ngay trên toàn hệ thống.",
       "settings": "Cài đặt",
       "changeCover": "Đổi ảnh bìa",
-      "cancel": "Huỷ"
+      "cancel": "Huỷ",
+      "viewPublicProfile": "Xem hồ sơ công khai"
     },
     "states": {
       "loading": "Đang tải hồ sơ…",
@@ -2995,42 +2996,10 @@
     }
   },
   "ProviderDirectory": {
-    "meta": {
-      "title": "Nhà cung cấp — SmartCafeBuilder",
-      "description": "Duyệt qua các studio thiết kế và nhà thầu thi công: hồ sơ năng lực, đánh giá, dự án mẫu và khu vực phục vụ."
-    },
-    "title": "Nhà cung cấp",
-    "subtitle": "Xem cách các studio thiết kế và nhà thầu khác giới thiệu năng lực, đánh giá, dự án mẫu và khu vực hoạt động của họ.",
-    "card": {
-      "verified": "Đã xác minh",
-      "individual": "Cá nhân",
-      "company": "Doanh nghiệp",
-      "cell": {
-        "experience": "Kinh nghiệm",
-        "years": "{count, plural, =0 {—} other {# năm}}",
-        "joined": "Tham gia"
-      }
-    },
-    "filter": {
-      "searchPlaceholder": "Tìm theo tên…",
-      "searchLabel": "Tìm kiếm",
-      "clearSearch": "Xoá nội dung tìm",
-      "verifiedOnly": "Chỉ nhà cung cấp đã xác minh",
-      "reset": "Bỏ lọc",
-      "totalCount": "{count, plural, other {# nhà cung cấp}}"
-    },
     "capability": {
-      "all": "Tất cả năng lực",
       "designer": "Thiết kế",
       "constructor": "Thi công",
       "both": "Cả hai"
-    },
-    "pagination": {
-      "label": "Chuyển trang",
-      "first": "Trang đầu",
-      "previous": "Trang trước",
-      "next": "Trang sau",
-      "last": "Trang cuối"
     },
     "noRatings": "Chưa có đánh giá",
     "ratingValue": "Đánh giá {rating} trên 5",
@@ -3043,19 +3012,7 @@
       "professionalism": "Chuyên nghiệp",
       "unknown": "Khác",
       "empty": "Chưa có điểm theo tiêu chí."
-    },
-    "errors": {
-      "title": "Không tải được danh sách nhà cung cấp.",
-      "subtitle": "Đã có lỗi khi kết nối tới máy chủ. Vui lòng thử lại.",
-      "retry": "Thử lại",
-      "generic": "Không thể tải nhà cung cấp."
-    },
-    "empty": {
-      "title": "Không tìm thấy nhà cung cấp phù hợp",
-      "description": "Thử bỏ bộ lọc hoặc đổi từ khoá tìm kiếm.",
-      "action": "Bỏ lọc"
-    },
-    "refreshing": "Đang làm mới…"
+    }
   },
   "ProviderPublicProfile": {
     "verified": "Đã xác minh",
@@ -3514,5 +3471,14 @@
     "tooLarge": "Tệp này nặng {sizeMb}MB. Giới hạn là {limitMb}MB.",
     "badType": "Không hỗ trợ tệp {extension}. Cho phép: {allowed}.",
     "empty": "Tệp này rỗng."
+  },
+  "DrawingSet": {
+    "footer": {
+      "project": "Dự án",
+      "address": "Địa chỉ",
+      "drawnBy": "Thực hiện",
+      "sheet": "Bản vẽ",
+      "updated": "Cập nhật"
+    }
   }
 }
