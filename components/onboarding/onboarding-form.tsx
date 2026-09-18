@@ -197,8 +197,16 @@ export function OnboardingForm() {
               // shop-owner gating. For the provider-only flow we treat
               // any non-empty providerType / capability as "ready" so the
               // button stays in sync with what the form requires.
+              // Named after the chosen capability: it said "Designer" for
+              // contractors and design-and-build firms too.
               selectedRole={
-                providerType && capability ? "designer" : ""
+                !providerType || !capability
+                  ? ""
+                  : capability === "constructor"
+                    ? "construction_company"
+                    : capability === "both"
+                      ? "design_build"
+                      : "designer"
               }
               isLoading={
                 isSubmitting || createProfile.isPending

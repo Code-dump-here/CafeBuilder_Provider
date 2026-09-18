@@ -193,6 +193,9 @@ function ProviderEngagementHeroInner({
 
 export function ProjectHeroBar({ project }: ProjectHeroBarProps) {
   const format = useFormatter();
+  // These labels were English literals, so the Vietnamese header read
+  // "Created: … Updated: … Print Share".
+  const tHero = useTranslations("ProjectsOverview.hero");
 
   const formatDate = (value: Date) =>
     format.dateTime(value, { dateStyle: "medium" });
@@ -210,7 +213,7 @@ export function ProjectHeroBar({ project }: ProjectHeroBarProps) {
       } catch {
         // Clipboard write may be denied (permissions / insecure context).
       }
-      projectActionToast("Link copied to clipboard.");
+      projectActionToast(tHero("linkCopied"));
     }
   };
 
@@ -218,12 +221,12 @@ export function ProjectHeroBar({ project }: ProjectHeroBarProps) {
     <header className="flex flex-col gap-3 border-b border-border/60 pb-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
-          <SheetTitle sheet={SHEET.projectOverview} className="text-balance">{project.name || "Project"}</SheetTitle>
+          <SheetTitle sheet={SHEET.projectOverview} className="text-balance">{project.name || tHero("untitled")}</SheetTitle>
           {hasAnyDate ? (
             <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
               {project.createdAt.getTime() !== 0 ? (
                 <span>
-                  <span className="text-muted-foreground/80">Created: </span>
+                  <span className="text-muted-foreground/80">{tHero("created")} </span>
                   <span className="text-foreground">
                     {formatDate(project.createdAt)}
                   </span>
@@ -231,7 +234,7 @@ export function ProjectHeroBar({ project }: ProjectHeroBarProps) {
               ) : null}
               {project.updatedAt.getTime() !== 0 ? (
                 <span>
-                  <span className="text-muted-foreground/80">Updated: </span>
+                  <span className="text-muted-foreground/80">{tHero("updated")} </span>
                   <span className="text-foreground">
                     {formatDate(project.updatedAt)}
                   </span>
@@ -244,7 +247,7 @@ export function ProjectHeroBar({ project }: ProjectHeroBarProps) {
         <div
           className="flex flex-wrap items-center gap-2"
           role="group"
-          aria-label="Project actions"
+          aria-label={tHero("actionsAria")}
         >
           <ProviderHeroActions project={project} />
           <Separator
@@ -255,19 +258,17 @@ export function ProjectHeroBar({ project }: ProjectHeroBarProps) {
             variant="outline"
             size="lg"
             onClick={handlePrint}
-            aria-label="Print"
           >
             <Printer aria-hidden />
-            Print
+            {tHero("print")}
           </Button>
           <Button
             variant="outline"
             size="lg"
             onClick={handleShare}
-            aria-label="Share"
           >
             <Share2 aria-hidden />
-            Share
+            {tHero("share")}
           </Button>
         </div>
       </div>

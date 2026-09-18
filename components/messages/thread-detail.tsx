@@ -136,7 +136,10 @@ export function ThreadDetail({ thread, onOpenInfo, onSend, onDeleteMessage, curr
             ) : null}
 
             {groups.map(({ dateKey, bursts }) => {
-              const dateLabel = format.dateTime(new Date(dateKey), {
+              // Labelled from a message in the group, not by re-parsing the
+              // key: the key held a 0-based month, so every divider read one
+              // month early (a 18 March thread said "18 February").
+              const dateLabel = format.dateTime(bursts[0].first.createdAt, {
                 weekday: "long",
                 month: "long",
                 day: "numeric",

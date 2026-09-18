@@ -257,8 +257,6 @@
       "codeHint": "Check your email inbox and spam folder",
       "verifyCode": "Verify & continue",
       "verifying": "Verifying...",
-      "demoLabel": "Demo",
-      "demoHint": "Enter 123456 to simulate success",
       "instructions": {
         "title": "Why verify your email?",
         "description": "Email verification keeps your account secure, enables password recovery, and allows you to receive project notifications. The process takes less than a minute."
@@ -302,6 +300,28 @@
         "companyTaxCode": "Company tax code",
         "companyTaxCodeHint": "Required for registered businesses — we use this for verification.",
         "companyTaxCodePlaceholder": "e.g. 0312345678"
+      },
+      "options": {
+        "individual": {
+          "label": "Individual",
+          "description": "Solo designer or contractor working under their own name."
+        },
+        "company": {
+          "label": "Company",
+          "description": "Registered business with a tax code and team."
+        },
+        "designer": {
+          "label": "Designer",
+          "description": "Owns the design and concept phase."
+        },
+        "constructor": {
+          "label": "Constructor",
+          "description": "Owns the build and execution phase."
+        },
+        "both": {
+          "label": "Both",
+          "description": "Handles design and build end-to-end."
+        }
       }
     },
     "accountSummary": {
@@ -335,6 +355,12 @@
         "shortDesc": "Build professionally",
         "detailDesc": "Set up your company profile, receive construction requests, plan work, update logs, and report progress.",
         "submitLabel": "Construction Co."
+      },
+      "design_build": {
+        "name": "Design & build",
+        "shortDesc": "Design & build",
+        "detailDesc": "Design & build",
+        "submitLabel": "Design & build studio"
       }
     },
     "shopOwner": {
@@ -433,7 +459,8 @@
     "shopOwner": "Shop Owner",
     "designer": "Designer",
     "contractor": "Contractor",
-    "admin": "Admin"
+    "admin": "Admin",
+    "designBuild": "Design & build"
   },
   "Breadcrumb": {
     "myProjects": "My Projects",
@@ -768,6 +795,15 @@
           "cta": "Open milestones"
         }
       }
+    },
+    "hero": {
+      "untitled": "Project",
+      "created": "Created:",
+      "updated": "Updated:",
+      "actionsAria": "Project actions",
+      "print": "Print",
+      "share": "Share",
+      "linkCopied": "Link copied to clipboard."
     }
   },
   "ConstructionLog": {
@@ -1893,6 +1929,12 @@
         "created": "Category \"{label}\" added.",
         "duplicate": "A category with that name already exists."
       }
+    },
+    "designStatus": {
+      "in_progress": "In progress",
+      "submitted": "Submitted",
+      "revision": "Revision",
+      "approved": "Approved"
     }
   },
   "TechnicalDrawings": {
@@ -3372,7 +3414,7 @@
     },
     "link": {
       "title": "Link to a milestone",
-      "description": "Confirming this instalment then marks that milestone as paid — the paid-and-paid-for-what half of review 3.",
+      "description": "Once you confirm this instalment, the milestone it is linked to is marked as paid.",
       "placeholder": "Choose a milestone",
       "none": "No milestone",
       "save": "Save"

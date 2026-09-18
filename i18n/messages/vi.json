@@ -257,8 +257,6 @@
       "codeHint": "Kiểm tra hộp thư đến và thư rác",
       "verifyCode": "Xác minh & Tiếp tục",
       "verifying": "Đang xác minh...",
-      "demoLabel": "Demo",
-      "demoHint": "Nhập 123456 để mô phỏng thành công",
       "instructions": {
         "title": "Tại sao cần xác minh email?",
         "description": "Xác minh email giúp bảo vệ tài khoản, cho phép khôi phục mật khẩu và nhận thông báo dự án. Quy trình chỉ mất chưa đầy một phút."
@@ -302,6 +300,28 @@
         "companyTaxCode": "Mã số thuế doanh nghiệp",
         "companyTaxCodeHint": "Bắt buộc với doanh nghiệp đã đăng ký — dùng để xác minh.",
         "companyTaxCodePlaceholder": "VD: 0312345678"
+      },
+      "options": {
+        "individual": {
+          "label": "Cá nhân",
+          "description": "Nhà thiết kế hoặc nhà thầu làm việc dưới tên riêng."
+        },
+        "company": {
+          "label": "Doanh nghiệp",
+          "description": "Doanh nghiệp đã đăng ký, có mã số thuế và đội ngũ."
+        },
+        "designer": {
+          "label": "Thiết kế",
+          "description": "Đảm nhận giai đoạn ý tưởng và thiết kế."
+        },
+        "constructor": {
+          "label": "Thi công",
+          "description": "Đảm nhận giai đoạn thi công và hoàn thiện."
+        },
+        "both": {
+          "label": "Cả hai",
+          "description": "Nhận trọn gói từ thiết kế đến thi công."
+        }
       }
     },
     "accountSummary": {
@@ -335,6 +355,12 @@
         "shortDesc": "Thi công chuyên nghiệp",
         "detailDesc": "Thiết lập hồ sơ công ty, nhận yêu cầu thi công, lập kế hoạch, cập nhật nhật ký và báo cáo tiến độ.",
         "submitLabel": "Đơn vị thi công"
+      },
+      "design_build": {
+        "name": "Thiết kế & thi công",
+        "shortDesc": "Thiết kế & thi công",
+        "detailDesc": "Thiết kế & thi công",
+        "submitLabel": "Đơn vị thiết kế & thi công"
       }
     },
     "shopOwner": {
@@ -433,7 +459,8 @@
     "shopOwner": "Chủ quán",
     "designer": "Nhà thiết kế",
     "contractor": "Nhà thầu",
-    "admin": "Quản trị viên"
+    "admin": "Quản trị viên",
+    "designBuild": "Thiết kế & thi công"
   },
   "Breadcrumb": {
     "myProjects": "Dự án của tôi",
@@ -768,6 +795,15 @@
           "cta": "Mở hạng mục"
         }
       }
+    },
+    "hero": {
+      "untitled": "Dự án",
+      "created": "Tạo ngày:",
+      "updated": "Cập nhật:",
+      "actionsAria": "Thao tác dự án",
+      "print": "In",
+      "share": "Chia sẻ",
+      "linkCopied": "Đã sao chép liên kết."
     }
   },
   "ConstructionLog": {
@@ -1893,6 +1929,12 @@
         "created": "Đã thêm loại \"{label}\".",
         "duplicate": "Đã tồn tại một loại với tên này."
       }
+    },
+    "designStatus": {
+      "in_progress": "Đang làm",
+      "submitted": "Chờ duyệt",
+      "revision": "Cần chỉnh sửa",
+      "approved": "Đã duyệt"
     }
   },
   "TechnicalDrawings": {
@@ -3372,7 +3414,7 @@
     },
     "link": {
       "title": "Gắn vào hạng mục thi công",
-      "description": "Xác nhận đợt này sẽ đánh dấu hạng mục đó đã thanh toán — đúng yêu cầu đã trả và trả cho việc gì của review 3.",
+      "description": "Khi bạn xác nhận đợt này, hạng mục được gắn sẽ được đánh dấu đã thanh toán.",
       "placeholder": "Chọn hạng mục",
       "none": "Không gắn hạng mục",
       "save": "Lưu"
