@@ -107,6 +107,15 @@ export function AppSidebar({
   // Map API role format to sidebar config format
   const mappedRole = mapRoleToConfigRole(role);
   const config = ROLE_SIDEBAR_CONFIG[mappedRole];
+  // Every provider gets the DESIGNER sidebar config, so its label read
+  // "Designer" for contractors too. Name the provider by what they do.
+  const capability = account?.serviceProvider?.capability;
+  const roleLabelKey =
+    mappedRole === "DESIGNER" && capability === "constructor"
+      ? "Roles.contractor"
+      : mappedRole === "DESIGNER" && capability === "both"
+        ? "Roles.designBuild"
+        : config.brand.labelKey;
   const activeProjectId = useActiveProjectId();
   const { membership } = useActiveProjectMembership(activeProjectId);
 
@@ -180,7 +189,7 @@ export function AppSidebar({
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{config.brand.name}</span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {t(config.brand.labelKey)}
+                      {t(roleLabelKey)}
                     </span>
                   </div>
                 </Link>

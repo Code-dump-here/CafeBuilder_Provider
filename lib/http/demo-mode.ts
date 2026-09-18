@@ -66,21 +66,77 @@ export function isDemoActive(): boolean {
 const NOW = "2026-09-01T09:00:00Z";
 const PROJECT_ID = "11111111-1111-4111-8111-111111111111";
 const WORKING_ID = "22222222-2222-4222-8222-222222222222";
+// Other projects: an invitation and a finished job on My Projects, and two
+// marketplace briefs still collecting bids — one the demo provider has not
+// bid on (to show applying) and one with its bid already in.
+const INVITED_PROJECT_ID = "44444444-4444-4444-8444-444444444444";
+const DONE_PROJECT_ID = "55555555-5555-4555-8555-555555555555";
+const BAKERY_PROJECT_ID = "88888888-8888-4888-8888-888888888888";
+const GOC_SAN_PROJECT_ID = "99999999-9999-4999-8999-999999999999";
+
+/**
+ * Who the demo is signed in as, from `localStorage["demo.persona"]`, read once
+ * per page load. It exists so every role's screens can be shown — the user
+ * manual needs a designer's sidebar, a contractor's and a design-and-build
+ * provider's, a signed-out visitor and a brand-new account:
+ *
+ * - `both` (default) — design-and-build provider on a design + build job
+ * - `designer` / `contractor` — single-capability provider and job
+ * - `guest` — no session, so login and sign-up render as for a visitor
+ * - `onboarding` — signed in, profile not created yet (sent to onboarding)
+ */
+type DemoPersona = "both" | "designer" | "contractor" | "guest" | "onboarding";
+
+const PERSONA: DemoPersona = (() => {
+  if (typeof window === "undefined") return "both";
+  try {
+    const value = window.localStorage.getItem("demo.persona");
+    const known: DemoPersona[] = ["both", "designer", "contractor", "guest", "onboarding"];
+    return known.includes(value as DemoPersona) ? (value as DemoPersona) : "both";
+  } catch {
+    return "both";
+  }
+})();
+
+/**
+ * How far the Nhà Nâu job has got, from `localStorage["demo.stage"]`:
+ * `signed` (default) has a confirmed contract; `unsigned` is the moment after
+ * the quotation was approved and before a contract exists, so creating a
+ * contract can be shown.
+ */
+const STAGE: "signed" | "unsigned" = (() => {
+  if (typeof window === "undefined") return "signed";
+  try {
+    return window.localStorage.getItem("demo.stage") === "unsigned" ? "unsigned" : "signed";
+  } catch {
+    return "signed";
+  }
+})();
+
+const CAPABILITY =
+  PERSONA === "designer" ? "designer" : PERSONA === "contractor" ? "constructor" : "both";
+const CONTRACT_TYPE =
+  PERSONA === "designer" ? "design" : PERSONA === "contractor" ? "construction" : "both";
 
 const DEMO_ACCOUNT = {
   id: "00000000-0000-4000-8000-000000000001",
-  email: "demo@provider.test",
-  phone: "0900 000 000",
+  email: "lienhe@xuongmocbinhminh.vn",
+  phone: "0908 123 456",
   role: "provider",
   status: "active",
   emailVerifiedAt: NOW,
   createdAt: NOW,
   updatedAt: NOW,
   shopOwner: null,
-  serviceProvider: {
+  serviceProvider: PERSONA === "onboarding" ? null : {
     id: "00000000-0000-4000-8000-000000000002",
     displayName: "Xưởng Mộc Bình Minh",
-    capability: "both",
+    capability: CAPABILITY,
+    // Matches the review summary, so the profile header and the Brand tab
+    // show the same rating.
+    avgRating: 4,
+    reviewCount: 3,
+    isVerified: true,
     bio: "Design-and-build studio working on cafés across Ho Chi Minh City.",
     yearsExperience: 8,
     createdAt: NOW,
@@ -196,13 +252,13 @@ const ENGAGEMENTS = page([
     serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
     providerDisplayName: "Xưởng Mộc Bình Minh",
     applyId: null,
-    contractType: "both",
+    contractType: CONTRACT_TYPE,
     status: "accepted",
     requestMessage: null,
     startedAt: NOW,
     createdAt: NOW,
     updatedAt: NOW,
-    hasConfirmedContract: true,
+    hasConfirmedContract: STAGE === "signed",
     completionRequestedAt: null,
     completionRequestNote: null,
     isAwaitingAcceptance: false,
@@ -210,13 +266,15 @@ const ENGAGEMENTS = page([
     terminationRequestedBy: null,
     terminationRequestNote: null,
     providerType: "constructor",
-    capability: "both",
+    capability: CAPABILITY,
     isVerified: true,
     avgRating: 4.6,
   },
 ]);
 
-const ISSUE_TYPES = page([
+// A plain array: GET /api/issue-types is not paged, and the report-issue
+// dialog maps over it — a page envelope crashed the dialog.
+const ISSUE_TYPES = ([
   { id: "t1", code: "finish", name: "Finish defect" },
   { id: "t2", code: "mep", name: "MEP clash" },
   { id: "t3", code: "dimension", name: "Dimension mismatch" },
@@ -289,10 +347,10 @@ const PROJECT = {
       serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
       displayName: "Xưởng Mộc Bình Minh",
       providerType: "constructor",
-      capability: "both",
+      capability: CAPABILITY,
       isVerified: true,
       avgRating: 4.6,
-      contractType: "both",
+      contractType: CONTRACT_TYPE,
       status: "accepted",
       createdAt: NOW,
     },
@@ -674,8 +732,14 @@ const QUOTATION_ROWS = [
   attachments: [], createdAt: NOW, updatedAt: NOW,
 }));
 
-const quotations = (url: string) =>
-  QUOTATION_ROWS.find((q) => url.includes("/api/quotations/" + q.id)) ?? page(QUOTATION_ROWS);
+// Scoped to what was asked for: the Nhà Nâu engagement has the quotation
+// history, a bid (applyId) has none yet — so "create quotation" is open there.
+const quotations = (url: string) => {
+  const one = QUOTATION_ROWS.find((q) => url.includes("/api/quotations/" + q.id));
+  if (one) return one;
+  if (/applyId=/.test(url)) return page([]);
+  return page(QUOTATION_ROWS);
+};
 
 const PAYMENT_BATCH_ROWS = [
   ["pb1", 1, "Deposit on signing", 30, 86_700_000, "confirmed"],
@@ -780,22 +844,34 @@ const itemCostSummary = (url: string) =>
 // all three and the OPEN / CLOSED / CANCELLED stamps can be compared side by
 // side.
 const POSTS = page([
-  ["p1", "Nhà Nâu Coffee — Quận 1", "123 Nguyễn Huệ, Quận 1, Hồ Chí Minh", 420_000_000, 86.5, "both",
-   "Design and fit-out for an 18-seat espresso bar", "open", "2026-10-15"],
-  ["p2", "Trạm Trà — Hai Bà Trưng", "8 Lò Đúc, Hai Bà Trưng, Hà Nội", 180_000_000, 42, "design",
-   "Concept and layout for a tea counter with takeaway window", "closed", "2026-08-30"],
-  ["p3", "Góc Sân Café — Đà Nẵng", "56 Bạch Đằng, Hải Châu, Đà Nẵng", 650_000_000, 140, "construction",
-   "Build-out of a two-floor café from approved drawings", "cancelled", "2026-09-05"],
-].map(([id, projectName, projectAddress, projectBudget, projectAreaM2, serviceKind, title, status, deadline]) => ({
-  id, projectShopOwnerId: "11111111-1111-4111-8111-111111111111", projectName, projectAddress,
-  projectBudget, projectAreaM2, serviceKind, title,
-  description: "Brief posted by the owner with floor area, budget and the service needed.",
+  ["p1", BAKERY_PROJECT_ID, "Bếp Mây Bakery & Coffee — Thủ Đức", "15 Võ Văn Ngân, Thủ Đức, Hồ Chí Minh",
+   520_000_000, 110, "both", "Design and build a bakery-café with an open kitchen", "open", "2026-10-20",
+   "Two-storey shophouse. Bakery counter and open kitchen downstairs, 30 seats upstairs. We want warm lighting and a lot of plants."],
+  ["p2", GOC_SAN_PROJECT_ID, "Góc Sân Café — Đà Nẵng", "56 Bạch Đằng, Hải Châu, Đà Nẵng",
+   650_000_000, 140, "construction", "Build-out of a two-floor café from approved drawings", "open", "2026-10-05",
+   "Drawings are approved. We need a contractor to fit out both floors, including the terrace, within 10 weeks."],
+  ["p3", INVITED_PROJECT_ID, "Trạm Trà — Hai Bà Trưng", "8 Lò Đúc, Hai Bà Trưng, Hà Nội",
+   180_000_000, 42, "design", "Concept and layout for a tea counter with takeaway window", "closed", "2026-08-30",
+   "A tea counter with a takeaway window. Pale wood and ceramic, very quiet."],
+  ["p4", PROJECT_ID, "Nhà Nâu Coffee — Quận 1", "123 Nguyễn Huệ, Quận 1, Hồ Chí Minh",
+   420_000_000, 86.5, "both", "Design and fit-out for an 18-seat espresso bar", "closed", "2026-08-15",
+   "Espresso bar for office workers. Timber bar, terrazzo floor, 18 seats."],
+].map(([id, projectShopOwnerId, projectName, projectAddress, projectBudget, projectAreaM2, serviceKind, title, status, deadline, description]) => ({
+  id, projectShopOwnerId, projectName, projectAddress,
+  projectBudget, projectAreaM2, serviceKind, title, description,
   status, submissionDeadline: deadline + "T00:00:00Z", createdAt: NOW, updatedAt: NOW,
 })));
 
 // Tasks per phase — their own endpoint, not child construction items. Without
 // them every phase read "0/0 done · No tasks yet", which made the board look
 // empty rather than showing what a real schedule carries.
+const TASK_DATES = [
+  ["2026-03-02", "2026-03-04"], ["2026-03-05", "2026-03-08"], ["2026-03-09", "2026-03-12"],
+  ["2026-03-13", "2026-03-14"], ["2026-03-15", "2026-03-18"], ["2026-03-19", "2026-03-23"], ["2026-03-24", "2026-03-26"],
+  ["2026-03-27", "2026-03-28"], ["2026-03-29", "2026-04-01"], ["2026-04-02", "2026-04-02"],
+  ["2026-04-03", "2026-04-11"], ["2026-04-12", "2026-04-18"],
+];
+
 const CONSTRUCTION_TASK_ROWS = ([
   ["m1", "Strip out old counter and shelving", "completed", 2_400_000],
   ["m1", "Cap redundant water and waste", "completed", 1_800_000],
@@ -811,7 +887,9 @@ const CONSTRUCTION_TASK_ROWS = ([
   ["m4", "Paint and feature wall", "pending", 4_900_000],
 ] as const).map(([constructionItemId, name, status, labor], i) => ({
   id: `t${i + 1}`, constructionItemId, name, description: null,
-  imageUrl: null, imageViewUrl: null, startAt: null, estimateAt: null,
+  imageUrl: null, imageViewUrl: null,
+  // Spread through each phase's window, so tasks show real dates.
+  startAt: TASK_DATES[i][0], estimateAt: TASK_DATES[i][1],
   actualStartAt: status === "pending" ? null : NOW,
   actualAt: status === "completed" ? NOW : null,
   plannedDurationDays: null, actualDurationDays: null,
@@ -845,8 +923,6 @@ const DESIGN_BRIEFS = page([{
 // Three jobs in the three states the page shows — active, invited, finished —
 // each on its own project with its own owner and brief, so a card can be
 // judged on whether it tells one job from another.
-const INVITED_PROJECT_ID = "44444444-4444-4444-8444-444444444444";
-const DONE_PROJECT_ID = "55555555-5555-4555-8555-555555555555";
 
 const OTHER_PROJECTS: Record<string, typeof PROJECT> = {
   [INVITED_PROJECT_ID]: {
@@ -862,6 +938,23 @@ const OTHER_PROJECTS: Record<string, typeof PROJECT> = {
     owner: { id: "owner-3", fullName: "Lê Quốc Bảo", shopName: "Kiosk 81", phone: null },
   },
 };
+
+OTHER_PROJECTS[BAKERY_PROJECT_ID] = {
+  ...PROJECT, id: BAKERY_PROJECT_ID, name: "Bếp Mây Bakery & Coffee — Thủ Đức",
+  address: "15 Võ Văn Ngân, Thủ Đức, Hồ Chí Minh", areaM2: 110, budget: 520_000_000,
+  status: "open", providers: [],
+  owner: { id: "owner-4", fullName: "Phạm Gia Hân", shopName: "Bếp Mây", phone: null },
+  openPosts: [{ id: "p1", serviceKind: "both", title: "Design and build a bakery-café with an open kitchen",
+    status: "open", submissionDeadline: "2026-10-20T00:00:00Z" }],
+} as typeof PROJECT;
+OTHER_PROJECTS[GOC_SAN_PROJECT_ID] = {
+  ...PROJECT, id: GOC_SAN_PROJECT_ID, name: "Góc Sân Café — Đà Nẵng",
+  address: "56 Bạch Đằng, Hải Châu, Đà Nẵng", areaM2: 140, budget: 650_000_000,
+  status: "open", providers: [],
+  owner: { id: "owner-5", fullName: "Võ Thành Nam", shopName: "Góc Sân", phone: null },
+  openPosts: [{ id: "p2", serviceKind: "construction", title: "Build-out of a two-floor café from approved drawings",
+    status: "open", submissionDeadline: "2026-10-05T00:00:00Z" }],
+} as typeof PROJECT;
 
 const projectDetail = (url: string) =>
   OTHER_PROJECTS[/project-shop-owners\/([^/?]+)/.exec(url)?.[1] ?? ""] ?? PROJECT;
@@ -908,12 +1001,313 @@ const engagementBrief = (url: string) => {
   return id in ENGAGEMENT_BRIEFS ? { ...base, ...ENGAGEMENT_BRIEFS[id] } : base;
 };
 
+
+// ─── Manual fixtures ───────────────────────────────────────────────────────
+// Everything the remaining provider screens read, so each can be shown with
+// realistic content. Before these, site profile and pricing crashed and
+// survey, daily log, messages, notifications and comments were empty.
+
+// Engagements scoped to the project asked for. Answering every project with
+// the Nhà Nâu engagement made the provider look engaged everywhere, so a
+// marketplace brief never offered its Apply card.
+const engagementsFor = (url: string) => {
+  const project = /projectShopOwnerId=([^&]+)/.exec(url)?.[1];
+  if (!project || project === PROJECT_ID) return ENGAGEMENTS;
+  return page(MY_PROJECT_ROWS.filter((row) => row.projectShopOwnerId === project));
+};
+
+// Survey, bid on Góc Sân: pending, with a site survey booked.
+const APPLY_ROWS = [{
+  id: "a1", postId: "p2", postTitle: "Build-out of a two-floor café from approved drawings",
+  projectShopOwnerId: GOC_SAN_PROJECT_ID,
+  serviceProviderProfileId: "00000000-0000-4000-8000-000000000002",
+  providerDisplayName: "Xưởng Mộc Bình Minh",
+  proposal: "We have built three two-floor cafés on Bạch Đằng. Our crew can start the week after signing and finish both floors and the terrace in 9 weeks.",
+  estimatedDurationDays: 63, status: "pending", submittedAt: "2026-09-12T08:00:00Z",
+  createdAt: "2026-09-12T08:00:00Z", updatedAt: "2026-09-12T08:00:00Z",
+  surveyCount: 1, latestSurveyId: "s3", latestSurveyScheduledAt: "2026-09-20T02:00:00Z",
+  latestSurveyedAt: null, hasCompletedSurvey: false,
+}];
+
+const applies = (url: string) => {
+  const project = /projectShopOwnerId=([^&]+)/.exec(url)?.[1];
+  return page(project ? APPLY_ROWS.filter((row) => row.projectShopOwnerId === project) : APPLY_ROWS);
+};
+
+const SITE_PROFILE = {
+  id: "sp1", projectShopOwnerId: PROJECT_ID,
+  lengthM: 12.4, widthM: 7, frontageWidthM: 6.8, ceilingHeightM: 3.6, roadWidthM: 18,
+  orientation: "southeast", floorCount: 2, hasMezzanine: true,
+  structureNote: "Reinforced concrete frame; the rear wall is shared with the neighbour.",
+  existingConditionNote: "Previous tenant's counter and shelving still in place. Floor screed cracked near the entrance.",
+  derivedFootprintM2: 86.8, totalFloorAreaM2: 131.5, projectAreaM2: 86.5, isAreaSyncedToProject: true,
+  createdBy: "owner-1", createdAt: NOW, updatedAt: NOW,
+  floors: [
+    { id: "f1", siteProfileId: "sp1", floorNo: 1, name: "Ground floor", areaM2: 86.5, ceilingHeightM: 3.6,
+      purpose: "Bar, seating and takeaway", note: null },
+    { id: "f2", siteProfileId: "sp1", floorNo: 2, name: "Mezzanine", areaM2: 45, ceilingHeightM: 2.6,
+      purpose: "Extra seating and storage", note: "Stair at the rear" },
+  ],
+  openings: [
+    { id: "o1", siteProfileId: "sp1", siteFloorId: "f1", type: "main_door", orientation: "southeast",
+      widthM: 2.4, heightM: 2.8, quantity: 1, note: "Glass shopfront", sortOrder: 1 },
+    { id: "o2", siteProfileId: "sp1", siteFloorId: "f1", type: "window", orientation: "southeast",
+      widthM: 1.8, heightM: 2.2, quantity: 2, note: null, sortOrder: 2 },
+    { id: "o3", siteProfileId: "sp1", siteFloorId: "f1", type: "service_door", orientation: "northwest",
+      widthM: 0.9, heightM: 2.1, quantity: 1, note: "Deliveries from the back lane", sortOrder: 3 },
+  ],
+};
+
+const SURVEY_ROWS = [
+  { id: "s1", projectWorkingId: WORKING_ID, applyId: null, scheduledAt: "2026-02-20T02:00:00Z",
+    surveyedAt: "2026-02-20T03:30:00Z", version: 1,
+    conditionNote: "Measured 12.4 × 7.0 m, ceiling 3.6 m. Existing counter to be removed; waste outlet 40 cm from the rear wall. Rear wall shared with the neighbour — no chasing.",
+    reportUrl: "demo/survey-1.pdf", reportViewUrl: null, createdBy: "demo", createdAt: NOW, updatedAt: NOW },
+  { id: "s2", projectWorkingId: WORKING_ID, applyId: null, scheduledAt: "2026-03-01T02:00:00Z",
+    surveyedAt: null, version: 2,
+    conditionNote: "Follow-up visit to check the mezzanine slab before the stair is designed.",
+    reportUrl: null, reportViewUrl: null, createdBy: "demo", createdAt: NOW, updatedAt: NOW },
+];
+
+const surveys = (url: string) =>
+  SURVEY_ROWS.find((row) => url.includes("/api/surveys/" + row.id)) ?? page(SURVEY_ROWS);
+
+const COMMENT_ROWS: Record<string, [string, string, string][]> = {
+  d1: [["Trần Minh Anh", "Love the bar on the north wall. Can we keep the window seats?", "2026-02-25T09:10:00Z"],
+       ["Xưởng Mộc Bình Minh", "Yes — the window counter stays, 6 stools.", "2026-02-25T10:02:00Z"]],
+  d2: [["Trần Minh Anh", "The till is too close to the service door, staff will bump into deliveries.", "2026-03-04T07:40:00Z"],
+       ["Xưởng Mộc Bình Minh", "Agreed, moving it 900 mm west in the next version.", "2026-03-04T08:15:00Z"]],
+  m2: [["Xưởng Mộc Bình Minh", "Plumber on site Thursday; pressure test Friday morning.", "2026-03-18T06:00:00Z"]],
+};
+
+const comments = (url: string) => {
+  const target = /targetId=([^&]+)/.exec(url)?.[1] ?? "";
+  return page((COMMENT_ROWS[target] ?? []).map(([name, body, at], i) => ({
+    id: `${target}-c${i + 1}`, targetType: url.includes("construction_item") ? "construction_item" : "design",
+    targetId: target, body, createdBy: name === "Xưởng Mộc Bình Minh" ? DEMO_ACCOUNT.id : "owner-1",
+    createdByName: name, createdAt: at, updatedAt: at,
+  })));
+};
+
+const DAILY_LOG_ROWS = [
+  ["dl4", "2026-03-19", "m2", "Bar carcass & plumbing", "t6", "Run water and waste to bar sink",
+   "Ran the hot and cold feeds to the bar sink and fixed the waste to the floor gully. Carcass doors hung.",
+   "Waste pipe clashes with the carcass return — raised as an issue.", "Sunny, 33°C", 5],
+  ["dl3", "2026-03-18", "m2", "Bar carcass & plumbing", "t5", "Build bar carcass frame",
+   "Finished the carcass frame and fixed it to the floor. Oak veneer panels delivered.", null, "Sunny, 32°C", 4],
+  ["dl2", "2026-03-14", "m2", "Bar carcass & plumbing", "t4", "Set out bar run to drawing A-101",
+   "Set out the bar run from drawing A-101 and checked it against the site — 6.4 m confirmed.", null, "Cloudy, 30°C", 3],
+  ["dl1", "2026-03-10", "m1", "Demolition & site prep", "t3", "Make good floor screed",
+   "Patched the cracked screed near the entrance and left it to cure.", null, "Rain in the afternoon", 3],
+].map(([id, logDate, itemId, itemName, taskId, taskName, workDone, issueNote, weatherNote, workerCount]) => ({
+  id, projectWorkingId: WORKING_ID, constructionItemId: itemId, constructionItemName: itemName,
+  constructionTaskId: taskId, constructionTaskName: taskName, logDate, workDone, issueNote,
+  weatherNote, workerCount, createdBy: DEMO_ACCOUNT.id, createdByName: "Xưởng Mộc Bình Minh",
+  createdAt: logDate + "T10:00:00Z", updatedAt: logDate + "T10:00:00Z", media: [],
+}));
+
+const dailyLogs = (url: string) =>
+  DAILY_LOG_ROWS.find((row) => url.includes("/api/daily-logs/" + row.id)) ?? page(DAILY_LOG_ROWS);
+
+const OWNER_SENDER = { accountId: "owner-1", displayName: "Trần Minh Anh", role: "owner", avatarUrl: null };
+const ME_SENDER = { accountId: DEMO_ACCOUNT.id, displayName: "Xưởng Mộc Bình Minh", role: "provider", avatarUrl: null };
+
+const CHAT_THREADS: [string, string | null, [typeof OWNER_SENDER, string, string][]][] = [
+  ["cv1", "Site visit — Thursday", [
+    [OWNER_SENDER, "Hi, can we move the site visit to Thursday morning?", "2026-03-17T01:05:00Z"],
+    [ME_SENDER, "Thursday 9am works. I'll bring the bar elevation to go through on site.", "2026-03-17T01:20:00Z"],
+    [OWNER_SENDER, "Great, see you then.", "2026-03-17T01:22:00Z"],
+  ]],
+  ["cv2", "Bar carcass & plumbing", [
+    [ME_SENDER, "Carcass frame is up. Plumbing goes in tomorrow.", "2026-03-18T09:00:00Z"],
+    [OWNER_SENDER, "Looks solid. Is the sink position final?", "2026-03-18T09:30:00Z"],
+    [ME_SENDER, "Yes, as on drawing A-201. Pressure test on Friday.", "2026-03-18T09:41:00Z"],
+  ]],
+  ["cv3", "Payment — instalment 2", [
+    [OWNER_SENDER, "I've transferred instalment 2 and uploaded the receipt.", "2026-09-11T08:40:00Z"],
+  ]],
+];
+
+const chatMessages = (id: string, rows: [typeof OWNER_SENDER, string, string][]) =>
+  rows.map(([sender, body, sentAt], i) => ({
+    id: `${id}-m${i + 1}`, conversationId: id, senderId: sender.accountId, sender, body,
+    attachments: [], sentAt,
+  }));
+
+const CONVERSATIONS = CHAT_THREADS.map(([id, topic, rows]) => {
+  const messages = chatMessages(id, rows);
+  return {
+    id, projectWorkingId: WORKING_ID, topic, createdBy: rows[0][0], createdAt: rows[0][2],
+    updatedAt: rows[rows.length - 1][2], messages,
+    lastMessage: messages[messages.length - 1], unreadCount: id === "cv3" ? 1 : 0,
+  };
+});
+
+const conversations = (url: string) => {
+  const one = CONVERSATIONS.find((c) => url.includes("/api/chat/conversations/" + c.id));
+  if (one) return one;
+  const items = CONVERSATIONS.map(({ messages: _messages, ...summary }) => summary);
+  return { items, pageNumber: 1, pageSize: 100, totalCount: items.length, totalPages: 1 };
+};
+
+const NOTIFICATION_ROWS = [
+  ["n1", "Payment proof submitted", "Trần Minh Anh uploaded proof for “Bar carcass & plumbing complete”. Check your bank and confirm.", "payment", false, "2026-09-11T08:41:00Z", `/projects/${PROJECT_ID}/payments`],
+  ["n2", "New invitation", "Nguyễn Thu Hà invited you to design “Trạm Trà — Hai Bà Trưng”.", "invitation", false, "2026-09-10T08:30:00Z", "/my-projects?status=requested"],
+  ["n3", "Revision requested", "The owner asked for changes to “Bar elevation”: move the till point away from the service door.", "design", true, "2026-03-04T07:41:00Z", `/projects/${PROJECT_ID}/design-management/d2`],
+  ["n4", "Quotation accepted", "“Design & build — revised after site survey” was accepted.", "quotation", true, "2026-02-28T03:00:00Z", `/projects/${PROJECT_ID}/quotations`],
+  ["n5", "Contract confirmed", "“Design & build — Ground floor fit-out” is signed.", "contract", true, "2026-03-01T02:00:00Z", `/projects/${PROJECT_ID}/contracts`],
+  ["n6", "New issue reported", "“Waste pipe runs through the bar carcass return” on Bar carcass & plumbing.", "issue", true, "2026-03-19T09:00:00Z", `/projects/${PROJECT_ID}/issues`],
+].map(([id, title, message, type, isRead, createdAt, actionUrl]) => ({
+  id, title, message, type, isRead, actionUrl, referenceType: null, referenceId: null,
+  meta: null, createdAt, readAt: isRead ? createdAt : null,
+}));
+
+const notifications = (url: string) => {
+  const read = /isRead=(true|false)/.exec(url)?.[1];
+  const rows = read === undefined ? NOTIFICATION_ROWS : NOTIFICATION_ROWS.filter((n) => String(n.isRead) === read);
+  return { ...page(rows), hasPrevious: false, hasNext: false };
+};
+
+// Provider plans are targetRole 1; one owner plan so the filter has work to do.
+const PAYMENT_PLANS = [
+  { id: "plan-studio-month", name: "Studio — Monthly", description: "Unlimited bids and quotations, priority in owner search, and design version history.", targetRole: 1, price: 199_000, durationInDays: 30 },
+  { id: "plan-studio-year", name: "Studio — Yearly", description: "Everything in Monthly, two months free.", targetRole: 1, price: 1_990_000, durationInDays: 365 },
+  { id: "plan-owner-ai", name: "Owner — AI design report", description: "AI layout and 3D report for one project.", targetRole: 0, price: 199_000, durationInDays: 30 },
+];
+
+const PAYMENT_STATUS = {
+  success: true, isFinal: true, status: 1, purpose: 0, orderCode: 260914001, paymentLinkId: "demo-link",
+  subscriptionId: "sub-1", subscriptionStatus: 1, postId: null, postBoostedUntil: null,
+  amount: 199_000, message: "Payment received",
+};
+
+// Technical drawings lists the approved designs from the engagement overview.
+const engagementOverview = {
+  projectWorkingId: WORKING_ID, contractType: CONTRACT_TYPE, status: "accepted",
+  projectShopOwner: { id: PROJECT_ID, name: PROJECT.name, address: PROJECT.address,
+    areaM2: PROJECT.areaM2, budget: PROJECT.budget, status: PROJECT.status },
+  brief: null, aiRecommendations: [],
+  approvedDesigns: [{ id: "d1", title: "Ground floor plan", version: 3 }],
+};
+
+// Briefs for the marketplace projects, so a brief page shows its own café.
+const PROJECT_BRIEFS: Record<string, object> = {
+  [BAKERY_PROJECT_ID]: {
+    targetCustomer: "Families and students from the university, weekends and afternoons",
+    style: "Bright, lots of plants, pale wood and white tiles", mood: "Relaxed, a place to stay for hours",
+    seatCount: 30, timeline: "Open by March, before the dry season",
+    brandNote: "Bếp Mây: home baking, soft colours, hand-drawn menu",
+    businessModel: "Bakery counter with an open kitchen, seating upstairs",
+    businessGoals: "Sell out the morning bake by 11am; 40% of sales from cakes to go",
+    operationNote: "Ovens need a separate extraction line to the roof",
+  },
+  [GOC_SAN_PROJECT_ID]: {
+    targetCustomer: "Tourists and locals along the river, evenings",
+    style: "Terrazzo, rattan and warm lighting on the terrace", mood: "Lively in the evening",
+    seatCount: 60, timeline: "Handover within 10 weeks of signing",
+    brandNote: "Góc Sân: courtyard café, green and terracotta",
+    businessModel: "Two-floor café with a riverside terrace",
+    businessGoals: "Full terrace every evening in the dry season",
+    operationNote: "Drawings are approved; build strictly to them",
+  },
+};
+
+
+// Materials: the price list for the job, what the bar phase uses, and its cost.
+const MATERIAL_ROWS = ([
+  ["mat1", "Oak veneer panel 18 mm", "m2", 780_000],
+  ["mat2", "Quartz worktop 20 mm", "md", 4_200_000],
+  ["mat3", "PPR pipe Ø25", "md", 38_000],
+  ["mat4", "Ceramic tile 60×60", "m2", 265_000],
+] as const).map(([id, name, unit, unitPrice], i) => ({
+  id, projectWorkingId: WORKING_ID, name, description: null, unit, unitPrice,
+  sortOrder: i + 1, createdBy: DEMO_ACCOUNT.id, createdAt: NOW, updatedAt: NOW,
+}));
+
+const materialUsages = (item: string) =>
+  item !== "m2" ? [] : ([
+    ["u1", "mat1", 14, 13.5, "Bar front and sides"],
+    ["u2", "mat2", 6.4, 6.4, null],
+    ["u3", "mat3", 22, null, "Feeds and waste to the bar sink"],
+  ] as const).map(([id, materialId, estimatedQuantity, actualQuantity, note]) => {
+    const material = MATERIAL_ROWS.find((m) => m.id === materialId)!;
+    return {
+      id, constructionItemId: "m2", constructionTaskId: null, materialId,
+      materialName: material.name, unit: material.unit, unitPrice: material.unitPrice,
+      estimatedQuantity, actualQuantity, estimatedCost: estimatedQuantity * material.unitPrice,
+      actualCost: actualQuantity === null ? null : actualQuantity * material.unitPrice,
+      note, createdAt: NOW, updatedAt: NOW,
+    };
+  });
+
+const materialCost = (url: string) => {
+  const item = /construction-items\/([^/?]+)/.exec(url)?.[1] ?? "";
+  const lines = materialUsages(item);
+  const estimated = lines.reduce((sum, l) => sum + l.estimatedCost, 0);
+  return {
+    constructionItemId: item, ownEstimatedCost: estimated, ownActualCost: lines.length ? 42_039_000 : null,
+    tasksEstimatedCost: 0, tasksActualCost: null, totalEstimatedCost: estimated,
+    totalActualCost: lines.length ? 42_039_000 : null,
+    missingActualCount: lines.filter((l) => l.actualQuantity === null).length, lines,
+  };
+};
+
+// The owner's sign-off list for the bar phase.
+const CHECKLIST_ROWS = ([
+  ["ck1", "Bar run matches drawing A-201 (6.4 m)", true, "passed"],
+  ["ck2", "Sink and waste pressure-tested, no leaks", true, "pending"],
+  ["ck3", "Oak veneer edges sealed", false, "pending"],
+] as const).map(([id, name, isRequired, status], i) => ({
+  id, designId: null, constructionItemId: "m2", name, description: null, sortOrder: i + 1,
+  isRequired, status, evidenceUrl: null, evidenceViewUrl: null, note: null,
+  checkedBy: status === "passed" ? "owner-1" : null,
+  checkedAt: status === "passed" ? "2026-03-18T09:30:00Z" : null, createdAt: NOW, updatedAt: NOW,
+}));
+
+
+// Two process templates for "apply template": a small café fit-out and a
+// kiosk. Each phase carries its tasks, so the dialog's detail view has content.
+const TEMPLATE_PHASES: [string, string, number, string[]][] = [
+  ["Site survey & set-out", "site-prep", 3, ["Measure and photograph the site", "Set out the layout on the floor"]],
+  ["Demolition & making good", "site-prep", 5, ["Strip out existing fit-out", "Repair floor and walls"]],
+  ["MEP first fix", "mep", 7, ["Electrical first fix", "Water and waste runs", "Inspection"]],
+  ["Joinery & bar", "joinery", 10, ["Build bar carcass", "Fit worktop and veneer"]],
+  ["Finishes & handover", "finishing", 8, ["Paint and tiling", "Snag list and handover"]],
+];
+
+const CONSTRUCTION_TEMPLATES = page(([
+  ["tpl1", "Café fit-out — 60 to 120 m²", "The standard sequence for a ground-floor café with a bar.", TEMPLATE_PHASES],
+  ["tpl2", "Kiosk build", "Compact kiosk in a mall unit, built in night shifts.", TEMPLATE_PHASES.slice(2)],
+] as [string, string, string, typeof TEMPLATE_PHASES][]).map(([id, name, description, phases]) => ({
+  id, name, description, serviceKind: "construction", isPublic: true, createdBy: null,
+  totalEstimateDays: phases.reduce((sum, [, , days]) => sum + days, 0),
+  items: phases.map(([phase, category, days, tasks], i) => ({
+    id: `${id}-i${i + 1}`, name: phase, description: null, category, estimateDays: days, sortOrder: i + 1,
+    tasks: tasks.map((task, j) => ({ id: `${id}-i${i + 1}-t${j + 1}`, name: task, description: null, estimateDays: null, sortOrder: j + 1 })),
+  })),
+  createdAt: NOW,
+})));
+
 const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/auth\/me$/, DEMO_ACCOUNT],
   [/\/api\/project-workings\/filter/, myProjects],
   [/\/api\/project-workings\/[^/?]+\/brief/, engagementBrief],
-  [/\/api\/project-workings/, ENGAGEMENTS],
-  [/\/api\/contracts/, CONTRACTS],
+  [/\/api\/project-workings\/[^/?]+\/overview/, engagementOverview],
+  [/\/api\/project-workings/, engagementsFor],
+  [/\/api\/applies/, applies],
+  [/\/api\/site-profiles\/by-project\/[^/?]+/, (url: string) => ({
+    ...SITE_PROFILE, projectShopOwnerId: /by-project\/([^/?]+)/.exec(url)?.[1] ?? PROJECT_ID,
+  })],
+  [/\/api\/surveys/, surveys],
+  [/\/api\/comments/, comments],
+  [/\/api\/daily-logs/, dailyLogs],
+  [/\/api\/chat\/conversations/, conversations],
+  [/\/api\/chat\/messages/, []],
+  [/\/api\/notifications\?/, notifications],
+  [/\/api\/payments\/plans/, PAYMENT_PLANS],
+  [/\/api\/payments\/status/, PAYMENT_STATUS],
+  [/\/api\/contracts/, () =>
+    STAGE === "signed" ? CONTRACTS : page(CONTRACTS.items.filter((c) => c.status === "cancelled"))],
   [/\/api\/designs/, designs],
   // Both cost-summary shapes before the items collection, which matches them too.
   [/\/api\/construction-tasks(\/|\?|$)/, constructionTasks],
@@ -926,9 +1320,24 @@ const ROUTES: Array<[RegExp, unknown]> = [
     return !working || working === WORKING_ID ? CONSTRUCTION_ITEMS : page([]);
   }],
   [/\/api\/issue-types/, ISSUE_TYPES],
+  [/\/api\/construction-templates\/[^/?]+/, (url: string) =>
+    CONSTRUCTION_TEMPLATES.items.find((t) => url.includes(t.id)) ?? CONSTRUCTION_TEMPLATES.items[0]],
+  [/\/api\/construction-templates/, CONSTRUCTION_TEMPLATES],
+  [/\/api\/materials\/usages/, (url: string) => materialUsages(/constructionItemId=([^&]+)/.exec(url)?.[1] ?? "")],
+  [/\/api\/materials\/cost\//, materialCost],
+  [/\/api\/materials/, page(MATERIAL_ROWS)],
+  [/\/api\/checklist-items/, (url: string) => {
+    const item = /constructionItemId=([^&]+)/.exec(url)?.[1];
+    return page(item === "m2" ? CHECKLIST_ROWS : []);
+  }],
   [/\/api\/issues/, ISSUES],
   [/\/api\/project-shop-owners\/[^/?]+/, projectDetail],
-  [/\/api\/design-briefs/, DESIGN_BRIEFS],
+  [/\/api\/design-briefs/, (url: string) => {
+    const project = /projectId=([^&]+)/.exec(url)?.[1];
+    return page(project && project in PROJECT_BRIEFS
+      ? [{ ...DESIGN_BRIEFS.items[0], id: "b-" + project, projectId: project, ...PROJECT_BRIEFS[project] }]
+      : DESIGN_BRIEFS.items);
+  }],
   // Per provider, from the directory rows: one shared summary made a firm
   // read 4.6 from 12 reviews on its card and 4.0 from 3 on its profile.
   [/\/api\/reviews\/providers\/[^/?]+\/summary/, (url: string) => {
@@ -941,7 +1350,15 @@ const ROUTES: Array<[RegExp, unknown]> = [
     };
   }],
   [/\/api\/reviews/, REVIEWS],
-  [/\/api\/posts(\/|\?|$)/, POSTS],
+  // Filtered the way the marketplace asks: its "Open" tab and the open-brief
+  // count both pass status=open.
+  [/\/api\/posts(\/|\?|$)/, (url: string) => {
+    const status = /[?&]status=([^&]+)/.exec(url)?.[1];
+    const kind = /serviceKind=([^&]+)/.exec(url)?.[1];
+    const items = POSTS.items.filter((post) =>
+      (!status || post.status === status) && (!kind || post.serviceKind === kind));
+    return page(items);
+  }],
   [/\/api\/quotations(\/|\?|$)/, quotations],
   [/\/api\/payment-batches(\/|\?|$)/, paymentBatches],
   [/\/api\/change-orders\/summary/, CHANGE_ORDER_SUMMARY],
@@ -989,6 +1406,14 @@ function emptyFor(url: string): unknown {
 export function installDemoMode(api: AxiosInstance): void {
   if (!DEMO_ENABLED || typeof window === "undefined") return;
 
+  // The `guest` persona is a signed-out visitor: drop the demo session (never
+  // a real one) and leave requests alone, so login and sign-up render as
+  // they do for someone who has not logged in.
+  if (PERSONA === "guest") {
+    if (tokenStore.getAccessToken() === DEMO_TOKEN) tokenStore.clear();
+    return;
+  }
+
   // Give the app a session so the `hasAccessToken` gates open. Only when
   // nothing is stored — a real token is never overwritten.
   if (!tokenStore.hasAccessToken()) {
@@ -1020,7 +1445,15 @@ export function installDemoMode(api: AxiosInstance): void {
 
     let data: unknown;
     if (method === "get") {
-      const hit = ROUTES.find(([pattern]) => pattern.test(url))?.[1];
+      const route = ROUTES.find(([pattern]) => pattern.test(url));
+      const hit = route?.[1];
+      // Requests with no fixture are recorded, so a screen that renders
+      // empty or crashes in demo mode can be traced to the missing route:
+      // read `window.__demoMisses` in the console.
+      if (!route) {
+        const misses = ((window as unknown as { __demoMisses?: string[] }).__demoMisses ??= []);
+        if (!misses.includes(url)) misses.push(url);
+      }
       data =
         typeof hit === "function"
           ? (hit as (u: string) => unknown)(url)
