@@ -24,7 +24,7 @@ export function IssueEmptyState({
   const t = useTranslations("MilestoneManagement.issue");
 
   return (
-    <div className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
+    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/60 bg-card/40 px-6 py-12 text-center">
       <div className="flex size-10 items-center justify-center rounded-full bg-muted">
         <TriangleAlert aria-hidden className="size-5 text-muted-foreground" />
       </div>

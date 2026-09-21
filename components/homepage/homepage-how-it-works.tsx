@@ -45,11 +45,11 @@ export function HomepageHowItWorks() {
             return (
               <Reveal key={step.label} delay={index * 80} as="li" className="group relative flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-2xs uppercase tracking-[0.18em] text-muted-foreground">
+                  <span className="font-mono text-[12px] uppercase tracking-[0.18em] text-muted-foreground">
                     {step.label}
                   </span>
                   <span aria-hidden className="h-px flex-1 bg-border" />
-                  <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                  <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
                     0{index + 1}
                   </span>
                 </div>

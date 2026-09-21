@@ -22,7 +22,6 @@ import {
 import { getEngagementApi } from "@/features/projects/engagement-api";
 import { projectActionToast } from "./project-action-toast";
 import type { ProjectDetail } from "@/features/projects/project-detail-types";
-import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 interface ProjectHeroBarProps {
   project: ProjectDetail;
@@ -218,7 +217,9 @@ export function ProjectHeroBar({ project }: ProjectHeroBarProps) {
     <header className="flex flex-col gap-3 border-b border-border/60 pb-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
-          <SheetTitle sheet={SHEET.projectOverview} className="text-balance">{project.name || "Project"}</SheetTitle>
+          <h1 className="text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            {project.name || "Project"}
+          </h1>
           {hasAnyDate ? (
             <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
               {project.createdAt.getTime() !== 0 ? (

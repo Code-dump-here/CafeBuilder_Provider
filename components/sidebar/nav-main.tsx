@@ -36,7 +36,7 @@ export function NavMain({ sections }: NavMainProps) {
     <>
       {sections.map((section) => (
         <SidebarGroup key={section.labelKey}>
-          <SidebarGroupLabel className="text-2xs font-medium uppercase tracking-wide text-muted-foreground/70">
+          <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
             {t(section.labelKey)}
           </SidebarGroupLabel>
           <SidebarMenu>
@@ -61,7 +61,7 @@ export function NavMain({ sections }: NavMainProps) {
                         {item.badge != null && (
                           <Badge
                             variant="secondary"
-                            className="ml-auto h-4 min-w-4 items-center justify-center px-1 text-xs"
+                            className="ml-auto h-4 min-w-4 items-center justify-center px-1 text-[11px]"
                           >
                             {item.badge}
                           </Badge>

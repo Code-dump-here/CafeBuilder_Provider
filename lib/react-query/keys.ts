@@ -32,12 +32,6 @@ export const queryKeys = {
      * needs the canonical profile record outside of `auth.me`.
      */
     detail: (id: string) => ["serviceProviderProfiles", "detail", id] as const,
-    /**
-     * Aggregated rating for a provider: `GET /api/reviews/providers/{id}/summary`.
-     * Null until the provider has at least one review.
-     */
-    ratingSummary: (id: string) =>
-      ["serviceProviderProfiles", "ratingSummary", id] as const,
   },
   payments: {
     /**

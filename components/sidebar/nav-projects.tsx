@@ -31,7 +31,7 @@ export function NavProjects({ projects }: NavProjectsProps) {
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel className="text-2xs font-medium uppercase tracking-wide text-muted-foreground/70">
+      <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
         Projects
       </SidebarGroupLabel>
       <SidebarMenu>

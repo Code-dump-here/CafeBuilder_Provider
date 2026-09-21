@@ -36,23 +36,20 @@ export function EmptyState({
   icon: Icon = FileText,
 }: EmptyStateProps) {
   return (
-    // Drawn the way a plan marks an area that isn't built yet: hatched, with
-    // a ruled label box on top. The dashed box with an icon in a grey circle
-    // was the one element every empty screen shared, and it read as blank.
-    <div className="hatch flex items-center justify-center rounded-lg border border-foreground/15 px-6 py-14">
-      <div className="flex max-w-md flex-col items-center gap-3 border border-foreground/20 bg-background px-6 py-5 text-center shadow-e1">
-        <Icon className="size-5 text-muted-foreground" aria-hidden />
-        <div className="flex flex-col gap-1">
-          <p className="text-base font-semibold text-foreground">{title}</p>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
-        {actionLabel && onAction && (
-          <Button onClick={onAction} className="mt-1">
-            <Plus aria-hidden />
-            {actionLabel}
-          </Button>
-        )}
+    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card/40 px-6 py-16 text-center">
+      <div className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
+        <Icon className="size-5" aria-hidden />
       </div>
+      <div className="flex flex-col gap-1">
+        <p className="text-base font-semibold text-foreground">{title}</p>
+        <p className="max-w-md text-sm text-muted-foreground">{description}</p>
+      </div>
+      {actionLabel && onAction && (
+        <Button onClick={onAction} className="mt-2">
+          <Plus aria-hidden />
+          {actionLabel}
+        </Button>
+      )}
     </div>
   );
 }

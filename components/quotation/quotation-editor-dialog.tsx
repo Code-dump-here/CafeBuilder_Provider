@@ -303,7 +303,7 @@ function QuotationEditorBase({
               />
               <p
                 id="quotation-duration-hint"
-                className="text-xs text-muted-foreground"
+                className="text-[12px] text-muted-foreground"
               >
                 {durationValid
                   ? t("editor.durationHint")
@@ -352,7 +352,7 @@ function QuotationEditorBase({
           {/* Say where scope changes go instead, so the missing fields read as
               a deliberate rule rather than a form that forgot something. */}
           {isDesign ? null : (
-            <p className="px-3 py-2 text-xs text-muted-foreground">
+            <p className="rounded-lg border border-dashed border-border/70 px-3 py-2 text-xs text-muted-foreground">
               {t("editor.constructionChangeOrderHint")}
             </p>
           )}
@@ -361,7 +361,7 @@ function QuotationEditorBase({
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-semibold">{t("editor.itemsTitle")}</h3>
+                <h3 className="text-sm font-semibold">{t("editor.itemsTitle")}</h3>
                 <p className="text-xs text-muted-foreground">
                   {t("editor.itemsHint")}
                 </p>
@@ -491,7 +491,7 @@ function QuotationEditorBase({
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-semibold">{t("editor.termsTitle")}</h3>
+                <h3 className="text-sm font-semibold">{t("editor.termsTitle")}</h3>
                 <p className="text-xs text-muted-foreground">{t("editor.termsHint")}</p>
               </div>
               <Button
@@ -506,7 +506,7 @@ function QuotationEditorBase({
             </div>
 
             {terms.length === 0 ? (
-              <p className="px-3 py-4 text-center text-xs text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-border/70 px-3 py-4 text-center text-xs text-muted-foreground">
                 {t("editor.noTerms")}
               </p>
             ) : (

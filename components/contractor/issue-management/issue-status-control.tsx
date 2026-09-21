@@ -74,7 +74,7 @@ export function IssueStatusControl({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="min-w-64 p-1.5">
-        <DropdownMenuLabel className="flex items-center gap-2 px-1.5 pb-1.5 text-2xs font-medium uppercase tracking-wide text-muted-foreground">
+        <DropdownMenuLabel className="flex items-center gap-2 px-1.5 pb-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           <span
             className={cn(
               "size-1.5 shrink-0 rounded-full ring-2",
@@ -116,12 +116,12 @@ export function IssueStatusControl({
                       {tMenu(`${value}.label`)}
                     </span>
                     {isCurrent ? (
-                      <span className="inline-flex items-center gap-0.5 text-2xs font-medium uppercase tracking-wide text-muted-foreground">
+                      <span className="inline-flex items-center gap-0.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                         <HugeiconsIcon icon={Tick02Icon} strokeWidth={2.5} className="size-2.5" />
                       </span>
                     ) : null}
                   </div>
-                  <span className="text-xs leading-tight text-muted-foreground">
+                  <span className="text-[12px] leading-tight text-muted-foreground">
                     {tMenu(`${value}.description`)}
                   </span>
                 </div>

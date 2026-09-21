@@ -5,8 +5,6 @@ import { ArrowLeft, ListChecks, Plus } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { TitleBlock, TitleCell } from "@/components/drawing-set/title-block";
-import { SHEET } from "@/components/drawing-set/sheet-title";
 
 interface MilestoneManagementToolbarProps {
   projectId: string;
@@ -47,26 +45,21 @@ export function MilestoneManagementToolbar({
   const t = useTranslations("MilestoneManagement.toolbar");
 
   return (
-    <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border/60 pb-5">
+    <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 bg-gradient-to-br from-primary/5 via-background to-background px-4 py-3">
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-baseline gap-2">
-          <h1 className="sheet-title text-3xl text-foreground sm:text-4xl">
+          <h1 className="font-heading text-lg font-semibold text-foreground">
             <MilestoneManagementTitle />
           </h1>
         </div>
         <p className="max-w-prose text-xs text-muted-foreground">
           <MilestoneManagementSubtitle />
         </p>
-        {/* The schedule's title block: the same facts the pills stated, framed
-            as one sheet's particulars rather than three floating tokens. */}
-        <TitleBlock className="mt-3">
-          <TitleCell label={t("sheet")} emphasis>{SHEET.milestones}</TitleCell>
-          <TitleCell label={t("sheetPhases")}>{phaseCount}</TitleCell>
-          <TitleCell label={t("sheetTasks")}>{taskCount}</TitleCell>
-          <TitleCell label={t("sheetDone")}>
-            {doneTaskCount}/{taskCount}
-          </TitleCell>
-        </TitleBlock>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
+          <Pill>{t("totalPhases", { count: phaseCount })}</Pill>
+          <Pill>{t("totalTasks", { count: taskCount })}</Pill>
+          <Pill highlight>{t("doneTasks", { done: doneTaskCount, total: taskCount })}</Pill>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -107,6 +100,25 @@ export function MilestoneManagementToolbar({
   );
 }
 
+function Pill({
+  children,
+  highlight,
+}: {
+  children: React.ReactNode;
+  highlight?: boolean;
+}) {
+  return (
+    <span
+      className={
+        highlight
+          ? "rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-foreground"
+          : "rounded-full border border-border/60 bg-card px-2 py-0.5 text-foreground"
+      }
+    >
+      {children}
+    </span>
+  );
+}
 
 function MilestoneManagementTitle() {
   const t = useTranslations("MilestoneManagement");

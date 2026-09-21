@@ -54,15 +54,16 @@ export function IssueDetailPanel({
     return (
       <aside
         aria-label="Issue detail"
-        // Hatched like the shared empty state: the panel waits for a pick.
         className={cn(
-          "hatch flex h-full min-h-65 items-center justify-center rounded-lg border border-foreground/15",
-          "p-8",
+          "flex h-full min-h-65 flex-col items-center justify-center gap-3",
+          "rounded-lg border border-dashed border-border/60 bg-card/20 p-8",
           "text-center text-sm text-muted-foreground"
         )}
       >
-        <div className="flex flex-col items-center gap-2 border border-foreground/20 bg-background px-5 py-4 shadow-e1">
+        <div className="flex size-10 items-center justify-center rounded-full border border-border/60 bg-muted/30">
           <ImageIcon aria-hidden className="size-4" />
+        </div>
+        <div className="space-y-1">
           <p className="font-medium text-foreground/80">{t("selectPromptTitle")}</p>
           <p className="text-xs text-muted-foreground">{t("selectPromptBody")}</p>
         </div>
@@ -80,7 +81,7 @@ export function IssueDetailPanel({
     >
       {/* Header */}
       <div className="flex flex-col gap-1 border-b border-border/60 px-5 py-4">
-        <span className="font-mono text-2xs uppercase tracking-wider text-muted-foreground">
+        <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
           #{issue.id}
         </span>
         <h2 className="text-base font-semibold leading-tight text-foreground">
@@ -106,7 +107,7 @@ export function IssueDetailPanel({
 
           {/* RIGHT — narrative + meta */}
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2 rounded-lg bg-foreground/5 px-3.5 py-3 text-xs">
+            <div className="flex flex-col gap-2 rounded-lg border border-border/60 bg-card/40 px-3.5 py-3 text-xs">
               <DateRow
                 icon={<CalendarDays aria-hidden className="size-3.5" />}
                 label={t("estimateAt")}
@@ -133,7 +134,7 @@ export function IssueDetailPanel({
 
             <Separator />
 
-            <dl className="flex flex-col gap-0.5 text-xs text-muted-foreground">
+            <dl className="flex flex-col gap-0.5 text-[12px] text-muted-foreground">
               <div>
                 <dt className="inline font-medium">{t("createdBy")}: </dt>
                 <dd className="inline">#{issue.createdBy}</dd>
@@ -149,7 +150,7 @@ export function IssueDetailPanel({
 
       {/* Footer */}
       <div className="flex items-center justify-between gap-2 border-t border-border/60 bg-popover/95 px-5 py-3 backdrop-blur">
-        <span className="font-mono text-2xs uppercase tracking-wider text-muted-foreground">
+        <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
           #{issue.id}
         </span>
         <div className="flex items-center gap-2">
@@ -203,7 +204,7 @@ function Section({ title, body }: { title: string; body: string | null }) {
   if (!body) return null;
   return (
     <section className="flex flex-col gap-1">
-      <h4 className="text-2xs font-medium uppercase tracking-wider text-muted-foreground">
+      <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         {title}
       </h4>
       <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90">
@@ -216,7 +217,7 @@ function Section({ title, body }: { title: string; body: string | null }) {
 function PhotoBlock({ label, url }: { label: string; url: string | null }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-2xs font-medium uppercase tracking-wider text-muted-foreground">
+      <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         {label}
       </span>
       {url ? (

@@ -34,22 +34,16 @@ import { projectActionToast } from "@/components/project-overview/project-action
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/features/auth/user-context";
 import {
-  extractExtrapRequired,
   useApproveDesignMutation,
   useDeleteDesignImageMutation,
   useDesign,
   useRequestDesignRevisionMutation,
   useStartRevisionMutation,
   useSubmitDesignMutation,
-  useUpdateDesignMutation,
   useUploadDesignImageMutation,
   mapDesignTypeToCategory,
 } from "@/features/projects/use-designs";
-import type {
-  Design,
-  DesignImage,
-  RequestRevisionPayload,
-} from "@/features/projects/design-types";
+import type { Design, DesignImage } from "@/features/projects/design-types";
 import type { DesignDrawing, DesignVersion } from "@/features/projects/design-version-types";
 import {
   useDesignVersionSnapshot,
@@ -59,18 +53,6 @@ import {
 } from "@/features/projects/use-design-version-snapshots";
 import { DesignVersionHistoryPanel } from "@/components/design-management/design-version-history-panel";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
-import { useRevisionQuota } from "@/features/projects/use-change-orders";
-import { Textarea } from "@/components/ui/textarea";
-import type { RevisionQuota } from "@/features/projects/change-order-types";
-import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
-
-// Same meanings the version pill already used.
-const DESIGN_STAMP: Record<string, StampTone> = {
-  in_progress: "info",
-  submitted: "warning",
-  approved: "success",
-  revision: "danger",
-};
 
 // ─── Adapter: Design → DesignVersion ──────────────────────────────────────
 //
@@ -94,12 +76,7 @@ function designToVersion(d: Design): DesignVersion {
     updatedAt,
     publishedAt: d.status === "approved" ? updatedAt : null,
     latestNote: d.reason ?? null,
-    // Mirrors spec §6.3 fields so consumers of `DesignVersion` (this page
-    // and the list page) see the same shape regardless of which mapper
-    // produced it.
-    revisionCount: d.revisionCount,
-    changeSummary: d.changeSummary ?? null,
-    drawings: d.images.map((img, index) => imageToDrawing(img, d, index)),
+    drawings: d.images.map((img) => imageToDrawing(img, d)),
   };
 }
 
@@ -126,14 +103,12 @@ function mapDesignStatus(
   }
 }
 
-function imageToDrawing(img: DesignImage, d: Design, index: number): DesignDrawing {
+function imageToDrawing(img: DesignImage, d: Design): DesignDrawing {
   return {
     id: img.id,
     versionId: d.id,
     name: img.caption ?? `Image #${img.id}`,
-    // A sheet-style number by upload order. `IMG-{id}` printed the whole
-    // UUID in the viewer header.
-    code: `DWG-${String(index + 1).padStart(2, "0")}`,
+    code: `IMG-${img.id}`,
     category: mapDesignTypeToCategory(d.type),
     thumbnailUrl: img.viewUrl,
     scale: null,
@@ -252,9 +227,6 @@ export function DesignDetailPage({
     onSuccessMessage: null,
     onSuccessSideEffect: () => projectActionToast(t("actions.revisionStarted")),
   });
-  const updateDesignMutation = useUpdateDesignMutation({
-    onSuccessMessage: null,
-  });
 
   const uploadMutation = useUploadDesignImageMutation(designId, {
     onSuccessMessage: null,
@@ -273,55 +245,6 @@ export function DesignDetailPage({
   >(null);
   const [pendingDeleteImage, setPendingDeleteImage] =
     React.useState<DesignImage | null>(null);
-
-  // ── Spec §6.5: changeSummary ──────────────────────────────────────────
-  //
-  // The provider MUST fill `changeSummary` before the second submit
-  // onwards (i.e. when status is `revision`). The backend freezes the
-  // value into the next snapshot, so leaving it empty strands the audit
-  // timeline with no description of what was changed. We:
-  //   1. Show the current value in a read-only display,
-  //   2. Let the provider open a tiny editor to update it,
-  //   3. Block the submit confirm until a non-empty value is set
-  //      (we don't auto-push it — the provider explicitly hits "save").
-  const [changeSummaryDraft, setChangeSummaryDraft] = React.useState<
-    string | null
-  >(null);
-  const [isChangeSummaryEditing, setIsChangeSummaryEditing] =
-    React.useState(false);
-  const effectiveChangeSummary =
-    changeSummaryDraft ?? design?.changeSummary ?? null;
-
-  // Reset the draft whenever the design itself changes (new snapshot,
-  // refresh after invalidation, etc.) — otherwise a stale draft from
-  // the previous design could silently carry over.
-  useResetOnChange(design?.id, () => {
-    setChangeSummaryDraft(null);
-    setIsChangeSummaryEditing(false);
-  });
-
-  // ── Spec §9.3: extrap_required ─────────────────────────────────────────
-  //
-  // When the owner requests a revision past the free quota without
-  // setting `acceptExtraFee: true`, the server returns 409 carrying
-  // `extraFeeAmount`. We surface that here as a confirmation dialog so
-  // the owner can opt-in (and re-fire with `acceptExtraFee: true`) or
-  // back out without losing the reason they typed.
-  const [pendingRevision, setPendingRevision] = React.useState<{
-    reason: string;
-    extraFeeAmount: number | null;
-  } | null>(null);
-
-  // ── Revision quota (spec §9) ───────────────────────────────────────────
-  //
-  // Per-design quota fetched from `GET /api/change-orders/revision-quota/{designId}`.
-  // Used by the right rail to render the "X of Y free revisions used"
-  // progress and to gate whether the next round will cost extra.
-  const quotaQuery = useRevisionQuota({
-    designId: design?.id ?? null,
-    enabled: design != null,
-  });
-  const quota = quotaQuery.quota;
 
   // ── Snapshot history (Full History) ─────────────────────────────────────
   //
@@ -429,72 +352,6 @@ export function DesignDetailPage({
     [selectedSnapshotId],
   );
 
-  // Spec §6.8 / §9.3: request-revision flow.
-  //
-  // First attempt sends `acceptExtraFee: false`. Two outcomes:
-  //   - Success (no fee needed) → design moves to `revision`, done.
-  //   - 409 `extrap_required` → open the confirm dialog so the owner can
-  //     opt-in to the extra fee and re-fire with `acceptExtraFee: true`.
-  //
-  // Declared ABOVE the early-return guards below — the component
-  // returns null/error UI when `design` hasn't loaded, and React's
-  // rules of hooks require every render to call the same hooks in
-  // the same order. Putting these after the guards meant the very
-  // first render (no design yet) skipped them, the second render
-  // (design arrived) executed them, and React threw
-  // "change in the order of Hooks called".
-  const requestRevision = React.useCallback(
-    async (reason: string, options?: { acceptExtraFee?: boolean }) => {
-      const payload: RequestRevisionPayload = {
-        reason,
-        acceptExtraFee: options?.acceptExtraFee ?? false,
-      };
-      try {
-        await requestRevisionMutation.mutateAsync({
-          designId,
-          payload,
-        });
-        setPendingRevision(null);
-      } catch (error) {
-        const extrap = extractExtrapRequired(
-          error as Parameters<typeof extractExtrapRequired>[0],
-        );
-        if (extrap) {
-          // Stash reason + amount so the owner can confirm or back out.
-          // They have to actively re-submit with the flag flipped.
-          setPendingRevision({
-            reason,
-            extraFeeAmount: extrap.extraFeeAmount,
-          });
-        }
-        // Non-409 errors are surfaced by the mutation's own onError
-        // toast (resolveErrorMessage in use-designs.ts) — nothing to do.
-      }
-    },
-    [requestRevisionMutation, designId],
-  );
-
-  // Spec §6.5: persist changeSummary to the backend so the next submit
-  // freezes the new value into the snapshot. Returns the mutation's
-  // promise so callers can chain (e.g. open submit confirm only after
-  // a successful save).
-  const saveChangeSummary = React.useCallback(
-    async (next: string) => {
-      await updateDesignMutation.mutateAsync({
-        designId,
-        payload: { changeSummary: next },
-      });
-      setChangeSummaryDraft(null);
-      setIsChangeSummaryEditing(false);
-    },
-    [updateDesignMutation, designId],
-  );
-
-  const cancelChangeSummaryEdit = React.useCallback(() => {
-    setChangeSummaryDraft(null);
-    setIsChangeSummaryEditing(false);
-  }, []);
-
   // ── Error / loading states ─────────────────────────────────────────────
   if (Number.isNaN(designId) || (!isLoading && isError)) {
     return (
@@ -526,21 +383,8 @@ export function DesignDetailPage({
   const isApproved = design.status === "approved";
   const canUpload = !isApproved && isProvider && !isReadOnlyProvider;
   const canDeleteImage = !isApproved && isProvider && !isReadOnlyProvider;
-  // Submit is allowed only when (a) at least one image exists, and (b) on
-  // a `revision` round, the provider has filled `changeSummary`. The
-  // backend freezes `changeSummary` into the next snapshot on submit —
-  // submitting with an empty value would strand the audit history.
-  // On the first `in_progress` submit the field is optional (spec §10.2
-  // step 4), so we only enforce it once a revision round has started.
-  const changeSummaryMissing =
-    design.status === "revision" &&
-    !effectiveChangeSummary?.trim();
   const canSubmit =
-    design.status === "in_progress" &&
-    isProvider &&
-    !isReadOnlyProvider &&
-    design.images.length > 0 &&
-    !changeSummaryMissing;
+    design.status === "in_progress" && isProvider && !isReadOnlyProvider && design.images.length > 0;
   const canApprove = design.status === "submitted" && isOwner;
   const canRequestRevision = design.status === "submitted" && isOwner;
   const canStartRevision = design.status === "revision" && isProvider && !isReadOnlyProvider;
@@ -550,7 +394,7 @@ export function DesignDetailPage({
       {/* Breadcrumb */}
       <nav
         aria-label="Breadcrumb"
-        className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+        className="flex flex-wrap items-center gap-1 text-[12px] text-muted-foreground"
       >
         <Link href={`/projects/${projectId}/design-management`} className="hover:text-foreground">
           {t("crumbs.versions")}
@@ -571,7 +415,7 @@ export function DesignDetailPage({
             <button
               type="button"
               onClick={() => setSelectedSnapshotId(null)}
-              className="ml-2 inline-flex items-center gap-1 rounded border border-border/60 px-1.5 py-0.5 text-2xs text-muted-foreground hover:border-primary/40 hover:text-primary"
+              className="ml-2 inline-flex items-center gap-1 rounded border border-border/60 px-1.5 py-0.5 text-[11px] text-muted-foreground hover:border-primary/40 hover:text-primary"
               aria-label={t("history.exitSnapshot")}
             >
               <X aria-hidden className="size-2.5" />
@@ -581,17 +425,16 @@ export function DesignDetailPage({
         ) : null}
       </nav>
 
-      {/* Three-column layout (current) / two-column layout (snapshot view).
-          In default mode the right column stacks version info + actions on
-          top of the history panel inside a single 300px rail. In snapshot
-          mode the version info is hidden (no actions apply to historical
-          state) and the history panel takes the full right column. */}
+      {/* Four-column layout (current) / three-column layout (snapshot view).
+          When the viewer is showing a historical snapshot, we collapse
+          the image-list + actions column into a single info column so
+          the snapshot drawer has room to breathe. */}
       <div
         className={cn(
           "grid min-h-[calc(100vh-12rem)] grid-cols-1 gap-3",
           selectedSnapshotId != null
             ? "lg:grid-cols-[minmax(0,1fr)_300px]"
-            : "lg:grid-cols-[260px_minmax(0,1fr)_300px]",
+            : "lg:grid-cols-[260px_minmax(0,1fr)_280px_300px]",
         )}
       >
         {/* Left: image list — hidden when viewing a snapshot (the
@@ -623,76 +466,62 @@ export function DesignDetailPage({
           isHistorical={selectedSnapshotId != null}
         />
 
-        {/* Right: combined rail — version info + actions on top,
-            snapshot history panel below. In snapshot mode the version
-            info is hidden but the rail itself stays so the history
-            panel keeps its 300px width. */}
-        <div className="flex h-full min-h-0 flex-col gap-3">
-          {selectedSnapshotId == null ? (
-            <div className="overflow-hidden rounded-xl border border-border/60 bg-card p-4">
-              <VersionInfoRail
-                design={design}
-                version={version}
-                statusCfg={statusCfg}
-                format={format}
-                t={t}
-                onSubmit={() => setPendingAction("submit")}
-                onApprove={() => setPendingAction("approve")}
-                onRequestRevision={() => {
-                  const reason = window.prompt(t("actions.requestRevisionPrompt"));
-                  if (!reason?.trim()) return;
-                  void requestRevision(reason);
-                }}
-                onStartRevision={() => setPendingAction("startRevision")}
-                onEditChangeSummary={() => setIsChangeSummaryEditing(true)}
-                onSaveChangeSummary={saveChangeSummary}
-                onCancelChangeSummary={cancelChangeSummaryEdit}
-                isSavingChangeSummary={updateDesignMutation.isPending}
-                isChangeSummaryEditing={isChangeSummaryEditing}
-                changeSummaryDraft={changeSummaryDraft}
-                onChangeSummaryDraftChange={setChangeSummaryDraft}
-                changeSummaryMissing={changeSummaryMissing}
-                quota={quota}
-                canSubmit={canSubmit}
-                canApprove={canApprove}
-                canRequestRevision={canRequestRevision}
-                canStartRevision={canStartRevision}
-                isSubmitting={submitMutation.isPending}
-                isApproving={approveMutation.isPending}
-                isRequestingRevision={requestRevisionMutation.isPending}
-                isStartingRevision={startRevisionMutation.isPending}
-              />
-            </div>
-          ) : null}
-
-          <div className="flex-1 min-h-0">
-            <DesignVersionHistoryPanel
-              snapshots={history.data.items}
-              isLoading={history.isLoading}
-              isFetching={history.isFetching}
-              isError={history.isError}
-              hasNextPage={history.data.hasNext}
-              hasPreviousPage={history.data.hasPrevious}
-              pageNumber={history.data.pageNumber}
-              totalItems={history.data.totalItems}
-              pageSize={history.data.pageSize}
-              onRetry={() => void history.refetch()}
-              onNextPage={() => setHistoryPageNumber((p) => p + 1)}
-              onPreviousPage={() => setHistoryPageNumber((p) => Math.max(1, p - 1))}
-              selectedSnapshotId={selectedSnapshotId}
-              onSelectSnapshot={(snapshot) =>
-                setSelectedSnapshotId((current) =>
-                  current === snapshot.id ? null : snapshot.id,
-                )
-              }
+        {/* Right: version info + actions — hidden when viewing a
+            snapshot (no actions apply to historical state). */}
+        {selectedSnapshotId == null ? (
+          <div className="overflow-hidden rounded-xl border border-border/60 bg-card p-4">
+            <VersionInfoRail
+              design={design}
+              version={version}
+              statusCfg={statusCfg}
+              format={format}
+              t={t}
+              onSubmit={() => setPendingAction("submit")}
+              onApprove={() => setPendingAction("approve")}
+              onRequestRevision={() => {
+                const reason = window.prompt(t("actions.requestRevisionPrompt"));
+                if (!reason?.trim()) return;
+                requestRevisionMutation.mutate({ designId, payload: { reason } });
+              }}
+              onStartRevision={() => setPendingAction("startRevision")}
+              canSubmit={canSubmit}
+              canApprove={canApprove}
+              canRequestRevision={canRequestRevision}
+              canStartRevision={canStartRevision}
+              isSubmitting={submitMutation.isPending}
+              isApproving={approveMutation.isPending}
+              isRequestingRevision={requestRevisionMutation.isPending}
+              isStartingRevision={startRevisionMutation.isPending}
             />
           </div>
-        </div>
+        ) : null}
+
+        {/* Far right: snapshot history panel — always visible. */}
+        <DesignVersionHistoryPanel
+          snapshots={history.data.items}
+          isLoading={history.isLoading}
+          isFetching={history.isFetching}
+          isError={history.isError}
+          hasNextPage={history.data.hasNext}
+          hasPreviousPage={history.data.hasPrevious}
+          pageNumber={history.data.pageNumber}
+          totalItems={history.data.totalItems}
+          pageSize={history.data.pageSize}
+          onRetry={() => void history.refetch()}
+          onNextPage={() => setHistoryPageNumber((p) => p + 1)}
+          onPreviousPage={() => setHistoryPageNumber((p) => Math.max(1, p - 1))}
+          selectedSnapshotId={selectedSnapshotId}
+          onSelectSnapshot={(snapshot) =>
+            setSelectedSnapshotId((current) =>
+              current === snapshot.id ? null : snapshot.id,
+            )
+          }
+        />
       </div>
 
       {/* Footer note */}
       {version.latestNote && selectedSnapshotId == null ? (
-        <p className="hidden px-3 py-2 text-xs text-muted-foreground lg:block">
+        <p className="hidden rounded-md border border-dashed border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground lg:block">
           <span className="font-semibold text-foreground/80">{t("version.latestNoteLabel")}:</span>{" "}
           {version.latestNote} · {format.dateTime(version.updatedAt, { dateStyle: "medium" })}
         </p>
@@ -756,58 +585,8 @@ export function DesignDetailPage({
           if (img) deleteImageMutation.mutate(img.id);
         }}
       />
-
-      {/* Spec §9.3 (Luồng B/C): when the owner requests a revision past
-          the free quota, the server returns 409 carrying `extraFeeAmount`.
-          We confirm here so the owner can opt-in (re-fire with
-          `acceptExtraFee: true`) or back out without losing the reason
-          they typed. */}
-      <ConfirmDialog
-        open={pendingRevision !== null}
-        onOpenChange={(open) => {
-          if (!open) setPendingRevision(null);
-        }}
-        title={t("actions.extrapTitle")}
-        description={
-          pendingRevision?.extraFeeAmount == null
-            ? t("actions.extrapBodyWithoutAmount", {
-                free: quota?.freeRevisionCount ?? 0,
-              })
-            : t("actions.extrapBodyWithAmount", {
-                free: quota?.freeRevisionCount ?? 0,
-                amount: formatExtraFee(pendingRevision.extraFeeAmount),
-              })
-        }
-        confirmLabel={t("actions.extrapAccept")}
-        cancelLabel={t("actions.confirmCancel")}
-        onConfirm={() => {
-          if (!pendingRevision) return;
-          void requestRevision(pendingRevision.reason, {
-            acceptExtraFee: true,
-          });
-        }}
-      />
     </div>
   );
-}
-
-// Spec §9.3 — `extraFeeAmount` is a VND number; render as Vietnamese
-// currency without fractional digits. The project doesn't pin a custom
-// `number` format in `i18n/formats.ts` (only `dateTime` is declared), so
-// we instantiate `Intl.NumberFormat` here rather than threading a new
-// format through the provider config.
-function formatExtraFee(amount: number): string {
-  try {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  } catch {
-    // `Intl` can throw in stripped-down environments — fall back to a
-    // plain number so the dialog still surfaces something readable.
-    return `${amount.toLocaleString()} ₫`;
-  }
 }
 
 // ─── Image List Panel ─────────────────────────────────────────────────────
@@ -885,7 +664,7 @@ function ImageListPanel({
   if (images.length === 0 && !canUpload) {
     return (
       <div className="flex h-full items-center justify-center p-4">
-        <p className="px-3 py-6 text-center text-xs text-muted-foreground">
+        <p className="rounded-md border border-dashed border-border/60 bg-muted/30 px-3 py-6 text-center text-xs text-muted-foreground">
           {t("version.noImages")}
         </p>
       </div>
@@ -896,7 +675,7 @@ function ImageListPanel({
     <>
       <div className="flex h-full flex-col gap-3 overflow-y-auto p-4">
         <header className="flex flex-col gap-1.5">
-          <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             {t("tree.heading")}
           </p>
         </header>
@@ -1114,21 +893,9 @@ function DesignImageViewer({
   }, [image, isDownloading, t, version]);
 
   if (!image) {
-    // An unfilled sheet on the drafting ground, with its border and an empty
-    // title block, rather than one line of grey text in a blank column.
     return (
-      <div className="drafting-ground flex flex-1 items-center justify-center rounded-xl border border-border/60 p-6">
-        <div className="relative flex aspect-[3/2] w-full max-w-2xl flex-col border-2 border-foreground/25 bg-background/85 shadow-e1">
-          <div className="hatch m-3 flex flex-1 items-center justify-center border border-foreground/15">
-            <p className="max-w-xs border border-foreground/20 bg-background px-4 py-3 text-center text-sm text-muted-foreground">
-              {t("viewer.empty")}
-            </p>
-          </div>
-          <div className="ms-auto me-3 mb-3 flex border border-foreground/25 font-mono text-2xs uppercase tracking-[0.12em] text-muted-foreground">
-            <span className="border-e border-foreground/25 px-3 py-1.5">{version.name}</span>
-            <span className="px-3 py-1.5 font-semibold text-foreground">{version.code}</span>
-          </div>
-        </div>
+      <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/20 p-8 text-center text-sm text-muted-foreground">
+        {t("viewer.empty")}
       </div>
     );
   }
@@ -1136,14 +903,14 @@ function DesignImageViewer({
   return (
     <article className="flex h-full flex-col gap-3 overflow-hidden rounded-xl border border-border/60 bg-card">
       {/* Header */}
-      <header className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2.5 text-xs text-muted-foreground">
+      <header className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2.5 text-[12px] text-muted-foreground">
         <span className="font-mono font-semibold text-foreground">{image.code}</span>
         <span aria-hidden>/</span>
         <span className="truncate font-medium text-foreground/80">{image.name}</span>
         <span aria-hidden>/</span>
         <span className="truncate">{version.name}</span>
         {isHistorical ? (
-          <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary">
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
             <History aria-hidden className="size-2.5" />
             {t("viewer.snapshotPill")}
           </span>
@@ -1151,7 +918,7 @@ function DesignImageViewer({
       </header>
 
       {/* Image area */}
-      <div className="drafting-ground relative flex-1 px-4 py-4">
+      <div className="relative flex-1 bg-muted/40 px-4 py-4">
         <div className="mx-auto flex h-full max-w-5xl items-center justify-center">
           {image.thumbnailUrl && !imgError ? (
             /* The white plate stays light in both themes on purpose: a
@@ -1192,7 +959,7 @@ function DesignImageViewer({
             <ChevronLeft aria-hidden />
             {t("viewer.prev")}
           </Button>
-          <span className="rounded border border-border/60 px-2 py-0.5 font-mono text-2xs text-muted-foreground">
+          <span className="rounded border border-border/60 px-2 py-0.5 font-mono text-[12px] text-muted-foreground">
             {currentIndex + 1} / {images.length}
           </span>
           <Button size="sm" variant="outline" disabled={!nextImage} onClick={() => nextImage && onSelect(nextImage)}>
@@ -1217,17 +984,6 @@ interface VersionInfoRailProps {
   onApprove: () => void;
   onRequestRevision: () => void;
   onStartRevision: () => void;
-  // Spec §6.5: changeSummary editor (provider side).
-  onEditChangeSummary: () => void;
-  onSaveChangeSummary: (next: string) => Promise<void>;
-  onCancelChangeSummary: () => void;
-  isSavingChangeSummary: boolean;
-  isChangeSummaryEditing: boolean;
-  changeSummaryDraft: string | null;
-  onChangeSummaryDraftChange: (next: string) => void;
-  changeSummaryMissing: boolean;
-  // Spec §9: revision quota (used / free, next round charge state).
-  quota: RevisionQuota | null;
   canSubmit: boolean;
   canApprove: boolean;
   canRequestRevision: boolean;
@@ -1248,15 +1004,6 @@ function VersionInfoRail({
   onApprove,
   onRequestRevision,
   onStartRevision,
-  onEditChangeSummary,
-  onSaveChangeSummary,
-  onCancelChangeSummary,
-  isSavingChangeSummary,
-  isChangeSummaryEditing,
-  changeSummaryDraft,
-  onChangeSummaryDraftChange,
-  changeSummaryMissing,
-  quota,
   canSubmit,
   canApprove,
   canRequestRevision,
@@ -1267,11 +1014,7 @@ function VersionInfoRail({
   isStartingRevision,
 }: VersionInfoRailProps) {
   const isPending =
-    isSubmitting || isApproving || isRequestingRevision || isStartingRevision || isSavingChangeSummary;
-
-  // The owner side just reads the changeSummary; the provider side writes.
-  const effectiveChangeSummary =
-    changeSummaryDraft ?? design.changeSummary ?? null;
+    isSubmitting || isApproving || isRequestingRevision || isStartingRevision;
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -1279,11 +1022,11 @@ function VersionInfoRail({
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="font-mono text-sm font-bold text-foreground">{version.code}</span>
-          <Stamp size="sm" tone={DESIGN_STAMP[version.status]} seed={version.code}>
+          <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide", statusCfg.color)}>
             {statusCfg.label}
-          </Stamp>
+          </span>
         </div>
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">{version.name}</h2>
+        <h2 className="text-sm font-semibold text-foreground">{version.name}</h2>
         <p className="text-xs text-muted-foreground">
           {t("version.uploadedBy")} {format.dateTime(version.createdAt, { dateStyle: "medium" })}
         </p>
@@ -1299,91 +1042,6 @@ function VersionInfoRail({
           </p>
         )}
       </div>
-
-      {/* Change summary (spec §6.5, §8.3). Always visible to the owner so
-          they know what changed in the round; editable by the provider. */}
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("actions.changeSummaryLabel")}
-          </span>
-          {canSubmit && !isChangeSummaryEditing ? (
-            <button
-              type="button"
-              onClick={onEditChangeSummary}
-              className="text-2xs font-semibold uppercase tracking-wider text-primary hover:underline underline-offset-2"
-            >
-              {t("actions.editChangeSummary")}
-            </button>
-          ) : null}
-        </div>
-        {isChangeSummaryEditing && canSubmit ? (
-          <div className="flex flex-col gap-1.5">
-            <Textarea
-              value={changeSummaryDraft ?? design.changeSummary ?? ""}
-              placeholder={t("actions.changeSummaryPlaceholder")}
-              rows={3}
-              maxLength={500}
-              onChange={(e) => onChangeSummaryDraftChange(e.target.value)}
-              aria-label={t("actions.changeSummaryLabel")}
-            />
-            <p className="text-xs text-muted-foreground">
-              {t("actions.changeSummaryHint")}
-            </p>
-            <div className="flex items-center justify-end gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={onCancelChangeSummary}
-                disabled={isSavingChangeSummary}
-              >
-                {t("actions.confirmCancel")}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => {
-                  void onSaveChangeSummary(
-                    (changeSummaryDraft ?? "").trim(),
-                  );
-                }}
-                disabled={
-                  isSavingChangeSummary ||
-                  !(changeSummaryDraft ?? "").trim()
-                }
-              >
-                {t("actions.confirmCta")}
-              </Button>
-            </div>
-          </div>
-        ) : effectiveChangeSummary ? (
-          <p className="rounded-md bg-foreground/5 px-2 py-1.5 text-xs text-foreground/80">
-            {effectiveChangeSummary}
-          </p>
-        ) : (
-          <p
-            className={cn(
-              "rounded-md px-2 py-1.5 text-xs",
-              changeSummaryMissing
-                ? "border border-warning/40 bg-warning-muted text-warning-muted-foreground"
-                : "text-muted-foreground",
-            )}
-          >
-            {changeSummaryMissing
-              ? t("actions.changeSummaryMissing")
-              : "—"}
-          </p>
-        )}
-      </div>
-
-      {/* Revision quota (spec §9). Sourced from
-          `GET /api/change-orders/revision-quota/{designId}` via
-          `useRevisionQuota`. Two cases:
-          - freeRevisionCount null → "unlimited", no extra fee possible.
-          - freeRevisionCount set → show used / free + whether the next
-            round will be charged. */}
-      <RevisionQuotaBlock quota={quota} t={t} />
 
       {/* Action buttons */}
       <div className="mt-auto flex flex-col gap-2">
@@ -1421,81 +1079,6 @@ function VersionInfoRail({
           </p>
         )}
       </div>
-    </div>
-  );
-}
-
-// ─── Revision Quota Block (spec §9) ──────────────────────────────────────────
-//
-// Compact progress strip rendered inside the right rail. Three states:
-//   - quota is loading (null + not-yet-fetched) → render nothing
-//   - freeRevisionCount null → "unlimited" copy
-//   - freeRevisionCount set  → used / free, progress bar, and a hint
-//     whether the next round costs the owner an extra fee
-interface RevisionQuotaBlockProps {
-  quota: RevisionQuota | null;
-  t: ReturnType<typeof useTranslations>;
-}
-
-function RevisionQuotaBlock({ quota, t }: RevisionQuotaBlockProps) {
-  if (quota == null) return null;
-
-  const free = quota.freeRevisionCount;
-  if (free == null) {
-    return (
-      <div className="flex flex-col gap-1">
-        <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {t("version.revisionQuota.label")}
-        </span>
-        <p className="rounded-md bg-foreground/5 px-2 py-1.5 text-xs text-foreground/80">
-          {t("version.revisionQuota.unlimited")}
-        </p>
-      </div>
-    );
-  }
-
-  const used = quota.engagementUsedRevisionCount;
-  const ratio = Math.min(1, Math.max(0, used / Math.max(1, free)));
-  const overQuota = used > free;
-  const tone = overQuota
-    ? "bg-warning"
-    : ratio > 0.8
-      ? "bg-warning/60"
-      : "bg-primary";
-
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {t("version.revisionQuota.label")}
-        </span>
-        <span className="font-mono text-xs tabular-nums text-muted-foreground">
-          {used} / {free}
-        </span>
-      </div>
-      <div
-        className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={free}
-        aria-valuenow={used}
-      >
-        <div
-          className={cn("h-full transition-[width]", tone)}
-          style={{ width: `${Math.min(100, ratio * 100)}%` }}
-        />
-      </div>
-      <p className="text-xs text-muted-foreground">
-        {t("version.revisionQuota.used", { used, free })}
-        {" · "}
-        {quota.nextRevisionCharged
-          ? quota.extraRevisionFee == null
-            ? t("version.revisionQuota.nextCharged") +
-              " · " +
-              t("version.revisionQuota.unpriced")
-            : t("version.revisionQuota.nextCharged")
-          : t("version.revisionQuota.nextFree")}
-      </p>
     </div>
   );
 }

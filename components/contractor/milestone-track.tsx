@@ -43,7 +43,7 @@ export function MilestoneTrack({
   return (
     <Card size="sm" className="border-border/60">
       <CardHeader>
-        <CardTitle>{t("title")}</CardTitle>
+        <CardTitle className="text-base">{t("title")}</CardTitle>
         <CardDescription>{t("subtitle")}</CardDescription>
       </CardHeader>
 
@@ -87,12 +87,12 @@ export function MilestoneTrack({
                     <NodeIcon status={phase.status} />
                   </div>
 
-                  <span className="text-center text-xs font-medium text-foreground">
+                  <span className="text-center text-[12px] font-medium text-foreground">
                     {phase.shortLabel}
                   </span>
                   <span
                     className={cn(
-                      "rounded-full px-1.5 py-0 text-xs",
+                      "rounded-full px-1.5 py-0 text-[11px]",
                       tone.className
                     )}
                   >

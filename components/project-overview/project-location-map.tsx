@@ -45,7 +45,7 @@ export function ProjectLocationMap({
   return (
     <Card size="sm" className={cn("border-border/60", className)}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-base">
           <MapPin className="size-4 text-primary" aria-hidden />
           {t("title")}
         </CardTitle>
@@ -72,7 +72,7 @@ export function ProjectLocationMap({
             height={260}
             className="max-w-full"
           />
-          <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-md bg-background/90 px-2 py-1 text-xs font-medium text-foreground shadow-e1">
+          <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-md bg-background/90 px-2 py-1 text-[11px] font-medium text-foreground shadow-e1">
             <ExternalLink className="size-3" aria-hidden />
             {t("openInMaps")}
           </span>

@@ -57,7 +57,7 @@ export function AiRecommendationsSummaryList({
       <CardHeader>
         <CardTitle
           id="ai-iterations-summary-title"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 text-base"
         >
           <Sparkles className="size-4 text-primary" aria-hidden />
           {t("title")}
@@ -89,7 +89,7 @@ function SummaryRow({ rec }: { rec: EngagementAiSummary }) {
     <article
       aria-labelledby={`ai-rec-summary-${rec.id}-title`}
       className={cn(
-        "flex flex-col gap-2 rounded-lg bg-background/40 p-3",
+        "flex flex-col gap-2 rounded-lg border bg-background/40 p-3",
         "border-border/60",
         stateKey === "failed" && "border-destructive/40 bg-destructive/5",
         stateKey === "queued" && "border-dashed",
@@ -115,7 +115,7 @@ function SummaryRow({ rec }: { rec: EngagementAiSummary }) {
           imageLabel={t("image")}
         />
       ) : null}
-      <p className="font-mono text-xs text-muted-foreground">#{rec.id}</p>
+      <p className="font-mono text-[12px] text-muted-foreground">#{rec.id}</p>
     </article>
   );
 }
@@ -146,7 +146,7 @@ function SummaryStateBadge({
             : "secondary"
       }
       className={cn(
-        "shrink-0 gap-1 text-2xs font-semibold uppercase tracking-wide",
+        "shrink-0 gap-1 text-[11px] font-semibold uppercase tracking-wide",
         stateKey === "running" && "animate-pulse",
       )}
     >

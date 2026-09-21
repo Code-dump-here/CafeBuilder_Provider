@@ -97,9 +97,9 @@ export function MarketplaceFilterBar({
   return (
     <section
       aria-label={t("label")}
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card/40 p-3 sm:p-4"
     >
-      <div className="flex items-center gap-2 text-2xs font-medium uppercase tracking-wide text-muted-foreground">
+      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
         <SlidersHorizontal className="size-3.5" aria-hidden />
         {t("label")}
         <span className="ml-auto font-normal normal-case text-muted-foreground/80">

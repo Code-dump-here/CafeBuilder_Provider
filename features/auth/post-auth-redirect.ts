@@ -10,17 +10,11 @@ import type { UserRole } from "@/lib/http/auth";
  * still null we route to `/onboarding` so the user can finish the flow
  * before reaching the workspace.
  *
- * Admin accounts land on `/admin`. Provider accounts land on
- * `/my-projects` — that's the real "design / construction workspace"
- * (a designer/constructor/both-capability provider has no useful view
- * at `/`, which is the marketing homepage). Owners land on `/` since
- * they own the projects themselves and reach the workspace by clicking
- * "My Projects" in the navbar.
+ * Admin accounts (and any role with both profiles null) always land on
+ * the role's home page.
  */
 export type PostAuthDestination =
   | { kind: "onboarding" }
-  | { kind: "admin" }
-  | { kind: "providerWorkspace" }
   | { kind: "home"; role: UserRole };
 
 /**
@@ -73,7 +67,6 @@ export async function resolvePostAuthDestination(): Promise<PostAuthResolution> 
   if (process.env.NODE_ENV !== "production") {
     console.error("[post-auth-redirect] resolved", {
       role: account.role,
-      capability: account.serviceProvider?.capability ?? null,
       hasShopOwner: account.shopOwner !== null,
       hasServiceProvider: account.serviceProvider !== null,
       destination,
@@ -95,22 +88,8 @@ export async function resolvePostAuthDestination(): Promise<PostAuthResolution> 
 export function resolvePostAuthDestinationFromAccount(
   account: NormalizedAccount,
 ): PostAuthDestination {
-  // A provider with no service-provider profile hasn't finished
-  // onboarding — they need to fill it in before they can see their
-  // workspace.
   if (account.role === "provider" && account.serviceProvider === null) {
     return { kind: "onboarding" };
-  }
-  // Admin skips both onboarding and the workspace routing.
-  if (account.role === "admin") {
-    return { kind: "admin" };
-  }
-  // Provider → real workspace. The capability filter (`?service=…`) is
-  // not applied here: `MyProjectsServiceFilter` is only rendered when
-  // the account has capability "both", and applying it elsewhere would
-  // be a no-op for designer/constructor-only providers.
-  if (account.role === "provider") {
-    return { kind: "providerWorkspace" };
   }
   return { kind: "home", role: account.role as UserRole };
 }
@@ -122,11 +101,12 @@ export function postAuthDestinationToPath(
   destination: PostAuthDestination,
 ): string {
   if (destination.kind === "onboarding") return "/onboarding";
-  if (destination.kind === "admin") return "/admin";
-  if (destination.kind === "providerWorkspace") return "/my-projects";
-  // Remaining variant is `{ kind: "home", role: UserRole }` — only owner
-  // reaches here in practice (provider/admin take the explicit branches
-  // above). Landing at `/` keeps the marketing homepage as the owner's
-  // home, matching how the navbar's logo is wired.
-  return "/";
+  switch (destination.role) {
+    case "admin":
+      return "/admin";
+    case "owner":
+    case "provider":
+    default:
+      return "/";
+  }
 }

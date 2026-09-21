@@ -10,7 +10,6 @@ import {
   Plus,
   Star,
   Trash2,
-  Upload,
   Video,
 } from "lucide-react";
 
@@ -40,7 +39,6 @@ import {
 } from "@/components/ui/select";
 
 import { formatVndParts } from "@/lib/format-currency";
-import { uploadFileApi, uploadImageApi } from "@/lib/http/file-upload-api";
 import {
   useAddPortfolioImageMutation,
   useCreatePortfolioMutation,
@@ -53,7 +51,6 @@ import {
   PORTFOLIO_ROLES,
   type PortfolioRole,
   type ProviderPortfolio,
-  type ProviderPortfolioImage,
 } from "@/features/service-provider-profiles/portfolio-types";
 
 /** A nullable number as an input value — blank means "not recorded". */
@@ -87,7 +84,6 @@ export function PortfolioTab({ serviceProviderProfileId, editable }: PortfolioTa
   // photos did not, even though the trigger is a smaller target — an icon that
   // only appears on hover, in the corner of a 28px thumbnail.
   const [removingImageId, setRemovingImageId] = React.useState<string | null>(null);
-  const [viewingGallery, setViewingGallery] = React.useState<ProviderPortfolio | null>(null);
 
   const createMutation = useCreatePortfolioMutation();
   const updateMutation = useUpdatePortfolioMutation();
@@ -204,19 +200,12 @@ export function PortfolioTab({ serviceProviderProfileId, editable }: PortfolioTa
                 <div className="flex flex-wrap gap-2">
                   {entry.images.map((image) => (
                     <figure key={image.id} className="group relative">
-                      <button
-                        type="button"
-                        onClick={() => setViewingGallery(entry)}
-                        aria-label={t("viewImage")}
-                        className="block size-28 overflow-hidden rounded-lg border border-border/60"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={image.imageViewUrl ?? image.imageUrl}
-                          alt={image.caption ?? ""}
-                          className="size-full object-cover"
-                        />
-                      </button>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={image.imageViewUrl ?? image.imageUrl}
+                        alt={image.caption ?? ""}
+                        className="size-28 rounded-lg border border-border/60 object-cover"
+                      />
                       {editable ? (
                         <button
                           type="button"
@@ -228,7 +217,7 @@ export function PortfolioTab({ serviceProviderProfileId, editable }: PortfolioTa
                         </button>
                       ) : null}
                       {image.caption ? (
-                        <figcaption className="mt-1 w-28 truncate text-xs text-muted-foreground">
+                        <figcaption className="mt-1 w-28 truncate text-[12px] text-muted-foreground">
                           {image.caption}
                         </figcaption>
                       ) : null}
@@ -278,28 +267,6 @@ export function PortfolioTab({ serviceProviderProfileId, editable }: PortfolioTa
           addImageMutation.mutate(
             { portfolioId: addingImageTo.id, payload },
             { onSuccess: () => setAddingImageTo(null) },
-          );
-        }}
-      />
-
-      <ImageGalleryDialog
-        entry={viewingGallery}
-        onOpenChange={(next) => {
-          if (!next) setViewingGallery(null);
-        }}
-        editable={editable}
-        pending={updateMutation.isPending}
-        onSetAsCover={(image) => {
-          if (!viewingGallery) return;
-          // PUT the portfolio with `coverImageUrl` swapped to this image's
-          // raw URL. The backend's `NormalizeForStorageAsync` will resolve
-          // the URL exactly the same way it did when the image was added.
-          updateMutation.mutate(
-            {
-              id: viewingGallery.id,
-              payload: { coverImageUrl: image.imageUrl },
-            },
-            { onSuccess: () => setViewingGallery(null) },
           );
         }}
       />
@@ -361,7 +328,7 @@ function PortfolioDialog({
     completedAt?: string;
     durationDays?: number;
     videoUrl?: string;
-    images?: { imageUrl: string; caption?: string; sortOrder?: number }[];
+    coverImageUrl?: string;
     isFeatured?: boolean;
   }) => void;
 }) {
@@ -376,12 +343,8 @@ function PortfolioDialog({
   const [contractValue, setContractValue] = React.useState("");
   const [completedAt, setCompletedAt] = React.useState("");
   const [durationDays, setDurationDays] = React.useState("");
-  /**
-   * Each item is a free-form media URL — image or video. The wire contract
-   * still speaks in terms of `images[]` + a single `videoUrl`, so on submit
-   * we split this list into those two buckets based on `type`.
-   */
-  const [media, setMedia] = React.useState<MediaItem[]>([]);
+  const [videoUrl, setVideoUrl] = React.useState("");
+  const [coverImageUrl, setCoverImageUrl] = React.useState("");
   const [isFeatured, setIsFeatured] = React.useState(false);
 
   useResetOnChange(open ? (initial?.id ?? "new") : null, () => {
@@ -394,27 +357,8 @@ function PortfolioDialog({
     setContractValue(toInput(initial?.contractValue));
     setCompletedAt(initial?.completedAt ?? "");
     setDurationDays(toInput(initial?.durationDays));
-    // Re-derive the media list from the entity shape the server sent us.
-    const rebuilt: MediaItem[] = [];
-    if (initial?.images?.length) {
-      for (const image of initial.images) {
-        rebuilt.push({
-          id: `existing-image-${image.id}`,
-          url: image.imageUrl,
-          type: "image",
-          caption: image.caption ?? "",
-        });
-      }
-    }
-    if (initial?.videoUrl) {
-      rebuilt.push({
-        id: `existing-video-${initial.id ?? "new"}`,
-        url: initial.videoUrl,
-        type: "video",
-        caption: "",
-      });
-    }
-    setMedia(rebuilt);
+    setVideoUrl(initial?.videoUrl ?? "");
+    setCoverImageUrl(initial?.coverImageUrl ?? "");
     setIsFeatured(initial?.isFeatured ?? false);
   });
 
@@ -422,26 +366,6 @@ function PortfolioDialog({
     const parsed = Number(value.trim());
     return value.trim() === "" || !Number.isFinite(parsed) ? undefined : parsed;
   };
-
-  // Bucket the free-form media list into the two wire fields: `images[]`
-  // for image items, `videoUrl` for the first video item. The wire contract
-  // (see `portfolio-types.ts`) only supports a single video per project,
-  // so we collapse extras — `MediaItemRow` already blocks more than one.
-  const cleanMedia = media
-    .map((m) => ({ ...m, url: m.url.trim(), caption: m.caption.trim() }))
-    .filter((m) => m.url.length > 0);
-  const videoCount = cleanMedia.filter((m) => m.type === "video").length;
-  const imagePayloads = cleanMedia
-    .filter((m) => m.type === "image")
-    .map((m, idx) => ({
-      imageUrl: m.url,
-      ...(m.caption ? { caption: m.caption } : {}),
-      sortOrder: idx,
-    }));
-  const videoUrlPayload = cleanMedia.find((m) => m.type === "video")?.url;
-
-  const mediaValid = videoCount <= 1;
-  const canSubmit = pending || title.trim().length === 0 || !mediaValid;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -507,49 +431,16 @@ function PortfolioDialog({
             onChange={setCompletedAt}
             type="date"
           />
-
-          <div className="flex flex-col gap-2 sm:col-span-2">
-            <div className="flex items-center justify-between gap-2">
-              <label className="text-sm font-medium">{t("media.title")}</label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setMedia((prev) => [
-                    ...prev,
-                    { id: makeMediaId(), url: "", type: "image", caption: "" },
-                  ])
-                }
-              >
-                <Plus aria-hidden className="size-4" />
-                {t("media.add")}
-              </Button>
-            </div>
-            {media.length === 0 ? (
-              <p className="px-3 py-4 text-center text-xs text-muted-foreground">
-                {t("media.empty")}
-              </p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {media.map((item, idx) => (
-                  <MediaItemRow
-                    key={item.id}
-                    item={item}
-                    onChange={(next) =>
-                      setMedia((prev) => prev.map((m, i) => (i === idx ? next : m)))
-                    }
-                    onRemove={() =>
-                      setMedia((prev) => prev.filter((_, i) => i !== idx))
-                    }
-                  />
-                ))}
-              </div>
-            )}
-            {videoCount > 1 ? (
-              <p className="text-xs text-destructive">{t("media.onlyOneVideoError")}</p>
-            ) : null}
-          </div>
+          <TextField
+            label={t("fields.videoUrl")}
+            value={videoUrl}
+            onChange={setVideoUrl}
+          />
+          <TextField
+            label={t("fields.coverImageUrl")}
+            value={coverImageUrl}
+            onChange={setCoverImageUrl}
+          />
 
           <label className="flex items-center gap-2 text-sm font-medium sm:col-span-2">
             <input
@@ -577,9 +468,9 @@ function PortfolioDialog({
             {t("cancel")}
           </Button>
           <Button
-            disabled={canSubmit}
-            onClick={() => {
-              const payload: Parameters<typeof onSubmit>[0] = {
+            disabled={pending || title.trim().length === 0}
+            onClick={() =>
+              onSubmit({
                 title: title.trim(),
                 description: description.trim() || undefined,
                 role: role as PortfolioRole,
@@ -589,16 +480,11 @@ function PortfolioDialog({
                 contractValue: num(contractValue),
                 completedAt: completedAt || undefined,
                 durationDays: num(durationDays),
+                videoUrl: videoUrl.trim() || undefined,
+                coverImageUrl: coverImageUrl.trim() || undefined,
                 isFeatured,
-              };
-              if (videoUrlPayload) {
-                payload.videoUrl = videoUrlPayload;
-              }
-              if (imagePayloads.length > 0) {
-                payload.images = imagePayloads;
-              }
-              onSubmit(payload);
-            }}
+              })
+            }
           >
             {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
             {t("save")}
@@ -680,296 +566,5 @@ function TextField({
       <label className="text-sm font-medium">{label}</label>
       <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
-  );
-}
-
-/** A free-form media entry inside `PortfolioDialog`. */
-type MediaItem = {
-  /** Local React key — keeps row identity stable across re-renders. */
-  id: string;
-  /** Server-resolved public URL once the upload finished. Empty while
-   *  the upload is still in flight or hasn't started yet. */
-  url: string;
-  /** Wire field this item maps to: `images[]` or `videoUrl`. */
-  type: "image" | "video";
-  caption: string;
-  /** Display-only — shown next to the thumbnail. Server doesn't know it. */
-  fileName?: string;
-};
-
-let mediaIdCounter = 0;
-function makeMediaId(): string {
-  // Server-agnostic id for client-only list rendering; reset on each module
-  // load, so collisions across mounts are impossible within a single session.
-  mediaIdCounter += 1;
-  return `media-${Date.now().toString(36)}-${mediaIdCounter}`;
-}
-
-function MediaItemRow({
-  item,
-  onChange,
-  onRemove,
-}: {
-  item: MediaItem;
-  onChange: (next: MediaItem) => void;
-  onRemove: () => void;
-}) {
-  const t = useTranslations("Portfolio");
-  const tUpload = useTranslations("MilestoneManagement.issue");
-  const fileRef = React.useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
-
-  // Cleanup local preview blob URL when the item is removed or rebuilt.
-  React.useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  const accept = item.type === "image" ? "image/*" : "video/*";
-
-  const handleFile = async (file: File) => {
-    if (item.type === "image" && !file.type.startsWith("image/")) {
-      setError(tUpload("uploadFailed"));
-      return;
-    }
-    if (item.type === "video" && !file.type.startsWith("video/")) {
-      setError(tUpload("uploadFailed"));
-      return;
-    }
-
-    const localPreview = URL.createObjectURL(file);
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl(localPreview);
-    setError(null);
-    setIsUploading(true);
-
-    try {
-      // Route through the dedicated image endpoint when possible so the
-      // server enforces the content-type it advertises.
-      const response =
-        item.type === "image"
-          ? await uploadImageApi(file)
-          : await uploadFileApi(file);
-      // Server returns the resolved public URL; store it on the item so the
-      // existing submit pipeline can hand it to the wire payload.
-      onChange({ ...item, url: response.url, fileName: file.name });
-    } catch {
-      setError(tUpload("uploadFailed"));
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-      onChange({ ...item, url: "" });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const displayUrl = previewUrl ?? item.url;
-
-  return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border/60 p-2">
-      <div className="flex items-center gap-2">
-        <Select
-          value={item.type}
-          onValueChange={(value) =>
-            onChange({ ...item, type: value as MediaItem["type"], url: "" })
-          }
-        >
-          <SelectTrigger className="w-32">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="image">{t("media.typeImage")}</SelectItem>
-            <SelectItem value="video">{t("media.typeVideo")}</SelectItem>
-          </SelectContent>
-        </Select>
-        <input
-          ref={fileRef}
-          type="file"
-          accept={accept}
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void handleFile(file);
-            e.target.value = "";
-          }}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="flex-1"
-          disabled={isUploading}
-          onClick={() => fileRef.current?.click()}
-        >
-          {isUploading ? (
-            <Loader2 aria-hidden className="size-4 animate-spin" />
-          ) : (
-            <Upload aria-hidden className="size-4" />
-          )}
-          {item.url ? tUpload("replaceImage") : t("media.uploadCta")}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={onRemove}
-          aria-label={t("media.remove")}
-          disabled={isUploading}
-        >
-          <Trash2 className="size-4 text-destructive" aria-hidden />
-          <span className="sr-only">{t("media.remove")}</span>
-        </Button>
-      </div>
-
-      {/* Already-uploaded file: show filename + tiny preview thumbnail. */}
-      {!isUploading && item.url ? (
-        <div className="flex items-center gap-2">
-          {item.type === "image" ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={item.url}
-              alt=""
-              className="size-12 rounded-md border border-border/60 object-cover"
-            />
-          ) : (
-            <div className="grid size-12 place-items-center rounded-md border border-border/60 bg-muted text-muted-foreground">
-              <Video className="size-5" aria-hidden />
-            </div>
-          )}
-          <span className="truncate text-xs text-muted-foreground">
-            {item.fileName ?? item.url}
-          </span>
-        </div>
-      ) : null}
-
-      {/* Local preview while the upload is still in flight. */}
-      {isUploading && displayUrl && item.type === "image" ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={displayUrl}
-          alt=""
-          className="size-16 rounded-md border border-border/60 object-cover"
-        />
-      ) : null}
-
-      {error ? (
-        <p className="text-xs text-destructive">{error}</p>
-      ) : null}
-
-      {item.type === "image" && item.url ? (
-        <Input
-          value={item.caption}
-          placeholder={t("fields.caption")}
-          onChange={(e) => onChange({ ...item, caption: e.target.value })}
-        />
-      ) : null}
-    </div>
-  );
-}
-
-function ImageGalleryDialog({
-  entry,
-  onOpenChange,
-  editable,
-  pending,
-  onSetAsCover,
-}: {
-  entry: ProviderPortfolio | null;
-  onOpenChange: (open: boolean) => void;
-  editable: boolean;
-  pending: boolean;
-  onSetAsCover: (image: ProviderPortfolioImage) => void;
-}) {
-  const t = useTranslations("Portfolio");
-  const [activeIdx, setActiveIdx] = React.useState(0);
-
-  // Reset to the first image whenever we open a different entry.
-  useResetOnChange(entry?.id ?? null, () => {
-    setActiveIdx(0);
-  });
-
-  if (!entry) return null;
-  const images = entry.images;
-  const active = images[activeIdx];
-
-  return (
-    <Dialog open={entry !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>{entry.title}</DialogTitle>
-          <DialogDescription>
-            {t("gallery.imagesCount", { count: images.length })}
-          </DialogDescription>
-        </DialogHeader>
-
-        {images.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-            {t("gallery.empty")}
-          </p>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {active ? (
-              <figure className="flex flex-col gap-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={active.imageViewUrl ?? active.imageUrl}
-                  alt={active.caption ?? ""}
-                  className="max-h-[60vh] w-full rounded-lg object-contain"
-                />
-                {active.caption ? (
-                  <figcaption className="text-sm text-muted-foreground">
-                    {active.caption}
-                  </figcaption>
-                ) : null}
-              </figure>
-            ) : null}
-
-            {images.length > 1 ? (
-              <div className="flex flex-wrap gap-2">
-                {images.map((image, idx) => (
-                  <button
-                    key={image.id}
-                    type="button"
-                    onClick={() => setActiveIdx(idx)}
-                    aria-label={image.caption ?? t("viewImage")}
-                    className={
-                      idx === activeIdx
-                        ? "size-12 overflow-hidden rounded-md border-2 border-primary"
-                        : "size-12 overflow-hidden rounded-md border border-border/60 opacity-80 hover:opacity-100"
-                    }
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={image.imageViewUrl ?? image.imageUrl}
-                      alt=""
-                      className="size-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        )}
-
-        <DialogFooter>
-          {editable && active && entry.coverImageUrl !== active.imageUrl ? (
-            <Button
-              variant="outline"
-              disabled={pending}
-              onClick={() => onSetAsCover(active)}
-            >
-              {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-              {t("gallery.setAsCover")}
-            </Button>
-          ) : null}
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t("cancel")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 }

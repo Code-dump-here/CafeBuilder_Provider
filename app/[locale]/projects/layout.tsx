@@ -6,7 +6,6 @@ import { ModeToggle } from "@/components/ui/theme-toggle";
 import { LocaleSwitcher } from "@/components/ui/locale-switcher";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { ProfileGuard } from "@/components/auth/profile-guard";
-import { CropMarks } from "@/components/drawing-set/crop-marks";
 
 interface ProjectsLayoutProps {
   children: React.ReactNode;
@@ -54,13 +53,7 @@ export default async function ProjectsLayout({
               <ModeToggle />
             </div>
           </header>
-          {/* The workspace is a drawing sheet: drafting paper behind the
-              cards and crop marks at its corners, so the space around the
-              content reads as the sheet it sits on rather than as blank. */}
-          <div className="drafting-ground relative flex flex-1 flex-col px-4 py-5 sm:px-6">
-            <CropMarks />
-            {children}
-          </div>
+          <div className="p-4">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </ProfileGuard>

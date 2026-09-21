@@ -8,10 +8,9 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, "SF Mono",
-    Menlo, Consolas, "Liberation Mono", monospace;
-  --font-heading: var(--font-archivo), var(--font-sans);
-  --font-display: var(--font-archivo), var(--font-sans);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -130,18 +129,6 @@
 
    Palette untouched, per the brief. */
 @theme {
-  /* The label step. Reserved for UPPERCASE eyebrows, badges, pills and the
-     xs button — text whose job is to name something rather than say it.
-     Uppercase letterforms read about a size larger than sentence case, which
-     is why this can sit a pixel under text-xs and still hold its own.
-
-     It replaces four hand-picked sizes (10px, 11px, 12px, 0.6875rem) that had
-     accumulated below the scale. Named 2xs rather than something semantic like
-     `label` on purpose: tailwind-merge recognises t-shirt sizes as font sizes,
-     but reads an unknown `text-*` as a colour — so `cn("text-label
-     text-muted-foreground")` silently drops the size. */
-  --text-2xs: 0.75rem;           /* 12 */
-  --text-2xs--line-height: 1.4;
   --text-xs: 0.8125rem;          /* 12 -> 13 */
   --text-xs--line-height: 1.5;
   --text-sm: 0.9375rem;          /* 14 -> 15 */
@@ -213,20 +200,12 @@
   --chart-3: oklch(0.48 0.1 38);
   --chart-4: oklch(0.38 0.08 28);
   --chart-5: oklch(0.3 0.06 18);
-  /* Surfaces are softly rounded; drawing marks are square. Every step of the
-     scale is calc()'d from this line — 6px gives cards 6px, inputs and badges
-     about 4px, large panels about 11px.
-
-     This was 0 for a while, and a whole screen of hard corners read as harsh.
-     The split is what the drawing-set direction wants anyway: stamps, title
-     blocks and the plan sheet declare no radius, so they stay square whatever
-     this is, and they stand out as marks on paper against softer surfaces
-     around them instead of blending into a screen that is square everywhere.
-
-     Keep it small. The generous pill-and-bubble radius was the loudest tell of
-     the old generic style. Avatars, spinners and scrollbar thumbs keep their
-     own rounded-full — round because of what they are, not the theme. */
-  --radius: 0.375rem;
+  /* Square by default. Every other step of the scale is calc()'d from this
+     line, so the geometry of the whole app is one value. The soft-pill look
+     was the loudest tell of the old style. Avatars, spinners and scrollbar
+     thumbs keep their own rounded-full — those are round because of what they
+     are, not because of the theme. */
+  --radius: 0rem;
   --sidebar: oklch(0.95 0.012 62);
   --sidebar-foreground: oklch(0.28 0.035 48);
   --sidebar-primary: oklch(0.52 0.18 55);
@@ -373,107 +352,5 @@
   :disabled,
   [aria-disabled="true"] {
     cursor: not-allowed;
-  }
-}
-
-/* ─── Drawing set ──────────────────────────────────────────────────────────
-   The product's work is drawings, sheets, dimensions and sign-offs, so that is
-   the visual language: drafting paper instead of glow blobs, hatching instead
-   of dashed empty boxes, ink stamps instead of pills. Every colour comes from
-   the existing tokens through color-mix, so both themes follow for free. */
-
-/* Drafting paper: a fine 8px grid with a heavier rule every 40px. Lines are
-   the foreground at very low alpha, so on the dark ground they turn into faint
-   light lines rather than disappearing. */
-@utility paper-grid {
-  background-image:
-    linear-gradient(to right, color-mix(in oklab, var(--foreground) 9%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 9%, transparent) 1px, transparent 1px),
-    linear-gradient(to right, color-mix(in oklab, var(--foreground) 4%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 4%, transparent) 1px, transparent 1px);
-  background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
-}
-
-/* The app's working ground: the same drafting paper, fainter, so it carries
-   the blank space between cards without competing with their content. Cards
-   are solid, so the grid only shows where the page would otherwise be empty. */
-@utility drafting-ground {
-  background-image:
-    linear-gradient(to right, color-mix(in oklab, var(--foreground) 5%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 5%, transparent) 1px, transparent 1px),
-    linear-gradient(to right, color-mix(in oklab, var(--foreground) 2.2%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 2.2%, transparent) 1px, transparent 1px);
-  background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px;
-}
-
-/* 45° section hatching, the drafting convention for "cut" or "nothing here". */
-@utility hatch {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    color-mix(in oklab, var(--foreground) 10%, transparent) 0 1px,
-    transparent 1px 7px
-  );
-}
-
-/* A dimension line under a phrase: the rule plus an extension tick at each end,
-   in the accent. Backgrounds rather than a positioned SVG so it follows the
-   text across a line break — `box-decoration-break: clone` gives every line
-   fragment its own ticks. */
-@utility dim-underline {
-  /* The rule sits just under the baseline and each end tick is centred on it,
-     crossing the line the way a drawn dimension does. It previously hung from
-     the bottom of the line box — below the descenders — which with the
-     headline's tight leading put it on the next line's capitals. */
-  background-image:
-    linear-gradient(var(--primary), var(--primary)),
-    linear-gradient(var(--primary), var(--primary)),
-    linear-gradient(var(--primary), var(--primary));
-  background-size: 100% 2px, 2px 0.3em, 2px 0.3em;
-  background-position: 0 calc(100% - 0.16em), 0 calc(100% - 0.02em), 100% calc(100% - 0.02em);
-  background-repeat: no-repeat;
-  padding-bottom: 0.06em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-
-/* Sheet lettering for page titles: the homepage headline's condensed Archivo,
-   carried into the app so the direction doesn't stop at the login screen.
-   Less compressed than the hero (80% against 72%) because app titles are
-   read, not looked at, and leading stays loose enough for stacked Vietnamese
-   diacritics when a long title wraps. */
-@utility sheet-title {
-  font-family: var(--font-display);
-  font-stretch: 80%;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-}
-
-@keyframes draw-line {
-  from { stroke-dashoffset: 1; }
-  to   { stroke-dashoffset: 0; }
-}
-
-/* A stamp lands: arrives slightly large and lifted, settles with a small
-   overshoot. Rotation is set per stamp through --stamp-rotate so the keyframes
-   don't flatten it. */
-@keyframes stamp-in {
-  0%   { opacity: 0; transform: rotate(var(--stamp-rotate, -4deg)) scale(1.9); }
-  60%  { opacity: 1; transform: rotate(var(--stamp-rotate, -4deg)) scale(0.94); }
-  100% { opacity: 1; transform: rotate(var(--stamp-rotate, -4deg)) scale(1); }
-}
-
-@keyframes ink-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .draw-line,
-  .stamp-in,
-  .ink-fade {
-    animation: none !important;
-    stroke-dashoffset: 0 !important;
-    opacity: 1 !important;
   }
 }

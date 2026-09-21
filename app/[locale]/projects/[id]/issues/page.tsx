@@ -250,7 +250,7 @@ export default function IssuesPage() {
             /* no construction engagement: report is a no-op */
           }}
         />
-        <p className="mt-3 px-3 py-6 text-center text-sm text-muted-foreground">
+        <p className="mt-3 rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-6 text-center text-sm text-muted-foreground">
           {t("noConstructionEngagement")}
         </p>
       </>

@@ -170,7 +170,7 @@ export function NewVersionDialog({
             />
           </Field>
           {!projectWorkingId ? (
-            <p className="rounded-md border border-warning/30 bg-warning-muted px-3 py-2 text-xs text-warning-muted-foreground">
+            <p className="rounded-md border border-warning/30 bg-warning-muted px-3 py-2 text-[12px] text-warning-muted-foreground">
               {t("dialogs.newVersion.engagementMissing")}
             </p>
           ) : null}
@@ -274,7 +274,7 @@ export function PublishRevisionDialog({
           </DialogDescription>
         </DialogHeader>
         {publishable.length === 0 ? (
-          <p className="px-3 py-4 text-center text-xs text-muted-foreground">
+          <p className="rounded-md border border-dashed border-border/60 bg-muted/30 px-3 py-4 text-center text-xs text-muted-foreground">
             {t("dialogs.publish.noWorking")}
           </p>
         ) : (
@@ -329,12 +329,12 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
+      <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </label>
       {children}
       {hint ? (
-        <p className="text-xs text-muted-foreground/80">{hint}</p>
+        <p className="text-[11px] text-muted-foreground/80">{hint}</p>
       ) : null}
     </div>
   );

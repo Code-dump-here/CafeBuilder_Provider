@@ -80,21 +80,6 @@ export interface ServiceProviderProfileCreated {
   updatedAt: string;
 }
 
-/**
- * Public, full-shape profile returned by
- * `GET /api/service-provider-profiles/{id}`. Adds the cover image,
- * logo, and intro-video URLs so the owner-facing profile page can
- * render a hero without a second round-trip to `/api/provider-brands`.
- */
-export interface ServiceProviderProfileDetail extends ServiceProviderProfileCreated {
-  logoUrl: string | null;
-  logoViewUrl: string | null;
-  coverImageUrl: string | null;
-  coverImageViewUrl: string | null;
-  introVideoUrl: string | null;
-  introVideoViewUrl: string | null;
-}
-
 // ─── Endpoints ───────────────────────────────────────────────────────────────
 
 /**
@@ -135,24 +120,6 @@ export async function updateServiceProviderProfileApi(
   const response = await api.put<ServiceProviderProfileCreated>(
     `/api/service-provider-profiles/${id}`,
     payload,
-    config,
-  );
-  return response.data;
-}
-
-/**
- * GET /api/service-provider-profiles/{id} — full public profile.
- *
- * Used by the provider detail page (`/providers/{id}`). Includes brand
- * URLs (logo, cover, intro video) so the page can paint a hero without
- * a second request to `/api/provider-brands`.
- */
-export async function getServiceProviderProfileApi(
-  id: string,
-  config?: RequestConfig,
-): Promise<ServiceProviderProfileDetail> {
-  const response = await api.get<ServiceProviderProfileDetail>(
-    `/api/service-provider-profiles/${id}`,
     config,
   );
   return response.data;

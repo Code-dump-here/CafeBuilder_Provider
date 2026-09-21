@@ -149,31 +149,3 @@ export async function removeProviderCertificateApi(
 ): Promise<void> {
   await api.delete(`/api/provider-brands/certificates/${certificateId}`, config);
 }
-
-/**
- * Endpoint: `POST /api/provider-brands/certificates/{certificateId}/verify`
- *
- * Admin-only. The `isVerified` flag is the server's authority on whether a
- * provider's self-submitted certificate has been vetted. Resetting it
- * server-side happens implicitly on every PUT to the certificate (per spec
- * §4.2.4), so this endpoint is the only way to flip it back to `true`.
- *
- * Provider-side FE does not call this; the hook is exported so a future
- * admin surface (out of scope for this round) can wire it up without
- * another plumbing pass.
- */
-export async function verifyProviderCertificateApi(
-  certificateId: string,
-  isVerified: boolean,
-  config?: RequestConfig,
-): Promise<ProviderCertificate> {
-  const response = await api.post<ProviderCertificate>(
-    `/api/provider-brands/certificates/${certificateId}/verify`,
-    null,
-    {
-      ...config,
-      params: { isVerified },
-    },
-  );
-  return response.data;
-}

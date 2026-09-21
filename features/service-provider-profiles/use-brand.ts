@@ -15,7 +15,6 @@ import {
   updateProviderBrandApi,
   updateProviderCertificateApi,
   updateProviderSocialLinkApi,
-  verifyProviderCertificateApi,
 } from "./brand-api";
 import type {
   ProviderBrand,
@@ -267,29 +266,6 @@ export function useRemoveCertificateMutation() {
     mutationFn: (certificateId) => removeProviderCertificateApi(certificateId),
     onSuccess: () => {
       notifySuccess(TOAST.certRemoved);
-      invalidate();
-    },
-    onError: (error) => notifyError(resolveErrorMessage(error)),
-  });
-}
-
-/**
- * Admin-only endpoint that flips a certificate's `isVerified` flag.
- *
- * Not wired to UI in this round (per scope decision); exported for a future
- * admin surface. Calling from a non-admin session returns 401/403.
- */
-export function useVerifyCertificateMutation() {
-  const invalidate = useBrandInvalidator();
-
-  return useMutation<
-    ProviderCertificate,
-    AppError,
-    { certificateId: string; isVerified: boolean }
-  >({
-    mutationFn: ({ certificateId, isVerified }) =>
-      verifyProviderCertificateApi(certificateId, isVerified),
-    onSuccess: () => {
       invalidate();
     },
     onError: (error) => notifyError(resolveErrorMessage(error)),

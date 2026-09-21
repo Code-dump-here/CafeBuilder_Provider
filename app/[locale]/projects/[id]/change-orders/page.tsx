@@ -67,8 +67,6 @@ import {
   type ChangeOrderKind,
   type ChangeOrderStatus,
 } from "@/features/projects/change-order-types";
-import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
-import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 /** Select của shadcn không nhận value rỗng — dùng sentinel cho "không gắn hạng mục". */
 const NO_MILESTONE = "__none__";
@@ -81,14 +79,12 @@ const FILTERS: readonly (ChangeOrderStatus | "all")[] = [
 ] as const;
 
 /** Status → badge tint. `pending` is the only one that still wants a decision. */
-// By meaning, not by Badge variant. The variants had it backwards: an accepted
-// change order was grey ("secondary") and a pending one wore the brand colour
-// ("default"), so the settled record looked less settled than the open one.
-const STATUS_STAMP: Record<ChangeOrderStatus, StampTone> = {
-  pending: "warning",
-  accepted: "success",
-  rejected: "danger",
-};
+const STATUS_VARIANT: Record<ChangeOrderStatus, "default" | "secondary" | "destructive"> =
+  {
+    pending: "default",
+    accepted: "secondary",
+    rejected: "destructive",
+  };
 
 export default function ChangeOrdersPage() {
   const t = useTranslations("ChangeOrders");
@@ -162,7 +158,7 @@ export default function ChangeOrdersPage() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <SheetTitle sheet={SHEET.changeOrders}>{t("title")}</SheetTitle>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <Button onClick={() => setCreating(true)}>
@@ -174,7 +170,7 @@ export default function ChangeOrdersPage() {
       {summary ? (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <CircleDollarSign className="size-4 text-primary" aria-hidden />
               {t("summary.title")}
             </CardTitle>
@@ -300,9 +296,9 @@ export default function ChangeOrdersPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex min-w-0 flex-col gap-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Stamp size="sm" tone={STATUS_STAMP[order.status]} seed={order.id}>
+                        <Badge variant={STATUS_VARIANT[order.status]}>
                           {t(`status.${order.status}`)}
-                        </Stamp>
+                        </Badge>
                         <Badge variant="outline">{t(`kind.${order.kind}`)}</Badge>
                         {order.constructionItemName ? (
                           <Badge variant="secondary" className="font-normal">
@@ -503,7 +499,7 @@ function Stat({
       >
         {value}
       </p>
-      {hint ? <p className="text-xs text-muted-foreground/80">{hint}</p> : null}
+      {hint ? <p className="text-[12px] text-muted-foreground/80">{hint}</p> : null}
     </div>
   );
 }
@@ -607,7 +603,7 @@ function ChangeOrderDialog({
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[12px] text-muted-foreground">
               {topLevelItems.length === 0
                 ? t("dialog.milestoneEmpty")
                 : t("dialog.milestoneHint")}
@@ -633,7 +629,7 @@ function ChangeOrderDialog({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
-            <p className="text-xs text-muted-foreground">{t("dialog.amountHint")}</p>
+            <p className="text-[12px] text-muted-foreground">{t("dialog.amountHint")}</p>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -644,7 +640,7 @@ function ChangeOrderDialog({
               placeholder={t("dialog.reasonPlaceholder")}
               onChange={(e) => setReason(e.target.value)}
             />
-            <p className="text-xs text-muted-foreground">{t("dialog.reasonHint")}</p>
+            <p className="text-[12px] text-muted-foreground">{t("dialog.reasonHint")}</p>
           </div>
         </div>
 

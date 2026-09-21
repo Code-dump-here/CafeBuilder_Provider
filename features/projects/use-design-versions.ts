@@ -45,8 +45,6 @@ const VERSIONS: DesignVersion[] = [
     updatedAt: T("2026-07-02T14:30:00Z"),
     publishedAt: T("2026-07-02T14:30:00Z"),
     latestNote: "Coordinated HVAC returns with the ceiling grid on A-201.",
-    revisionCount: 2,
-    changeSummary: "Final coordination pass; HVAC ceiling returns aligned to grid.",
     drawings: [
       {
         id: "101",
@@ -142,8 +140,6 @@ const VERSIONS: DesignVersion[] = [
     updatedAt: T("2026-07-01T16:45:00Z"),
     publishedAt: null,
     latestNote: "Owner asked for a larger pickup counter and softer banquette.",
-    revisionCount: 1,
-    changeSummary: null,
     drawings: [
       {
         id: "110",
@@ -226,8 +222,6 @@ const VERSIONS: DesignVersion[] = [
     updatedAt: T("2026-06-25T09:20:00Z"),
     publishedAt: null,
     latestNote: "Awaiting HVAC contractor input on the pickup ceiling return.",
-    revisionCount: 0,
-    changeSummary: "Rerouted supply ducts to clear the pickup counter clearance zone.",
     drawings: [
       {
         id: "120",
@@ -296,8 +290,6 @@ const VERSIONS: DesignVersion[] = [
     updatedAt: T("2026-06-14T17:00:00Z"),
     publishedAt: null,
     latestNote: null,
-    revisionCount: 0,
-    changeSummary: "Initial schematic pass with the new banquette layout.",
     drawings: [
       {
         id: "130",
@@ -354,8 +346,6 @@ const VERSIONS: DesignVersion[] = [
     updatedAt: T("2026-06-07T11:30:00Z"),
     publishedAt: null,
     latestNote: null,
-    revisionCount: 0,
-    changeSummary: null,
     drawings: [
       {
         id: "140",

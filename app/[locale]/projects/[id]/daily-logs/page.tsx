@@ -63,7 +63,6 @@ import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { uploadFileApi } from "@/lib/http/file-upload-api";
 import { proxiedImageSrc } from "@/lib/image-proxy";
 import { notifyError } from "@/lib/notify";
-import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 /**
  * The provider's daily site report.
@@ -150,7 +149,7 @@ export default function ProviderDailyLogsPage() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <SheetTitle sheet={SHEET.dailyLogs}>{t("title")}</SheetTitle>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
             {t("subtitleProvider")}
           </p>
@@ -171,7 +170,7 @@ export default function ProviderDailyLogsPage() {
       {/* Reading survives handover; writing does not. Saying so beats leaving
           the page looking broken to a provider whose work has been accepted. */}
       {!canWrite ? (
-        <p className="rounded-md bg-foreground/5 p-3 text-sm text-muted-foreground">
+        <p className="rounded-md border border-border/70 bg-muted/40 p-3 text-sm text-muted-foreground">
           {t("readOnlyNotice")}
         </p>
       ) : null}

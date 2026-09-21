@@ -119,7 +119,7 @@ export function ChecklistDialog({
         {!isLoading && !isError && (
           <div
             className={cn(
-              "rounded-md px-3 py-2 text-sm bg-foreground/5",
+              "rounded-md border px-3 py-2 text-sm",
               progress.requiredTotal === 0 && "border-border text-muted-foreground",
               progress.requiredTotal > 0 &&
                 progress.isSatisfied &&
@@ -257,7 +257,7 @@ function ChecklistRow({
   const Icon = style.icon;
 
   return (
-    <li className="flex items-start gap-3 rounded-md px-3 py-2 bg-foreground/5">
+    <li className="flex items-start gap-3 rounded-md border px-3 py-2">
       <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", style.className)} />
 
       <div className="min-w-0 flex-1">
@@ -265,7 +265,7 @@ function ChecklistRow({
           <span className="text-sm font-medium">{item.name}</span>
           <span
             className={cn(
-              "rounded px-1.5 py-0.5 text-2xs",
+              "rounded px-1.5 py-0.5 text-[12px]",
               item.isRequired
                 ? "bg-muted text-foreground"
                 : "text-muted-foreground",
@@ -273,7 +273,7 @@ function ChecklistRow({
           >
             {item.isRequired ? t("required") : t("optional")}
           </span>
-          <span className={cn("text-xs", style.className)}>
+          <span className={cn("text-[12px]", style.className)}>
             {t(`status.${item.status}`)}
           </span>
         </div>
@@ -291,7 +291,7 @@ function ChecklistRow({
         )}
 
         {item.checkedAt && (
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-[12px] text-muted-foreground">
             {t("checkedAt", {
               date: format.dateTime(new Date(item.checkedAt), {
                 dateStyle: "medium",

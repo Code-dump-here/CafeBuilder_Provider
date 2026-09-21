@@ -39,7 +39,6 @@ import type { Survey } from "@/features/projects/survey-types";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
-import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -153,7 +152,7 @@ export default function SurveyPage() {
   if (anchor === null) {
     return (
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card/40 px-6 py-16 text-center">
           <div className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
             <FileText className="size-5" aria-hidden />
           </div>
@@ -191,7 +190,9 @@ export default function SurveyPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <SheetTitle sheet={SHEET.survey}>{t("title")}</SheetTitle>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("title")}
+          </h1>
           <p className="text-sm text-muted-foreground">
             {t("subtitle")}
           </p>
@@ -228,7 +229,7 @@ export default function SurveyPage() {
           {surveys.length > 1 && (
             <Card className="border-border/60">
               <CardHeader>
-                <CardTitle>
+                <CardTitle className="text-base">
                   {t("previousSurveys")}
                 </CardTitle>
                 <CardDescription>
@@ -262,7 +263,7 @@ export default function SurveyPage() {
       {isFetching && !isLoadingSurveys && (
         <p
           aria-live="polite"
-          className="flex items-center justify-center gap-2 text-center text-2xs uppercase tracking-wider text-muted-foreground"
+          className="flex items-center justify-center gap-2 text-center text-[11px] uppercase tracking-wider text-muted-foreground"
         >
           <Loader2 className="size-3 animate-spin" aria-hidden />
           {t("refreshing")}
@@ -309,11 +310,11 @@ function SurveyCard({ survey, isLatest, onEdit, canEdit }: SurveyCardProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CardTitle>
+            <CardTitle className="text-base">
               {t("surveyLabel")}
             </CardTitle>
             {isLatest && (
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-2xs font-medium text-primary">
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
                 {t("latest")}
               </span>
             )}
@@ -520,7 +521,7 @@ function SurveyDialog({
             />
             <p
               id="survey-surveyed-on-hint"
-              className="text-xs text-muted-foreground"
+              className="text-[12px] text-muted-foreground"
             >
               {t("surveyedOnHint")}
             </p>
@@ -546,7 +547,7 @@ function SurveyDialog({
             />
             <p
               id="survey-condition-note-hint"
-              className="text-xs text-muted-foreground"
+              className="text-[12px] text-muted-foreground"
             >
               {isValid
                 ? t("conditionNoteHint")
@@ -615,7 +616,7 @@ function SurveyDialog({
                 )}
               </div>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[12px] text-muted-foreground">
               {t("reportFileHint")}
             </p>
           </div>

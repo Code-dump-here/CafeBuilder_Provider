@@ -68,7 +68,6 @@ import {
   type SiteOpening,
   type SiteOpeningType,
 } from "@/features/projects/site-profile-types";
-import { SHEET, SheetTitle } from "@/components/drawing-set/sheet-title";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -148,7 +147,7 @@ export default function SiteProfilePage() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <SheetTitle sheet={SHEET.siteProfile}>{t("title")}</SheetTitle>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </header>
 
@@ -238,7 +237,7 @@ function MeasurementsCard({
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base">
             <Ruler className="size-4 text-primary" aria-hidden />
             {t("measurements.title")}
           </CardTitle>
@@ -394,7 +393,7 @@ function Fact({
         {label}
       </p>
       <p className="text-sm font-medium text-foreground">{value}</p>
-      {hint ? <p className="text-xs text-muted-foreground/80">{hint}</p> : null}
+      {hint ? <p className="text-[12px] text-muted-foreground/80">{hint}</p> : null}
     </div>
   );
 }
@@ -583,7 +582,7 @@ function NumberField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="text-[12px] text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }
@@ -611,7 +610,7 @@ function FloorsCard({
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base">
             <Layers className="size-4 text-primary" aria-hidden />
             {t("floors.title")}
           </CardTitle>
@@ -627,14 +626,14 @@ function FloorsCard({
 
       <CardContent className="flex flex-col gap-2 p-4 pt-0">
         {profile.floors.length === 0 ? (
-          <p className="px-4 py-6 text-center text-sm text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground">
             {t("floors.empty")}
           </p>
         ) : (
           profile.floors.map((floor) => (
             <div
               key={floor.id}
-              className="flex items-start justify-between gap-4 rounded-lg px-3 py-2 bg-foreground/5"
+              className="flex items-start justify-between gap-4 rounded-lg border border-border/60 px-3 py-2"
             >
               <div className="flex min-w-0 flex-col gap-0.5">
                 <p className="flex items-center gap-2 text-sm font-medium">
@@ -852,7 +851,7 @@ function OpeningsCard({
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base">
             <DoorOpen className="size-4 text-primary" aria-hidden />
             {t("openings.title")}
           </CardTitle>
@@ -868,14 +867,14 @@ function OpeningsCard({
 
       <CardContent className="flex flex-col gap-2 p-4 pt-0">
         {profile.openings.length === 0 ? (
-          <p className="px-4 py-6 text-center text-sm text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground">
             {t("openings.empty")}
           </p>
         ) : (
           profile.openings.map((opening) => (
             <div
               key={opening.id}
-              className="flex items-start justify-between gap-4 rounded-lg px-3 py-2 bg-foreground/5"
+              className="flex items-start justify-between gap-4 rounded-lg border border-border/60 px-3 py-2"
             >
               <div className="flex min-w-0 flex-col gap-0.5">
                 <p className="flex flex-wrap items-center gap-2 text-sm font-medium">

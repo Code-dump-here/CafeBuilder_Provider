@@ -61,20 +61,6 @@ export interface DesignVersion {
   publishedAt: Date | null;
   /** Optional "notes" thread for the row (latest note shown collapsed). */
   latestNote: string | null;
-  /**
-   * Mirrors `Design.revisionCount` from the wire (spec §6.3) — the number
-   * of revision rounds the owner has *requested* on this design. Distinct
-   * from `version`: `revisionCount` only bumps on `request-revision`,
-   * `version` bumps every `start-revision` (including provider-initiated).
-   */
-  revisionCount: number;
-  /**
-   * Mirrors `Design.changeSummary` — provider's note of what changed in
-   * the current working round. Frozen into the next `submitted`/`approved`
-   * snapshot, so the list row shows what was changed in the round *now*
-   * being worked on.
-   */
-  changeSummary: string | null;
   drawings: DesignDrawing[];
 }
 

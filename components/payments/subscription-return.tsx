@@ -57,7 +57,7 @@ export function SubscriptionReturn() {
         <CheckoutShell>
           <div className="flex flex-col gap-3">
             <PendingRow label={t("pending")} />
-            <p className="text-center text-xs leading-relaxed text-muted-foreground">
+            <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
               {t("pendingNote")}
             </p>
           </div>
@@ -117,7 +117,7 @@ export function SubscriptionReturn() {
       <CheckoutShell>
         <div className="flex flex-col gap-3">
           <PendingRow label={t("pending")} />
-          <p className="text-center text-xs leading-relaxed text-muted-foreground">
+          <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
             {t("pendingNote")}
           </p>
         </div>

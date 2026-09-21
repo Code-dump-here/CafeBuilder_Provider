@@ -354,7 +354,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
                   : t("applied.surveyRequired")}
               </span>
             </div>
-            <p className="text-xs leading-relaxed text-warning-muted-foreground/85">
+            <p className="text-[12px] leading-relaxed text-warning-muted-foreground/85">
               {surveyBooked
                 ? t("applied.surveyBookedHint")
                 : t("applied.surveyRequiredHint")}
@@ -381,7 +381,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
               className="size-3.5 shrink-0 text-success"
               aria-hidden
             />
-            <span className="text-xs text-muted-foreground">
+            <span className="text-[12px] text-muted-foreground">
               {t("applied.surveyDone")}
             </span>
           </div>
@@ -452,7 +452,7 @@ export function ProjectApplyCard({ project }: ProjectApplyCardProps) {
         <CardHeader>
           <CardTitle
             id="project-apply-title"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-base"
           >
             <Sparkles className="size-4 text-primary" aria-hidden />
             {t("title")}

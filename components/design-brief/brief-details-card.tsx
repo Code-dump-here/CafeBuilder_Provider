@@ -42,7 +42,7 @@ export function BriefDetailsCard({ brief }: BriefDetailsCardProps) {
   return (
     <Card size="sm" aria-labelledby="brief-details-title" className="border-border/60">
       <CardHeader>
-        <CardTitle id="brief-details-title">
+        <CardTitle id="brief-details-title" className="text-base">
           {t("title")}
         </CardTitle>
         <CardDescription>{t("subtitle")}</CardDescription>
@@ -176,7 +176,7 @@ export function BriefDetailsCard({ brief }: BriefDetailsCardProps) {
                 aria-hidden
               />
               <div className="min-w-0">
-                <p className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                   {t("timeline")}
                 </p>
                 <p className="mt-1 wrap-break-word font-medium">

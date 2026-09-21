@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Logo } from "./logo";
 import { NavMenu } from "./nav-menu";
 import { NavigationSheet } from "./navigation-sheet";
@@ -17,7 +18,9 @@ const Navbar = () => {
       <div className="mx-auto flex h-full max-w-(--breakpoint-xl) items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* ── Left: Logo + Desktop Nav ── */}
         <div className="flex items-center gap-10">
-          <Logo />
+          <Link href="/">
+            <Logo />
+          </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:block">

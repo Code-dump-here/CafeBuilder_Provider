@@ -60,7 +60,7 @@ export function AiRecommendationsList({
         <CardHeader>
           <CardTitle
             id="ai-iterations-title"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-base"
           >
             <Sparkles className="size-4 text-primary" aria-hidden />
             {t("title")}

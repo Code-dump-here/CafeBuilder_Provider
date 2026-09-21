@@ -67,24 +67,6 @@ export interface Design {
   type: DesignType;
   /** Latest revision reason — populated when `status === "revision"`. */
   reason: string | null;
-  /**
-   * Provider-supplied description of what changed in the *current* working
-   * round. Backend only keeps the value of the latest round; the snapshot
-   * taken on submit freezes it into `DesignVersion.ChangeSummary` so the
-   * audit timeline still shows what was changed in past rounds.
-   *
-   * Required by the provider workflow before submitting a revision round —
-   * the owner relies on it to know what was redone. See spec §8.3.
-   */
-  changeSummary: string | null;
-  /**
-   * Number of revision rounds the owner has *requested*. Only increments on
-   * `POST /api/designs/{id}/request-revision` — a provider resubmitting on
-   * their own does NOT bump this. Used together with the engagement's
-   * `freeRevisionCount` (from `RevisionQuota`) to compute whether the next
-   * round costs the owner an extra fee.
-   */
-  revisionCount: number;
   status: DesignStatus;
   createdBy: string;
   createdAt: string;
@@ -124,47 +106,17 @@ export interface CreateDesignPayload {
 /**
  * Request body for `PUT /designs/{id}`.
  * All fields optional — only include what you want to update.
- *
- * `changeSummary` is the provider's note of what changed in the current
- * working round. The backend freezes it into the `submitted`/`approved`
- * snapshot on the next submit, so it MUST be set before the provider
- * hits submit — otherwise the audit history shows no notes for the round
- * even though changes were made (see spec §8.3).
  */
 export interface UpdateDesignPayload {
   title?: string;
   type?: DesignType;
-  changeSummary?: string | null;
 }
 
 /**
  * Request body for `POST /designs/{id}/request-revision` (owner only).
- *
- * `acceptExtraFee` defaults to `false`. Set to `true` ONLY after the owner
- * has been told the next round costs money and has agreed to pay it — the
- * backend returns `409 Conflict` (body carrying `extraFeeAmount`) when the
- * next round exceeds `Quotation.FreeRevisionCount` and the flag is still
- * `false`. See spec §6.8 and §9.3 for the full flow.
  */
 export interface RequestRevisionPayload {
   reason: string;
-  acceptExtraFee?: boolean;
-}
-
-/**
- * Server reply on `POST /api/designs/{id}/request-revision` when the next
- * round would exceed the free-revision quota AND the caller did NOT set
- * `acceptExtraFee: true`. The 409 body has this shape — see spec §9.3
- * (Luồng B).
- *
- * `extraFeeAmount` may be `null` when the provider never published a price
- * for extra rounds — in that case the owner cannot accept the fee and the
- * design stays `submitted`.
- */
-export interface ExtrapRequiredErrorBody {
-  error: "extrap_required";
-  message: string;
-  extraFeeAmount: number | null;
 }
 
 /**

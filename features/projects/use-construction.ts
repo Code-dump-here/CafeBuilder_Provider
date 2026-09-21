@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { AppError } from "@/lib/http/errors";
 import { notifySuccess, notifyError } from "@/lib/notify";
@@ -13,10 +13,9 @@ import {
   reorderConstructionItemsApi,
   setConstructionItemStatusApi,
   deleteConstructionItemApi,
-  getConstructionItemCostSummaryApi,
-  getEngagementCostSummaryApi,
   createConstructionTaskApi,
   getConstructionTasksApi,
+  getConstructionTaskApi,
   updateConstructionTaskApi,
   setConstructionTaskStatusApi,
   deleteConstructionTaskApi,
@@ -35,58 +34,6 @@ import type {
   SetConstructionTaskStatusPayload,
   ConstructionStatus,
 } from "./construction-types";
-import type {
-  ConstructionCostSummary,
-  EngagementCostSummary,
-} from "./cost-summary-types";
-
-// ─── Query keys ───────────────────────────────────────────────────────────────
-
-/**
- * Centralised query keys so cache invalidation can reach every construction
- * query from one mutation handler without re-deriving the tuple shape each
- * time.
- */
-export const constructionQueryKeys = {
-  items: (params: {
-    projectWorkingId: string;
-    parentId?: string | null;
-    status?: ConstructionStatus;
-    pageSize?: number;
-  }) =>
-    [
-      "construction-items",
-      "list",
-      {
-        projectWorkingId: params.projectWorkingId,
-        parentId: params.parentId ?? null,
-        status: params.status ?? null,
-        pageSize: params.pageSize ?? null,
-      },
-    ] as const,
-  item: (id: string) => ["construction-items", "detail", { id }] as const,
-  itemCostSummary: (id: string) =>
-    ["construction-items", "cost-summary", { id }] as const,
-  engagementCostSummary: (projectWorkingId: string) =>
-    ["construction-items", "engagement-cost-summary", { projectWorkingId }] as const,
-  tasks: (params: {
-    constructionItemId?: string;
-    projectWorkingId?: string;
-    status?: ConstructionStatus;
-    pageSize?: number;
-  }) =>
-    [
-      "construction-tasks",
-      "list",
-      {
-        constructionItemId: params.constructionItemId ?? null,
-        projectWorkingId: params.projectWorkingId ?? null,
-        status: params.status ?? null,
-        pageSize: params.pageSize ?? null,
-      },
-    ] as const,
-  task: (id: string) => ["construction-tasks", "detail", { id }] as const,
-} as const;
 
 // ─── Error messages ───────────────────────────────────────────────────────────
 
@@ -158,66 +105,6 @@ const TOAST = {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/**
- * Invalidate every cached view that could be affected by a write to a
- * milestone / task. Centralising the rules here keeps each mutation honest
- * — there is no way to forget a dependent key as long as the caller hands us
- * the ids.
- *
- * Cost summaries are also invalidated: a single edit can change the totals
- * on the parent milestone, on every ancestor, and on the whole engagement.
- */
-function invalidateConstructionQueries(
-  queryClient: ReturnType<typeof useQueryClient>,
-  params: {
-    projectWorkingId?: string | null;
-    itemId?: string | null;
-    taskId?: string | null;
-  },
-): void {
-  const { projectWorkingId, itemId, taskId } = params;
-
-  if (projectWorkingId) {
-    // Every list call (different filters) for this engagement.
-    queryClient.invalidateQueries({
-      queryKey: ["construction-items", "list"],
-      predicate: (q) => {
-        const key = q.queryKey[2] as
-          | { projectWorkingId?: string }
-          | undefined;
-        return key?.projectWorkingId === projectWorkingId;
-      },
-    });
-    queryClient.invalidateQueries({
-      queryKey: ["construction-tasks", "list"],
-      predicate: (q) => {
-        const key = q.queryKey[2] as
-          | { projectWorkingId?: string }
-          | undefined;
-        return key?.projectWorkingId === projectWorkingId;
-      },
-    });
-    queryClient.invalidateQueries({
-      queryKey: constructionQueryKeys.engagementCostSummary(projectWorkingId),
-    });
-  }
-
-  if (itemId) {
-    queryClient.invalidateQueries({
-      queryKey: constructionQueryKeys.item(itemId),
-    });
-    queryClient.invalidateQueries({
-      queryKey: constructionQueryKeys.itemCostSummary(itemId),
-    });
-  }
-
-  if (taskId) {
-    queryClient.invalidateQueries({
-      queryKey: constructionQueryKeys.task(taskId),
-    });
-  }
-}
-
 function resolveErrorMessage(error: AppError): string {
   if (error.isNetworkError) return TOAST.network;
   if (error.isTimeout) return TOAST.timeout;
@@ -273,12 +160,7 @@ export function useConstructionItems(
   const { projectWorkingId, parentId, status, enabled = true, pageSize } = options;
 
   const query = useQuery<ConstructionItemListResponse, Error>({
-    queryKey: constructionQueryKeys.items({
-      projectWorkingId,
-      parentId,
-      status,
-      pageSize,
-    }),
+    queryKey: ["construction-items", { projectWorkingId, status, pageSize }],
     queryFn: async ({ signal }) =>
       getConstructionItemsApi(
         projectWorkingId,
@@ -289,10 +171,7 @@ export function useConstructionItems(
     staleTime: 30 * 1000,
   });
 
-  const items = React.useMemo(
-    () => query.data?.items ?? [],
-    [query.data?.items],
-  );
+  const items = query.data?.items ?? [];
 
   // Separate top-level milestones from sub-milestones, in schedule order
   const topLevelItems = React.useMemo(
@@ -349,7 +228,7 @@ export function useConstructionItem(
   const { id, enabled = true } = options;
 
   const query = useQuery<ConstructionItem, Error>({
-    queryKey: constructionQueryKeys.item(id),
+    queryKey: ["construction-items", "detail", { id }],
     queryFn: async ({ signal }) => getConstructionItemApi(id, { signal }),
     enabled: enabled && Boolean(id),
     staleTime: 30 * 1000,
@@ -357,95 +236,6 @@ export function useConstructionItem(
 
   return {
     item: query.data ?? null,
-    isLoading: query.isLoading,
-    isFetching: query.isFetching,
-    isError: query.isError,
-    error: query.error,
-    refetch: query.refetch,
-  };
-}
-
-// ─── Cost summary (single milestone) ──────────────────────────────────────────
-
-export interface UseConstructionItemCostSummaryOptions {
-  itemId: string;
-  enabled?: boolean;
-}
-
-export interface UseConstructionItemCostSummaryResult {
-  summary: ConstructionCostSummary | null;
-  isLoading: boolean;
-  isFetching: boolean;
-  isError: boolean;
-  error: Error | null;
-  refetch: () => Promise<unknown>;
-}
-
-/**
- * Cost roll-up for a single milestone (own labor + tasks + materials, plus
- * a recursive `children` tree). See `cost-summary-types.ts` for the
- * `null vs 0` rules — a `null` here means "not all actuals are in yet",
- * which is a state the UI must surface rather than hide.
- */
-export function useConstructionItemCostSummary(
-  options: UseConstructionItemCostSummaryOptions,
-): UseConstructionItemCostSummaryResult {
-  const { itemId, enabled = true } = options;
-
-  const query = useQuery<ConstructionCostSummary, Error>({
-    queryKey: constructionQueryKeys.itemCostSummary(itemId),
-    queryFn: async ({ signal }) =>
-      getConstructionItemCostSummaryApi(itemId, { signal }),
-    enabled: enabled && Boolean(itemId),
-    staleTime: 30 * 1000,
-  });
-
-  return {
-    summary: query.data ?? null,
-    isLoading: query.isLoading,
-    isFetching: query.isFetching,
-    isError: query.isError,
-    error: query.error,
-    refetch: query.refetch,
-  };
-}
-
-// ─── Cost summary (whole engagement) ──────────────────────────────────────────
-
-export interface UseEngagementCostSummaryOptions {
-  projectWorkingId: string;
-  enabled?: boolean;
-}
-
-export interface UseEngagementCostSummaryResult {
-  summary: EngagementCostSummary | null;
-  isLoading: boolean;
-  isFetching: boolean;
-  isError: boolean;
-  error: Error | null;
-  refetch: () => Promise<unknown>;
-}
-
-/**
- * Engagement-wide roll-up: every root milestone + change-order amounts.
- * `enabled` defaults to `true` when an id is provided; pass `enabled: false`
- * to defer the request (e.g. while a parent engagement is still resolving).
- */
-export function useEngagementCostSummary(
-  options: UseEngagementCostSummaryOptions,
-): UseEngagementCostSummaryResult {
-  const { projectWorkingId, enabled = true } = options;
-
-  const query = useQuery<EngagementCostSummary, Error>({
-    queryKey: constructionQueryKeys.engagementCostSummary(projectWorkingId),
-    queryFn: async ({ signal }) =>
-      getEngagementCostSummaryApi(projectWorkingId, { signal }),
-    enabled: enabled && Boolean(projectWorkingId),
-    staleTime: 30 * 1000,
-  });
-
-  return {
-    summary: query.data ?? null,
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     isError: query.isError,
@@ -494,12 +284,10 @@ export function useConstructionTasks(
     // `projectWorkingId` has to be part of the key: it changes the response,
     // so leaving it out would serve one project's tasks from cache while
     // viewing another.
-    queryKey: constructionQueryKeys.tasks({
-      constructionItemId,
-      projectWorkingId,
-      status,
-      pageSize,
-    }),
+    queryKey: [
+      "construction-tasks",
+      { constructionItemId, projectWorkingId, status, pageSize },
+    ],
     queryFn: async ({ signal }) =>
       getConstructionTasksApi(
         {
@@ -541,15 +329,10 @@ export interface UseCreateConstructionItemOptions {
 export function useCreateConstructionItemMutation(
   options: UseCreateConstructionItemOptions = {},
 ) {
-  const queryClient = useQueryClient();
   return useMutation<ConstructionItem, AppError, CreateConstructionItemPayload>({
     mutationFn: (payload) => createConstructionItemApi(payload),
 
     onSuccess: (item) => {
-      invalidateConstructionQueries(queryClient, {
-        projectWorkingId: item.projectWorkingId,
-        itemId: item.parentId,
-      });
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.createSuccess;
         notifySuccess(message);
@@ -582,7 +365,6 @@ export interface UseUpdateConstructionItemOptions {
 export function useUpdateConstructionItemMutation(
   options: UseUpdateConstructionItemOptions = {},
 ) {
-  const queryClient = useQueryClient();
   return useMutation<
     ConstructionItem,
     AppError,
@@ -591,11 +373,6 @@ export function useUpdateConstructionItemMutation(
     mutationFn: ({ id, payload }) => updateConstructionItemApi(id, payload),
 
     onSuccess: (item) => {
-      invalidateConstructionQueries(queryClient, {
-        projectWorkingId: item.projectWorkingId,
-        itemId: item.id,
-        taskId: null,
-      });
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.updateSuccess;
         notifySuccess(message);
@@ -635,14 +412,10 @@ export interface UseReorderConstructionItemsOptions {
 export function useReorderConstructionItemsMutation(
   options: UseReorderConstructionItemsOptions = {},
 ) {
-  const queryClient = useQueryClient();
   return useMutation<ConstructionItem[], AppError, ReorderConstructionItemsPayload>({
     mutationFn: (payload) => reorderConstructionItemsApi(payload),
 
-    onSuccess: (items, variables) => {
-      invalidateConstructionQueries(queryClient, {
-        projectWorkingId: variables.projectWorkingId,
-      });
+    onSuccess: (items) => {
       if (options.onSuccessMessage) {
         notifySuccess(options.onSuccessMessage);
       }
@@ -674,7 +447,6 @@ export interface UseSetConstructionItemStatusOptions {
 export function useSetConstructionItemStatusMutation(
   options: UseSetConstructionItemStatusOptions = {},
 ) {
-  const queryClient = useQueryClient();
   return useMutation<
     ConstructionItem,
     AppError,
@@ -683,10 +455,6 @@ export function useSetConstructionItemStatusMutation(
     mutationFn: ({ id, payload }) => setConstructionItemStatusApi(id, payload),
 
     onSuccess: (item) => {
-      invalidateConstructionQueries(queryClient, {
-        projectWorkingId: item.projectWorkingId,
-        itemId: item.id,
-      });
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.statusSuccess;
         notifySuccess(message);
@@ -719,19 +487,10 @@ export interface UseDeleteConstructionItemOptions {
 export function useDeleteConstructionItemMutation(
   options: UseDeleteConstructionItemOptions = {},
 ) {
-  const queryClient = useQueryClient();
-  return useMutation<
-    void,
-    AppError,
-    { id: string; projectWorkingId: string }
-  >({
-    mutationFn: ({ id }) => deleteConstructionItemApi(id),
+  return useMutation<void, AppError, string>({
+    mutationFn: (id) => deleteConstructionItemApi(id),
 
-    onSuccess: (_void, variables) => {
-      invalidateConstructionQueries(queryClient, {
-        projectWorkingId: variables.projectWorkingId,
-        itemId: variables.id,
-      });
+    onSuccess: () => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.deleteSuccess;
         notifySuccess(message);
@@ -764,23 +523,10 @@ export interface UseCreateConstructionTaskOptions {
 export function useCreateConstructionTaskMutation(
   options: UseCreateConstructionTaskOptions = {},
 ) {
-  const queryClient = useQueryClient();
-  return useMutation<
-    ConstructionTask,
-    AppError,
-    CreateConstructionTaskPayload & { projectWorkingId: string }
-  >({
-    mutationFn: (input) => {
-      const { projectWorkingId: _ignore, ...payload } = input;
-      void _ignore;
-      return createConstructionTaskApi(payload);
-    },
+  return useMutation<ConstructionTask, AppError, CreateConstructionTaskPayload>({
+    mutationFn: (payload) => createConstructionTaskApi(payload),
 
-    onSuccess: (task, variables) => {
-      invalidateConstructionQueries(queryClient, {
-        projectWorkingId: variables.projectWorkingId,
-        itemId: task.constructionItemId,
-      });
+    onSuccess: (task) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.createTaskSuccess;
         notifySuccess(message);
@@ -813,24 +559,14 @@ export interface UseUpdateConstructionTaskOptions {
 export function useUpdateConstructionTaskMutation(
   options: UseUpdateConstructionTaskOptions = {},
 ) {
-  const queryClient = useQueryClient();
   return useMutation<
     ConstructionTask,
     AppError,
-    {
-      id: string;
-      payload: UpdateConstructionTaskPayload;
-      projectWorkingId: string;
-    }
+    { id: string; payload: UpdateConstructionTaskPayload }
   >({
     mutationFn: ({ id, payload }) => updateConstructionTaskApi(id, payload),
 
-    onSuccess: (task, variables) => {
-      invalidateConstructionQueries(queryClient, {
-        projectWorkingId: variables.projectWorkingId,
-        itemId: task.constructionItemId,
-        taskId: task.id,
-      });
+    onSuccess: (task) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.updateTaskSuccess;
         notifySuccess(message);
@@ -863,24 +599,14 @@ export interface UseSetConstructionTaskStatusOptions {
 export function useSetConstructionTaskStatusMutation(
   options: UseSetConstructionTaskStatusOptions = {},
 ) {
-  const queryClient = useQueryClient();
   return useMutation<
     ConstructionTask,
     AppError,
-    {
-      id: string;
-      payload: SetConstructionTaskStatusPayload;
-      projectWorkingId: string;
-    }
+    { id: string; payload: SetConstructionTaskStatusPayload }
   >({
     mutationFn: ({ id, payload }) => setConstructionTaskStatusApi(id, payload),
 
-    onSuccess: (task, variables) => {
-      invalidateConstructionQueries(queryClient, {
-        projectWorkingId: variables.projectWorkingId,
-        itemId: task.constructionItemId,
-        taskId: task.id,
-      });
+    onSuccess: (task) => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.statusSuccess;
         notifySuccess(message);
@@ -913,24 +639,10 @@ export interface UseDeleteConstructionTaskOptions {
 export function useDeleteConstructionTaskMutation(
   options: UseDeleteConstructionTaskOptions = {},
 ) {
-  const queryClient = useQueryClient();
-  return useMutation<
-    void,
-    AppError,
-    {
-      id: string;
-      projectWorkingId: string;
-      constructionItemId: string;
-    }
-  >({
-    mutationFn: ({ id }) => deleteConstructionTaskApi(id),
+  return useMutation<void, AppError, string>({
+    mutationFn: (id) => deleteConstructionTaskApi(id),
 
-    onSuccess: (_void, variables) => {
-      invalidateConstructionQueries(queryClient, {
-        projectWorkingId: variables.projectWorkingId,
-        itemId: variables.constructionItemId,
-        taskId: variables.id,
-      });
+    onSuccess: () => {
       if (options.onSuccessMessage !== null) {
         const message = options.onSuccessMessage ?? TOAST.deleteTaskSuccess;
         notifySuccess(message);

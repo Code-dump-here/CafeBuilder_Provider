@@ -14,68 +14,45 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field } from "@/components/ui/field";
 
-import type {
-  ConstructionItem,
-  UpdateConstructionItemPayload,
-} from "@/features/projects/construction-types";
+import type { MilestonePhase } from "@/lib/contractor/construction-overview-data";
 import { todayDateInputValue } from "@/lib/date-input";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { Field } from "@/components/ui/field";
 
+export interface PhaseEditInput {
+  label: string;
+  lead: string;
+  targetDate: string;
+}
+
+/** Minimal phase data needed by the dialog */
 export interface PhaseEditTarget {
   id: string;
-  name: string;
-  category: string | null;
-  description: string | null;
-  startAt: string | null;
-  estimateAt: string | null;
-  actualStartAt: string | null;
-  actualAt: string | null;
-  estimatedLaborCost: number | null;
-  actualLaborCost: number | null;
+  label: string;
+  shortLabel?: string;
+  lead?: string;
+  status?: string;
+  targetDate?: string;
 }
 
 interface PhaseEditDialogProps {
-  phase: PhaseItemLike | null;
+  phase: PhaseEditTarget | null;
   /** Distinguishes the "rename" variant from the "edit meta" variant. */
   mode: "rename" | "editMeta";
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /**
-   * `rename` mode submits a name-only patch.
-   * `editMeta` mode submits the full editable payload (dates + labour).
-   */
-  onSubmit: (input: UpdateConstructionItemPayload) => void;
+  onSubmit: (input: PhaseEditInput) => void;
 }
 
 /**
- * Anything shaped like `ConstructionItem` is acceptable — we only read the
- * fields shown in the form. The page wires this with its full `ConstructionItem`
- * so the dialog can also work as a top-level "edit phase" entry point.
- */
-export type PhaseItemLike = Pick<
-  ConstructionItem,
-  | "id"
-  | "name"
-  | "category"
-  | "description"
-  | "startAt"
-  | "estimateAt"
-  | "actualStartAt"
-  | "actualAt"
-  | "estimatedLaborCost"
-  | "actualLaborCost"
->;
-
-/**
- * Modal dialog for editing a phase. Two variants share the same shell —
- * "rename" exposes only the name field; "editMeta" exposes the rest
- * (description, category, dates, labour cost).
+ * Modal dialog for editing a phase. Two variants share the same dialog
+ * shell — "rename" exposes only the label field; "editMeta" exposes
+ * lead + target date.
  *
- * Status transitions are intentionally NOT here — they live in the row
- * header (the dedicated `/status` endpoint) so the two paths can't
- * drift.
+ * The Input row uses native `<input type="date">` for the target date
+ * to keep the dep list short; the rest of the UI uses our standard
+ * design-system primitives.
  */
 export function PhaseEditDialog({
   phase,
@@ -86,189 +63,74 @@ export function PhaseEditDialog({
 }: PhaseEditDialogProps) {
   const tPhase = useTranslations("MilestoneManagement.phase");
   const tCommon = useTranslations("MilestoneManagement.common");
-  const tShared = useTranslations("ConstructionShared");
 
-  const [name, setName] = React.useState("");
-  const [category, setCategory] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [startAt, setStartAt] = React.useState("");
-  const [estimateAt, setEstimateAt] = React.useState("");
-  const [actualStartAt, setActualStartAt] = React.useState("");
-  const [actualAt, setActualAt] = React.useState("");
-  const [estimatedLaborCostText, setEstimatedLaborCostText] = React.useState("");
-  const [actualLaborCostText, setActualLaborCostText] = React.useState("");
-  const [estimateAtError, setEstimateAtError] = React.useState<string | null>(
-    null,
-  );
+  const [label, setLabel] = React.useState("");
+  const [lead, setLead] = React.useState("");
+  const [targetDate, setTargetDate] = React.useState("");
 
   // Sync local form state with the phase under edit whenever the
   // dialog re-opens for a different phase (or the same one).
-  useResetOnChange(`${phase?.id ?? ""}:${mode}:${open}`, () => {
+  useResetOnChange(`${phase?.id ?? ""}:${open}`, () => {
     if (!phase) return;
-    setName(phase.name);
-    setCategory(phase.category ?? "");
-    setDescription(phase.description ?? "");
-    setStartAt(toDateInput(phase.startAt));
-    setEstimateAt(toDateInput(phase.estimateAt));
-    setActualStartAt(toDateInput(phase.actualStartAt));
-    setActualAt(toDateInput(phase.actualAt));
-    setEstimatedLaborCostText(
-      phase.estimatedLaborCost != null ? String(phase.estimatedLaborCost) : "",
-    );
-    setActualLaborCostText(
-      phase.actualLaborCost != null ? String(phase.actualLaborCost) : "",
-    );
-    setEstimateAtError(null);
+    setLabel(phase.label);
+    setLead(phase.lead ?? "");
+    // ISO → yyyy-MM-dd for native date input.
+    setTargetDate(toDateInput(phase.targetDate ?? ""));
   });
 
   if (!phase) return null;
 
   const isRename = mode === "rename";
 
-  const handleEstimateAtChange = (value: string) => {
-    setEstimateAt(value);
-    if (value && value < todayDateInputValue()) {
-      setEstimateAtError(tShared("validation.estimateAtPast"));
-    } else {
-      setEstimateAtError(null);
-    }
-  };
-
-  const parseCost = (raw: string): number | undefined => {
-    const trimmed = raw.trim();
-    if (!trimmed) return undefined;
-    const parsed = Number(trimmed.replace(/[\s.,]/g, ""));
-    return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isRename) {
-      onSubmit({ name: name.trim() });
-    } else {
-      // Re-check at submit time — same fail-fast policy as add-phase.
-      if (estimateAt && estimateAt < todayDateInputValue()) {
-        setEstimateAtError(tShared("validation.estimateAtPast"));
-        return;
-      }
-      const payload: UpdateConstructionItemPayload = {
-        description: description.trim() || undefined,
-        category: category.trim() || undefined,
-        startAt: startAt || undefined,
-        estimateAt: estimateAt || undefined,
-        actualStartAt: actualStartAt || undefined,
-        actualAt: actualAt || undefined,
-        estimatedLaborCost: parseCost(estimatedLaborCostText),
-        actualLaborCost: parseCost(actualLaborCostText),
-      };
-      onSubmit(payload);
-    }
+    onSubmit({
+      label: isRename ? label.trim() : (phase.label || label.trim()),
+      lead: lead.trim(),
+      targetDate: targetDate ? new Date(targetDate).toISOString() : (phase.targetDate ?? ""),
+    });
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
             {isRename ? tPhase("renameTitle") : tPhase("editMetaTitle")}
           </DialogTitle>
-          <DialogDescription>{phase.name}</DialogDescription>
+          <DialogDescription>{phase.shortLabel ?? phase.label}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           {isRename ? (
             <Field label={tPhase("renameLabel")}>
               <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
                 autoFocus
                 required
               />
             </Field>
           ) : (
             <>
-              <Field label={tPhase("category")}>
+              <Field label={tPhase("lead")}>
                 <Input
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  placeholder={tPhase("categoryPlaceholder")}
+                  value={lead}
+                  onChange={(e) => setLead(e.target.value)}
+                  placeholder={tPhase("leadPlaceholder")}
+                  required
                 />
               </Field>
-              <Field label={tPhase("description")}>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder={tPhase("descriptionPlaceholder")}
-                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  rows={3}
+              <Field label={tPhase("targetDate")}>
+                <Input
+                  type="date"
+                  value={targetDate}
+                  onChange={(e) => setTargetDate(e.target.value)}
+                  min={todayDateInputValue()}
+                  required
                 />
               </Field>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label={tPhase("startDate")}>
-                  <Input
-                    type="date"
-                    value={startAt}
-                    onChange={(e) => setStartAt(e.target.value)}
-                  />
-                </Field>
-                <Field
-                  label={tPhase("targetDate")}
-                  error={estimateAtError ?? undefined}
-                >
-                  <Input
-                    type="date"
-                    value={estimateAt}
-                    onChange={(e) => handleEstimateAtChange(e.target.value)}
-                    min={todayDateInputValue()}
-                  />
-                </Field>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label={tPhase("actualStart")}>
-                  <Input
-                    type="date"
-                    value={actualStartAt}
-                    onChange={(e) => setActualStartAt(e.target.value)}
-                  />
-                </Field>
-                <Field label={tPhase("actualAt")}>
-                  <Input
-                    type="date"
-                    value={actualAt}
-                    onChange={(e) => setActualAt(e.target.value)}
-                  />
-                </Field>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Field
-                  label={tPhase("estimatedLaborCost")}
-                  hint={tPhase("estimatedLaborCostHint")}
-                >
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    step={1000}
-                    value={estimatedLaborCostText}
-                    onChange={(e) =>
-                      setEstimatedLaborCostText(e.target.value)
-                    }
-                    placeholder="0"
-                  />
-                </Field>
-                <Field label={tPhase("actualLaborCost")}>
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    step={1000}
-                    value={actualLaborCostText}
-                    onChange={(e) => setActualLaborCostText(e.target.value)}
-                    placeholder="0"
-                  />
-                </Field>
-              </div>
             </>
           )}
 
@@ -278,11 +140,7 @@ export function PhaseEditDialog({
                 {tCommon("cancel")}
               </Button>
             </DialogClose>
-            <Button
-              type="submit"
-              size="sm"
-              disabled={!name.trim() && isRename}
-            >
+            <Button type="submit" size="sm" disabled={!label.trim() && isRename}>
               {tCommon("save")}
             </Button>
           </DialogFooter>
@@ -292,8 +150,7 @@ export function PhaseEditDialog({
   );
 }
 
-function toDateInput(iso: string | null): string {
-  if (!iso) return "";
+function toDateInput(iso: string): string {
   try {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return "";

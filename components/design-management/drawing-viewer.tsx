@@ -89,7 +89,7 @@ export function DrawingViewer({
 
   if (!drawing) {
     return (
-      <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-muted-foreground">
+      <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/20 p-8 text-center text-sm text-muted-foreground">
         {t("viewer.empty")}
       </div>
     );
@@ -98,7 +98,7 @@ export function DrawingViewer({
   return (
     <article className="flex h-full flex-col gap-3 overflow-hidden rounded-xl border border-border/60 bg-card">
       {/* Breadcrumb row */}
-      <header className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2.5 text-xs text-muted-foreground">
+      <header className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2.5 text-[12px] text-muted-foreground">
         <span className="font-mono font-semibold text-foreground">
           {drawing.code}
         </span>
@@ -237,7 +237,7 @@ export function DrawingViewer({
             <ChevronLeft aria-hidden />
             {t("viewer.prev")}
           </Button>
-          <span className="rounded border border-border/60 px-2 py-0.5 font-mono text-2xs text-muted-foreground">
+          <span className="rounded border border-border/60 px-2 py-0.5 font-mono text-[12px] text-muted-foreground">
             {currentIndex + 1} / {drawings.length}
           </span>
           <Button

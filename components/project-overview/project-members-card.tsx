@@ -26,7 +26,6 @@ import {
   type ProjectProviderCapability,
   type ProjectProviderStatus,
 } from "@/features/projects/project-detail-types";
-import { Stamp, type StampTone } from "@/components/drawing-set/stamp";
 
 // ---------------------------------------------------------------------------
 // Colour palette — deterministic per provider so each row stays distinct
@@ -111,7 +110,7 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
         <CardHeader>
           <CardTitle
             id="project-members-title"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-base"
           >
             <Users className="size-4 text-primary" aria-hidden />
             {t("title")}
@@ -169,7 +168,7 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
       <CardHeader>
         <CardTitle
           id="project-members-title"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 text-base"
         >
           <Users className="size-4 text-primary" aria-hidden />
           {t("title")}
@@ -212,7 +211,7 @@ export function ProjectMembersCard({ project }: ProjectMembersCardProps) {
                       />
                     ) : null}
                   </div>
-                  <p className="truncate text-xs text-muted-foreground">
+                  <p className="truncate text-[12px] text-muted-foreground">
                     {subtitle}
                     {joinedLabel ? (
                       <>
@@ -265,7 +264,7 @@ function CapabilityBadge({
   return (
     <span
       className={
-        "shrink-0 rounded-full border px-1.5 py-0.5 text-2xs font-medium uppercase tracking-wide " +
+        "shrink-0 rounded-full border px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide " +
         CAPABILITY_TONE[capability]
       }
     >
@@ -281,9 +280,14 @@ function StatusBadge({
 }) {
   const t = useTranslations("ProjectsOverview.members.providerStatus");
   return (
-    <Stamp size="sm" tone={STATUS_TONE[status]} seed={status}>
+    <span
+      className={
+        "shrink-0 rounded-full border px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide " +
+        STATUS_TONE[status]
+      }
+    >
       {t(status)}
-    </Stamp>
+    </span>
   );
 }
 
@@ -305,12 +309,15 @@ const CAPABILITY_TONE: Record<ProjectProviderCapability, string> = {
 };
 
 /** Tone class per status — survives dark mode via paired CSS vars. */
-const STATUS_TONE: Record<ProjectProviderStatus, StampTone> = {
-  accepted: "success",
-  requested: "warning",
-  completed: "info",
-  rejected: "danger",
-  terminated: "neutral",
+const STATUS_TONE: Record<ProjectProviderStatus, string> = {
+  accepted:
+    "bg-success/10 text-success-muted-foreground border-success/30",
+  requested:
+    "bg-warning/10 text-warning-muted-foreground border-warning/30",
+  completed:
+    "bg-info/10 text-info-muted-foreground border-info/30",
+  rejected: "bg-destructive/10 text-destructive border-destructive/30",
+  terminated: "bg-muted text-muted-foreground border-border/60",
 };
 
 function RatingChip({ rating }: { rating: number }) {
@@ -319,7 +326,7 @@ function RatingChip({ rating }: { rating: number }) {
   const clamped = Math.max(0, Math.min(5, rating));
   const rounded = Math.round(clamped * 10) / 10;
   return (
-    <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-muted px-1.5 py-0.5 text-2xs font-medium text-foreground">
+    <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-foreground">
       <Star
         className="size-2.5 fill-rating text-rating"
         aria-hidden
