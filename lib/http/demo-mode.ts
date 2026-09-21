@@ -84,14 +84,16 @@ const GOC_SAN_PROJECT_ID = "99999999-9999-4999-8999-999999999999";
  * - `designer` / `contractor` — single-capability provider and job
  * - `guest` — no session, so login and sign-up render as for a visitor
  * - `onboarding` — signed in, profile not created yet (sent to onboarding)
+ * - `admin` — platform administrator, the only persona `AdminGuard` lets into
+ *   the `/admin` console
  */
-type DemoPersona = "both" | "designer" | "contractor" | "guest" | "onboarding";
+type DemoPersona = "both" | "designer" | "contractor" | "guest" | "onboarding" | "admin";
 
 const PERSONA: DemoPersona = (() => {
   if (typeof window === "undefined") return "both";
   try {
     const value = window.localStorage.getItem("demo.persona");
-    const known: DemoPersona[] = ["both", "designer", "contractor", "guest", "onboarding"];
+    const known: DemoPersona[] = ["both", "designer", "contractor", "guest", "onboarding", "admin"];
     return known.includes(value as DemoPersona) ? (value as DemoPersona) : "both";
   } catch {
     return "both";
@@ -120,15 +122,16 @@ const CONTRACT_TYPE =
 
 const DEMO_ACCOUNT = {
   id: "00000000-0000-4000-8000-000000000001",
-  email: "lienhe@xuongmocbinhminh.vn",
+  email: PERSONA === "admin" ? "quantri@smartcafebuilder.vn" : "lienhe@xuongmocbinhminh.vn",
   phone: "0908 123 456",
-  role: "provider",
+  // `AdminGuard` reads this: anything but "admin" is bounced out of /admin.
+  role: PERSONA === "admin" ? "admin" : "provider",
   status: "active",
   emailVerifiedAt: NOW,
   createdAt: NOW,
   updatedAt: NOW,
   shopOwner: null,
-  serviceProvider: PERSONA === "onboarding" ? null : {
+  serviceProvider: PERSONA === "onboarding" || PERSONA === "admin" ? null : {
     id: "00000000-0000-4000-8000-000000000002",
     displayName: "Xưởng Mộc Bình Minh",
     capability: CAPABILITY,
@@ -1288,8 +1291,131 @@ const CONSTRUCTION_TEMPLATES = page(([
   createdAt: NOW,
 })));
 
+// ─── Admin console ──────────────────────────────────────────────────────────
+//
+// The `/admin` tree runs on its own endpoints (`features/admin/api.ts`) and is
+// only reachable with the `admin` persona. Numbers are a plausible platform at
+// the end of its first year, and they are consistent with each other: the
+// status buckets add up to their totals, the revenue series sums to the report
+// total, and the monthly figure matches the overview card.
+
+const ADMIN_OVERVIEW = {
+  accounts: {
+    total: 128, owners: 74, providers: 51, admins: 3,
+    active: 112, inactive: 6, banned: 4, pending: 6,
+    emailVerified: 118, newThisMonth: 14,
+  },
+  projects: { total: 86, byStatus: { draft: 9, briefed: 12, in_progress: 41, completed: 21, cancelled: 3 } },
+  posts: { total: 63, byStatus: { open: 18, closed: 39, expired: 6 } },
+  applications: { total: 214, byStatus: { pending: 27, accepted: 88, rejected: 99 } },
+  engagements: { total: 94, byStatus: { accepted: 46, completed: 41, terminated: 7 } },
+  contracts: { total: 77, byStatus: { confirmed: 58, pending_otp: 6, cancelled: 13 } },
+  activeSubscriptions: 37,
+  revenue: { currency: "VND", total: 235_100_000, thisMonth: 24_500_000, paidTransactions: 156 },
+};
+
+// Owners, providers and one administrator, in every status the table can show:
+// active, pending (waiting on email verification), inactive and banned.
+const ADMIN_ACCOUNT_ROWS = ([
+  ["a1", "chi@nhanaucafe.vn", "0903 118 227", "owner", "active", "2026-02-11", "Trần Minh Anh", "Nhà Nâu Coffee"],
+  ["a2", "lienhe@xuongmocbinhminh.vn", "0908 123 456", "provider", "active", "2026-01-28", "Xưởng Mộc Bình Minh", "both"],
+  ["a3", "hello@gocsan.vn", "0977 540 118", "owner", "active", "2026-04-02", "Lê Quốc Huy", "Góc Sân"],
+  ["a4", "studio@antien.vn", "0913 662 084", "provider", "pending", "2026-09-12", "Thiết kế An Tiên", "designer"],
+  ["a5", "thicong@namviet.com.vn", "0918 447 903", "provider", "active", "2025-11-19", "Xây dựng Nam Việt", "constructor"],
+  ["a6", "bepnhalua@gmail.com", "0905 231 776", "owner", "inactive", "2026-03-06", "Phạm Thu Hà", "Bếp Nhà Lúa"],
+  ["a7", "contact@aurorainterior.vn", "0932 880 145", "provider", "banned", "2025-12-08", "Nội thất Aurora", "designer"],
+  ["a8", "vuonxua.cafe@gmail.com", "0987 019 553", "owner", "pending", "2026-09-16", "Đỗ Gia Bảo", "Vườn Xưa"],
+  ["a9", "quantri@smartcafebuilder.vn", "0900 000 001", "admin", "active", "2025-10-01", "", ""],
+] as const).map(([id, email, phone, role, status, joined, displayName, extra]) => ({
+  id, email, phone, role, status,
+  // The pending accounts are pending precisely because the e-mail is unverified.
+  emailVerifiedAt: status === "pending" ? null : `${joined}T04:12:00Z`,
+  createdAt: `${joined}T04:05:00Z`,
+  updatedAt: NOW,
+  deletedAt: null,
+  shopOwner: role === "owner" ? { id: `so-${id}`, displayName, businessName: extra } : null,
+  serviceProvider: role === "provider"
+    ? {
+        id: `sp-${id}`, displayName,
+        providerType: extra === "designer" ? "individual" : "company",
+        capability: extra,
+        isVerified: status === "active",
+        avgRating: status === "active" ? 4.6 : null,
+      }
+    : null,
+}));
+
+const adminAccounts = (url: string) => {
+  const value = (key: string) => {
+    const raw = new RegExp(`[?&]${key}=([^&]*)`).exec(url)?.[1];
+    return raw ? decodeURIComponent(raw) : null;
+  };
+  const role = value("role");
+  const status = value("status");
+  const search = value("search")?.toLowerCase();
+  return page(ADMIN_ACCOUNT_ROWS.filter((account) =>
+    (!role || account.role === role) &&
+    (!status || account.status === status) &&
+    (!search || account.email.toLowerCase().includes(search) || (account.phone ?? "").includes(search))));
+};
+
+// Platform fees only — subscriptions and post boosting. Owner-to-provider money
+// never runs through the platform, so it is absent here by design.
+const REVENUE_MONTHS: [string, number, number][] = [
+  ["2026-01", 18_900_000, 12], ["2026-02", 21_450_000, 14], ["2026-03", 24_300_000, 16],
+  ["2026-04", 22_800_000, 15], ["2026-05", 27_600_000, 18], ["2026-06", 31_200_000, 21],
+  ["2026-07", 29_700_000, 20], ["2026-08", 34_650_000, 23], ["2026-09", 24_500_000, 17],
+];
+
+// September day by day, for the "Theo ngày" (Daily) toggle. Weekends are
+// quieter, which is what the real series looks like.
+const REVENUE_DAYS: [string, number, number][] = Array.from({ length: 18 }, (_, i) => {
+  const day = i + 1;
+  const weekend = [5, 6, 12, 13].includes(day);
+  return [`2026-09-${String(day).padStart(2, "0")}`, weekend ? 598_000 : 1_496_000 + (day % 4) * 299_000, weekend ? 1 : 2 + (day % 3)];
+});
+
+const revenueReport = (url: string) => {
+  const daily = /groupBy=day/.test(url);
+  const series = (daily ? REVENUE_DAYS : REVENUE_MONTHS).map(([period, amount, count]) => ({ period, amount, count }));
+  return {
+    from: daily ? "2026-09-01" : "2026-01-01",
+    to: "2026-09-18",
+    groupBy: daily ? "day" : "month",
+    currency: "VND",
+    totalRevenue: 235_100_000,
+    transactionCount: 156,
+    byPurpose: [
+      { purpose: "subscription", amount: 181_400_000, count: 102 },
+      { purpose: "post_boost", amount: 53_700_000, count: 54 },
+    ],
+    series,
+  };
+};
+
+const ADMIN_TRANSACTIONS = page(([
+  ["t1", "a2", "subscription", "paid", "web", 260918041, 599_000, "Gói Chuyên nghiệp — 12 tháng", "2026-09-18T02:41:00Z"],
+  ["t2", "a1", "post_boost", "paid", "mobile", 260918022, 150_000, "Đẩy bài — Nhà Nâu Coffee", "2026-09-18T01:15:00Z"],
+  ["t3", "a5", "subscription", "paid", "web", 260917113, 299_000, "Gói Cơ bản — 3 tháng", "2026-09-17T07:02:00Z"],
+  ["t4", "a3", "post_boost", "pending", "mobile", 260917064, 150_000, "Đẩy bài — Góc Sân", "2026-09-17T04:38:00Z"],
+  ["t5", "a4", "subscription", "cancelled", "web", 260916095, 599_000, "Gói Chuyên nghiệp — 12 tháng", "2026-09-16T08:20:00Z"],
+  ["t6", "a6", "subscription", "paid", "mobile", 260915077, 299_000, "Gói Cơ bản — 3 tháng", "2026-09-15T03:49:00Z"],
+  ["t7", "a1", "subscription", "paid", "mobile", 260914028, 599_000, "Gói Chuyên nghiệp — 12 tháng", "2026-09-14T09:11:00Z"],
+  ["t8", "a7", "post_boost", "failed", "web", 260913019, 150_000, "Đẩy bài — Nội thất Aurora", "2026-09-13T06:27:00Z"],
+] as const).map(([id, accountId, purpose, status, platform, orderCode, amount, description, createdAt]) => ({
+  id, accountId, purpose, status, platform, orderCode, amount, description, createdAt,
+})));
+
 const ROUTES: Array<[RegExp, unknown]> = [
   [/\/api\/auth\/me$/, DEMO_ACCOUNT],
+  // Admin console. The transactions path sits before the revenue report, which
+  // its regex would otherwise match first.
+  [/\/api\/admin\/overview/, ADMIN_OVERVIEW],
+  [/\/api\/admin\/revenue\/transactions/, ADMIN_TRANSACTIONS],
+  [/\/api\/admin\/revenue/, revenueReport],
+  [/\/api\/admin\/accounts\/[^/?]+$/, (url: string) =>
+    ADMIN_ACCOUNT_ROWS.find((a) => url.endsWith(a.id)) ?? ADMIN_ACCOUNT_ROWS[0]],
+  [/\/api\/admin\/accounts/, adminAccounts],
   [/\/api\/project-workings\/filter/, myProjects],
   [/\/api\/project-workings\/[^/?]+\/brief/, engagementBrief],
   [/\/api\/project-workings\/[^/?]+\/overview/, engagementOverview],
