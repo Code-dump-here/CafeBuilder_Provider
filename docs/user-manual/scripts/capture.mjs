@@ -20,10 +20,19 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { SHOTS } from "./shots.mjs";
-
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const OUT = path.join(HERE, "..", "images");
+
+// The shot list and the folder it writes to can be swapped, so the same engine
+// serves other screenshot sets (docs/report-screens) without a second copy.
+const { SHOTS } = await import(
+  process.env.SHOTS_FILE
+    ? path.isAbsolute(process.env.SHOTS_FILE)
+      ? `file://${process.env.SHOTS_FILE}`
+      : `file://${path.resolve(process.env.SHOTS_FILE)}`
+    : "./shots.mjs"
+);
+
+const OUT = process.env.OUT_DIR ? path.resolve(process.env.OUT_DIR) : path.join(HERE, "..", "images");
 const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 const LOCALE = process.env.MANUAL_LOCALE ?? "vi";
 const CHROME =
@@ -193,11 +202,17 @@ async function run(step) {
     await send("Input.insertText", { text: String(value) });
     return sleep(step.after ?? 200);
   }
-  if (step.choose) {
+  if (step.choose || step.chooseSel) {
     // A native <select>: pick the option whose text contains the value.
-    const [query, optionText] = step.choose;
+    // `choose` finds it the way a reader would (label, placeholder, name);
+    // `chooseSel` takes a CSS selector, for the selects that carry no label
+    // at all — the admin account filters, for one.
+    const [query, optionText] = step.choose ?? step.chooseSel;
+    const finder = step.chooseSel
+      ? `[...document.querySelectorAll(${JSON.stringify(query)})].filter((e) => __m.visible(e))[${step.nth ?? 0}]`
+      : `__m.field(${JSON.stringify(query)}, ${JSON.stringify(step.within ?? null)})`;
     const ok = await evaluate(`(() => {
-      const el = __m.field(${JSON.stringify(query)}, ${JSON.stringify(step.within ?? null)});
+      const el = ${finder};
       if (!el || el.tagName !== "SELECT") return false;
       const option = [...el.options].find((o) => o.text.includes(${JSON.stringify(optionText)}));
       if (!option) return false;
