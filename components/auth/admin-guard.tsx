@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/user-context";
+import { tokenStore } from "@/features/auth/token-store";
 
 /**
  * Role gate for the `/admin` tree.
@@ -22,10 +23,24 @@ import { useCurrentUser } from "@/features/auth/user-context";
  *   - Not authenticated     → redirect to /login
  *   - Authenticated non-admin → redirect to /
  *   - Admin                 → render children
+ *
+ * The wait for `tokenStore.isHydrated()` is what makes it usable at all. The
+ * store's `useSyncExternalStore` returns `false` for the server snapshot, so
+ * during the hydration render *every* visitor looks signed out — including an
+ * administrator whose token is sitting in `localStorage`. The effect below runs
+ * on that render, and `redirectedRef` then latches the wrong answer, so a hard
+ * load of /admin sent the admin to /login and no second chance ever came. The
+ * gate only opens once the token store has actually read storage.
  */
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { account, isLoading, isAuthenticated } = useCurrentUser();
+
+  const hydrated = React.useSyncExternalStore(
+    (notify) => tokenStore.subscribe(notify),
+    () => tokenStore.isHydrated(),
+    () => false,
+  );
 
   const redirectedRef = React.useRef(false);
 
@@ -33,7 +48,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (redirectedRef.current) return;
-    if (isLoading) return;
+    if (!hydrated || isLoading) return;
 
     if (!isAuthenticated || !account) {
       redirectedRef.current = true;
@@ -45,7 +60,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
       redirectedRef.current = true;
       router.replace("/");
     }
-  }, [account, isLoading, isAuthenticated, router]);
+  }, [account, hydrated, isLoading, isAuthenticated, router]);
 
   // Render nothing until we positively know the user is an admin. Returning
   // `children` while loading would flash the full console to every visitor,
