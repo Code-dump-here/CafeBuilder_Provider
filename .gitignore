@@ -48,3 +48,6 @@ next-env.d.ts
 .pnpm-store
 # Local author mapping - not shared
 .mailmap
+
+# Course report documents kept locally for reference, not part of the app
+docs/related context/
