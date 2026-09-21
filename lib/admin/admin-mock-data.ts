@@ -57,11 +57,19 @@ export interface AdminActivity {
   at: string;
   actorId: string;
   actorName: string;
-  text: string;
+  /**
+   * Key under `Admin.activity.events`, with its placeholder values. The row
+   * used to hold a finished English sentence, which meant the Vietnamese
+   * activity page was written in English.
+   */
+  textKey: string;
+  values: Record<string, string>;
   icon: "user-plus" | "pencil" | "trash-2" | "check-circle-2" | "pause";
   href?: string;
 }
 
+/** ISO timestamp `daysAgo` days back; fractions are allowed, so a row can
+ *  read "3 hours ago" rather than "1 second ago". */
 const iso = (daysAgo: number) => new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString();
 
 export const ADMIN_METRICS: AdminMetric[] = [
@@ -179,98 +187,98 @@ export const ADMIN_ACCOUNTS: AdminAccount[] = [
 export const ADMIN_PROJECTS: AdminProject[] = [
   {
     id: "p_demo",
-    name: "Quan 3 Roastery",
+    name: "Nhà Nâu Coffee",
     ownerId: "u_004",
-    ownerName: "Phuong Vu",
+    ownerName: "Trần Minh Anh",
     contractorId: "u_002",
-    contractorName: "Hung Tran",
+    contractorName: "Xưởng Mộc Bình Minh",
     status: "active",
     progress: 68,
-    budget: 145_000,
-    spent: 92_500,
-    updatedAt: iso(0),
-    city: "Ho Chi Minh",
+    budget: 289_000_000,
+    spent: 196_500_000,
+    updatedAt: iso(0.2),
+    city: "Hồ Chí Minh",
   },
   {
     id: "p_001",
-    name: "Thao Dien Brew Lab",
+    name: "Góc Sân Cà Phê",
     ownerId: "u_008",
-    ownerName: "Lan Hoang",
+    ownerName: "Lê Quốc Huy",
     contractorId: "u_003",
-    contractorName: "Dat Le",
+    contractorName: "Xây dựng Nam Việt",
     status: "active",
     progress: 24,
-    budget: 88_000,
-    spent: 18_200,
+    budget: 174_000_000,
+    spent: 41_800_000,
     updatedAt: iso(1),
-    city: "Ho Chi Minh",
+    city: "Hồ Chí Minh",
   },
   {
     id: "p_002",
-    name: "Hanoi Old Quarter Cafe",
+    name: "Cà phê Phố Cổ",
     ownerId: "u_010",
-    ownerName: "Trang Phan",
+    ownerName: "Phạm Thu Hà",
     contractorId: "u_005",
-    contractorName: "Khoi Pham",
+    contractorName: "Thiết kế An Tiên",
     status: "on_hold",
     progress: 42,
-    budget: 72_000,
-    spent: 30_400,
+    budget: 143_000_000,
+    spent: 60_200_000,
     updatedAt: iso(2),
-    city: "Hanoi",
+    city: "Hà Nội",
   },
   {
     id: "p_003",
-    name: "Da Nang Beach Kiosk",
+    name: "Kiosk Biển Mỹ Khê",
     ownerId: "u_008",
-    ownerName: "Lan Hoang",
+    ownerName: "Lê Quốc Huy",
     contractorId: "u_009",
-    contractorName: "Quan Vu",
+    contractorName: "Nội thất Aurora",
     status: "active",
     progress: 86,
-    budget: 56_000,
-    spent: 47_200,
-    updatedAt: iso(0),
-    city: "Da Nang",
+    budget: 96_000_000,
+    spent: 81_400_000,
+    updatedAt: iso(0.6),
+    city: "Đà Nẵng",
   },
   {
     id: "p_004",
-    name: "Sai Gon Coffee Co.",
+    name: "Bếp Nhà Lúa",
     ownerId: "u_004",
-    ownerName: "Phuong Vu",
+    ownerName: "Trần Minh Anh",
     contractorId: "u_002",
-    contractorName: "Hung Tran",
+    contractorName: "Xưởng Mộc Bình Minh",
     status: "completed",
     progress: 100,
-    budget: 210_000,
-    spent: 198_400,
+    budget: 412_000_000,
+    spent: 398_600_000,
     updatedAt: iso(12),
-    city: "Ho Chi Minh",
+    city: "Hồ Chí Minh",
   },
   {
     id: "p_005",
-    name: "Hue Garden Roastery",
+    name: "Vườn Xưa Rang Xay",
     ownerId: "u_010",
-    ownerName: "Trang Phan",
+    ownerName: "Đỗ Gia Bảo",
     contractorId: "u_009",
-    contractorName: "Quan Vu",
+    contractorName: "Nội thất Aurora",
     status: "draft",
     progress: 0,
-    budget: 34_000,
+    budget: 68_000_000,
     spent: 0,
     updatedAt: iso(8),
-    city: "Hue",
+    city: "Huế",
   },
 ];
 
 export const ADMIN_ACTIVITY: AdminActivity[] = [
-  { id: "a_01", at: iso(0), actorId: "u_004", actorName: "Phuong Vu", text: "uploaded 3 photos to Quan 3 Roastery", icon: "check-circle-2", href: "/projects/p_demo/design-management" },
-  { id: "a_02", at: iso(0), actorId: "u_005", actorName: "Khoi Pham", text: "joined the project Framing on Quan 3 Roastery", icon: "user-plus" },
-  { id: "a_03", at: iso(1), actorId: "u_010", actorName: "Trang Phan", text: "signed off on Milestone 2 for Hanoi Old Quarter Cafe", icon: "check-circle-2" },
-  { id: "a_04", at: iso(1), actorId: "u_008", actorName: "Lan Hoang", text: "paused Thao Dien Brew Lab pending permit review", icon: "pause" },
-  { id: "a_05", at: iso(2), actorId: "u_006", actorName: "Hai Bui", text: "invited as a contractor — pending email confirmation", icon: "user-plus" },
-  { id: "a_06", at: iso(3), actorId: "u_002", actorName: "Hung Tran", text: "created a new version Quan 3 Roastery v3 design", icon: "pencil", href: "/projects/p_demo/design-management" },
-  { id: "a_07", at: iso(4), actorId: "u_007", actorName: "Minh Do", text: "was suspended by Mai Nguyen", icon: "trash-2" },
+  { id: "a_01", at: iso(0.12), actorId: "u_004", actorName: "Trần Minh Anh", textKey: "photosUploaded", values: { project: "Nhà Nâu Coffee" }, icon: "check-circle-2", href: "/projects/p_demo/design-management" },
+  { id: "a_02", at: iso(0.3), actorId: "u_005", actorName: "Xây dựng Nam Việt", textKey: "joinedProject", values: { project: "Nhà Nâu Coffee" }, icon: "user-plus" },
+  { id: "a_03", at: iso(1), actorId: "u_010", actorName: "Phạm Thu Hà", textKey: "milestoneSignedOff", values: { milestone: "2", project: "Cà phê Phố Cổ" }, icon: "check-circle-2" },
+  { id: "a_04", at: iso(1), actorId: "u_008", actorName: "Lê Quốc Huy", textKey: "projectPaused", values: { project: "Cà phê Phố Cổ" }, icon: "pause" },
+  { id: "a_05", at: iso(2), actorId: "u_006", actorName: "Thiết kế An Tiên", textKey: "providerInvited", values: {}, icon: "user-plus" },
+  { id: "a_06", at: iso(3), actorId: "u_002", actorName: "Xưởng Mộc Bình Minh", textKey: "designVersionCreated", values: { version: "3.0", project: "Nhà Nâu Coffee" }, icon: "pencil", href: "/projects/p_demo/design-management" },
+  { id: "a_07", at: iso(4), actorId: "u_007", actorName: "Nội thất Aurora", textKey: "accountBanned", values: { admin: "Quản trị viên" }, icon: "trash-2" },
 ];
 
 /** Last 30d "active builds per day" — drives the chart. */

@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
 
 // ─── Stat Card ─────────────────────────────────────────────────────────────────
@@ -137,16 +139,23 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ status, label, className }: StatusBadgeProps) {
   const colorClass = STATUS_COLORS[status] ?? "bg-muted text-muted-foreground";
-  
+  const t = useTranslations("Admin.status");
+
+  // Statuses arrive as raw API values (`pending_otp`, `in_progress`). They used
+  // to be printed as-is, so a Vietnamese page showed "Pending Otp". Anything
+  // without a translation still falls back to the readable raw value.
+  const hasKey = t.has(status);
+
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        !label && !hasKey && "capitalize",
         colorClass,
         className,
       )}
     >
-      {label ?? status.replace(/_/g, " ")}
+      {label ?? (hasKey ? t(status) : status.replace(/_/g, " "))}
     </span>
   );
 }
@@ -166,16 +175,19 @@ interface RoleBadgeProps {
 
 export function RoleBadge({ role, className }: RoleBadgeProps) {
   const colorClass = ROLE_COLORS[role] ?? "bg-muted text-muted-foreground";
-  
+  const t = useTranslations("Admin.roles");
+  const hasKey = t.has(role);
+
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        !hasKey && "capitalize",
         colorClass,
         className,
       )}
     >
-      {role}
+      {hasKey ? t(role) : role}
     </span>
   );
 }
@@ -293,6 +305,7 @@ export function Pagination({
   onPageChange,
   className,
 }: PaginationProps) {
+  const t = useTranslations("Admin.pagination");
   const start = (pageNumber - 1) * pageSize + 1;
   const end = Math.min(pageNumber * pageSize, totalItems);
 
@@ -304,9 +317,14 @@ export function Pagination({
       )}
     >
       <p className="text-sm text-muted-foreground">
-        Showing <span className="font-medium text-foreground">{start}</span> to{" "}
-        <span className="font-medium text-foreground">{end}</span> of{" "}
-        <span className="font-medium text-foreground">{totalItems}</span> results
+        {t.rich("showing", {
+          start,
+          end,
+          total: totalItems,
+          strong: (chunks) => (
+            <span className="font-medium text-foreground">{chunks}</span>
+          ),
+        })}
       </p>
 
       <div className="flex items-center gap-1">
@@ -315,7 +333,7 @@ export function Pagination({
           disabled={pageNumber <= 1}
           className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Previous
+          {t("previous")}
         </button>
         <div className="flex items-center gap-1 px-2">
           {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -351,7 +369,7 @@ export function Pagination({
           disabled={pageNumber >= totalPages}
           className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Next
+          {t("next")}
         </button>
       </div>
     </div>
@@ -374,7 +392,7 @@ export function SimpleBarChart({ data, height = 200, className }: BarChartProps)
       {data.map((item, i) => {
         const heightPercent = (item.value / maxValue) * 100;
         return (
-          <div key={i} className="flex flex-1 flex-col items-center gap-2">
+          <div key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
             <div
               className="w-full rounded-t-lg bg-primary/80 transition-all hover:bg-primary"
               style={{ height: `${heightPercent}%`, minHeight: item.value > 0 ? "4px" : "0" }}

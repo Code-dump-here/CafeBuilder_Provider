@@ -356,11 +356,15 @@ function AccountDetailModal({
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-muted-foreground">{t("accounts.providerType")}</p>
-                  <p className="font-medium capitalize">{account.serviceProvider.providerType}</p>
+                  <p className="font-medium">
+                    {t(`accounts.providerTypes.${account.serviceProvider.providerType}`)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">{t("accounts.capability")}</p>
-                  <p className="font-medium capitalize">{account.serviceProvider.capability}</p>
+                  <p className="font-medium">
+                    {t(`accounts.capabilities.${account.serviceProvider.capability}`)}
+                  </p>
                 </div>
                 {account.serviceProvider.avgRating !== null && (
                   <div>

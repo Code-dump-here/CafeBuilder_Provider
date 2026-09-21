@@ -132,6 +132,7 @@ function QuickLinkCard({
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 }) {
+  const t = useTranslations("Admin");
   return (
     <Link
       href={href}
@@ -143,7 +144,7 @@ function QuickLinkCard({
         </div>
         <div>
           <p className="font-medium text-foreground">{title}</p>
-          <p className="text-sm text-muted-foreground">{count} total</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.totalCount", { count })}</p>
         </div>
       </div>
       <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
@@ -295,7 +296,17 @@ export function AdminDashboard() {
           <div className="mt-4 space-y-4">
             <StatusBreakdown
               title={t("dashboard.accounts")}
-              counts={data.accounts}
+              // Only the four status buckets. The whole statistics object was
+              // being passed, so `total`, `owners`, `providers`, `admins`,
+              // `emailVerified` and `newThisMonth` each rendered as if they
+              // were account statuses — and the bar, summing to far more than
+              // the total, always ran full width.
+              counts={{
+                active: data.accounts.active,
+                inactive: data.accounts.inactive,
+                pending: data.accounts.pending,
+                banned: data.accounts.banned,
+              }}
               total={data.accounts.total}
             />
             <StatusBreakdown

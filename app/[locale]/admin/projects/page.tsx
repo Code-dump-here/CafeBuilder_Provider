@@ -32,17 +32,11 @@ const STATUS_TONE: Record<AdminProject["status"], string> = {
   draft: "bg-muted text-muted-foreground",
 };
 
-const STATUS_LABEL: Record<AdminProject["status"], string> = {
-  active: "Active",
-  on_hold: "On hold",
-  completed: "Completed",
-  draft: "Draft",
-};
-
 const VIEW_OPTIONS = ["grid", "list"] as const;
 type ViewMode = (typeof VIEW_OPTIONS)[number];
 
 export default function AdminProjectsPage() {
+  const t = useTranslations("Admin.projectsPage");
   const tTable = useTranslations("Admin.projectsTable");
   const format = useFormatter();
   const locale = useLocale();
@@ -77,27 +71,31 @@ export default function AdminProjectsPage() {
   return (
     <>
       <PageHead
-        title="Project management"
-        description={`${summary.total} projects in flight · ${summary.active} active · ${summary.onHold} on hold`}
+        title={t("title")}
+        description={t("summary", {
+          total: summary.total,
+          active: summary.active,
+          onHold: summary.onHold,
+        })}
         actions={
           <>
             <Button size="sm" variant="outline">
               <FolderKanban aria-hidden />
-              Templates
+              {t("templates")}
             </Button>
             <Button size="sm">
               <Plus aria-hidden />
-              New project
+              {t("newProject")}
             </Button>
           </>
         }
       />
 
       <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <SummaryStat label="Total projects" value={summary.total} tone="default" />
-        <SummaryStat label="Active" value={summary.active} tone="emerald" />
-        <SummaryStat label="On hold" value={summary.onHold} tone="amber" />
-        <SummaryStat label="Drafts" value={summary.drafts} tone="muted" />
+        <SummaryStat label={t("totalProjects")} value={summary.total} tone="default" />
+        <SummaryStat label={t("status.active")} value={summary.active} tone="emerald" />
+        <SummaryStat label={t("status.on_hold")} value={summary.onHold} tone="amber" />
+        <SummaryStat label={t("drafts")} value={summary.drafts} tone="muted" />
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-border/60 bg-card/60 p-3 shadow-e1">
@@ -106,26 +104,23 @@ export default function AdminProjectsPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, city, or contractor…"
+            placeholder={t("searchPlaceholder")}
             className="h-9 pl-8 text-sm"
           />
         </div>
         <div className="flex items-center gap-1 rounded-md border border-border/60 bg-background p-0.5 text-xs">
           <FilterPill active={statusFilter === "all"} onClick={() => setStatusFilter("all")}>
-            All
+            {t("filterAll")}
           </FilterPill>
-          <FilterPill active={statusFilter === "active"} onClick={() => setStatusFilter("active")}>
-            Active
-          </FilterPill>
-          <FilterPill active={statusFilter === "on_hold"} onClick={() => setStatusFilter("on_hold")}>
-            On hold
-          </FilterPill>
-          <FilterPill active={statusFilter === "completed"} onClick={() => setStatusFilter("completed")}>
-            Completed
-          </FilterPill>
-          <FilterPill active={statusFilter === "draft"} onClick={() => setStatusFilter("draft")}>
-            Draft
-          </FilterPill>
+          {(["active", "on_hold", "completed", "draft"] as const).map((status) => (
+            <FilterPill
+              key={status}
+              active={statusFilter === status}
+              onClick={() => setStatusFilter(status)}
+            >
+              {t(`status.${status}`)}
+            </FilterPill>
+          ))}
         </div>
 
         <div className="ml-auto flex items-center gap-1 rounded-md border border-border/60 bg-background p-0.5">
@@ -137,7 +132,7 @@ export default function AdminProjectsPage() {
               "flex size-8 items-center justify-center rounded-sm",
               view === "grid" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
-            aria-label="Grid view"
+            aria-label={t("gridView")}
           >
             <LayoutGrid className="size-4" aria-hidden />
           </button>
@@ -149,7 +144,7 @@ export default function AdminProjectsPage() {
               "flex size-8 items-center justify-center rounded-sm",
               view === "list" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
-            aria-label="List view"
+            aria-label={t("listView")}
           >
             <List className="size-4" aria-hidden />
           </button>
@@ -163,7 +158,7 @@ export default function AdminProjectsPage() {
           ))}
           {filtered.length === 0 ? (
             <div className="col-span-full rounded-lg border border-dashed border-border/60 bg-muted/30 px-4 py-10 text-center text-sm text-muted-foreground">
-              No projects match the current filters.
+              {t("noResults")}
             </div>
           ) : null}
         </div>
@@ -244,6 +239,7 @@ function ProjectCard({
   locale: string;
   now: Date;
 }) {
+  const t = useTranslations("Admin.projectsPage");
   const tTable = useTranslations("Admin.projectsTable");
   const overspent = project.spent > project.budget;
   return (
@@ -263,7 +259,7 @@ function ProjectCard({
 
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between text-[12px] text-muted-foreground">
-          <span>Progress</span>
+          <span>{tTable("progress")}</span>
           <span className="tabular-nums text-foreground">{project.progress}%</span>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-muted">
@@ -285,42 +281,43 @@ function ProjectCard({
 
       <div className="flex items-end justify-between border-t border-border/60 pt-2 text-[12px]">
         <div className="flex flex-col">
-          <span className="text-muted-foreground">Budget</span>
+          <span className="text-muted-foreground">{tTable("budget")}</span>
           <span className="tabular-nums font-medium text-foreground">
             {formatVnd(project.budget, locale)}
           </span>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-muted-foreground">Spent</span>
+          <span className="text-muted-foreground">{t("spent")}</span>
           <span
             className={cn(
               "tabular-nums font-medium",
               overspent ? "text-rose-600" : "text-foreground"
             )}
-            title={overspent ? `${Math.round(((project.spent - project.budget) / project.budget) * 100)}% over budget` : undefined}
+            title={overspent ? t("overBudget", { percent: Math.round(((project.spent - project.budget) / project.budget) * 100) }) : undefined}
           >
             {formatVnd(project.spent, locale)}
           </span>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-muted-foreground">Updated</span>
+          <span className="text-muted-foreground">{tTable("updated")}</span>
           <span className="text-foreground">{format.relativeTime(new Date(project.updatedAt), now)}</span>
         </div>
       </div>
       <span className="inline-flex items-center gap-1 self-end text-[12px] text-primary opacity-0 transition-opacity group-hover:opacity-100">
-        Open project <ArrowUpRight className="size-3" aria-hidden />
+        {t("openProject")} <ArrowUpRight className="size-3" aria-hidden />
       </span>
     </Link>
   );
 }
 
 function StatusBadge({ status }: { status: AdminProject["status"] }) {
+  const t = useTranslations("Admin.projectsPage.status");
   return (
     <span className={cn("inline-flex rounded-full px-2 py-0.5 text-[12px] font-medium", STATUS_TONE[status])}>
       {status === "on_hold" ? (
         <Pause className="mr-1 mt-px size-3" aria-hidden />
       ) : null}
-      {STATUS_LABEL[status]}
+      {t(status)}
     </span>
   );
 }

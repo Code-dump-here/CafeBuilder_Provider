@@ -28,6 +28,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useCurrentUser } from "@/features/auth/user-context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,9 +64,14 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
   const params = useParams();
   const locale = (params?.locale as string | undefined) ?? "en";
 
+  // The signed-in administrator, not a placeholder: the chip used to read
+  // "admin@aicoffee.io" for everyone, which is the kind of leftover that ends
+  // up in a screenshot.
+  const { account } = useCurrentUser();
+
   const resolvedUser = user ?? {
     name: locale === "vi" ? "Quản trị viên" : "Admin",
-    email: "admin@aicoffee.io",
+    email: account?.email ?? "",
     avatar: undefined,
   };
 

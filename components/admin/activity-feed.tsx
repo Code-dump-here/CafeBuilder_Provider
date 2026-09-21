@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { useFormatter } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { ChevronRight } from "lucide-react";
 
 import { interactiveRow } from "@/lib/interactive";
@@ -19,6 +19,7 @@ interface ActivityFeedProps {
  */
 export function ActivityFeed({ items }: ActivityFeedProps) {
   const format = useFormatter();
+  const t = useTranslations("Admin.activity.events");
 
   return (
     <ol className="flex flex-col gap-3">
@@ -39,7 +40,8 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
             </span>
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
               <p className="text-xs leading-relaxed text-foreground/90">
-                <span className="font-medium text-foreground">{item.actorName}</span> {item.text}
+                <span className="font-medium text-foreground">{item.actorName}</span>{" "}
+                {t(item.textKey, item.values)}
               </p>
               <span className="text-[11px] text-muted-foreground">
                 {format.relativeTime(new Date(item.at))}

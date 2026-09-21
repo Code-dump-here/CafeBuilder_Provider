@@ -35,7 +35,9 @@ function RevenueChart({ data }: { data: RevenueReport }) {
   const t = useTranslations("Admin");
   const locale = useLocale();
   const chartData = data.series.map((point) => ({
-    label: point.period.slice(5), // Show MM for monthly, DD for daily
+    // MM for a monthly series, DD for a daily one. Slicing at 5 for both left
+    // the daily axis reading "09-01", which wrapped onto two lines.
+    label: data.groupBy === "day" ? point.period.slice(8) : point.period.slice(5),
     value: point.amount,
   }));
 
@@ -63,13 +65,19 @@ function RevenueChart({ data }: { data: RevenueReport }) {
         </div>
       </div>
 
+      {/* `h-full` on each column is what makes the bars appear at all: a
+          percentage height resolves against the parent's height, and a
+          content-sized column has none — every bar collapsed to its 4px
+          minimum, so the chart was a row of flat lines. The labels sit in
+          their own row below for the same reason: inside the column they
+          would eat into the height the bars are measured against. */}
       <div className="flex items-end gap-4" style={{ height: 240 }}>
         {chartData.map((item, i) => {
           const heightPercent = (item.value / maxValue) * 100;
           return (
             <div
               key={i}
-              className="group relative flex flex-1 flex-col items-center"
+              className="group relative flex h-full flex-1 flex-col items-center justify-end"
             >
               <div
                 className="w-full cursor-pointer rounded-t-lg bg-linear-to-t from-emerald-600 to-emerald-400 transition-all hover:from-emerald-500 hover:to-emerald-300"
@@ -82,12 +90,17 @@ function RevenueChart({ data }: { data: RevenueReport }) {
                   {formatVnd(item.value, locale)}
                 </div>
               </div>
-              <span className="mt-2 text-xs text-muted-foreground">
-                {item.label}
-              </span>
             </div>
           );
         })}
+      </div>
+
+      <div className="flex gap-4">
+        {chartData.map((item, i) => (
+          <span key={i} className="flex-1 text-center text-xs text-muted-foreground">
+            {item.label}
+          </span>
+        ))}
       </div>
     </div>
   );
@@ -118,7 +131,7 @@ function RevenueByPurpose({ data }: { data: RevenueReport }) {
               <TrendingUp className="size-4" />
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground capitalize">
+              <p className="text-sm font-medium text-foreground">
                 {item.purpose === "subscription"
                   ? t("revenue.subscription")
                   : t("revenue.postBoost")}
@@ -155,7 +168,7 @@ function TransactionsTable({ data }: { data: TransactionListResponse }) {
       key: "purpose",
       header: t("transactions.purpose"),
       cell: (row: typeof data.items[0]) => (
-        <span className="capitalize">
+        <span>
           {row.purpose === "subscription"
             ? t("revenue.subscription")
             : t("revenue.postBoost")}
@@ -190,7 +203,7 @@ function TransactionsTable({ data }: { data: TransactionListResponse }) {
       header: t("transactions.date"),
       cell: (row: typeof data.items[0]) => (
         <span className="text-muted-foreground">
-          {new Date(row.createdAt).toLocaleDateString("vi-VN")}
+          {new Date(row.createdAt).toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US")}
         </span>
       ),
     },

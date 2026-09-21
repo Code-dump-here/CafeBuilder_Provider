@@ -10,12 +10,15 @@ import {
 } from "lucide-react";
 
 import { AdminGuard } from "@/components/auth/admin-guard";
+import { getTranslations } from "next-intl/server";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const t = await getTranslations("Admin.header");
+
   return (
     <AdminGuard>
     <SidebarProvider>
@@ -33,11 +36,11 @@ export default function AdminLayout({
             <Button asChild variant="ghost" size="sm">
               <Link href="/">
                 <ArrowLeft aria-hidden />
-                Back to client view
+                {t("backToClient")}
               </Link>
             </Button>
             <Button asChild variant="ghost" size="icon-sm">
-              <Link href="/notifications" aria-label="Notifications">
+              <Link href="/notifications" aria-label={t("notifications")}>
                 <Bell aria-hidden />
               </Link>
             </Button>

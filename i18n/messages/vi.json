@@ -2506,7 +2506,8 @@
       "projects": "Dự án",
       "contracts": "Hợp đồng",
       "applications": "Đơn ứng tuyển",
-      "quickActions": "Thao tác nhanh"
+      "quickActions": "Thao tác nhanh",
+      "totalCount": "Tổng cộng {count}"
     },
     "stats": {
       "accounts": "Tổng tài khoản",
@@ -2586,7 +2587,16 @@
       "capability": "Năng lực",
       "rating": "Đánh giá",
       "createdAt": "Tạo lúc",
-      "updatedAt": "Cập nhật lúc"
+      "updatedAt": "Cập nhật lúc",
+      "providerTypes": {
+        "individual": "Cá nhân",
+        "company": "Doanh nghiệp"
+      },
+      "capabilities": {
+        "designer": "Thiết kế",
+        "constructor": "Thi công",
+        "both": "Thiết kế & thi công"
+      }
     },
     "actions": {
       "viewAll": "Xem tất cả",
@@ -2608,6 +2618,78 @@
       "progress": "Tiến độ",
       "budget": "Ngân sách",
       "updated": "Cập nhật"
+    },
+    "header": {
+      "backToClient": "Về giao diện người dùng",
+      "notifications": "Thông báo"
+    },
+    "roles": {
+      "owner": "Chủ quán",
+      "provider": "Nhà cung cấp",
+      "admin": "Quản trị"
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động",
+      "banned": "Bị cấm",
+      "pending": "Đang chờ",
+      "briefed": "Đã có brief",
+      "in_progress": "Đang thực hiện",
+      "completed": "Hoàn thành",
+      "cancelled": "Đã huỷ",
+      "draft": "Nháp",
+      "open": "Đang mở",
+      "closed": "Đã đóng",
+      "expired": "Hết hạn",
+      "accepted": "Đã nhận",
+      "rejected": "Từ chối",
+      "paid": "Đã thanh toán",
+      "failed": "Thất bại",
+      "drafted": "Nháp",
+      "pending_otp": "Chờ OTP",
+      "confirmed": "Đã xác nhận",
+      "requested": "Được mời",
+      "terminated": "Đã chấm dứt"
+    },
+    "pagination": {
+      "showing": "Hiển thị <strong>{start}</strong>–<strong>{end}</strong> trên <strong>{total}</strong> kết quả",
+      "previous": "Trước",
+      "next": "Sau"
+    },
+    "activity": {
+      "title": "Hoạt động",
+      "description": "Mọi thao tác được ghi nhận trên tài khoản, dự án và hồ sơ thiết kế.",
+      "events": {
+        "photosUploaded": "đã tải lên 3 ảnh cho {project}",
+        "joinedProject": "đã tham gia dự án {project}",
+        "milestoneSignedOff": "đã nghiệm thu hạng mục {milestone} của {project}",
+        "projectPaused": "đã tạm dừng {project} để chờ duyệt giấy phép",
+        "providerInvited": "được mời làm nhà cung cấp — đang chờ xác nhận email",
+        "designVersionCreated": "đã phát hành phiên bản {version} của hồ sơ thiết kế {project}",
+        "accountBanned": "đã bị {admin} cấm tài khoản"
+      }
+    },
+    "projectsPage": {
+      "title": "Quản lý dự án",
+      "summary": "{total} dự án đang chạy · {active} hoạt động · {onHold} tạm dừng",
+      "templates": "Mẫu quy trình",
+      "newProject": "Dự án mới",
+      "totalProjects": "Tổng dự án",
+      "drafts": "Bản nháp",
+      "searchPlaceholder": "Tìm theo tên, thành phố hoặc nhà cung cấp…",
+      "filterAll": "Tất cả",
+      "gridView": "Dạng lưới",
+      "listView": "Dạng danh sách",
+      "noResults": "Không có dự án nào khớp bộ lọc hiện tại.",
+      "spent": "Đã chi",
+      "overBudget": "Vượt ngân sách {percent}%",
+      "openProject": "Mở dự án",
+      "status": {
+        "active": "Hoạt động",
+        "on_hold": "Tạm dừng",
+        "completed": "Hoàn thành",
+        "draft": "Nháp"
+      }
     }
   },
   "SiteProfile": {

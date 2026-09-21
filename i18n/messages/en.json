@@ -2506,7 +2506,8 @@
       "projects": "Projects",
       "contracts": "Contracts",
       "applications": "Applications",
-      "quickActions": "Quick Actions"
+      "quickActions": "Quick Actions",
+      "totalCount": "{count} in total"
     },
     "stats": {
       "accounts": "Total Accounts",
@@ -2586,7 +2587,16 @@
       "capability": "Capability",
       "rating": "Rating",
       "createdAt": "Created",
-      "updatedAt": "Updated"
+      "updatedAt": "Updated",
+      "providerTypes": {
+        "individual": "Individual",
+        "company": "Company"
+      },
+      "capabilities": {
+        "designer": "Design",
+        "constructor": "Construction",
+        "both": "Design & build"
+      }
     },
     "actions": {
       "viewAll": "View all",
@@ -2608,6 +2618,78 @@
       "progress": "Progress",
       "budget": "Budget",
       "updated": "Updated"
+    },
+    "header": {
+      "backToClient": "Back to client view",
+      "notifications": "Notifications"
+    },
+    "roles": {
+      "owner": "Owner",
+      "provider": "Provider",
+      "admin": "Admin"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "banned": "Banned",
+      "pending": "Pending",
+      "briefed": "Briefed",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "draft": "Draft",
+      "open": "Open",
+      "closed": "Closed",
+      "expired": "Expired",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "paid": "Paid",
+      "failed": "Failed",
+      "drafted": "Draft",
+      "pending_otp": "Awaiting OTP",
+      "confirmed": "Confirmed",
+      "requested": "Invited",
+      "terminated": "Terminated"
+    },
+    "pagination": {
+      "showing": "Showing <strong>{start}</strong> to <strong>{end}</strong> of <strong>{total}</strong> results",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "activity": {
+      "title": "Activity",
+      "description": "Every recorded action across accounts, projects, and designs.",
+      "events": {
+        "photosUploaded": "uploaded 3 photos to {project}",
+        "joinedProject": "joined the project {project}",
+        "milestoneSignedOff": "signed off on milestone {milestone} of {project}",
+        "projectPaused": "paused {project} pending a permit review",
+        "providerInvited": "was invited as a provider — awaiting e-mail confirmation",
+        "designVersionCreated": "issued version {version} of the {project} design",
+        "accountBanned": "was banned by {admin}"
+      }
+    },
+    "projectsPage": {
+      "title": "Project management",
+      "summary": "{total} projects in flight · {active} active · {onHold} on hold",
+      "templates": "Templates",
+      "newProject": "New project",
+      "totalProjects": "Total projects",
+      "drafts": "Drafts",
+      "searchPlaceholder": "Search by name, city, or provider…",
+      "filterAll": "All",
+      "gridView": "Grid view",
+      "listView": "List view",
+      "noResults": "No projects match the current filters.",
+      "spent": "Spent",
+      "overBudget": "{percent}% over budget",
+      "openProject": "Open project",
+      "status": {
+        "active": "Active",
+        "on_hold": "On hold",
+        "completed": "Completed",
+        "draft": "Draft"
+      }
     }
   },
   "SiteProfile": {
