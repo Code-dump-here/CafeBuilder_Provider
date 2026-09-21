@@ -52,12 +52,12 @@ function useProjectFacts(project: MyProjectWorking) {
   };
 }
 
-// Numeric in Vietnamese: "18 thg 4, 2026" is too long for a title-block cell
-// and wrapped onto two lines; "18/04/2026" is how the date is written there.
 const formatDay = (date: Date, locale: string) =>
-  locale.startsWith("vi")
-    ? new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date)
-    : new Intl.DateTimeFormat("en-US", { day: "2-digit", month: "short", year: "numeric" }).format(date);
+  new Intl.DateTimeFormat(locale.startsWith("vi") ? "vi-VN" : "en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 
 /** Client, address and a one-line brief. */
 export function ProjectFacts({

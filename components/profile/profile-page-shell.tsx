@@ -355,7 +355,6 @@ function TabNavigation({
  */
 function ReviewsList({ profileId }: { profileId: string }) {
   const t = useTranslations("Profile.reviewsTab");
-  const locale = useLocale();
 
   const summaryQuery = useProviderRatingSummary(profileId);
   const reviewsQuery = useProviderReviews(profileId);
@@ -458,9 +457,7 @@ function ReviewsList({ profileId }: { profileId: string }) {
                   </span>
                 </div>
                 <span className="text-xs text-muted-foreground/60">
-                  {/* In the reader's locale: with no argument it followed the
-                      browser, so the Vietnamese page printed 7/28/2026. */}
-                  {new Date(review.createdAt).toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US")}
+                  {new Date(review.createdAt).toLocaleDateString()}
                 </span>
               </div>
               {review.comment && (

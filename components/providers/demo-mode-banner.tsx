@@ -36,8 +36,6 @@ export function DemoModeBanner() {
   return (
     <div
       role="status"
-      // Lets screenshot tooling hide the badge (the user manual's captures).
-      data-demo-banner=""
       className="pointer-events-none fixed right-3 bottom-3 z-[100] flex items-center gap-2 border border-warning/40 bg-warning-muted px-2.5 py-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-warning-muted-foreground shadow-sm"
     >
       <span aria-hidden className="size-1.5 bg-warning" />

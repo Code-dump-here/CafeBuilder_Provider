@@ -260,6 +260,14 @@ export function VerifyEmailStep({ email, onVerified, onBack, isVerified }: Verif
             </p>
           </div>
 
+          {/* Demo hint */}
+          <div className="rounded-lg bg-foreground/5 px-3 py-2">
+            <p className="text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">{t("verifyEmail.demoLabel")}:</span>{" "}
+              {t("verifyEmail.demoHint")}
+            </p>
+          </div>
+
           <div className="flex flex-col gap-3">
             <Button
               type="button"

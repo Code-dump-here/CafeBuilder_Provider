@@ -184,11 +184,14 @@ function buildDownloadFilename(
 
 // ─── Status badge config ──────────────────────────────────────────────────
 
-const STATUS_CONFIG: Record<Design["status"], { color: string }> = {
-  in_progress: { color: "bg-info-muted text-info-muted-foreground" },
-  submitted: { color: "bg-warning-muted text-warning-muted-foreground" },
-  approved: { color: "bg-success-muted text-success-muted-foreground" },
-  revision: { color: "bg-danger-muted text-danger-muted-foreground" },
+const STATUS_CONFIG: Record<
+  Design["status"],
+  { label: string; color: string }
+> = {
+  in_progress: { label: "In Progress", color: "bg-info-muted text-info-muted-foreground" },
+  submitted: { label: "Submitted", color: "bg-warning-muted text-warning-muted-foreground" },
+  approved: { label: "Approved", color: "bg-success-muted text-success-muted-foreground" },
+  revision: { label: "Revision", color: "bg-danger-muted text-danger-muted-foreground" },
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────
@@ -519,9 +522,7 @@ export function DesignDetailPage({
 
   if (!design || !version) return null;
 
-  // Label translated here (DesignManagement.designStatus); the config held
-  // English literals, so the Vietnamese stamp read "IN PROGRESS".
-  const statusCfg = { ...STATUS_CONFIG[design.status], label: t(`designStatus.${design.status}`) };
+  const statusCfg = STATUS_CONFIG[design.status];
   const isApproved = design.status === "approved";
   const canUpload = !isApproved && isProvider && !isReadOnlyProvider;
   const canDeleteImage = !isApproved && isProvider && !isReadOnlyProvider;

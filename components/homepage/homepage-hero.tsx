@@ -29,10 +29,8 @@ import { FloorPlan } from "@/components/drawing-set/floor-plan";
  */
 export function HomepageHero() {
   const t = useTranslations("HomePage.hero");
-  // The web app is for providers — owners create projects in the mobile app —
-  // so the lead action is finding work, not "Start a project".
-  const primaryHref = "/marketplace";
-  const secondaryHref = "/register";
+  const primaryHref = "/register";
+  const secondaryHref = "/marketplace";
 
   const headline = t("headline");
   const accent = t("headlineAccent");

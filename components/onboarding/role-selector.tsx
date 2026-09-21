@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Building2, Ruler, HardHat, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type Role = "shop_owner" | "designer" | "construction_company" | "design_build";
+export type Role = "shop_owner" | "designer" | "construction_company";
 
 interface RoleOption {
   value: Role;

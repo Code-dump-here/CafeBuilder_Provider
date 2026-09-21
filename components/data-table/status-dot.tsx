@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { VersionStatus } from "@/features/projects/design-version-types";
 
@@ -22,26 +21,30 @@ export interface StatusDotProps {
  */
 const TONE: Record<
   VersionStatus,
-  { dot: string; text: string; animate: boolean }
+  { dot: string; text: string; label: string; animate: boolean }
 > = {
   in_progress: {
     dot: "bg-muted-foreground/40",
     text: "text-muted-foreground",
+    label: "In progress",
     animate: false,
   },
   submitted: {
     dot: "bg-warning",
     text: "text-warning-muted-foreground",
+    label: "Submitted",
     animate: true,
   },
   revision: {
     dot: "bg-danger",
     text: "text-danger-muted-foreground",
+    label: "Revision",
     animate: false,
   },
   approved: {
     dot: "bg-success",
     text: "text-success-muted-foreground",
+    label: "Approved",
     animate: false,
   },
 };
@@ -52,9 +55,6 @@ const TONE: Record<
  */
 export function StatusDot({ status, className }: StatusDotProps) {
   const tone = TONE[status];
-  // Labels from DesignManagement.designStatus — they were English literals,
-  // so the Vietnamese design list read "Approved" / "In progress".
-  const t = useTranslations("DesignManagement.designStatus");
   return (
     <span
       data-status={status}
@@ -72,7 +72,7 @@ export function StatusDot({ status, className }: StatusDotProps) {
           tone.animate && "animate-pulse",
         )}
       />
-      <span>{t(status)}</span>
+      <span>{tone.label}</span>
     </span>
   );
 }

@@ -141,17 +141,40 @@ interface RoleFieldsProps {
   isLoading?: boolean;
 }
 
-// Labels come from `Onboarding.provider.options` — they were English literals,
-// so the Vietnamese form showed "Individual" / "Designer" among translated text.
-const PROVIDER_TYPE_OPTIONS: Pick<Option<ProviderType>, "value" | "icon">[] = [
-  { value: "individual", icon: UserCircle2 },
-  { value: "company", icon: Building2 },
+const PROVIDER_TYPE_OPTIONS: Option<ProviderType>[] = [
+  {
+    value: "individual",
+    label: "Individual",
+    description: "Solo designer or contractor working under their own name.",
+    icon: UserCircle2,
+  },
+  {
+    value: "company",
+    label: "Company",
+    description: "Registered business with a tax code and team.",
+    icon: Building2,
+  },
 ];
 
-const CAPABILITY_OPTIONS: Pick<Option<Capability>, "value" | "icon">[] = [
-  { value: "designer", icon: Pencil },
-  { value: "constructor", icon: Hammer },
-  { value: "both", icon: Briefcase },
+const CAPABILITY_OPTIONS: Option<Capability>[] = [
+  {
+    value: "designer",
+    label: "Designer",
+    description: "Owns the design and concept phase.",
+    icon: Pencil,
+  },
+  {
+    value: "constructor",
+    label: "Constructor",
+    description: "Owns the build and execution phase.",
+    icon: Hammer,
+  },
+  {
+    value: "both",
+    label: "Both",
+    description: "Handles design and build end-to-end.",
+    icon: Briefcase,
+  },
 ];
 
 export function RoleFields({
@@ -161,16 +184,6 @@ export function RoleFields({
   setValue,
 }: RoleFieldsProps) {
   const t = useTranslations("Onboarding");
-  const providerTypeOptions: Option<ProviderType>[] = PROVIDER_TYPE_OPTIONS.map((option) => ({
-    ...option,
-    label: t(`provider.options.${option.value}.label`),
-    description: t(`provider.options.${option.value}.description`),
-  }));
-  const capabilityOptions: Option<Capability>[] = CAPABILITY_OPTIONS.map((option) => ({
-    ...option,
-    label: t(`provider.options.${option.value}.label`),
-    description: t(`provider.options.${option.value}.description`),
-  }));
   const providerType = useWatch({ control, name: "providerType" });
   const capability = useWatch({ control, name: "capability" });
 
@@ -217,7 +230,7 @@ export function RoleFields({
         </div>
         <Segmented<ProviderType>
           name="providerType"
-          options={providerTypeOptions}
+          options={PROVIDER_TYPE_OPTIONS}
           value={providerType}
           onChange={(next) =>
             setValue("providerType", next, { shouldValidate: true })
@@ -238,7 +251,7 @@ export function RoleFields({
         </div>
         <Segmented<Capability>
           name="capability"
-          options={capabilityOptions}
+          options={CAPABILITY_OPTIONS}
           value={capability}
           onChange={(next) =>
             setValue("capability", next, { shouldValidate: true })
