@@ -10,7 +10,7 @@ import {
   Receipt,
   Building2,
   BarChart3,
-  AlertTriangle,
+  // AlertTriangle,  // used only by the hidden ISSUES_SECTION
   FileCheck,
   Layers,
   Camera,
@@ -287,18 +287,23 @@ const CONSTRUCTION_WORK_SECTION: NavSection = {
 // raise one against their engagement. Folding it into the construction
 // section would have hidden a feature that genuinely works for them.
 
-const ISSUES_SECTION: NavSection = {
-  labelKey: "Sidebar.contractor.issuesAndRFI",
-  projectScope: ["design", "construction"],
-  items: [
-    {
-      titleKey: "Sidebar.contractor.issuesAndRFI",
-      url: "/issues",
-      icon: AlertTriangle,
-      scope: "project",
-    },
-  ],
-};
+// Hidden on request: commented out rather than deleted, so the tab is
+// unreachable from the sidebar while the page, its hooks and its API layer
+// stay in place. Re-enable by uncommenting this section, its two references
+// in ROLE_SIDEBAR_CONFIG below, and the AlertTriangle import at the top.
+//
+// const ISSUES_SECTION: NavSection = {
+//   labelKey: "Sidebar.contractor.issuesAndRFI",
+//   projectScope: ["design", "construction"],
+//   items: [
+//     {
+//       titleKey: "Sidebar.contractor.issuesAndRFI",
+//       url: "/issues",
+//       icon: AlertTriangle,
+//       scope: "project",
+//     },
+//   ],
+// };
 
 // ─── Shop Owner Section ───────────────────────────────────────────────────────
 
@@ -553,7 +558,7 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
       CONSTRUCTION_WORK_SECTION,
-      ISSUES_SECTION,
+      // ISSUES_SECTION hidden — see the commented section above.
       DESIGNER_MESSAGES,
     ],
     projects: [],
@@ -572,7 +577,7 @@ export const ROLE_SIDEBAR_CONFIG: Record<UserRole, RoleSidebarConfig> = {
       DESIGNER_PROJECT_INFO,
       DESIGNER_DESIGN_WORK,
       CONSTRUCTION_WORK_SECTION,
-      ISSUES_SECTION,
+      // ISSUES_SECTION hidden — see the commented section above.
       DESIGNER_MESSAGES,
     ],
     projects: [],
