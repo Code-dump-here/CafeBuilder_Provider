@@ -1806,7 +1806,7 @@
   },
   "TechnicalDrawings": {
     "pageTitle": "Bản vẽ kỹ thuật",
-    "pageSubtitle": "Bản vẽ kỹ thuật cuối cùng, sẵn sàng cho hợp đồng — các tờ, render và ghi chú review.",
+    "pageSubtitle": "Bản thiết kế cuối cùng đã được chủ dự án duyệt — căn cứ để thi công.",
     "actions": {
       "upload": "Tải bản vẽ lên",
       "download": "Tải về",
@@ -1867,10 +1867,12 @@
     },
     "approved": {
       "version": "v",
-      "empty": "Chưa có bản vẽ nào được duyệt cho engagement này.",
-      "footer": "Bộ tài liệu chỉ đọc — đây là các bản vẽ mà chủ dự án đã xác nhận cho engagement này.",
+      "empty": "Bên thiết kế chưa có bản vẽ nào được chủ dự án duyệt.",
+      "footer": "Chỉ xem — mỗi bản vẽ ở đây là phiên bản cuối cùng chủ dự án đã duyệt.",
       "refreshing": "Đang làm mới…",
-      "open": "Mở"
+      "noImages": "Bản vẽ này không có tệp ảnh nào.",
+      "approvedOn": "Duyệt ngày {date}",
+      "imageCount": "{count} ảnh"
     },
     "errorBanner": {
       "title": "Không thể tải danh sách bản vẽ đã duyệt",

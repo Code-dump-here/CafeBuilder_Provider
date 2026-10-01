@@ -171,6 +171,19 @@ const DESIGNER_PROJECT_INFO: NavSection = {
       scope: "project",
     },
     {
+      // The designs the owner approved — final version only, no history. Here
+      // rather than in either trade's workspace because, like the site profile
+      // above, it is a fact about the project every member works from: the
+      // constructor builds to it, the designer and owner refer back to it.
+      // Kept after completion: it is the as-built reference, and both reads
+      // behind the page stay open at `completed` server-side.
+      titleKey: "Sidebar.designer.technicalDrawings",
+      url: "/technical-drawings",
+      icon: Ruler,
+      scope: "project",
+      keepOnCompletion: true,
+    },
+    {
       // Money agreed after the contract. Not scoped to design or build for the
       // same reason: a scope change can land on either phase.
       titleKey: "Sidebar.designer.changeOrders",
@@ -208,12 +221,9 @@ const DESIGNER_DESIGN_WORK: NavSection = {
       icon: Pencil,
       scope: "project",
     },
-    {
-      titleKey: "Sidebar.designer.technicalDrawings",
-      url: "/technical-drawings",
-      icon: Ruler,
-      scope: "project",
-    },
+    // "/technical-drawings" moved to `DESIGNER_PROJECT_INFO`: the approved set
+    // is project information every member needs, constructors included — under
+    // this `design`-scoped section a constructor never saw it.
   ],
 };
 

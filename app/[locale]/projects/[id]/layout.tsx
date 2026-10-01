@@ -21,8 +21,9 @@ import { useProjectDetail } from "@/features/projects/use-project-detail";
  *
  * Per-project shell. Wraps every page under `/projects/{id}` and renders
  * the `ProjectHeroBar` only for the project root (`/[locale]/projects/[id]`)
- * — pages under "Design Work" (design-management, technical-drawings) or
- * "Messages" don't show the hero.
+ * — pages under "Design Work" (design-management), the construction
+ * workspace (milestones…) or "Messages" don't show the hero, and neither do
+ * most "Project Info" pages (technical-drawings, quotations…).
  *
  * Why a layout, not per-page:
  *   - Single source of truth for hero visibility — pages stay focused on
