@@ -1806,7 +1806,7 @@
   },
   "TechnicalDrawings": {
     "pageTitle": "Technical Drawings",
-    "pageSubtitle": "Final, contract-ready drawings — sheets, renders, and review notes.",
+    "pageSubtitle": "The final designs the owner has approved — the basis for construction.",
     "actions": {
       "upload": "Upload Drawing",
       "download": "Download",
@@ -1867,10 +1867,12 @@
     },
     "approved": {
       "version": "v",
-      "empty": "No approved drawings yet for this engagement.",
-      "footer": "Read-only set — these are the drawings the owner has signed off for this engagement.",
+      "empty": "The designer has no drawings approved by the owner yet.",
+      "footer": "Read-only — each drawing here is the final version the owner approved.",
       "refreshing": "Refreshing…",
-      "open": "Open"
+      "noImages": "This drawing has no image files.",
+      "approvedOn": "Approved {date}",
+      "imageCount": "{count, plural, one {# image} other {# images}}"
     },
     "errorBanner": {
       "title": "Could not load approved drawings",

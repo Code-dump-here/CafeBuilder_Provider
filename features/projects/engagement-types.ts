@@ -7,6 +7,8 @@
  *   - Path B: owner direct-requests → provider accepts
  */
 
+import type { DesignImage, DesignType } from "./design-types";
+
 /**
  * Engagement status lifecycle:
  *   - `requested`  — owner invited provider, awaiting response.
@@ -169,11 +171,27 @@ export interface EngagementAiSummary {
 
 /**
  * Approved design summary for engagement overview.
+ *
+ * The overview fills `approvedDesigns` with whole `DesignResponse` objects —
+ * every design on the project the owner has approved — but only for a
+ * construction-only engagement; for `design` / `both` it is `null`. That is
+ * how a constructor gets the designer's sign-off set: `GET /api/designs` and
+ * `GET /api/designs/{id}` both answer only to the two parties of the
+ * designer's own engagement, so the constructor gets an empty list or a 401
+ * there.
+ *
+ * `approved` is terminal on the server (no new files, no revision), so each
+ * entry is the final version the owner signed off. Only the fields the
+ * read-only view uses are declared here.
  */
 export interface EngagementDesignSummary {
   id: string;
   title: string;
   version: number;
+  type: DesignType;
+  /** When the design last changed — for an approved design, its sign-off. */
+  updatedAt: string;
+  images: DesignImage[];
 }
 
 /**
