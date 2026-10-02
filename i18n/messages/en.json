@@ -969,10 +969,7 @@
     "header": {
       "currentPhaseLabel": "Current phase",
       "progressLabel": "Overall progress",
-      "lastUpdated": "Updated {time}",
-      "openLog": "Log today",
-      "openLogComingSoon": "Logging is coming soon — the daily log tab will open shortly.",
-      "viewTasks": "Open today's tasks"
+      "lastUpdated": "Updated {time}"
     },
     "track": {
       "title": "Milestone track",
