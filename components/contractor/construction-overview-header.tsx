@@ -1,10 +1,8 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
-import { CalendarDays, ClipboardList, PenLine, TrendingUp } from "lucide-react";
+import { CalendarDays, ClipboardList, TrendingUp } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { projectActionToast } from "@/components/project-overview/project-action-toast";
 
 import type { ConstructionOverviewData } from "@/lib/contractor/construction-overview-data";
 
@@ -17,8 +15,13 @@ interface ConstructionOverviewHeaderProps {
 /**
  * Hero strip for the construction overview page. Pulls together the
  * three facts a contractor cares about — current phase, overall
- * progress, last-update — and provides the two primary CTAs (jump into
- * today's log, open the task list).
+ * progress, last-update.
+ *
+ * It used to carry two controls that did nothing: a "Log today" button that
+ * only raised a "coming soon" toast, and an "Open today's tasks" button that
+ * was permanently disabled. The daily log and the task list each have their
+ * own working page in the sidebar, so both buttons promised what the product
+ * already did properly elsewhere.
  */
 export function ConstructionOverviewHeader({
   data,
@@ -62,28 +65,6 @@ export function ConstructionOverviewHeader({
               })}
             </Pill>
           </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-stretch">
-          <Button
-            type="button"
-            size="sm"
-            onClick={() => projectActionToast(t("header.openLogComingSoon"))}
-          >
-            <PenLine aria-hidden />
-            {t("header.openLog")}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled
-            aria-disabled="true"
-            title={t("header.viewTasks")}
-          >
-            <ClipboardList aria-hidden />
-            {t("header.viewTasks")}
-          </Button>
         </div>
       </div>
     </Card>

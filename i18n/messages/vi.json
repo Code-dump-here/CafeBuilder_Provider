@@ -969,10 +969,7 @@
     "header": {
       "currentPhaseLabel": "Giai đoạn hiện tại",
       "progressLabel": "Tiến độ tổng",
-      "lastUpdated": "Cập nhật {time}",
-      "openLog": "Ghi hôm nay",
-      "openLogComingSoon": "Tính năng ghi nhật ký sắp ra mắt — trang nhật ký sẽ mở ngay.",
-      "viewTasks": "Mở việc hôm nay"
+      "lastUpdated": "Cập nhật {time}"
     },
     "track": {
       "title": "Mốc thi công",
