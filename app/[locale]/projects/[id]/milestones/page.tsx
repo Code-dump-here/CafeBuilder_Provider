@@ -17,7 +17,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AlertTriangle } from "lucide-react";
 
 import { MilestoneManagementToolbar } from "@/components/contractor/milestone-management/toolbar";
@@ -243,7 +242,10 @@ export default function MilestoneManagementPage() {
 
   const createTask = useCreateConstructionTaskMutation();
   const updateTask = useUpdateConstructionTaskMutation();
-  const setTaskStatus = useSetConstructionTaskStatusMutation();
+  // No success toast: the task's circle changing colour IS the confirmation,
+  // and a toast per click on a one-click toggle was noise (02/10/2026).
+  // Failures still toast.
+  const setTaskStatus = useSetConstructionTaskStatusMutation({ onSuccessMessage: null });
   const deleteTask = useDeleteConstructionTaskMutation();
 
   // This page refreshes itself with `refetchItems` / `refetchTasks`, which only
@@ -465,52 +467,35 @@ export default function MilestoneManagementPage() {
 
   // ── Task handlers ───────────────────────────────────────────────────────────
   //
-  // Status toggles used to fire the moment the checkbox was clicked — one
-  // misclick and a task jumped forward with no way back (the backend only
-  // allows one-step-forward transitions, never backward, so "completed" is
-  // a dead end). `toggleConfirm` holds the pending toggle until the user
-  // confirms it in a dialog instead. Both entry points (the chip's inline
-  // circle and the task detail modal's button) route through
-  // `handleRequestToggleTask` so there's exactly one confirm dialog.
-  const [toggleConfirm, setToggleConfirm] = React.useState<{
-    open: boolean;
-    itemId: string | null;
-    taskIndex: number | null;
-  }>({ open: false, itemId: null, taskIndex: null });
-
-  const pendingToggleTask =
-    toggleConfirm.itemId != null && toggleConfirm.taskIndex != null
-      ? (tasksByItem[toggleConfirm.itemId] ?? [])[toggleConfirm.taskIndex]
-      : undefined;
-  const pendingToggleNextStatus: ConstructionStatus | null =
-    pendingToggleTask == null
-      ? null
-      : pendingToggleTask.status === "in_progress"
-        ? "completed"
-        : "in_progress";
-
+  // One click moves the task one step forward (pending → in_progress →
+  // completed) — no confirm dialog, the owner asked for a single click
+  // (02/10/2026). Both entry points (the chip's inline circle and the task
+  // detail modal's button) route through `handleRequestToggleTask`.
   const handleRequestToggleTask = (itemId: string, taskIndex: number) => {
     const task = (tasksByItem[itemId] ?? [])[taskIndex];
     // The backend rejects reopening a completed task — there's no valid
-    // next status once a task is done, so there's nothing to confirm.
-    if (!task || task.status === "completed") return;
-    setToggleConfirm({ open: true, itemId, taskIndex });
-  };
-
-  const handleConfirmToggleTask = async () => {
-    const task = pendingToggleTask;
-    const nextStatus = pendingToggleNextStatus;
-    setToggleConfirm({ open: false, itemId: null, taskIndex: null });
+    // next status once a task is done. A second click while the first
+    // request is in flight would send the same transition twice (409).
+    if (!task || task.status === "completed" || setTaskStatus.isPending) return;
+    const nextStatus: ConstructionStatus =
+      task.status === "in_progress" ? "completed" : "in_progress";
     setTaskDetail((prev) => ({ ...prev, open: false }));
-    if (!task || !nextStatus) return;
 
-    await setTaskStatus.mutateAsync({
-      id: task.id,
-      payload: { status: nextStatus },
-    });
-    void refetchTasks();
-    // A task's materials roll into its milestone's cost.
-    invalidateCostSummaries();
+    // Errors are toasted by the mutation hook itself.
+    setTaskStatus.mutate(
+      { id: task.id, payload: { status: nextStatus } },
+      {
+        onSuccess: () => {
+          void refetchTasks();
+          // The server starts a pending milestone (and its parent) as soon as
+          // one of its tasks moves, so the milestone's status pill has to be
+          // re-read too.
+          void refetchItems();
+          // A task's materials roll into its milestone's cost.
+          invalidateCostSummaries();
+        },
+      },
+    );
   };
 
   const handleOpenTask = (itemId: string, taskIndex: number) => {
@@ -1024,25 +1009,6 @@ export default function MilestoneManagementPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Task status toggle confirmation */}
-      <ConfirmDialog
-        open={toggleConfirm.open}
-        onOpenChange={(open) => {
-          if (!open) setToggleConfirm({ open: false, itemId: null, taskIndex: null });
-        }}
-        title={t("task.confirmToggleTitle")}
-        description={
-          pendingToggleTask
-            ? pendingToggleNextStatus === "completed"
-              ? t("task.confirmToggleToCompleted", { title: pendingToggleTask.name })
-              : t("task.confirmToggleToInProgress", { title: pendingToggleTask.name })
-            : ""
-        }
-        confirmLabel={t("task.confirmCta")}
-        cancelLabel={t("task.confirmCancel")}
-        onConfirm={() => void handleConfirmToggleTask()}
-      />
     </>
   );
 }

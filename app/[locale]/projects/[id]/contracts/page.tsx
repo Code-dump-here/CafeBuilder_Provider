@@ -42,8 +42,12 @@ import { useCurrentUser } from "@/features/auth/user-context";
 import { uploadFileApi } from "@/lib/http/file-upload-api";
 import { useContracts, useCreateContractMutation, useUpdateContractMutation, useSendContractOtpMutation, useConfirmContractOtpMutation, useCancelContractMutation } from "@/features/projects/use-contracts";
 import { useEngagements } from "@/features/projects/use-engagements";
+import { useQuotations } from "@/features/projects/use-quotations";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
+import { Link } from "@/i18n/navigation";
 import type { Contract } from "@/features/projects/contract-types";
+import type { Engagement } from "@/features/projects/engagement-types";
+import type { QuotationStatus } from "@/features/projects/quotation-types";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatVnd } from "@/lib/format-currency";
@@ -307,15 +311,18 @@ export default function ContractsPage() {
       )}
 
       {/* Create Contract Dialog */}
-      <CreateContractDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        projectWorkingId={projectWorkingId}
-        onSuccess={() => {
-          setCreateDialogOpen(false);
-          void refetch();
-        }}
-      />
+      {myEngagement ? (
+        <CreateContractDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          engagement={myEngagement}
+          projectId={projectIdParam}
+          onSuccess={() => {
+            setCreateDialogOpen(false);
+            void refetch();
+          }}
+        />
+      ) : null}
 
       {/* OTP Dialog */}
       <OtpConfirmDialog
@@ -585,17 +592,47 @@ function ConfirmedContractBanner({ contract }: ConfirmedContractBannerProps) {
 interface CreateContractDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  projectWorkingId: string;
+  engagement: Engagement;
+  projectId: string;
   onSuccess: () => void;
 }
+
+const PENDING_QUOTATION_STATUSES: readonly QuotationStatus[] = [
+  "draft",
+  "sent",
+  "revision_requested",
+];
 
 function CreateContractDialog({
   open,
   onOpenChange,
-  projectWorkingId,
+  engagement,
+  projectId,
   onSuccess,
 }: CreateContractDialogProps) {
   const t = useTranslations("Contracts.dialog");
+  const locale = useLocale();
+  const projectWorkingId = engagement.id;
+
+  // Payment batches are split from the approved quotation's payment terms, so
+  // a contract whose value differs from that quotation leaves the instalments
+  // summing to the wrong total — and a contract not linked to a quotation gets
+  // no instalments at all (the server only generates them from `quotationId`).
+  // So the value comes from the quotation, read-only. Listing by engagement
+  // returns both anchors — quotations on the engagement and the won bid filed
+  // under the application it grew from (see the quotations page).
+  const { quotations, isLoading: isLoadingQuotations } = useQuotations({
+    projectWorkingId: engagement.id,
+    enabled: open,
+  });
+  const byNewest = React.useMemo(
+    () => [...quotations].sort((a, b) => b.version - a.version),
+    [quotations],
+  );
+  const acceptedQuotation = byNewest.find((q) => q.status === "accepted") ?? null;
+  const pendingQuotation = acceptedQuotation
+    ? null
+    : (byNewest.find((q) => PENDING_QUOTATION_STATUSES.includes(q.status)) ?? null);
 
   const [title, setTitle] = React.useState("");
   const [terms, setTerms] = React.useState("");
@@ -640,27 +677,34 @@ function CreateContractDialog({
     }
   };
 
+  const manualValue = Number.parseFloat(agreedValue);
+  const manualValueOk = Number.isFinite(manualValue) && manualValue > 0;
+
+  const isValid =
+    title.trim().length > 0 &&
+    !isLoadingQuotations &&
+    // A quotation still waiting on the owner blocks a hand-written contract:
+    // the server refuses it (409) because it would disagree with the price
+    // about to be approved.
+    pendingQuotation === null &&
+    (acceptedQuotation !== null || manualValueOk);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const value = Number.parseFloat(agreedValue);
-    if (!title.trim() || !Number.isFinite(value) || value <= 0) {
-      return;
-    }
+    if (!isValid) return;
 
     createMutation.mutate({
       projectWorkingId,
       title: title.trim(),
       terms: terms.trim() || undefined,
-      agreedValue: value,
+      // With a quotation the server takes the value from it; sending ours
+      // too would only invite a mismatch.
+      ...(acceptedQuotation
+        ? { quotationId: acceptedQuotation.id }
+        : { agreedValue: manualValue }),
       documentUrl: documentUrl || undefined,
     });
   };
-
-  const isValid =
-    title.trim().length > 0 &&
-    Number.isFinite(Number.parseFloat(agreedValue)) &&
-    Number.parseFloat(agreedValue) > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -692,7 +736,7 @@ function CreateContractDialog({
             />
           </div>
 
-          {/* Agreed Value */}
+          {/* Agreed Value — from the approved quotation when there is one */}
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="contract-value"
@@ -700,21 +744,84 @@ function CreateContractDialog({
             >
               {t("valueLabel")} <span className="text-destructive">*</span>
             </label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="contract-value"
-                type="number"
-                inputMode="decimal"
-                min={0}
-                step={1000}
-                value={agreedValue}
-                onChange={(e) => setAgreedValue(e.target.value)}
-                placeholder={t("valuePlaceholder")}
-                required
-                className="flex-1"
-              />
-              <span className="text-sm text-muted-foreground">VND</span>
-            </div>
+            {isLoadingQuotations ? (
+              <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="size-3 animate-spin" aria-hidden />
+                {t("loadingQuotation")}
+              </p>
+            ) : acceptedQuotation ? (
+              <div className="flex flex-col gap-2 rounded-md border border-border/70 bg-muted/40 p-3">
+                <p id="contract-value" className="text-lg font-semibold text-foreground">
+                  {formatVnd(acceptedQuotation.totalAmount, locale)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("fromQuotation", { version: acceptedQuotation.version })}
+                </p>
+                {acceptedQuotation.paymentTerms.length > 0 ? (
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs font-medium text-foreground">
+                      {t("paymentTermsLabel")}
+                    </p>
+                    <ul className="flex flex-col gap-0.5 text-xs text-muted-foreground">
+                      {[...acceptedQuotation.paymentTerms]
+                        .sort((a, b) => a.sortOrder - b.sortOrder)
+                        .map((term) => (
+                          <li key={term.id} className="flex justify-between gap-3">
+                            <span className="min-w-0">
+                              {term.name}
+                              {term.percentage != null ? ` (${term.percentage}%)` : ""}
+                            </span>
+                            <span className="shrink-0 tabular-nums">
+                              {formatVnd(term.amount, locale)}
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </div>
+            ) : pendingQuotation ? (
+              <div className="flex flex-col gap-2 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
+                <p>
+                  {pendingQuotation.status === "draft"
+                    ? t("quotationDraft", { version: pendingQuotation.version })
+                    : t("quotationPending", { version: pendingQuotation.version })}
+                </p>
+                <Link
+                  href={`/projects/${projectId}/quotations`}
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  {t("goToQuotations")}
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="contract-value"
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step={1000}
+                    value={agreedValue}
+                    onChange={(e) => setAgreedValue(e.target.value)}
+                    placeholder={t("valuePlaceholder")}
+                    required
+                    className="flex-1"
+                  />
+                  <span className="text-sm text-muted-foreground">VND</span>
+                </div>
+                <p className="text-[12px] text-muted-foreground">
+                  {t("noQuotation")}{" "}
+                  <Link
+                    href={`/projects/${projectId}/quotations`}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    {t("goToQuotations")}
+                  </Link>
+                </p>
+              </>
+            )}
           </div>
 
           {/* Terms */}

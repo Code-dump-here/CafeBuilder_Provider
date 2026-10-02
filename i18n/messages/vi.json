@@ -931,6 +931,13 @@
       "cancel": "Hủy",
       "create": "Tạo hợp đồng",
       "creating": "Đang tạo…",
+      "loadingQuotation": "Đang tải báo giá…",
+      "fromQuotation": "Lấy từ báo giá v{version} đã được chủ dự án duyệt — giá trị hợp đồng và các đợt thanh toán khớp với báo giá, không sửa tay được.",
+      "paymentTermsLabel": "Các đợt thanh toán sẽ được tạo khi ký hợp đồng",
+      "quotationPending": "Báo giá v{version} đang chờ chủ dự án duyệt. Hợp đồng phải lập từ báo giá đã duyệt để tổng giá và các đợt thanh toán khớp nhau.",
+      "quotationDraft": "Báo giá v{version} vẫn là bản nháp — hãy gửi cho chủ dự án duyệt trước khi lập hợp đồng.",
+      "noQuotation": "Hợp tác này chưa có báo giá nên hợp đồng lập tay sẽ không có đợt thanh toán theo giai đoạn. Nên lập báo giá trước.",
+      "goToQuotations": "Mở trang Báo giá",
       "otpTitleSend": "Gửi xác minh OTP",
       "otpTitleConfirm": "Xác nhận hợp đồng",
       "otpDescriptionSend": "Gửi mã xác minh đến email của chủ dự án để xác nhận hợp đồng.",
@@ -2986,7 +2993,61 @@
       "notePlaceholder": "Điều chủ quán nên đọc kèm bảng giá.",
       "save": "Lưu bản nháp",
       "newVersionTitle": "Bản báo giá mới",
-      "newVersionDescription": "Chủ quán đã xem bản trước nên không sửa đè được. Thao tác này tạo một bản báo giá mới, điền sẵn từ bản cũ."
+      "newVersionDescription": "Chủ quán đã xem bản trước nên không sửa đè được. Thao tác này tạo một bản báo giá mới, điền sẵn từ bản cũ.",
+      "designItemsHint": "Mỗi phần thiết kế báo giá một dòng và chỉ một lần: Concept, Bản vẽ 2D, Phối cảnh 3D, Tài liệu thiết kế.",
+      "designPartPlaceholder": "Chọn phần thiết kế",
+      "designPartPrice": "Giá phần này",
+      "designPartsAllUsed": "Đã báo giá đủ 4 phần thiết kế.",
+      "designPartLegacy": "Dòng cũ \"{name}\" — chọn lại phần thiết kế tương ứng.",
+      "designPartMissing": "Chọn phần thiết kế cho dòng này.",
+      "designTermsHint": "Mỗi đợt gắn với một phần thiết kế đã báo giá ở trên, và mỗi phần chỉ thu một đợt.",
+      "designTermPlaceholder": "Chọn phần thanh toán",
+      "designTermNotQuoted": "Phần này không có trong hạng mục — chọn lại hoặc xoá đợt.",
+      "designTermMissing": "Chọn phần thiết kế cho đợt này.",
+      "designTermsAllUsed": "Mỗi phần đã báo giá đều đã có đợt thanh toán.",
+      "designTermCondition": "Khi chủ quán duyệt {part}",
+      "designParts": {
+        "concept": "Concept",
+        "layout_2d": "Bản vẽ 2D",
+        "render_3d": "Phối cảnh 3D",
+        "technical_drawing": "Tài liệu thiết kế"
+      },
+      "template": {
+        "button": "Áp mẫu 3 giai đoạn",
+        "hint": "Gộp 9 bước của quy trình thi công chuẩn thành 3 giai đoạn, kèm 3 đợt thanh toán 30% – 40% – 30%. Bạn chỉ cần điền giá từng giai đoạn.",
+        "confirmTitle": "Thay bằng mẫu 3 giai đoạn?",
+        "confirmBody": "Hạng mục và điều kiện thanh toán đang nhập sẽ được thay bằng mẫu. Tiêu đề và thời gian chỉ được điền nếu đang để trống.",
+        "confirm": "Áp mẫu",
+        "title": "Thi công trọn gói quán cà phê — 3 giai đoạn",
+        "phases": {
+          "rough": {
+            "name": "Giai đoạn 1 — Chuẩn bị mặt bằng, phần thô & điện nước",
+            "description": "Nhận mặt bằng, tháo dỡ, định vị; xây tường ngăn, tô trát, chống thấm; đi ngầm điện, nước, mạng và thử áp lực trước khi đóng trần."
+          },
+          "finishing": {
+            "name": "Giai đoạn 2 — Hoàn thiện & nội thất cố định",
+            "description": "Trần thạch cao, ốp lát sàn và mặt dựng; bả, sơn hoàn thiện; gia công và lắp đặt quầy bar, kệ trưng bày, tủ bếp."
+          },
+          "handover": {
+            "name": "Giai đoạn 3 — Thiết bị, nhận diện & bàn giao",
+            "description": "Lắp đèn, máy lạnh, thiết bị pha chế; biển hiệu, decal, menu; vệ sinh công nghiệp, chạy thử và nghiệm thu bàn giao."
+          }
+        },
+        "terms": {
+          "advance": {
+            "name": "Đợt 1 — Tạm ứng khi ký hợp đồng",
+            "condition": "Ngay sau khi ký hợp đồng, để nhận mặt bằng, đặt vật tư và gia công quầy bar."
+          },
+          "progress": {
+            "name": "Đợt 2 — Hoàn thành phần thô & điện nước",
+            "condition": "Khi nghiệm thu xong giai đoạn 1, trước khi đóng trần và hoàn thiện."
+          },
+          "final": {
+            "name": "Đợt 3 — Nghiệm thu bàn giao",
+            "condition": "Sau khi nghiệm thu toàn bộ và bàn giao quán."
+          }
+        }
+      }
     }
   },
   "PaymentBatches": {

@@ -101,23 +101,20 @@ export default function ProviderQuotationsPage() {
   });
   const pendingApply = engagement ? undefined : getApplyForProject(projectId);
 
-  // A quotation never changes anchor. `ck_quotations_anchor` lets it hold only
-  // one of `applyId` / `projectWorkingId`, and approving a bid does not move
-  // it, so the bid that won an engagement stays filed under the application it
-  // came in on. Reading by `projectWorkingId` alone therefore finds nothing for
-  // the provider who just won — and the empty state invited them to write a
-  // second quotation for work already priced and under contract.
+  // A quotation never changes anchor (`ck_quotations_anchor`): the bid that won
+  // an engagement stays filed under its application. But once the engagement
+  // exists, the application is 'accepted' and the server takes no NEW
+  // quotation on it — so a provider whose proposal was accepted without a
+  // quotation (the owner can accept the proposal itself) could never price the
+  // job: "a quotation can only be sent while the application is 'pending'".
   //
-  // `engagement.applyId` is that original application when the engagement grew
-  // out of a bid, and null when the owner hired directly. So it names the real
-  // anchor in both cases, which guessing from the application list could not:
-  // a provider can hold an old rejected bid on the same project.
-  const applyId = engagement
-    ? engagement.applyId
-    : pendingApply?.status === "pending"
-      ? pendingApply.id
-      : null;
-  const projectWorkingId = applyId ? null : (engagement?.id ?? null);
+  // So: with an engagement, read and write by the engagement. The server's
+  // list for `projectWorkingId` also returns the quotations filed under the
+  // application the engagement grew from (02/10/2026), so a won bid still
+  // shows. Without one, the bid is still pending and anchors to it.
+  const projectWorkingId = engagement?.id ?? null;
+  const applyId =
+    !engagement && pendingApply?.status === "pending" ? pendingApply.id : null;
 
   const { quotations, isLoading, isError, error, refetch } = useQuotations({
     projectWorkingId,
@@ -158,6 +155,16 @@ export default function ProviderQuotationsPage() {
     variant === "construction"
       ? ConstructionQuotationEditorDialog
       : DesignQuotationEditorDialog;
+
+  // The four fixed design parts (concept / 2D / 3D / design documents) only
+  // describe a design-only job. A `both` engagement or post also sells
+  // construction, so it keeps free-text lines. Before the scope is known, a
+  // designer-only studio can only be bidding on design.
+  const knownScope = engagement?.contractType ?? biddingServiceKind ?? null;
+  const designParts =
+    variant === "design" &&
+    (knownScope === "design" ||
+      (knownScope === null && account?.serviceProvider?.capability === "designer"));
 
   const [editorOpen, setEditorOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Quotation | null>(null);
@@ -270,9 +277,9 @@ toast.error(
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            {/* Keyed on the engagement, not on which anchor the read used: a
-                provider who won from a bid still reads by `applyId`, but they
-                are no longer bidding. */}
+            {/* Keyed on the engagement: a provider who won from a bid may
+                still see that bid's quotation here, but they are no longer
+                bidding. */}
             {engagement ? t("subtitleEngaged") : t("subtitleBidding")}
           </p>
         </div>
@@ -498,6 +505,7 @@ toast.error(
         }}
         initial={editing ?? seed}
         isNewVersion={editing === null && seed !== null}
+        designParts={designParts}
         pending={createMutation.isPending || updateMutation.isPending}
         onSubmit={handleSubmit}
       />
