@@ -113,11 +113,20 @@ export default function ProjectDetailPage() {
   const { engagements: myEngagements } = useEngagements({
     projectId: projectIdParam,
     providerId: viewerProfileId ?? undefined,
-    status: "accepted",
-    pageSize: 1,
+    pageSize: 10,
     enabled: viewerProfileId != null,
   });
-  const myEngagement = myEngagements[0] ?? null;
+  // The live engagement drives the action surfaces (termination banner, next
+  // steps) — those end with the engagement.
+  const myEngagement =
+    myEngagements.find((e) => e.status === "accepted") ?? null;
+  // The AI concepts are project reference, not a work queue: they stay
+  // readable after handover, so a completed engagement still feeds them
+  // (the overview endpoint only refuses rejected/terminated).
+  const overviewEngagement =
+    myEngagement ??
+    myEngagements.find((e) => e.status === "completed") ??
+    null;
 
   // GET /api/ai-recommendations is owner+admin only — a provider calling it
   // gets a 403. This page is shared by both roles, so gate the call itself
@@ -146,8 +155,8 @@ export default function ProjectDetailPage() {
   // their engagement, just a thinner shape (id/conceptSummary/state, no
   // cost/layout/image detail).
   const providerAiOverview = useEngagementOverview({
-    engagementId: myEngagement ? String(myEngagement.id) : "",
-    enabled: isProviderViewer && myEngagement != null,
+    engagementId: overviewEngagement ? String(overviewEngagement.id) : "",
+    enabled: isProviderViewer && overviewEngagement != null,
   });
 
   if (isProjectError || isBriefError || isAiError) {
@@ -237,9 +246,10 @@ export default function ProjectDetailPage() {
                   owner+admin only). They get the same underlying data via
                   their own engagement overview instead — a thinner summary
                   (no cost/layout/image detail), scoped to their engagement.
-                  Self-hides while loading or when there's nothing to show
-                  (e.g. a construction-scope engagement has none). */}
-              {isProviderViewer && myEngagement ? (
+                  Self-hides while loading or when there's nothing to show.
+                  Both scopes (design and construction) get them, and a
+                  completed engagement keeps them. */}
+              {isProviderViewer && overviewEngagement ? (
                 providerAiOverview.isLoading ? (
                   <AiRecommendationsSkeleton />
                 ) : (

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
+import { LayoutTemplate, Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { formatVndParts } from "@/lib/format-currency";
 import {
@@ -33,6 +34,19 @@ import {
 } from "@/features/projects/quotation-types";
 import { quotationUnitOptions } from "@/features/projects/quotation-units";
 import type { QuotationVariant } from "@/features/projects/quotation-variant";
+import {
+  DESIGN_PART_STORED_NAME,
+  DESIGN_PART_UNIT,
+  DESIGN_QUOTATION_PARTS,
+  designPartFromName,
+  type DesignQuotationPart,
+} from "@/features/projects/quotation-design-parts";
+import {
+  CONSTRUCTION_TEMPLATE_DURATION_DAYS,
+  CONSTRUCTION_TEMPLATE_PHASES,
+  CONSTRUCTION_TEMPLATE_TERMS,
+  CONSTRUCTION_TEMPLATE_UNIT,
+} from "@/features/projects/quotation-construction-template";
 
 /**
  * Draft editor for a quotation: the priced line items and the instalment
@@ -57,6 +71,12 @@ interface ItemDraft {
   quantity: string;
   unitPrice: string;
   note: string;
+  /**
+   * Design-parts mode only: which deliverable the line prices. Null on a new
+   * row, or on a line written before the parts were fixed (its old `name` is
+   * kept so the provider can see what to map it to).
+   */
+  part: DesignQuotationPart | null;
 }
 
 interface TermDraft {
@@ -64,6 +84,8 @@ interface TermDraft {
   name: string;
   percentage: string;
   condition: string;
+  /** Design-parts mode only: the deliverable this instalment pays for. */
+  part: DesignQuotationPart | null;
 }
 
 /**
@@ -89,11 +111,12 @@ function emptyItem(): ItemDraft {
     quantity: "1",
     unitPrice: "",
     note: "",
+    part: null,
   };
 }
 
 function emptyTerm(): TermDraft {
-  return { key: nextKey(), name: "", percentage: "", condition: "" };
+  return { key: nextKey(), name: "", percentage: "", condition: "", part: null };
 }
 
 export interface QuotationFormValues {
@@ -112,6 +135,7 @@ function QuotationEditorBase({
   initial,
   isNewVersion = false,
   variant,
+  designParts = false,
   pending,
   onSubmit,
 }: {
@@ -122,6 +146,13 @@ function QuotationEditorBase({
    * are on the form at all — see `features/projects/quotation-variant.ts`.
    */
   variant: QuotationVariant;
+  /**
+   * Price the four fixed design deliverables (concept, 2D, 3D, design
+   * documents) instead of free-text lines, each at most once — and tie each
+   * instalment to one of them. Only for a pure design scope: a `both`
+   * engagement also prices construction, which these four can't express.
+   */
+  designParts?: boolean;
   /** Prefill. Null when starting from scratch. */
   initial: Quotation | null;
   /**
@@ -175,8 +206,13 @@ function QuotationEditorBase({
             description: item.description ?? "",
             unit: item.unit ?? "",
             quantity: String(item.quantity),
-            unitPrice: String(item.unitPrice),
+            // A part is sold whole, so a design-parts line's price is the
+            // line total — an old line priced as 2 × 500k reads as 1M.
+            unitPrice: designParts
+              ? String(item.quantity * item.unitPrice)
+              : String(item.unitPrice),
             note: item.note ?? "",
+            part: designParts ? designPartFromName(item.name) : null,
           }))
         : [emptyItem()],
     );
@@ -185,6 +221,7 @@ function QuotationEditorBase({
         ? initial.paymentTerms.map((term) => ({
             key: nextKey(),
             name: term.name,
+            part: designParts ? designPartFromName(term.name) : null,
             // Terms written as a flat amount come back with percentage null;
             // re-deriving one from the total keeps the editor on a single
             // input instead of an amount/percentage mode switch.
@@ -202,36 +239,77 @@ function QuotationEditorBase({
     );
   });
 
+  const partLabel = (part: DesignQuotationPart) => t(`editor.designParts.${part}`);
+
+  // Design-parts mode: a row with a part is a whole deliverable — fixed name,
+  // one package. A row with no part but an old name or a price is an
+  // unmapped legacy line: it blocks saving (below) rather than vanishing.
+  const isBlankItem = (item: ItemDraft) =>
+    item.part === null && !item.name.trim() && !item.unitPrice.trim();
+  const unmappedItems = designParts
+    ? items.filter((item) => item.part === null && !isBlankItem(item))
+    : [];
+
   const parsedItems: QuotationItemInput[] = React.useMemo(
     () =>
-      items
-        .filter((item) => item.name.trim().length > 0)
-        .map((item) => ({
-          name: item.name.trim(),
-          description: item.description.trim() || undefined,
-          unit: item.unit.trim() || undefined,
-          quantity: Number(item.quantity) || 0,
-          unitPrice: Number(item.unitPrice) || 0,
-          note: item.note.trim() || undefined,
-        })),
-    [items],
+      designParts
+        ? items
+            .filter((item) => item.part !== null)
+            .map((item) => ({
+              name: DESIGN_PART_STORED_NAME[item.part!],
+              description: item.description.trim() || undefined,
+              unit: DESIGN_PART_UNIT,
+              quantity: 1,
+              unitPrice: Number(item.unitPrice) || 0,
+              note: item.note.trim() || undefined,
+            }))
+        : items
+            .filter((item) => item.name.trim().length > 0)
+            .map((item) => ({
+              name: item.name.trim(),
+              description: item.description.trim() || undefined,
+              unit: item.unit.trim() || undefined,
+              quantity: Number(item.quantity) || 0,
+              unitPrice: Number(item.unitPrice) || 0,
+              note: item.note.trim() || undefined,
+            })),
+    [items, designParts],
   );
 
   const parsedTerms: QuotationPaymentTermInput[] = React.useMemo(
     () =>
-      terms
-        .filter((term) => term.name.trim().length > 0)
-        .map((term) => ({
-          name: term.name.trim(),
-          percentage: Number(term.percentage) || undefined,
-          condition: term.condition.trim() || undefined,
-        })),
-    [terms],
+      designParts
+        ? terms
+            .filter((term) => term.part !== null)
+            .map((term) => ({
+              name: DESIGN_PART_STORED_NAME[term.part!],
+              percentage: Number(term.percentage) || undefined,
+              condition: term.condition.trim() || undefined,
+            }))
+        : terms
+            .filter((term) => term.name.trim().length > 0)
+            .map((term) => ({
+              name: term.name.trim(),
+              percentage: Number(term.percentage) || undefined,
+              condition: term.condition.trim() || undefined,
+            })),
+    [terms, designParts],
   );
 
   const total = sumQuotationItems(parsedItems);
   const balance = paymentTermsBalance(parsedTerms, total);
   const money = (amount: number) => formatVndParts(amount, locale).full;
+
+  // Parts already priced, in line order — what an instalment may pay for.
+  const pricedParts = items.flatMap((item) => (item.part ? [item.part] : []));
+  const termProblem = (term: TermDraft): "missing" | "notQuoted" | null =>
+    !designParts
+      ? null
+      : term.part === null
+        ? "missing"
+        : pricedParts.includes(term.part)
+          ? null
+          : "notQuoted";
 
   const durationNumber = Number.parseInt(durationDays.trim(), 10);
   const durationValid =
@@ -243,13 +321,61 @@ function QuotationEditorBase({
     title.trim().length > 0 &&
     durationValid &&
     parsedItems.length > 0 &&
-    parsedItems.every((item) => item.quantity > 0 && item.unitPrice >= 0);
+    parsedItems.every((item) => item.quantity > 0 && item.unitPrice >= 0) &&
+    unmappedItems.length === 0 &&
+    terms.every((term) => termProblem(term) === null);
 
   const patchItem = (key: string, patch: Partial<ItemDraft>) =>
     setItems((rows) => rows.map((r) => (r.key === key ? { ...r, ...patch } : r)));
 
   const patchTerm = (key: string, patch: Partial<TermDraft>) =>
     setTerms((rows) => rows.map((r) => (r.key === key ? { ...r, ...patch } : r)));
+
+  /**
+   * Picking a part for an instalment pre-fills what the provider would type
+   * anyway: that part's share of the total and when it falls due. Only empty
+   * fields are filled — a percentage already negotiated is never overwritten.
+   */
+  const chooseTermPart = (term: TermDraft, part: DesignQuotationPart) => {
+    const item = items.find((i) => i.part === part);
+    const price = Number(item?.unitPrice) || 0;
+    patchTerm(term.key, {
+      part,
+      percentage:
+        term.percentage.trim() || total <= 0
+          ? term.percentage
+          : String(Math.round((price / total) * 1000) / 10),
+      condition:
+        term.condition.trim() || t("editor.designTermCondition", { part: partLabel(part) }),
+    });
+  };
+
+  // ── Construction 3-phase template ──────────────────────────────────────────
+  const [templateConfirmOpen, setTemplateConfirmOpen] = React.useState(false);
+  const hasEnteredLines =
+    items.some((item) => item.name.trim() || item.unitPrice.trim()) || terms.length > 0;
+
+  const applyConstructionTemplate = () => {
+    setItems(
+      CONSTRUCTION_TEMPLATE_PHASES.map((phase) => ({
+        ...emptyItem(),
+        name: t(`editor.template.phases.${phase.key}.name`),
+        description: t(`editor.template.phases.${phase.key}.description`),
+        unit: CONSTRUCTION_TEMPLATE_UNIT,
+        quantity: "1",
+      })),
+    );
+    setTerms(
+      CONSTRUCTION_TEMPLATE_TERMS.map((term) => ({
+        ...emptyTerm(),
+        name: t(`editor.template.terms.${term.key}.name`),
+        percentage: String(term.percentage),
+        condition: t(`editor.template.terms.${term.key}.condition`),
+      })),
+    );
+    if (!title.trim()) setTitle(t("editor.template.title"));
+    if (!durationDays.trim()) setDurationDays(String(CONSTRUCTION_TEMPLATE_DURATION_DAYS));
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -359,26 +485,144 @@ function QuotationEditorBase({
 
           {/* ── Line items ─────────────────────────────────────────────── */}
           <section className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h3 className="text-sm font-semibold">{t("editor.itemsTitle")}</h3>
                 <p className="text-xs text-muted-foreground">
-                  {t("editor.itemsHint")}
+                  {designParts ? t("editor.designItemsHint") : t("editor.itemsHint")}
                 </p>
               </div>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => setItems((rows) => [...rows, emptyItem()])}
-              >
-                <Plus aria-hidden />
-                {t("editor.addItem")}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                {variant === "construction" ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    title={t("editor.template.hint")}
+                    onClick={() =>
+                      hasEnteredLines
+                        ? setTemplateConfirmOpen(true)
+                        : applyConstructionTemplate()
+                    }
+                  >
+                    <LayoutTemplate aria-hidden />
+                    {t("editor.template.button")}
+                  </Button>
+                ) : null}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  // Four parts, each once: a fifth row could only repeat one.
+                  disabled={designParts && items.length >= DESIGN_QUOTATION_PARTS.length}
+                  onClick={() => setItems((rows) => [...rows, emptyItem()])}
+                >
+                  <Plus aria-hidden />
+                  {t("editor.addItem")}
+                </Button>
+              </div>
             </div>
 
+            {variant === "construction" ? (
+              <p className="text-xs text-muted-foreground">{t("editor.template.hint")}</p>
+            ) : null}
+
             <div className="flex flex-col gap-3">
-              {items.map((item, index) => {
+              {designParts
+                ? items.map((item, index) => {
+                    // A part chosen on another row can't be chosen again.
+                    const takenElsewhere = new Set(
+                      items.flatMap((other) =>
+                        other.key !== item.key && other.part ? [other.part] : [],
+                      ),
+                    );
+                    const unmapped = item.part === null && !isBlankItem(item);
+                    return (
+                      <div
+                        key={item.key}
+                        className="flex flex-col gap-2 rounded-lg border border-border/70 p-3"
+                      >
+                        <div className="flex items-start gap-2">
+                          <span className="mt-2 w-5 shrink-0 text-xs text-muted-foreground">
+                            {index + 1}.
+                          </span>
+                          <div className="grid flex-1 gap-2 sm:grid-cols-[1fr_12rem_8rem]">
+                            <Select
+                              value={item.part ?? ""}
+                              onValueChange={(value) =>
+                                patchItem(item.key, {
+                                  part: value as DesignQuotationPart,
+                                  name: "",
+                                })
+                              }
+                            >
+                              <SelectTrigger
+                                className="w-full"
+                                aria-invalid={unmapped}
+                              >
+                                <SelectValue placeholder={t("editor.designPartPlaceholder")} />
+                              </SelectTrigger>
+                              <SelectContent position="popper">
+                                {DESIGN_QUOTATION_PARTS.map((part) => (
+                                  <SelectItem
+                                    key={part}
+                                    value={part}
+                                    disabled={takenElsewhere.has(part)}
+                                  >
+                                    {partLabel(part)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Input
+                              type="number"
+                              inputMode="numeric"
+                              min="0"
+                              step="1000"
+                              value={item.unitPrice}
+                              placeholder={t("editor.designPartPrice")}
+                              aria-label={t("editor.designPartPrice")}
+                              onChange={(e) =>
+                                patchItem(item.key, { unitPrice: e.target.value })
+                              }
+                            />
+                            <p className="self-center text-right text-sm font-medium tabular-nums">
+                              {money(Number(item.unitPrice) || 0)}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            aria-label={t("editor.removeItem")}
+                            disabled={items.length === 1}
+                            onClick={() =>
+                              setItems((rows) => rows.filter((r) => r.key !== item.key))
+                            }
+                          >
+                            <Trash2 aria-hidden />
+                          </Button>
+                        </div>
+                        {unmapped ? (
+                          <p className="pl-7 text-xs text-destructive">
+                            {item.name.trim()
+                              ? t("editor.designPartLegacy", { name: item.name.trim() })
+                              : t("editor.designPartMissing")}
+                          </p>
+                        ) : null}
+                        <div className="pl-7">
+                          <Input
+                            value={item.description}
+                            placeholder={t("editor.itemDescription")}
+                            onChange={(e) =>
+                              patchItem(item.key, { description: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+                    );
+                  })
+                : items.map((item, index) => {
                 const lineTotal =
                   (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
                 return (
@@ -492,12 +736,22 @@ function QuotationEditorBase({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-semibold">{t("editor.termsTitle")}</h3>
-                <p className="text-xs text-muted-foreground">{t("editor.termsHint")}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("editor.termsHint")}
+                  {designParts ? ` ${t("editor.designTermsHint")}` : ""}
+                </p>
               </div>
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
+                // One instalment per priced part — no part left, no new row.
+                disabled={designParts && terms.length >= pricedParts.length}
+                title={
+                  designParts && pricedParts.length > 0 && terms.length >= pricedParts.length
+                    ? t("editor.designTermsAllUsed")
+                    : undefined
+                }
                 onClick={() => setTerms((rows) => [...rows, emptyTerm()])}
               >
                 <Plus aria-hidden />
@@ -513,6 +767,12 @@ function QuotationEditorBase({
               <div className="flex flex-col gap-2">
                 {terms.map((term, index) => {
                   const termAmount = (total * (Number(term.percentage) || 0)) / 100;
+                  const problem = termProblem(term);
+                  const termTakenElsewhere = new Set(
+                    terms.flatMap((other) =>
+                      other.key !== term.key && other.part ? [other.part] : [],
+                    ),
+                  );
                   return (
                     <div
                       key={term.key}
@@ -522,12 +782,41 @@ function QuotationEditorBase({
                         <span className="mt-2 w-5 shrink-0 text-xs text-muted-foreground">
                           {index + 1}.
                         </span>
-                        <Input
-                          className="flex-1"
-                          value={term.name}
-                          placeholder={t("editor.termName")}
-                          onChange={(e) => patchTerm(term.key, { name: e.target.value })}
-                        />
+                        {designParts ? (
+                          <Select
+                            value={term.part ?? ""}
+                            onValueChange={(value) =>
+                              chooseTermPart(term, value as DesignQuotationPart)
+                            }
+                          >
+                            <SelectTrigger className="flex-1" aria-invalid={problem !== null}>
+                              <SelectValue placeholder={t("editor.designTermPlaceholder")} />
+                            </SelectTrigger>
+                            <SelectContent position="popper">
+                              {/* Only parts priced above, each paid once. */}
+                              {DESIGN_QUOTATION_PARTS.filter(
+                                (part) => pricedParts.includes(part) || part === term.part,
+                              ).map((part) => (
+                                <SelectItem
+                                  key={part}
+                                  value={part}
+                                  disabled={
+                                    termTakenElsewhere.has(part) || !pricedParts.includes(part)
+                                  }
+                                >
+                                  {partLabel(part)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            className="flex-1"
+                            value={term.name}
+                            placeholder={t("editor.termName")}
+                            onChange={(e) => patchTerm(term.key, { name: e.target.value })}
+                          />
+                        )}
                         <Input
                           className="w-24"
                           type="number"
@@ -566,6 +855,15 @@ function QuotationEditorBase({
                           {money(termAmount)}
                         </span>
                       </div>
+                      {problem ? (
+                        <p className="pl-7 text-xs text-destructive">
+                          {problem === "notQuoted"
+                            ? t("editor.designTermNotQuoted")
+                            : term.name.trim()
+                              ? t("editor.designPartLegacy", { name: term.name.trim() })
+                              : t("editor.designTermMissing")}
+                        </p>
+                      ) : null}
                     </div>
                   );
                 })}
@@ -635,6 +933,19 @@ function QuotationEditorBase({
             {t("editor.save")}
           </Button>
         </DialogFooter>
+
+        <ConfirmDialog
+          open={templateConfirmOpen}
+          onOpenChange={setTemplateConfirmOpen}
+          title={t("editor.template.confirmTitle")}
+          description={t("editor.template.confirmBody")}
+          confirmLabel={t("editor.template.confirm")}
+          cancelLabel={t("dialog.cancel")}
+          onConfirm={() => {
+            setTemplateConfirmOpen(false);
+            applyConstructionTemplate();
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -658,7 +969,8 @@ export function DesignQuotationEditorDialog(
 export function ConstructionQuotationEditorDialog(
   props: Omit<React.ComponentProps<typeof QuotationEditorBase>, "variant">,
 ) {
-  return <QuotationEditorBase {...props} variant="construction" />;
+  // Built work is never priced as the four design deliverables.
+  return <QuotationEditorBase {...props} variant="construction" designParts={false} />;
 }
 
 /**

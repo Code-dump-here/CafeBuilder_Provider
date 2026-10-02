@@ -931,6 +931,13 @@
       "cancel": "Cancel",
       "create": "Create Contract",
       "creating": "Creating…",
+      "loadingQuotation": "Loading quotation…",
+      "fromQuotation": "Taken from quotation v{version} approved by the owner — the contract value and payment instalments match the quotation and can't be edited by hand.",
+      "paymentTermsLabel": "Payment instalments created when the contract is signed",
+      "quotationPending": "Quotation v{version} is waiting for the owner's approval. The contract must be built from the approved quotation so its total and instalments match.",
+      "quotationDraft": "Quotation v{version} is still a draft — send it to the owner for approval before drafting the contract.",
+      "noQuotation": "This engagement has no quotation, so a hand-written contract won't have staged payment instalments. Consider creating a quotation first.",
+      "goToQuotations": "Open Quotations",
       "otpTitleSend": "Send OTP Confirmation",
       "otpTitleConfirm": "Confirm Contract",
       "otpDescriptionSend": "Send a verification code to the owner's email for contract confirmation.",
@@ -2986,7 +2993,61 @@
       "notePlaceholder": "Anything the owner should read alongside the price.",
       "save": "Save draft",
       "newVersionTitle": "New version of this quotation",
-      "newVersionDescription": "The owner has already seen the previous version, so it cannot be rewritten. This creates a new quotation, prefilled from it."
+      "newVersionDescription": "The owner has already seen the previous version, so it cannot be rewritten. This creates a new quotation, prefilled from it.",
+      "designItemsHint": "Each design part is priced on one line, once: Concept, 2D layout, 3D render, Design documents.",
+      "designPartPlaceholder": "Choose a design part",
+      "designPartPrice": "Price for this part",
+      "designPartsAllUsed": "All 4 design parts are priced.",
+      "designPartLegacy": "Old line \"{name}\" — pick the design part it stands for.",
+      "designPartMissing": "Choose a design part for this line.",
+      "designTermsHint": "Each instalment is tied to one design part priced above, and each part is paid in one instalment.",
+      "designTermPlaceholder": "Choose the part paid",
+      "designTermNotQuoted": "This part isn't in the line items — pick another or remove the instalment.",
+      "designTermMissing": "Choose a design part for this instalment.",
+      "designTermsAllUsed": "Every priced part already has an instalment.",
+      "designTermCondition": "When the owner approves the {part}",
+      "designParts": {
+        "concept": "Concept",
+        "layout_2d": "2D layout",
+        "render_3d": "3D render",
+        "technical_drawing": "Design documents"
+      },
+      "template": {
+        "button": "Apply 3-phase template",
+        "hint": "Groups the 9 steps of the standard construction process into 3 phases, with 3 instalments of 30% – 40% – 30%. Just fill in each phase's price.",
+        "confirmTitle": "Replace with the 3-phase template?",
+        "confirmBody": "The line items and payment terms you entered will be replaced. Title and duration are only filled in if they are empty.",
+        "confirm": "Apply template",
+        "title": "Turnkey café fit-out — 3 phases",
+        "phases": {
+          "rough": {
+            "name": "Phase 1 — Site preparation, rough works & MEP",
+            "description": "Site handover, demolition, setting out; partition walls, plastering, waterproofing; concealed electrical, plumbing and network, pressure-tested before the ceiling closes."
+          },
+          "finishing": {
+            "name": "Phase 2 — Finishing & fixed joinery",
+            "description": "Gypsum ceiling, floor and wall tiling; skim coat and paint; fabricating and installing the bar counter, shelving and kitchen cabinets."
+          },
+          "handover": {
+            "name": "Phase 3 — Equipment, branding & handover",
+            "description": "Lighting, air conditioning, coffee equipment; signage, decals, menu boards; deep cleaning, test run and handover acceptance."
+          }
+        },
+        "terms": {
+          "advance": {
+            "name": "Instalment 1 — Advance on signing",
+            "condition": "Right after the contract is signed, to take over the site, order materials and start the bar counter."
+          },
+          "progress": {
+            "name": "Instalment 2 — Rough works & MEP completed",
+            "condition": "Once phase 1 is accepted, before the ceiling is closed and finishing starts."
+          },
+          "final": {
+            "name": "Instalment 3 — Handover acceptance",
+            "condition": "After full acceptance and handover of the café."
+          }
+        }
+      }
     }
   },
   "PaymentBatches": {

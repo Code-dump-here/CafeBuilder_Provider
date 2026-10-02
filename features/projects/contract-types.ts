@@ -47,6 +47,13 @@ export interface Contract {
   otpExpiresAt: string | null;
   confirmedAt: string | null;
   confirmedBy: string | null;
+  /**
+   * The approved quotation the contract was built from. Set ⇒ `agreedValue`
+   * is that quotation's total (the server refuses to edit it) and signing
+   * generates one payment batch per quotation payment term. Null ⇒ a
+   * hand-written contract with no instalments.
+   */
+  quotationId: string | null;
   status: ContractStatus;
   createdAt: string;
   updatedAt: string;
@@ -73,6 +80,12 @@ export interface CreateContractPayload {
   title: string;
   partyInfo?: string;
   terms?: string;
+  /**
+   * The owner-approved quotation to build from. The server then takes the
+   * value from it (any `agreedValue` sent is ignored) and generates the
+   * payment batches from its payment terms on signing.
+   */
+  quotationId?: string;
   /** Optional: `CreateContractRequest.AgreedValue` is `decimal?`. */
   agreedValue?: number;
   documentUrl?: string;

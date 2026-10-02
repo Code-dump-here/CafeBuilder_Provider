@@ -443,6 +443,15 @@ interface DailyLogFormValues {
   media?: DailyLogMediaInput[];
 }
 
+/**
+ * A file in the editor. `mediaUrl` is the storage key the server wants back;
+ * `previewUrl` is the public link the thumbnail shows — the key alone renders
+ * as an unreadable `provider/…/x.png` string, not a photo.
+ */
+interface EditorMedia extends DailyLogMediaInput {
+  previewUrl: string | null;
+}
+
 function DailyLogEditorDialog({
   open,
   onOpenChange,
@@ -467,7 +476,7 @@ function DailyLogEditorDialog({
   const [issueNote, setIssueNote] = React.useState("");
   const [weatherNote, setWeatherNote] = React.useState("");
   const [workerCount, setWorkerCount] = React.useState("");
-  const [media, setMedia] = React.useState<DailyLogMediaInput[]>([]);
+  const [media, setMedia] = React.useState<EditorMedia[]>([]);
   const [uploading, setUploading] = React.useState(false);
 
   useResetOnChange(open ? (initial?.id ?? "new") : null, () => {
@@ -482,17 +491,18 @@ function DailyLogEditorDialog({
         mediaUrl: m.mediaUrl,
         mediaType: m.mediaType,
         caption: m.caption ?? undefined,
+        previewUrl: m.mediaViewUrl,
       })) ?? [],
     );
   });
 
-  const handleUpload = async (files: FileList) => {
+  const handleUpload = async (files: File[]) => {
     // Checked up front, for the whole batch: these upload in a Promise.all, so
     // letting one bad file through means some succeed and the rest fail, and
     // the gallery is left half-populated with no clear way to tell which.
     // imageOnly is deliberately stricter than the endpoint (POST /api/files
     // would take a .pdf) — this is a site-photo gallery.
-    for (const file of Array.from(files)) {
+    for (const file of files) {
       const check = validateUploadFile(file, { imageOnly: true });
       if (!check.ok) {
         toast.error(
@@ -509,13 +519,12 @@ function DailyLogEditorDialog({
     setUploading(true);
     try {
       const uploaded = await Promise.all(
-        Array.from(files).map(async (file) => {
+        files.map(async (file): Promise<EditorMedia> => {
           const result = await uploadFileApi(file);
           return {
             mediaUrl: result.objectName,
-            mediaType: file.type.startsWith("video/")
-              ? ("video" as const)
-              : ("image" as const),
+            mediaType: file.type.startsWith("video/") ? "video" : "image",
+            previewUrl: result.url,
           };
         }),
       );
@@ -615,28 +624,39 @@ function DailyLogEditorDialog({
             <label className="text-sm font-medium">{t("editor.media")}</label>
             <div className="flex flex-wrap gap-2">
               {media.map((item, index) => (
-                <span
+                <div
                   key={`${item.mediaUrl}-${index}`}
-                  className="flex items-center gap-1 rounded-full border border-border/70 py-1 pl-2.5 pr-1 text-xs"
+                  className="relative size-20 overflow-hidden rounded-md border border-border/70 bg-muted"
                 >
-                  <span className="max-w-40 truncate">{item.mediaUrl}</span>
+                  {item.previewUrl && item.mediaType === "video" ? (
+                    <video src={item.previewUrl} className="size-full object-cover" muted />
+                  ) : item.previewUrl ? (
+                    <Image
+                      src={proxiedImageSrc(item.previewUrl)}
+                      alt={item.caption ?? t("photoAlt")}
+                      width={80}
+                      height={80}
+                      className="size-full object-cover"
+                      unoptimized
+                    />
+                  ) : null}
                   <button
                     type="button"
                     aria-label={t("editor.removeMedia")}
-                    className="rounded-full p-0.5 text-muted-foreground hover:text-destructive"
+                    className="absolute right-1 top-1 rounded-full bg-background/80 p-0.5 text-muted-foreground hover:text-destructive"
                     onClick={() =>
                       setMedia((rows) => rows.filter((_, i) => i !== index))
                     }
                   >
                     <X className="size-3" aria-hidden />
                   </button>
-                </span>
+                </div>
               ))}
-              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-1 text-xs text-muted-foreground hover:border-primary hover:text-primary">
+              <label className="inline-flex size-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border text-xs text-muted-foreground hover:border-primary hover:text-primary">
                 {uploading ? (
-                  <Loader2 className="size-3 animate-spin" aria-hidden />
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
                 ) : (
-                  <Plus className="size-3" aria-hidden />
+                  <Plus className="size-4" aria-hidden />
                 )}
                 {t("editor.addMedia")}
                 <input
@@ -646,9 +666,14 @@ function DailyLogEditorDialog({
                   className="hidden"
                   disabled={uploading}
                   onChange={(e) => {
-                    const files = e.target.files;
+                    // Copy BEFORE clearing: Chromium empties the live FileList
+                    // in place when `value` is reset, so reading `files` after
+                    // the reset saw zero files and nothing was ever uploaded.
+                    // The reset itself stays — re-picking the same file would
+                    // otherwise fire no change event.
+                    const files = Array.from(e.target.files ?? []);
                     e.target.value = "";
-                    if (files && files.length > 0) void handleUpload(files);
+                    if (files.length > 0) void handleUpload(files);
                   }}
                 />
               </label>
@@ -673,7 +698,11 @@ function DailyLogEditorDialog({
                 issueNote: issueNote.trim() || undefined,
                 weatherNote: weatherNote.trim() || undefined,
                 workerCount: workerCount === "" ? undefined : Number(workerCount),
-                media,
+                media: media.map((m) => ({
+                  mediaUrl: m.mediaUrl,
+                  mediaType: m.mediaType,
+                  caption: m.caption,
+                })),
               })
             }
           >
