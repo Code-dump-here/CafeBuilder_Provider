@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   // Left at the create-next-app defaults until now, so every tab read
   // "Create Next App". No `template` here: the handful of pages that set
   // their own title already carry the product name ("Pricing —
-  // SmartCafeBuilder"), and a suffix would brand them twice.
+  // CafeBuilder"), and a suffix would brand them twice.
   title: "CafeBuilder",
   description:
     "Plan, design and build out a coffee shop — shop owners, designers and contractors in one workspace.",

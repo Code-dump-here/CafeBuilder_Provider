@@ -1,7 +1,7 @@
 {
   "HomePage": {
     "meta": {
-      "title": "AI Smart Cafe Builder",
+      "title": "CafeBuilder",
       "description": "Plan, design and build your cafe with one workspace. Match with designers and contractors, track every milestone."
     },
     "hero": {
@@ -107,7 +107,7 @@
   },
   "Auth": {
     "form": {
-      "title": "Sign in to SmartCafeBuilder",
+      "title": "Sign in to CafeBuilder",
       "subtitle": "AI-powered coffee shop design and construction management",
       "signIn": "Sign in",
       "signingIn": "Signing in...",
@@ -134,7 +134,7 @@
     },
     "brand": {
       "headline": "Design. Plan. Build. All in one place.",
-      "subheadline": "SmartCafeBuilder connects shop owners, designers, and construction teams in a unified AI-powered workflow — from concept to grand opening.",
+      "subheadline": "CafeBuilder connects shop owners, designers, and construction teams in a unified AI-powered workflow — from concept to grand opening.",
       "secureAccess": "Secure access"
     },
     "features": {
@@ -265,7 +265,7 @@
     },
     "completeProfile": {
       "title": "Complete your profile",
-      "subtitle": "Tell us about your business so clients can find and trust you on SmartCafeBuilder.",
+      "subtitle": "Tell us about your business so clients can find and trust you on CafeBuilder.",
       "supportingText": "Your provider profile is visible to shop owners looking to hire design and construction partners."
     },
     "provider": {
@@ -413,7 +413,7 @@
       "complete": "Complete",
       "completeAs": "Complete as {role}",
       "submitting": "Processing...",
-      "submitSuccess": "Profile saved. Welcome to SmartCafeBuilder!",
+      "submitSuccess": "Profile saved. Welcome to CafeBuilder!",
       "back": "Go back"
     }
   },
@@ -2221,7 +2221,7 @@
    "backToPlans": "Back to plans"
   },
     "meta": {
-      "title": "Pricing — SmartCafeBuilder",
+      "title": "Pricing — CafeBuilder",
       "description": "Pick a subscription plan that fits how often you take on new cafe projects."
     },
     "nav": {
@@ -2270,7 +2270,7 @@
   },
   "Notifications": {
     "meta": {
-      "title": "Notifications — SmartCafeBuilder",
+      "title": "Notifications — CafeBuilder",
       "description": "Catch up on proposals, contract updates, and project activity."
     },
     "header": {

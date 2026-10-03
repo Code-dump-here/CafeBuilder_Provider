@@ -41,6 +41,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogoutMutation } from "@/features/auth/hooks";
 import { RoleSidebarNav } from "@/components/sidebar/role-sidebar-nav";
 import type { NavSection } from "@/lib/sidebar-config";
+import { useCurrentUser } from "@/features/auth/user-context";
 
 interface AdminSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: {
@@ -63,9 +64,18 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
   const params = useParams();
   const locale = (params?.locale as string | undefined) ?? "en";
 
+  // Show the signed-in admin, not a placeholder. This used to hard-code
+  // "Admin" / "admin@aicoffee.io", so every administrator saw the same
+  // fictional identity in the chip. `AdminGuard` guarantees an authenticated
+  // admin by the time this renders, so the real account is available.
+  const { account } = useCurrentUser();
   const resolvedUser = user ?? {
-    name: locale === "vi" ? "Quản trị viên" : "Admin",
-    email: "admin@aicoffee.io",
+    name:
+      account?.shopOwner?.fullName ||
+      account?.serviceProvider?.displayName ||
+      account?.email ||
+      (locale === "vi" ? "Quản trị viên" : "Admin"),
+    email: account?.email ?? "",
     avatar: undefined,
   };
 
@@ -83,7 +93,7 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
                     <AppWindow className="size-4" aria-hidden />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">AICoffee Admin</span>
+                    <span className="truncate font-medium">CafeBuilder Admin</span>
                     <span className="truncate text-xs text-muted-foreground">
                       {locale === "vi" ? "Bảng điều khiển nội bộ" : "Internal console"}
                     </span>

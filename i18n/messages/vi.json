@@ -1,7 +1,7 @@
 {
   "HomePage": {
     "meta": {
-      "title": "AI Smart Cafe Builder",
+      "title": "CafeBuilder",
       "description": "Lên kế hoạch, thiết kế và thi công quán cafe trong cùng một không gian làm việc. Kết nối với đội ngũ thiết kế và nhà thầu, theo dõi từng mốc."
     },
     "hero": {
@@ -107,7 +107,7 @@
   },
   "Auth": {
     "form": {
-      "title": "Đăng nhập vào SmartCafeBuilder",
+      "title": "Đăng nhập vào CafeBuilder",
       "subtitle": "Nền tảng hỗ trợ thiết kế và thi công quán cà phê thông minh",
       "signIn": "Đăng nhập",
       "signingIn": "Đang đăng nhập...",
@@ -134,7 +134,7 @@
     },
     "brand": {
       "headline": "Thiết kế. Lập kế hoạch. Thi công. Tất cả trong một.",
-      "subheadline": "SmartCafeBuilder kết nối chủ quán, nhà thiết kế và đơn vị thi công trong một quy trình làm việc tập trung — từ ý tưởng đến ngày khai trương.",
+      "subheadline": "CafeBuilder kết nối chủ quán, nhà thiết kế và đơn vị thi công trong một quy trình làm việc tập trung — từ ý tưởng đến ngày khai trương.",
       "secureAccess": "Truy cập bảo mật"
     },
     "features": {
@@ -144,7 +144,7 @@
     },
     "register": {
       "form": {
-        "title": "Tạo tài khoản SmartCafeBuilder",
+        "title": "Tạo tài khoản CafeBuilder",
         "subtitle": "Bắt đầu thiết kế quán cà phê trong mơ ngay hôm nay",
         "signUp": "Tạo tài khoản",
         "signingUp": "Đang tạo tài khoản...",
@@ -265,7 +265,7 @@
     },
     "completeProfile": {
       "title": "Hoàn thiện hồ sơ của bạn",
-      "subtitle": "Cho chúng tôi biết thêm về doanh nghiệp của bạn để chủ quán có thể tìm và tin tưởng bạn trên SmartCafeBuilder.",
+      "subtitle": "Cho chúng tôi biết thêm về doanh nghiệp của bạn để chủ quán có thể tìm và tin tưởng bạn trên CafeBuilder.",
       "supportingText": "Hồ sơ nhà cung cấp của bạn hiển thị cho các chủ dự án đang tìm kiếm đối tác thiết kế và thi công."
     },
     "provider": {
@@ -413,7 +413,7 @@
       "complete": "Hoàn tất",
       "completeAs": "Hoàn tất với tư cách {role}",
       "submitting": "Đang xử lý...",
-      "submitSuccess": "Đã lưu hồ sơ. Chào mừng bạn đến SmartCafeBuilder!",
+      "submitSuccess": "Đã lưu hồ sơ. Chào mừng bạn đến CafeBuilder!",
       "back": "Quay lại"
     }
   },
@@ -2221,7 +2221,7 @@
    "backToPlans": "Về bảng giá"
   },
     "meta": {
-      "title": "Bảng giá — SmartCafeBuilder",
+      "title": "Bảng giá — CafeBuilder",
       "description": "Chọn gói đăng ký phù hợp với tần suất nhận dự án quán cafe của bạn."
     },
     "nav": {
@@ -2270,7 +2270,7 @@
   },
   "Notifications": {
     "meta": {
-      "title": "Thông báo — SmartCafeBuilder",
+      "title": "Thông báo — CafeBuilder",
       "description": "Cập nhật đề xuất, hợp đồng và hoạt động dự án."
     },
     "header": {

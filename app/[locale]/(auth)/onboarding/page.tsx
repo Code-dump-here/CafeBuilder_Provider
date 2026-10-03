@@ -32,7 +32,7 @@ export default function OnboardingPage() {
             <Coffee className="size-4" />
           </div>
           <span className="font-heading text-base font-semibold tracking-tight text-foreground">
-            SmartCafeBuilder
+            CafeBuilder
           </span>
         </div>
         <button

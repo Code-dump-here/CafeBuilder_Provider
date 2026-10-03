@@ -32,7 +32,7 @@ export default function LoginPage() {
             <Coffee className="size-5 text-amber-100" />
           </div>
           <span className="font-heading text-xl font-semibold tracking-tight text-amber-50">
-            SmartCafeBuilder
+            CafeBuilder
           </span>
         </div>
 
@@ -152,7 +152,7 @@ export default function LoginPage() {
           <Lock className="size-3.5" />
           <span>{t("brand.secureAccess")}</span>
           <span className="opacity-40">·</span>
-          <span>© {new Date().getFullYear()} SmartCafeBuilder</span>
+          <span>© {new Date().getFullYear()} CafeBuilder</span>
         </div>
       </div>
 
@@ -164,7 +164,7 @@ export default function LoginPage() {
             <Coffee className="size-4" />
           </div>
           <span className="font-heading text-base font-semibold tracking-tight text-foreground">
-            SmartCafeBuilder
+            CafeBuilder
           </span>
         </div>
 
