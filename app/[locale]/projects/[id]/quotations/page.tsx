@@ -165,6 +165,9 @@ export default function ProviderQuotationsPage() {
     variant === "design" &&
     (knownScope === "design" ||
       (knownScope === null && account?.serviceProvider?.capability === "designer"));
+  // A `both` job prices the fixed design parts AND free construction lines,
+  // with its own two-half template (chốt 03/10/2026).
+  const turnkey = variant === "design" && knownScope === "both";
 
   const [editorOpen, setEditorOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Quotation | null>(null);
@@ -506,6 +509,7 @@ toast.error(
         initial={editing ?? seed}
         isNewVersion={editing === null && seed !== null}
         designParts={designParts}
+        turnkey={turnkey}
         pending={createMutation.isPending || updateMutation.isPending}
         onSubmit={handleSubmit}
       />

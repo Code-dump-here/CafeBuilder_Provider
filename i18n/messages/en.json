@@ -421,6 +421,7 @@
     "shopOwner": "Shop Owner",
     "designer": "Designer",
     "contractor": "Contractor",
+    "designBuild": "Design & Build",
     "admin": "Admin"
   },
   "Breadcrumb": {
@@ -622,6 +623,7 @@
         "title": "AI Design Iterations",
         "subtitle": "{count} generations, sorted by most recent.",
         "empty": "No AI design iterations yet.",
+        "emptyProvider": "The owner hasn't generated an AI concept for this project yet. The concept image appears here once they do.",
         "states": {
           "queued": "Queued",
           "running": "Running",
@@ -3044,6 +3046,44 @@
           },
           "final": {
             "name": "Instalment 3 — Handover acceptance",
+            "condition": "After full acceptance and handover of the café."
+          }
+        }
+      },
+      "turnkey": {
+        "button": "Apply design + build template",
+        "hint": "Lays out the design parts you sell (any 1 to 4) followed by the 3 construction phases, with 4 instalments of 20% – 30% – 30% – 20%. You only fill in the prices.",
+        "itemsHint": "Design + build: the design parts first, then the construction lines.",
+        "designTitle": "Design",
+        "designHint": "Pick 1 to 4 parts — each priced once: Concept, 2D layout, 3D render, Design documents.",
+        "designRequired": "Price at least one design part — this job includes the design.",
+        "addDesignPart": "Add design part",
+        "constructionTitle": "Construction",
+        "constructionHint": "What is built on site, priced line by line.",
+        "addConstructionLine": "Add construction line",
+        "noConstructionLines": "No construction lines yet.",
+        "pickerTitle": "Which design parts does this job include?",
+        "pickerBody": "Tick the parts you will deliver. They are added before the 3 construction phases, and the schedule is set to 4 instalments of 20% – 30% – 30% – 20%.",
+        "pickerReplaces": "The lines and instalments entered so far will be replaced. The title and duration are only filled in if empty.",
+        "pickAll": "Select all 4",
+        "pickAtLeastOne": "Tick at least one part.",
+        "apply": "Apply template ({count, plural, one {# design part} other {# design parts}})",
+        "title": "Design & build package for the café",
+        "terms": {
+          "signing": {
+            "name": "Instalment 1 — Advance on signing",
+            "condition": "Right after the contract is signed, to start the design."
+          },
+          "designApproved": {
+            "name": "Instalment 2 — Design approved, build starts",
+            "condition": "When the owner approves the final design and the site is handed over for construction."
+          },
+          "rough": {
+            "name": "Instalment 3 — Rough work & concealed MEP done",
+            "condition": "When phase 1 is accepted, before the ceiling is closed and finishing starts."
+          },
+          "handover": {
+            "name": "Instalment 4 — Handover acceptance",
             "condition": "After full acceptance and handover of the café."
           }
         }

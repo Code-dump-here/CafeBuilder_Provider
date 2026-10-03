@@ -246,7 +246,7 @@ export default function ProjectDetailPage() {
                   owner+admin only). They get the same underlying data via
                   their own engagement overview instead — a thinner summary
                   (no cost/layout/image detail), scoped to their engagement.
-                  Self-hides while loading or when there's nothing to show.
+                  With nothing to show it says so rather than disappearing.
                   Both scopes (design and construction) get them, and a
                   completed engagement keeps them. */}
               {isProviderViewer && overviewEngagement ? (

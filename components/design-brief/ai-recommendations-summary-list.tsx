@@ -46,7 +46,29 @@ export function AiRecommendationsSummaryList({
 }: AiRecommendationsSummaryListProps) {
   const t = useTranslations("ProjectsOverview.designBrief.ai");
 
-  if (recommendations.length === 0) return null;
+  // Shown even when empty: a provider who has joined should see where the
+  // concept will land, not wonder whether the page forgot it. Only completed
+  // runs reach the overview, so empty means the owner has none yet.
+  if (recommendations.length === 0) {
+    return (
+      <Card
+        size="sm"
+        aria-labelledby="ai-iterations-summary-title"
+        className="border-border/60"
+      >
+        <CardHeader>
+          <CardTitle
+            id="ai-iterations-summary-title"
+            className="flex items-center gap-2 text-base"
+          >
+            <Sparkles className="size-4 text-primary" aria-hidden />
+            {t("title")}
+          </CardTitle>
+          <CardDescription>{t("emptyProvider")}</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   return (
     <Card

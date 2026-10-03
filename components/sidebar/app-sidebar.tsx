@@ -60,14 +60,15 @@ import { NavUser } from "@/components/sidebar/nav-user";
  * API returns: "owner", "provider", "admin"
  * Sidebar config uses: "SHOP_OWNER", "DESIGNER", "CONTRACTOR", "ADMIN"
  */
-function mapRoleToConfigRole(apiRole: string): UserRole {
+function mapRoleToConfigRole(apiRole: string, capability?: string | null): UserRole {
   switch (apiRole) {
     case "owner":
       return "SHOP_OWNER";
     case "provider":
-      // For provider, check capability to determine DESIGNER vs CONTRACTOR
-      // Default to DESIGNER if we can't determine
-      return "DESIGNER";
+      // Capability picks the label: a constructor was shown "Designer" when
+      // every provider mapped here. Sections are the same for both configs.
+      // 'both' and an unknown capability stay on DESIGNER (labelled below).
+      return capability === "constructor" ? "CONTRACTOR" : "DESIGNER";
     case "admin":
       return "ADMIN";
     default:
@@ -105,8 +106,14 @@ export function AppSidebar({
 
   const role: UserRole = (account?.role ?? "owner") as UserRole;
   // Map API role format to sidebar config format
-  const mappedRole = mapRoleToConfigRole(role);
+  const capability = account?.serviceProvider?.capability ?? null;
+  const mappedRole = mapRoleToConfigRole(role, capability);
   const config = ROLE_SIDEBAR_CONFIG[mappedRole];
+  // A design-and-build provider is neither "Designer" nor "Contractor".
+  const brandLabelKey =
+    mappedRole === "DESIGNER" && capability === "both"
+      ? "Roles.designBuild"
+      : config.brand.labelKey;
   const activeProjectId = useActiveProjectId();
   const { membership } = useActiveProjectMembership(activeProjectId);
 
@@ -180,7 +187,7 @@ export function AppSidebar({
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{config.brand.name}</span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {t(config.brand.labelKey)}
+                      {t(brandLabelKey)}
                     </span>
                   </div>
                 </Link>

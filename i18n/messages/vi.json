@@ -421,6 +421,7 @@
     "shopOwner": "Chủ quán",
     "designer": "Nhà thiết kế",
     "contractor": "Nhà thầu",
+    "designBuild": "Thiết kế & Thi công",
     "admin": "Quản trị viên"
   },
   "Breadcrumb": {
@@ -622,6 +623,7 @@
         "title": "Các phương án AI",
         "subtitle": "{count} lượt tạo, sắp xếp theo mới nhất.",
         "empty": "Chưa có phương án AI nào.",
+        "emptyProvider": "Chủ dự án chưa tạo phương án AI cho dự án này. Ảnh phối cảnh sẽ hiện ở đây khi có.",
         "states": {
           "queued": "Đang chờ",
           "running": "Đang chạy",
@@ -3044,6 +3046,44 @@
           },
           "final": {
             "name": "Đợt 3 — Nghiệm thu bàn giao",
+            "condition": "Sau khi nghiệm thu toàn bộ và bàn giao quán."
+          }
+        }
+      },
+      "turnkey": {
+        "button": "Áp mẫu Thiết kế + Thi công",
+        "hint": "Điền sẵn các phần thiết kế bạn nhận (chọn 1–4 phần) và 3 giai đoạn thi công, kèm 4 đợt thanh toán 20% – 30% – 30% – 20%. Bạn chỉ cần điền giá.",
+        "itemsHint": "Thiết kế + thi công: các phần thiết kế trước, rồi tới hạng mục thi công.",
+        "designTitle": "Phần thiết kế",
+        "designHint": "Chọn 1–4 phần, mỗi phần báo giá một lần: Concept, Bản vẽ 2D, Phối cảnh 3D, Tài liệu thiết kế.",
+        "designRequired": "Báo giá ít nhất một phần thiết kế — gói này có cả thiết kế.",
+        "addDesignPart": "Thêm phần thiết kế",
+        "constructionTitle": "Phần thi công",
+        "constructionHint": "Những gì làm tại công trình, báo giá từng dòng.",
+        "addConstructionLine": "Thêm hạng mục thi công",
+        "noConstructionLines": "Chưa có hạng mục thi công nào.",
+        "pickerTitle": "Gói này gồm những phần thiết kế nào?",
+        "pickerBody": "Tích các phần bạn sẽ giao. Chúng được thêm trước 3 giai đoạn thi công, và lịch thanh toán đặt thành 4 đợt 20% – 30% – 30% – 20%.",
+        "pickerReplaces": "Hạng mục và đợt thanh toán đang nhập sẽ được thay bằng mẫu. Tiêu đề và thời gian chỉ được điền nếu đang để trống.",
+        "pickAll": "Chọn cả 4 phần",
+        "pickAtLeastOne": "Hãy tích ít nhất một phần.",
+        "apply": "Áp mẫu ({count} phần thiết kế)",
+        "title": "Thiết kế & thi công trọn gói quán cà phê",
+        "terms": {
+          "signing": {
+            "name": "Đợt 1 — Tạm ứng khi ký hợp đồng",
+            "condition": "Ngay sau khi ký hợp đồng, để bắt đầu thiết kế."
+          },
+          "designApproved": {
+            "name": "Đợt 2 — Chốt thiết kế, bắt đầu thi công",
+            "condition": "Khi chủ quán duyệt bản thiết kế cuối và bàn giao mặt bằng để thi công."
+          },
+          "rough": {
+            "name": "Đợt 3 — Hoàn thành phần thô & điện nước",
+            "condition": "Khi nghiệm thu xong giai đoạn 1, trước khi đóng trần và hoàn thiện."
+          },
+          "handover": {
+            "name": "Đợt 4 — Nghiệm thu bàn giao",
             "condition": "Sau khi nghiệm thu toàn bộ và bàn giao quán."
           }
         }

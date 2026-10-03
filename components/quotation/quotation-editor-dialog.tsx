@@ -23,6 +23,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useResetOnChange } from "@/hooks/use-reset-on-change";
 import { formatVndParts } from "@/lib/format-currency";
 import {
@@ -47,6 +57,12 @@ import {
   CONSTRUCTION_TEMPLATE_TERMS,
   CONSTRUCTION_TEMPLATE_UNIT,
 } from "@/features/projects/quotation-construction-template";
+import {
+  TURNKEY_DEFAULT_PARTS,
+  TURNKEY_TEMPLATE_TERMS,
+  turnkeyTemplateDurationDays,
+} from "@/features/projects/quotation-turnkey-template";
+import { roundPercentOf } from "@/features/projects/quotation-percent";
 
 /**
  * Draft editor for a quotation: the priced line items and the instalment
@@ -62,9 +78,18 @@ import {
  * or stale figure typed here can't reach the contract.
  */
 
+/**
+ * `part` — one of the four fixed design deliverables, priced whole.
+ * `free` — a named line with unit × quantity × unit price.
+ * The design-parts form has only the first, the construction form only the
+ * second; a turnkey (`both`) quotation has both kinds side by side.
+ */
+type ItemKind = "part" | "free";
+
 /** A row while it is being edited: numbers stay strings so the field can be empty. */
 interface ItemDraft {
   key: string;
+  kind: ItemKind;
   name: string;
   description: string;
   unit: string;
@@ -72,9 +97,9 @@ interface ItemDraft {
   unitPrice: string;
   note: string;
   /**
-   * Design-parts mode only: which deliverable the line prices. Null on a new
-   * row, or on a line written before the parts were fixed (its old `name` is
-   * kept so the provider can see what to map it to).
+   * `part` rows only: which deliverable the line prices. Null on a new row, or
+   * on a line written before the parts were fixed (its old `name` is kept so
+   * the provider can see what to map it to).
    */
   part: DesignQuotationPart | null;
 }
@@ -102,9 +127,10 @@ const DURATION_MAX_DAYS = 365;
 let draftKeySeed = 0;
 const nextKey = () => `row-${(draftKeySeed += 1)}`;
 
-function emptyItem(): ItemDraft {
+function emptyItem(kind: ItemKind = "free"): ItemDraft {
   return {
     key: nextKey(),
+    kind,
     name: "",
     description: "",
     unit: "",
@@ -136,6 +162,7 @@ function QuotationEditorBase({
   isNewVersion = false,
   variant,
   designParts = false,
+  turnkey = false,
   pending,
   onSubmit,
 }: {
@@ -153,6 +180,14 @@ function QuotationEditorBase({
    * engagement also prices construction, which these four can't express.
    */
   designParts?: boolean;
+  /**
+   * A `both` engagement or post: one provider sells design AND construction
+   * (chốt 03/10/2026). The design half is priced as the fixed parts — any 1 to
+   * 4, each once, same as `designParts` — and the construction half as free
+   * lines, with a template button that lays out both. Instalments stay free
+   * text; the template's shares are round tens, but any figure may be typed.
+   */
+  turnkey?: boolean;
   /** Prefill. Null when starting from scratch. */
   initial: Quotation | null;
   /**
@@ -169,6 +204,15 @@ function QuotationEditorBase({
   const t = useTranslations("Quotations");
   const locale = useLocale();
   const isDesign = variant === "design";
+  // Turnkey only makes sense on the design-side form (it carries the revision
+  // terms), and never together with the all-parts form.
+  const isTurnkey = turnkey && isDesign && !designParts;
+  const firstRows = (): ItemDraft[] =>
+    designParts
+      ? [emptyItem("part")]
+      : isTurnkey
+        ? [emptyItem("part"), emptyItem("free")]
+        : [emptyItem("free")];
 
   /**
    * Label for a unit token. A legacy row can hold a string that predates the
@@ -183,7 +227,7 @@ function QuotationEditorBase({
   const [durationDays, setDurationDays] = React.useState("");
   const [freeRevisions, setFreeRevisions] = React.useState("");
   const [extraRevisionFee, setExtraRevisionFee] = React.useState("");
-  const [items, setItems] = React.useState<ItemDraft[]>([emptyItem()]);
+  const [items, setItems] = React.useState<ItemDraft[]>(firstRows);
   const [terms, setTerms] = React.useState<TermDraft[]>([]);
 
   useResetOnChange(open ? (initial?.id ?? "new") : null, () => {
@@ -200,21 +244,32 @@ function QuotationEditorBase({
     );
     setItems(
       initial && initial.items.length > 0
-        ? initial.items.map((item) => ({
-            key: nextKey(),
-            name: item.name,
-            description: item.description ?? "",
-            unit: item.unit ?? "",
-            quantity: String(item.quantity),
-            // A part is sold whole, so a design-parts line's price is the
-            // line total — an old line priced as 2 × 500k reads as 1M.
-            unitPrice: designParts
-              ? String(item.quantity * item.unitPrice)
-              : String(item.unitPrice),
-            note: item.note ?? "",
-            part: designParts ? designPartFromName(item.name) : null,
-          }))
-        : [emptyItem()],
+        ? initial.items.map((item) => {
+            // Turnkey: a line stored under a part's fixed name is that part;
+            // anything else is a construction line. Design-parts form: every
+            // line is a part, mapped or not.
+            const part =
+              designParts || isTurnkey ? designPartFromName(item.name) : null;
+            const kind: ItemKind =
+              designParts || (isTurnkey && part !== null) ? "part" : "free";
+            return {
+              key: nextKey(),
+              kind,
+              name: item.name,
+              description: item.description ?? "",
+              unit: item.unit ?? "",
+              quantity: String(item.quantity),
+              // A part is sold whole, so a part line's price is the line
+              // total — an old line priced as 2 × 500k reads as 1M.
+              unitPrice:
+                kind === "part"
+                  ? String(item.quantity * item.unitPrice)
+                  : String(item.unitPrice),
+              note: item.note ?? "",
+              part,
+            };
+          })
+        : firstRows(),
     );
     setTerms(
       initial
@@ -241,39 +296,48 @@ function QuotationEditorBase({
 
   const partLabel = (part: DesignQuotationPart) => t(`editor.designParts.${part}`);
 
-  // Design-parts mode: a row with a part is a whole deliverable — fixed name,
-  // one package. A row with no part but an old name or a price is an
-  // unmapped legacy line: it blocks saving (below) rather than vanishing.
+  // A `part` row with a part is a whole deliverable — fixed name, one package.
+  // One with no part but an old name or a price is an unmapped legacy line: it
+  // blocks saving (below) rather than vanishing.
   const isBlankItem = (item: ItemDraft) =>
     item.part === null && !item.name.trim() && !item.unitPrice.trim();
-  const unmappedItems = designParts
-    ? items.filter((item) => item.part === null && !isBlankItem(item))
-    : [];
+  const unmappedItems = items.filter(
+    (item) => item.kind === "part" && item.part === null && !isBlankItem(item),
+  );
+  const partRows = items.filter((item) => item.kind === "part");
+  const freeRows = items.filter((item) => item.kind === "free");
 
   const parsedItems: QuotationItemInput[] = React.useMemo(
     () =>
-      designParts
-        ? items
-            .filter((item) => item.part !== null)
-            .map((item) => ({
-              name: DESIGN_PART_STORED_NAME[item.part!],
-              description: item.description.trim() || undefined,
-              unit: DESIGN_PART_UNIT,
-              quantity: 1,
-              unitPrice: Number(item.unitPrice) || 0,
-              note: item.note.trim() || undefined,
-            }))
-        : items
-            .filter((item) => item.name.trim().length > 0)
-            .map((item) => ({
-              name: item.name.trim(),
-              description: item.description.trim() || undefined,
-              unit: item.unit.trim() || undefined,
-              quantity: Number(item.quantity) || 0,
-              unitPrice: Number(item.unitPrice) || 0,
-              note: item.note.trim() || undefined,
-            })),
-    [items, designParts],
+      items.flatMap((item): QuotationItemInput[] => {
+        if (item.kind === "part") {
+          return item.part === null
+            ? []
+            : [
+                {
+                  name: DESIGN_PART_STORED_NAME[item.part],
+                  description: item.description.trim() || undefined,
+                  unit: DESIGN_PART_UNIT,
+                  quantity: 1,
+                  unitPrice: Number(item.unitPrice) || 0,
+                  note: item.note.trim() || undefined,
+                },
+              ];
+        }
+        return item.name.trim().length === 0
+          ? []
+          : [
+              {
+                name: item.name.trim(),
+                description: item.description.trim() || undefined,
+                unit: item.unit.trim() || undefined,
+                quantity: Number(item.quantity) || 0,
+                unitPrice: Number(item.unitPrice) || 0,
+                note: item.note.trim() || undefined,
+              },
+            ];
+      }),
+    [items],
   );
 
   const parsedTerms: QuotationPaymentTermInput[] = React.useMemo(
@@ -311,6 +375,10 @@ function QuotationEditorBase({
           ? null
           : "notQuoted";
 
+  // A turnkey quotation sells design too: at least one part must be priced.
+  const missingTurnkeyPart =
+    isTurnkey && !partRows.some((item) => item.part !== null);
+
   const durationNumber = Number.parseInt(durationDays.trim(), 10);
   const durationValid =
     Number.isFinite(durationNumber) &&
@@ -323,6 +391,7 @@ function QuotationEditorBase({
     parsedItems.length > 0 &&
     parsedItems.every((item) => item.quantity > 0 && item.unitPrice >= 0) &&
     unmappedItems.length === 0 &&
+    !missingTurnkeyPart &&
     terms.every((term) => termProblem(term) === null);
 
   const patchItem = (key: string, patch: Partial<ItemDraft>) =>
@@ -333,8 +402,9 @@ function QuotationEditorBase({
 
   /**
    * Picking a part for an instalment pre-fills what the provider would type
-   * anyway: that part's share of the total and when it falls due. Only empty
-   * fields are filled — a percentage already negotiated is never overwritten.
+   * anyway: that part's share of the total — snapped to a round ten — and when
+   * it falls due. Only empty fields are filled — a percentage already
+   * negotiated is never overwritten.
    */
   const chooseTermPart = (term: TermDraft, part: DesignQuotationPart) => {
     const item = items.find((i) => i.part === part);
@@ -344,7 +414,7 @@ function QuotationEditorBase({
       percentage:
         term.percentage.trim() || total <= 0
           ? term.percentage
-          : String(Math.round((price / total) * 1000) / 10),
+          : String(roundPercentOf(price, total)),
       condition:
         term.condition.trim() || t("editor.designTermCondition", { part: partLabel(part) }),
     });
@@ -355,16 +425,17 @@ function QuotationEditorBase({
   const hasEnteredLines =
     items.some((item) => item.name.trim() || item.unitPrice.trim()) || terms.length > 0;
 
+  const constructionPhaseRows = (): ItemDraft[] =>
+    CONSTRUCTION_TEMPLATE_PHASES.map((phase) => ({
+      ...emptyItem("free"),
+      name: t(`editor.template.phases.${phase.key}.name`),
+      description: t(`editor.template.phases.${phase.key}.description`),
+      unit: CONSTRUCTION_TEMPLATE_UNIT,
+      quantity: "1",
+    }));
+
   const applyConstructionTemplate = () => {
-    setItems(
-      CONSTRUCTION_TEMPLATE_PHASES.map((phase) => ({
-        ...emptyItem(),
-        name: t(`editor.template.phases.${phase.key}.name`),
-        description: t(`editor.template.phases.${phase.key}.description`),
-        unit: CONSTRUCTION_TEMPLATE_UNIT,
-        quantity: "1",
-      })),
-    );
+    setItems(constructionPhaseRows());
     setTerms(
       CONSTRUCTION_TEMPLATE_TERMS.map((term) => ({
         ...emptyTerm(),
@@ -375,6 +446,214 @@ function QuotationEditorBase({
     );
     if (!title.trim()) setTitle(t("editor.template.title"));
     if (!durationDays.trim()) setDurationDays(String(CONSTRUCTION_TEMPLATE_DURATION_DAYS));
+  };
+
+  // ── Turnkey (design + construction) template ───────────────────────────────
+  const [turnkeyPickerOpen, setTurnkeyPickerOpen] = React.useState(false);
+  const [turnkeyParts, setTurnkeyParts] =
+    React.useState<readonly DesignQuotationPart[]>(TURNKEY_DEFAULT_PARTS);
+
+  const applyTurnkeyTemplate = (parts: readonly DesignQuotationPart[]) => {
+    // Kept in the order the work is done, whatever order they were ticked in.
+    const chosen = DESIGN_QUOTATION_PARTS.filter((part) => parts.includes(part));
+    setItems([
+      ...chosen.map((part) => ({ ...emptyItem("part"), part })),
+      ...constructionPhaseRows(),
+    ]);
+    setTerms(
+      TURNKEY_TEMPLATE_TERMS.map((term) => ({
+        ...emptyTerm(),
+        name: t(`editor.turnkey.terms.${term.key}.name`),
+        percentage: String(term.percentage),
+        condition: t(`editor.turnkey.terms.${term.key}.condition`),
+      })),
+    );
+    if (!title.trim()) setTitle(t("editor.turnkey.title"));
+    if (!durationDays.trim()) setDurationDays(String(turnkeyTemplateDurationDays(chosen)));
+  };
+
+  const addRow = (kind: ItemKind) => setItems((rows) => [...rows, emptyItem(kind)]);
+  const removeRow = (key: string) => setItems((rows) => rows.filter((r) => r.key !== key));
+
+  /** One design deliverable: which part, and its price. */
+  const renderPartRow = (item: ItemDraft, index: number) => {
+    // A part chosen on another row can't be chosen again.
+    const takenElsewhere = new Set(
+      items.flatMap((other) =>
+        other.key !== item.key && other.part ? [other.part] : [],
+      ),
+    );
+    const unmapped = item.part === null && !isBlankItem(item);
+    return (
+      <div
+        key={item.key}
+        className="flex flex-col gap-2 rounded-lg border border-border/70 p-3"
+      >
+        <div className="flex items-start gap-2">
+          <span className="mt-2 w-5 shrink-0 text-xs text-muted-foreground">
+            {index + 1}.
+          </span>
+          <div className="grid flex-1 gap-2 sm:grid-cols-[1fr_12rem_8rem]">
+            <Select
+              value={item.part ?? ""}
+              onValueChange={(value) =>
+                patchItem(item.key, {
+                  part: value as DesignQuotationPart,
+                  name: "",
+                })
+              }
+            >
+              <SelectTrigger className="w-full" aria-invalid={unmapped}>
+                <SelectValue placeholder={t("editor.designPartPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                {DESIGN_QUOTATION_PARTS.map((part) => (
+                  <SelectItem
+                    key={part}
+                    value={part}
+                    disabled={takenElsewhere.has(part)}
+                  >
+                    {partLabel(part)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              type="number"
+              inputMode="numeric"
+              min="0"
+              step="1000"
+              value={item.unitPrice}
+              placeholder={t("editor.designPartPrice")}
+              aria-label={t("editor.designPartPrice")}
+              onChange={(e) => patchItem(item.key, { unitPrice: e.target.value })}
+            />
+            <p className="self-center text-right text-sm font-medium tabular-nums">
+              {money(Number(item.unitPrice) || 0)}
+            </p>
+          </div>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            aria-label={t("editor.removeItem")}
+            disabled={items.length === 1}
+            onClick={() => removeRow(item.key)}
+          >
+            <Trash2 aria-hidden />
+          </Button>
+        </div>
+        {unmapped ? (
+          <p className="pl-7 text-xs text-destructive">
+            {item.name.trim()
+              ? t("editor.designPartLegacy", { name: item.name.trim() })
+              : t("editor.designPartMissing")}
+          </p>
+        ) : null}
+        <div className="pl-7">
+          <Input
+            value={item.description}
+            placeholder={t("editor.itemDescription")}
+            onChange={(e) => patchItem(item.key, { description: e.target.value })}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  /** A named line priced as unit × quantity × unit price. */
+  const renderFreeRow = (item: ItemDraft, index: number) => {
+    const lineTotal = (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
+    return (
+      <div
+        key={item.key}
+        className="flex flex-col gap-2 rounded-lg border border-border/70 p-3"
+      >
+        <div className="flex items-start gap-2">
+          <span className="mt-2 w-5 shrink-0 text-xs text-muted-foreground">
+            {index + 1}.
+          </span>
+          <Input
+            className="flex-1"
+            value={item.name}
+            placeholder={t("editor.itemName")}
+            onChange={(e) => patchItem(item.key, { name: e.target.value })}
+          />
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            aria-label={t("editor.removeItem")}
+            // Never leave the list empty: an editor with no rows
+            // gives no obvious way back to a valid quotation.
+            disabled={items.length === 1}
+            onClick={() => removeRow(item.key)}
+          >
+            <Trash2 aria-hidden />
+          </Button>
+        </div>
+
+        <div className="grid gap-2 pl-7 sm:grid-cols-4">
+          <Select
+            value={item.unit}
+            onValueChange={(value) => patchItem(item.key, { unit: value })}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t("editor.itemUnit")} />
+            </SelectTrigger>
+            {/* Capped and scrollable: the construction list is 16
+                units, and `SelectContent` otherwise grows to the
+                full height the viewport allows, covering the rest
+                of the row it is being edited in. `popper` anchors
+                the panel under the trigger instead of aligning the
+                selected item over it. */}
+            <SelectContent position="popper" className="max-h-56">
+              {/* A turnkey quotation's free lines are its construction half. */}
+              {quotationUnitOptions(isTurnkey ? "construction" : variant, item.unit).map(
+                (u) => (
+                  <SelectItem key={u} value={u}>
+                    {unitLabel(u)}
+                  </SelectItem>
+                ),
+              )}
+            </SelectContent>
+          </Select>
+          <Input
+            type="number"
+            inputMode="decimal"
+            min="0"
+            step="0.01"
+            value={item.quantity}
+            placeholder={t("editor.itemQuantity")}
+            onChange={(e) => patchItem(item.key, { quantity: e.target.value })}
+          />
+          <Input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            step="1000"
+            value={item.unitPrice}
+            placeholder={t("editor.itemUnitPrice")}
+            onChange={(e) => patchItem(item.key, { unitPrice: e.target.value })}
+          />
+          <p className="self-center text-right text-sm font-medium tabular-nums">
+            {money(lineTotal)}
+          </p>
+        </div>
+
+        {/* The indent is padding on a wrapper, not a margin on the
+            input: `Input` is `w-full`, so `ml-7` made the field a
+            full row wide *plus* the indent and it hung over the
+            right edge of the card. */}
+        <div className="pl-7">
+          <Input
+            value={item.description}
+            placeholder={t("editor.itemDescription")}
+            onChange={(e) => patchItem(item.key, { description: e.target.value })}
+          />
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -489,7 +768,11 @@ function QuotationEditorBase({
               <div>
                 <h3 className="text-sm font-semibold">{t("editor.itemsTitle")}</h3>
                 <p className="text-xs text-muted-foreground">
-                  {designParts ? t("editor.designItemsHint") : t("editor.itemsHint")}
+                  {designParts
+                    ? t("editor.designItemsHint")
+                    : isTurnkey
+                      ? t("editor.turnkey.itemsHint")
+                      : t("editor.itemsHint")}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -509,221 +792,115 @@ function QuotationEditorBase({
                     {t("editor.template.button")}
                   </Button>
                 ) : null}
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  // Four parts, each once: a fifth row could only repeat one.
-                  disabled={designParts && items.length >= DESIGN_QUOTATION_PARTS.length}
-                  onClick={() => setItems((rows) => [...rows, emptyItem()])}
-                >
-                  <Plus aria-hidden />
-                  {t("editor.addItem")}
-                </Button>
+                {isTurnkey ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    title={t("editor.turnkey.hint")}
+                    onClick={() => {
+                      setTurnkeyParts(TURNKEY_DEFAULT_PARTS);
+                      setTurnkeyPickerOpen(true);
+                    }}
+                  >
+                    <LayoutTemplate aria-hidden />
+                    {t("editor.turnkey.button")}
+                  </Button>
+                ) : (
+                  // Turnkey adds rows per half instead, below.
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    // Four parts, each once: a fifth row could only repeat one.
+                    disabled={designParts && items.length >= DESIGN_QUOTATION_PARTS.length}
+                    onClick={() => addRow(designParts ? "part" : "free")}
+                  >
+                    <Plus aria-hidden />
+                    {t("editor.addItem")}
+                  </Button>
+                )}
               </div>
             </div>
 
             {variant === "construction" ? (
               <p className="text-xs text-muted-foreground">{t("editor.template.hint")}</p>
             ) : null}
+            {isTurnkey ? (
+              <p className="text-xs text-muted-foreground">{t("editor.turnkey.hint")}</p>
+            ) : null}
 
-            <div className="flex flex-col gap-3">
-              {designParts
-                ? items.map((item, index) => {
-                    // A part chosen on another row can't be chosen again.
-                    const takenElsewhere = new Set(
-                      items.flatMap((other) =>
-                        other.key !== item.key && other.part ? [other.part] : [],
-                      ),
-                    );
-                    const unmapped = item.part === null && !isBlankItem(item);
-                    return (
-                      <div
-                        key={item.key}
-                        className="flex flex-col gap-2 rounded-lg border border-border/70 p-3"
-                      >
-                        <div className="flex items-start gap-2">
-                          <span className="mt-2 w-5 shrink-0 text-xs text-muted-foreground">
-                            {index + 1}.
-                          </span>
-                          <div className="grid flex-1 gap-2 sm:grid-cols-[1fr_12rem_8rem]">
-                            <Select
-                              value={item.part ?? ""}
-                              onValueChange={(value) =>
-                                patchItem(item.key, {
-                                  part: value as DesignQuotationPart,
-                                  name: "",
-                                })
-                              }
-                            >
-                              <SelectTrigger
-                                className="w-full"
-                                aria-invalid={unmapped}
-                              >
-                                <SelectValue placeholder={t("editor.designPartPlaceholder")} />
-                              </SelectTrigger>
-                              <SelectContent position="popper">
-                                {DESIGN_QUOTATION_PARTS.map((part) => (
-                                  <SelectItem
-                                    key={part}
-                                    value={part}
-                                    disabled={takenElsewhere.has(part)}
-                                  >
-                                    {partLabel(part)}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Input
-                              type="number"
-                              inputMode="numeric"
-                              min="0"
-                              step="1000"
-                              value={item.unitPrice}
-                              placeholder={t("editor.designPartPrice")}
-                              aria-label={t("editor.designPartPrice")}
-                              onChange={(e) =>
-                                patchItem(item.key, { unitPrice: e.target.value })
-                              }
-                            />
-                            <p className="self-center text-right text-sm font-medium tabular-nums">
-                              {money(Number(item.unitPrice) || 0)}
-                            </p>
-                          </div>
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            aria-label={t("editor.removeItem")}
-                            disabled={items.length === 1}
-                            onClick={() =>
-                              setItems((rows) => rows.filter((r) => r.key !== item.key))
-                            }
-                          >
-                            <Trash2 aria-hidden />
-                          </Button>
-                        </div>
-                        {unmapped ? (
-                          <p className="pl-7 text-xs text-destructive">
-                            {item.name.trim()
-                              ? t("editor.designPartLegacy", { name: item.name.trim() })
-                              : t("editor.designPartMissing")}
-                          </p>
-                        ) : null}
-                        <div className="pl-7">
-                          <Input
-                            value={item.description}
-                            placeholder={t("editor.itemDescription")}
-                            onChange={(e) =>
-                              patchItem(item.key, { description: e.target.value })
-                            }
-                          />
-                        </div>
-                      </div>
-                    );
-                  })
-                : items.map((item, index) => {
-                const lineTotal =
-                  (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
-                return (
-                  <div
-                    key={item.key}
-                    className="flex flex-col gap-2 rounded-lg border border-border/70 p-3"
-                  >
-                    <div className="flex items-start gap-2">
-                      <span className="mt-2 w-5 shrink-0 text-xs text-muted-foreground">
-                        {index + 1}.
-                      </span>
-                      <Input
-                        className="flex-1"
-                        value={item.name}
-                        placeholder={t("editor.itemName")}
-                        onChange={(e) => patchItem(item.key, { name: e.target.value })}
-                      />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        aria-label={t("editor.removeItem")}
-                        // Never leave the list empty: an editor with no rows
-                        // gives no obvious way back to a valid quotation.
-                        disabled={items.length === 1}
-                        onClick={() =>
-                          setItems((rows) => rows.filter((r) => r.key !== item.key))
-                        }
-                      >
-                        <Trash2 aria-hidden />
-                      </Button>
-                    </div>
-
-                    <div className="grid gap-2 pl-7 sm:grid-cols-4">
-                      <Select
-                        value={item.unit}
-                        onValueChange={(value) =>
-                          patchItem(item.key, { unit: value })
-                        }
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder={t("editor.itemUnit")} />
-                        </SelectTrigger>
-                        {/* Capped and scrollable: the construction list is 16
-                            units, and `SelectContent` otherwise grows to the
-                            full height the viewport allows, covering the rest
-                            of the row it is being edited in. `popper` anchors
-                            the panel under the trigger instead of aligning the
-                            selected item over it. */}
-                        <SelectContent position="popper" className="max-h-56">
-                          {quotationUnitOptions(variant, item.unit).map((u) => (
-                            <SelectItem key={u} value={u}>
-                              {unitLabel(u)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        type="number"
-                        inputMode="decimal"
-                        min="0"
-                        step="0.01"
-                        value={item.quantity}
-                        placeholder={t("editor.itemQuantity")}
-                        onChange={(e) =>
-                          patchItem(item.key, { quantity: e.target.value })
-                        }
-                      />
-                      <Input
-                        type="number"
-                        inputMode="numeric"
-                        min="0"
-                        step="1000"
-                        value={item.unitPrice}
-                        placeholder={t("editor.itemUnitPrice")}
-                        onChange={(e) =>
-                          patchItem(item.key, { unitPrice: e.target.value })
-                        }
-                      />
-                      <p className="self-center text-right text-sm font-medium tabular-nums">
-                        {money(lineTotal)}
+            {isTurnkey ? (
+              <>
+                {/* Design half: the fixed parts, any 1 to 4, each once. */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-sm font-medium">{t("editor.turnkey.designTitle")}</h4>
+                      <p className="text-xs text-muted-foreground">
+                        {t("editor.turnkey.designHint")}
                       </p>
                     </div>
-
-                    {/* The indent is padding on a wrapper, not a margin on the
-                        input: `Input` is `w-full`, so `ml-7` made the field a
-                        full row wide *plus* the indent and it hung over the
-                        right edge of the card. */}
-                    <div className="pl-7">
-                      <Input
-                        value={item.description}
-                        placeholder={t("editor.itemDescription")}
-                        onChange={(e) =>
-                          patchItem(item.key, { description: e.target.value })
-                        }
-                      />
-                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={partRows.length >= DESIGN_QUOTATION_PARTS.length}
+                      title={
+                        partRows.length >= DESIGN_QUOTATION_PARTS.length
+                          ? t("editor.designPartsAllUsed")
+                          : undefined
+                      }
+                      onClick={() => addRow("part")}
+                    >
+                      <Plus aria-hidden />
+                      {t("editor.turnkey.addDesignPart")}
+                    </Button>
                   </div>
-                );
-              })}
-            </div>
+                  {partRows.map(renderPartRow)}
+                  {/* Not on a blank form — only once the provider has started. */}
+                  {missingTurnkeyPart && hasEnteredLines ? (
+                    <p className="text-xs text-destructive">
+                      {t("editor.turnkey.designRequired")}
+                    </p>
+                  ) : null}
+                </div>
+
+                {/* Construction half: free lines, construction units. */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-sm font-medium">
+                        {t("editor.turnkey.constructionTitle")}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        {t("editor.turnkey.constructionHint")}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => addRow("free")}
+                    >
+                      <Plus aria-hidden />
+                      {t("editor.turnkey.addConstructionLine")}
+                    </Button>
+                  </div>
+                  {freeRows.length === 0 ? (
+                    <p className="rounded-lg border border-dashed border-border/70 px-3 py-4 text-center text-xs text-muted-foreground">
+                      {t("editor.turnkey.noConstructionLines")}
+                    </p>
+                  ) : (
+                    freeRows.map(renderFreeRow)
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {designParts ? items.map(renderPartRow) : items.map(renderFreeRow)}
+              </div>
+            )}
 
             <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
               <span className="text-sm font-medium">{t("editor.total")}</span>
@@ -946,6 +1123,67 @@ function QuotationEditorBase({
             applyConstructionTemplate();
           }}
         />
+
+        {/* Turnkey template: which design parts this job sells (1 to 4),
+            then both halves are laid out at once. */}
+        <AlertDialog open={turnkeyPickerOpen} onOpenChange={setTurnkeyPickerOpen}>
+          <AlertDialogContent className="sm:max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("editor.turnkey.pickerTitle")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("editor.turnkey.pickerBody")}
+                {hasEnteredLines ? ` ${t("editor.turnkey.pickerReplaces")}` : ""}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <fieldset className="flex flex-col gap-2">
+              <legend className="sr-only">{t("editor.turnkey.designTitle")}</legend>
+              {DESIGN_QUOTATION_PARTS.map((part) => {
+                const checked = turnkeyParts.includes(part);
+                return (
+                  <label
+                    key={part}
+                    className="flex cursor-pointer items-center gap-3 rounded-lg border border-border/70 px-3 py-2 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      className="size-4 accent-primary"
+                      checked={checked}
+                      onChange={() =>
+                        setTurnkeyParts((current) =>
+                          checked
+                            ? current.filter((p) => p !== part)
+                            : [...current, part],
+                        )
+                      }
+                    />
+                    {partLabel(part)}
+                  </label>
+                );
+              })}
+              <div className="flex gap-3 text-xs">
+                <button
+                  type="button"
+                  className="text-primary underline-offset-2 hover:underline"
+                  onClick={() => setTurnkeyParts(DESIGN_QUOTATION_PARTS)}
+                >
+                  {t("editor.turnkey.pickAll")}
+                </button>
+              </div>
+              {turnkeyParts.length === 0 ? (
+                <p className="text-xs text-destructive">{t("editor.turnkey.pickAtLeastOne")}</p>
+              ) : null}
+            </fieldset>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("dialog.cancel")}</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={turnkeyParts.length === 0}
+                onClick={() => applyTurnkeyTemplate(turnkeyParts)}
+              >
+                {t("editor.turnkey.apply", { count: turnkeyParts.length })}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );
