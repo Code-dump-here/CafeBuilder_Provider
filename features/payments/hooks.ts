@@ -97,7 +97,6 @@ export function useCreateSubscriptionMutation() {
   >({
     mutationFn: (payload) => createSubscriptionApi(payload),
     onSuccess: async () => {
-      queryClient.removeQueries({ queryKey: queryKeys.auth.me() });
       await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
     },
   });

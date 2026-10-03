@@ -28,14 +28,17 @@ export function useCreateServiceProviderProfileMutation() {
   return useMutation<ServiceProviderProfileCreated, Error, CreateServiceProviderProfilePayload>({
     mutationFn: (payload) => createServiceProviderProfileApi(payload),
     onSuccess: async () => {
-      // Drop the cached "me" data so any in-flight `useMe` re-fetches
-      // and sees the new profile. We `await` the refetch so the caller
-      // can rely on `useCurrentUser().account.serviceProvider` being
-      // populated by the time the mutation promise resolves — otherwise
-      // the post-onboarding redirect races the refetch and `ProfileGuard`
-      // sees the stale (pre-profile) account and bounces the user back
-      // to `/onboarding`.
-      queryClient.removeQueries({ queryKey: queryKeys.auth.me() });
+      // Refetch "me" so the caller can rely on
+      // `useCurrentUser().account.serviceProvider` being populated by the time
+      // this promise resolves. Otherwise the post-onboarding redirect races the
+      // refetch, `ProfileGuard` sees the stale (pre-profile) account and bounces
+      // the user back to `/onboarding` — where the form remounts at step 1, the
+      // Verify Email screen.
+      //
+      // This previously called `removeQueries` first. That deleted the query,
+      // and `refetchQueries` only refetches queries that still exist, so the
+      // awaited refetch was a no-op that resolved instantly without fetching —
+      // causing the exact bounce the comment said it was preventing.
       await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
     },
   });
@@ -69,7 +72,6 @@ export function useUpdateServiceProviderProfileMutation() {
       queryClient.removeQueries({
         queryKey: queryKeys.serviceProviderProfiles.detail(variables.id),
       });
-      queryClient.removeQueries({ queryKey: queryKeys.auth.me() });
       await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
     },
   });
